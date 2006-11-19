@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+<link type="text/css" rel="stylesheet" href="{style}" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{rss}" />
+<meta http-equiv="content-type" content="text/html; charset={charset}" />
+<meta name="generator" content="BlogoText {version}" /> 
+<meta name="robots" content="all" />
+<meta name="author" content="{blog_auteur}" />
+<meta name="description" content="{article_chapo}" />
+<meta name="keywords" content="{article_motscles}" />
+<title>{blog_nom} : {article_titre}</title>
+</head>
+
+<body>
+<div id="page">
+
+<div id="top">
+<h1><a href="{racine_du_site}">{blog_nom}</a></h1>
+<h2>{blog_description}</h2>
+</div>
+
+<div id="post">
+
+	<h1>{article_titre}</h1>
+	<h4 class="date">{article_date} à {article_heure}</h4>
+
+	<p class="chapo">{article_chapo}</p>
+
+	<div class="contenu">
+	{article_contenu}
+	</div>
+
+<h2>{nombre_commentaires}</h2>
+
+	{BOUCLE_commentaire}
+	<div class="comment">
+		<h3>{commentaire_auteur} - {commentaire_date} à {commentaire_heure}</h3>
+		<p>{commentaire_contenu}</p>
+	</div>
+	{/BOUCLE_commentaire}
+
+	<div id="postcom">
+	{formulaire_commentaire}
+	</div>
+
+</div>
+
+</div>
+<p id="footer">Publié avec <a href="http://www.blogotext.com">BlogoText</a></p>
+</div>
+</body>
+</html>

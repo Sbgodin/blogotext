@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+<link type="text/css" rel="stylesheet" href="{style}" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{rss}" />
+<meta http-equiv="content-type" content="text/html; charset={charset}" />
+<meta name="generator" content="BlogoText {version}" />
+<meta name="robots" content="all" />
+<meta name="author" content="{blog_auteur}" />
+<meta name="description" content="{blog_description}" />
+<meta name="keywords" content="{description}" />
+<title>{blog_nom}</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="top">
+<h1><a href="{racine_du_site}">{blog_nom}</a></h1>
+<h2>{blog_description}</h2>
+</div>
+
+<div id="contenu">
+
+<div id="sidebar">
+<h3>Rechercher</h3>
+{search}
+<h3>Calendrier</h3>
+{calendrier}
+
+</div>
+
+	<div id="main">
+
+		{BOUCLE_article}
+		
+			<div class="news">
+				<h3><a href="{article_lien}">{article_titre}</a></h3>
+				<p class="date">{article_date} à {article_heure} - <a href="{article_lien}">{nombre_commentaires}</a></p>
+				<p class="chapo">{article_chapo}</p>
+				{article_contenu}
+			</div>
+			
+		{/BOUCLE_article}
+		
+	</div>
+
+	
+</div>
+
+</div>
+<p id="footer">Publié avec <a href="http://www.blogotext.com">BlogoText</a></p>
+</body>
+</html>

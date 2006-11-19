@@ -1,0 +1,198 @@
+<?php
+// GENERAL
+$GLOBALS['nom_application']= 'BlogoText';
+$GLOBALS['charset']= 'UTF-8';
+$GLOBALS['version']= '0.9.3';
+$GLOBALS['syntax_version']= '1';
+$GLOBALS['appsite']= 'http://www.blogotext.com/';
+$GLOBALS['ext_data']= 'txt';
+$GLOBALS['dossier_admin']= 'admin';
+// FOLDERS
+$GLOBALS['dossier_data_articles']= '../articles';
+$GLOBALS['dossier_articles']= 'articles';
+$GLOBALS['dossier_data_commentaires']= '../commentaires';
+$GLOBALS['dossier_commentaires']= 'commentaires';
+$GLOBALS['dossier_images']= '../img';
+$GLOBALS['dossier_vignettes']= 'thb';
+$GLOBALS['salt']= '123456';
+
+// CAPTCHA
+$GLOBALS['captcha'] = array (
+	'x' => substr(strlen($_SERVER['QUERY_STRING']), '1', '1'),
+	'y' => substr(strlen($_SERVER['REQUEST_URI']), '1', '1'),
+);
+
+// THEMES
+$GLOBALS['dossier_themes']= 'themes';
+if ( isset($GLOBALS['theme_choisi']) ) {
+$GLOBALS['theme_style']= $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/style.css';												
+$GLOBALS['theme_article']= $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';										
+$GLOBALS['theme_liste']= $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
+$GLOBALS['rss']= $GLOBALS['racine'].'rss.php';
+}
+
+// PATCH 0.9.2
+if (isset($GLOBALS['nb_list'])) {
+	$GLOBALS['nb_list'] = $GLOBALS['nb_list'];
+} else {
+	$GLOBALS['nb_list'] = '25';
+}
+
+// TEMPLATE VARS
+$GLOBALS['boucles'] = array(
+	'articles' => array('BOUCLE_article', 'BOUCLE_articles', 'LOOP_post'),
+	'commentaires' => array('BOUCLE_commentaire', 'BOUCLE_commentaires', 'LOOP_comments')
+);
+$GLOBALS['balises']= array(
+	'charset' => array('{charset}'),
+	'version' => array('{version}'),
+// Blog
+	'blog_nom' => array('{nom_du_blog}','{blog_nom}','{blog_name}'),
+	'blog_description' => array('{blog_description}','{description}'),
+	'blog_auteur' => array('{blog_auteur}','{blog_author}'),
+	'blog_email'=> array('{blog_email}'),
+// Formulaires
+	'form_recherche' => array('{recherche}', '{search}'),
+	'form_calendrier' => array('{calendrier}', '{calendar}'),
+	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
+// Article
+	'article_titre' => array('{article_titre}','{article_title}'),
+	'article_chapo' => array('{article_chapo}','{article_abstract}'),
+	'article_contenu' => array('{article_contenu}','{article_content}'),
+	'article_heure'=> array('{article_heure}','{article_time}'),
+	'article_date'=> array('{article_date}','{article_date}'),
+	'article_motscles'=> array('{article_motscles}','{article_keywords}'),
+	'article_lien'=> array('{article_lien}','{article_link}'),
+	'nb_commentaires'=> array('{nombre_commentaires}','{comments_number}'),
+// Commentaire
+	'commentaire_auteur' => array('{commentaire_auteur}','{comment_author}'),
+	'commentaire_contenu' => array('{commentaire_contenu}','{comment_content}'),
+	'commentaire_heure'=> array('{commentaire_heure}','{comment_time}'),
+	'commentaire_date'=> array('{commentaire_date}','{comment_date}'),
+	'commentaire_email'=> array('{commentaire_email}','{comment_email}')
+);
+
+// SYNTAX FOR DATA STORAGE
+$GLOBALS['data_syntax'] = array(
+	// GENERAL
+	'bt_version' => array('version', 'bt_version'),
+	// POST
+	'article_id' => array('id', 'bt_id'),
+	'article_title' => array('titre', 'bt_title'),
+	'article_abstract' => array('chapo', 'bt_abstract'),
+	'article_content' => array('contenu', 'bt_content'),
+	'article_wiki_content' => array('contenu_wiki', 'bt_wiki_content'),
+	'article_keywords' => array('motscles', 'bt_keywords'),
+	'article_status' => array('statut', 'bt_status'),
+	'article_allow_comments' => array('commentaires', 'bt_allow_comments'),
+	// COMMENTS
+	'comment_id' => array('id', 'bt_id'),
+	'comment_article_id' => array('article_id', 'bt_article_id'),
+	'comment_status' => array('statut', 'bt_status'),
+	'comment_content' => array('commentaire', 'bt_content'),
+	'comment_author' => array('auteur', 'bt_author'),
+	'comment_email' => array('email', 'bt_email'),
+);
+
+// POST SYNTAX
+function init_billet($mode, $id) {
+	$dec = decode_id($id);
+if ($mode == 'public') {
+		$art_directory = $GLOBALS['dossier_articles'];
+		$com_directory = $GLOBALS['dossier_commentaires'];
+} elseif ($mode == 'admin') {
+		$art_directory = $GLOBALS['dossier_data_articles'];
+		$com_directory = $GLOBALS['dossier_data_commentaires'];
+}
+	$file = $art_directory.'/'.get_path($id);
+		$billet['version'] = parse_xml($file, 'bt_version');
+		$billet['id'] = $id;
+		
+// GET VERSION
+$syntax_version = get_version($file);
+		$billet['statut'] = parse_xml($file, $GLOBALS['data_syntax']['article_status'][$syntax_version]);
+		$billet['titre'] = parse_xml($file, $GLOBALS['data_syntax']['article_title'][$syntax_version]);
+		$billet['chapo'] = parse_xml($file, $GLOBALS['data_syntax']['article_abstract'][$syntax_version]);
+		$billet['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['article_content'][$syntax_version]);
+		$billet['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['article_wiki_content'][$syntax_version]);
+		$billet['mots_cles'] = parse_xml($file, $GLOBALS['data_syntax']['article_keywords'][$syntax_version]);
+		$billet['annee'] = $dec['annee'];
+		$billet['mois'] = $dec['mois'];
+		$billet['mois_en_lettres'] = mois_en_lettres($dec['mois']);
+		$billet['jour'] = $dec['jour'];
+		$billet['heure'] = $dec['heure'];
+		$billet['minutes'] = $dec['minutes'];
+		$billet['secondes'] = $dec['secondes'];
+		$billet['lien'] = $_SERVER['PHP_SELF'].'?'.$dec['annee'].'/'.$dec['mois'].'/'.$dec['jour'].'/'.$dec['heure'].'/'.$dec['minutes'].'/'.$dec['secondes'].'-'.titre_url($billet['titre']);
+		$billet['nb_comments'] = count(liste_commentaires($com_directory, $id));
+		if ($billet['version'] == '') {
+			$billet['allow_comments'] = '1';
+		} else {
+			$billet['allow_comments'] = parse_xml($file, $GLOBALS['data_syntax']['article_allow_comments'][$syntax_version]);
+		}
+	return $billet;
+}
+
+// COMMENT SYNTAX
+function init_comment($mode, $id) {
+	$dec = decode_id($id);
+if ($mode == 'public') {
+		$com_directory = $GLOBALS['dossier_commentaires'];
+} elseif ($mode == 'admin') {
+		$com_directory = $GLOBALS['dossier_data_commentaires'];
+}
+$file = $com_directory.'/'.get_path($id);
+$comment['version'] = parse_xml($file, 'bt_version');
+$syntax_version = get_version($file);
+		$comment['id'] = $id;
+		$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]);
+		$comment['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version'][$syntax_version]);
+		$comment['auteur'] = parse_xml($file, $GLOBALS['data_syntax']['comment_author'][$syntax_version]);
+		$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email'][$syntax_version]);
+		$comment['contenu'] = nl2br(parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]));
+		$comment['annee'] = $dec['annee'];
+		$comment['mois'] = $dec['mois'];
+		$comment['mois_en_lettres'] = mois_en_lettres($dec['mois']);
+		$comment['jour'] = $dec['jour'];
+		$comment['heure'] = $dec['heure'];
+		$comment['minutes'] = $dec['minutes'];
+		$comment['secondes'] = $dec['secondes'];
+	return $comment;
+}
+
+// POST ARTICLE
+function init_post_article($id='') {
+$billet = array();
+if (isset($_POST['_verif_envoi'])) {
+	$billet= array (
+		$GLOBALS['data_syntax']['bt_version'][$GLOBALS['syntax_version']] => $GLOBALS['version'],
+		$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
+   	$GLOBALS['data_syntax']['article_title'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
+   	$GLOBALS['data_syntax']['article_abstract'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
+   	$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']] => formatage_wiki(protect_markup($_POST['contenu'])),
+   	$GLOBALS['data_syntax']['article_wiki_content'][$GLOBALS['syntax_version']] => stripslashes(protect_markup($_POST['contenu'])),
+  	$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
+	  $GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => $_POST['statut'],
+	  $GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => $_POST['allowcomment']
+	  );
+	}
+return $billet;
+}
+
+
+// POST COMMENT
+function init_post_comment($id) {
+$comment= array();
+	if ( (isset($id)) AND (isset($_POST['_verif_envoi'])) ) {
+		$comment=array (
+			$GLOBALS['data_syntax']['bt_version'][$GLOBALS['syntax_version']] => $GLOBALS['version'],
+			$GLOBALS['data_syntax']['comment_id'][$GLOBALS['syntax_version']] => date('Y').date('m').date('d').date('H').date('i').date('s'),
+			$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']] => $id,
+			$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(($_POST['commentaire']))),
+			$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes($_POST['auteur'])),
+			$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(($_POST['email'])))
+			);
+	}
+return $comment;
+}
+?>
