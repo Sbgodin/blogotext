@@ -151,6 +151,10 @@ p {
 	background: #fff url("report_magnify.gif") no-repeat center 5px;
 }
 
+#lien-lscom {
+	background: #fff url("comments.gif") no-repeat center 5px;
+}
+
 #lien-liste {
 	background: #fff url("page_copy.gif") no-repeat center 5px;
 }
@@ -161,6 +165,10 @@ p {
 
 #lien-preferences {
 	background: #fff url("cog.gif") no-repeat center 5px;
+}
+
+#lien-image {
+	background: #fff url("images.gif") no-repeat center 5px;
 }
 
 /* SUBNAV */
@@ -265,6 +273,9 @@ p {
 	background: #edf3fe url("comment.gif") no-repeat 5px 5px;
 	border-bottom: 1px solid #ccc;
 }
+.commentbloc .admin, .commentbloc a .admin  {
+	color: #f53151;
+}
 
 .commentbloc h3 {
 	display: inline;
@@ -281,6 +292,20 @@ p {
 	display: inline;
 	margin-right: 15px;
 }
+
+.commentbloc .lien_article_de_com {
+	display: inline;
+	float: right;
+	margin-right: 3%;
+}
+
+#erreurs, .erreurs {
+	display: block;
+	clear: both;
+	color: #D40000;
+	margin: 0 0 15px 0;
+}
+
 
 .titre-commentaire {
 	font-size: 16px;
@@ -318,14 +343,20 @@ p {
 	color: #D40000;
 	margin: 0 0 15px 0;
 }
+#succes, .succes {
+	display: block;
+	clear: both;
+	color: #00A400;
+	margin: 0 0 15px 0;
+}
 
-#erreurs ul {
+#erreurs ul, #succes ul {
 	list-style-type: square;
 	padding-left: 20px;
 	margin-top: 10px;
 }
 
-#erreurs li {
+#erreurs li, #succes li {
 	margin: 0;
 }
 
@@ -365,11 +396,15 @@ fieldset label {
 	margin: 0 15px 0 0;
 	padding: 3px;
 	text-align: right;
+	vertical-align: middle;
+	line-height: 1em;
 }
 
 fieldset input, fieldset textarea {
 	display: inline;
 	padding: 2px;
+	vertical-align: middle;
+	line-height: 1em;
 }
 
 .legend-user{
@@ -390,6 +425,10 @@ fieldset input, fieldset textarea {
 
 .legend-config{
 	background: url("bullet_wrench.gif") no-repeat 5px;
+}
+
+.legend-image{
+	background: url("image.gif") no-repeat 5px;
 }
 
 
@@ -723,7 +762,6 @@ input.inline {
 	border-bottom: none;
 }
 
-
 #form-filtre {
 	margin-bottom: 15px;
 }
@@ -753,3 +791,4 @@ input.inline {
 #footer a:hover {
 	color : #333;
 }
+

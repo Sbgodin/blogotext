@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -25,22 +26,32 @@ if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/
 
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 		$erreurs = array();
-	   if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]]))) {
-	    	$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
-	    }
-	   if ( (! preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i', trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]])))
-	   OR (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]))) ) {
-    	$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
-	    }
-	   if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]]))) {
-	    $erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
-	    }
-	   if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]))
-	   OR !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
-	    $erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
-	    }
-	   if ( $captcha != $valid_captcha ) {
-	    $erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
+		if (isset($_GET['post_id'])) {
+			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]])))  {
+		   		$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
+			}
+		}
+
+		if (!isset($_GET['post_id'])) {
+			if ((!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]])))
+			or $commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]] == $GLOBALS['auteur'])   {
+		   		$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
+			}
+		}
+
+		if ( (! preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i', trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]])))
+			OR (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]))) ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
+		}
+		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]]))) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
+		}
+		if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]))
+			OR !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
+		}
+		if ( $captcha != $valid_captcha ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
 	    }
     return $erreurs;
 }
@@ -89,7 +100,7 @@ function valider_form_preferences() {
 	   	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] AND (!strlen($_POST['ancien-mdp'])) ) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	    }
-	    if ( (strlen(trim($_POST['ancien-mdp']))) AND (crypt($_POST['ancien-mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
+	    if ( (strlen(trim($_POST['ancien-mdp']))) AND (ww_hach_sha($_POST['ancien-mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
     	$erreurs[] = $GLOBALS['lang']['err_prefs_oldmdp'];
 	    }
 	    if ( (strlen($_POST['ancien-mdp'])) AND (strlen($_POST['nouveau-mdp']) < '6') ) {

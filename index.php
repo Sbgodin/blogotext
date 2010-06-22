@@ -2,11 +2,32 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
-//error_reporting(E_ALL);
+
+if (isset($_GET['n'])) {
+		$arguments = $_SERVER['QUERY_STRING'];
+		$ntab = explode('&',$arguments);
+		$page = $ntab['0'];
+
+		header('Location: '.'index.php?'.$page);
+	}
+
+if (isset($_POST['auteur'])) {
+	setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true);
+}
+if (isset($_POST['email'])) {
+	setcookie('email_c', $_POST['email'], time() + 365*24*3600, null, null, false, true);
+}
+if (isset($_POST['webpage'])) {
+	setcookie('webpage_c', $_POST['webpage'], time() + 365*24*3600, null, null, false, true);
+}
+
+
+
 if ( !file_exists('config/user.php') || !file_exists('config/prefs.php') ) {
 	header('Location: admin/install.php');
 }

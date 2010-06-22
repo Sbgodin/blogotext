@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -32,13 +33,10 @@ afficher_top($titre_page);
 afficher_msg();
 print '<div id="top">';
 print '<ul id="nav">';
-lien_nav('index.php', 'lien-liste', $GLOBALS['lang']['mesarticles']);
-lien_nav('ecrire.php', 'lien-nouveau', $GLOBALS['lang']['nouveau']);
-lien_nav('preferences.php', 'lien-preferences', $GLOBALS['lang']['preferences'], 'true');
-lien_nav($GLOBALS['racine'], 'lien-site', $GLOBALS['lang']['lien_blog']);
-lien_nav('logout.php', 'lien-deconnexion', $GLOBALS['lang']['deconnexion']);
-print '</ul>';
 
+afficher_menu('preferences.php');
+
+print '</ul>';
 print '</div>';
 
 print '<div id="axe">'."\n";
@@ -84,8 +82,13 @@ legend($GLOBALS['lang']['prefs_legend_config'], 'legend-config');
 form_langue($GLOBALS['lang']['id']);
 $nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300');
 form_select('nb_list', $nbs, $GLOBALS['nb_list'],$GLOBALS['lang']['pref_nb_list']);
+form_select('nb_list_com', $nbs, $GLOBALS['nb_list_com'],$GLOBALS['lang']['pref_nb_list_com']);
 select_yes_no('apercu', $GLOBALS['activer_apercu'], $GLOBALS['lang']['pref_apercu'] );
 form_text('racine', $GLOBALS['racine'], $GLOBALS['lang']['pref_racine']);
+
+form_check('onglet_commentaires', $GLOBALS['onglet_commentaires'], $GLOBALS['lang']['pref_aff_onglet_comm']);
+form_check('onglet_images', $GLOBALS['onglet_images'], $GLOBALS['lang']['pref_aff_onglet_images']);
+
 print '</fieldset>';
 
 print '<div id="bt">';

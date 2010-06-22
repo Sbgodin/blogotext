@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -44,48 +45,82 @@ return $result;
 function formatage_wiki($texte) {
 $texte = preg_replace("/(\r\n|\r\n\r|\n|\r)/", "\r", "\r".$texte."\r"); 
 $tofind= array(
-	'`<(.*?)>\r+`',																	// html
-	'`@@(.*?)@@`',																	// code
-	'`\r!!!!!(.*?)\r+`',														// h5
-	'`\r!!!!(.*?)\r+`',															// h4
-	'`\r!!!(.*?)\r+`',															// h3
-	'`\r!!(.*?)\r+`',																// h2
-	'`\r!(.*?)\r+`',																// h1
-	'`\(\((.*?)\|(.*?)\)\)`',												// img
-	'`\[\(\(([^[]+)\|([^[]+)\)\)\|([^[]+)\]`',			// img + a href
-	'`(.*?)\r+`',																		// p
-	'`\[([^[]+)\|([^[]+)\]`',												// a href
-	'`\[(http://)([^[]+)\]`',												// url
-	'`\_\_(.*?)\_\_`',															// strong
-	'`{(.*?)}`',																		// italic
-	'`--(.*?)--`',																	// del
-	'`\+\+(.*?)\+\+`',															// ins
-	'`%%`',																					// br
-	'`<p></p>`'																			// vide
+	'`<(.*?)>\r+`',											// html
+	'`@@(.*?)@@`',											// code
+	'`\r!!!!!(.*?)\r+`',									// h5
+	'`\r!!!!(.*?)\r+`',										// h4
+	'`\r!!!(.*?)\r+`',										// h3
+	'`\r!!(.*?)\r+`',										// h2
+	'`\r!(.*?)\r+`',										// h1
+	'`\(\((.*?)\|(.*?)\)\)`',								// img
+	'`\[\(\(([^[]+)\|([^[]+)\)\)\|([^[]+)\]`',				// img + a href
+	'`(.*?)\r+`',											// p
+	'`\[([^[]+)\|([^[]+)\]`',								// a href
+	'`\[(http://)([^[]+)\]`',								// url
+	'`\_\_(.*?)\_\_`',										// strong
+	'`##(.*?)##`',											// italic
+	'`--(.*?)--`',											// del
+	'`\+\+(.*?)\+\+`',										// ins
+	'`%%`',													// br
+	'`<p></p>`'												// vide
 );
 $toreplace= array(
-	'<$1>'."\n",																		// html
-	'<code><pre>$1</pre></code>',										// code
-	'<h5>$1</h5>'."\n",															// h5
-	'<h4>$1</h4>'."\n",															// h4
-	'<h3>$1</h3>'."\n",															// h3
-	'<h2>$1</h2>'."\n",															// h2
-	'<h1>$1</h1>'."\n",															// h1
-	'<img src="$1" alt="$2" />',										// img
-	'<a href="$3"><img src="$1" alt="$2" /></a>',		// img + a href
-	'<p>$1</p>'."\n",																// p
-	'<a href="$2">$1</a>',													// a href
-	'<a href="$1$2">$2</a>',												// url
-	'<strong>$1</strong>',													// strong
-	'<em>$1</em>',																	// italic
-	'<del>$1</del>',																// del
-	'<ins>$1</ins>',																// ins
-	'<br />',																				// br
-	''																							// vide
+	'<$1>'."\n",											// html
+	'<code><pre>$1</pre></code>',							// code
+	'<h5>$1</h5>'."\n",										// h5
+	'<h4>$1</h4>'."\n",										// h4
+	'<h3>$1</h3>'."\n",										// h3
+	'<h2>$1</h2>'."\n",										// h2
+	'<h1>$1</h1>'."\n",										// h1
+	'<img src="$1" alt="$2" />',							// img
+	'<a href="$3"><img src="$1" alt="$2" /></a>',			// img + a href
+	'<p>$1</p>'."\n",										// p
+	'<a href="$2">$1</a>',									// a href
+	'<a href="$1$2">$2</a>',								// url
+	'<strong>$1</strong>',									// strong
+	'<em>$1</em>',											// italic
+	'<del>$1</del>',										// del
+	'<ins>$1</ins>',										// ins
+	'<br />',												// br
+	''														// vide
 );
 $texte_formate = stripslashes(preg_replace($tofind, $toreplace, $texte));
 return $texte_formate;
 }
+
+function formatage_commentaires($texte) {
+$tofind= array(
+	'`\[quote\](.+?)\[/quote\]`s',			// citation
+	'` »`',											// close quote
+	'`« `', 											// open quote
+	'` !`',											// !
+	'` :`',											// :
+	'`[^\||\[]((https?|ftps?)://(www\.)?([a-z0-9._-]){2,64}\.[a-z]{2,4}/[\w/\?,;&\#\.:=%-]*)`i', // url regex
+	'`\[([^[]+)\|([^[]+)\]`',						// a href
+	'`\_\_(.*?)\_\_`',								// strong
+	'`##(.*?)##`',										// italic
+	'`--(.*?)--`',										// strike
+	'`\+\+(.*?)\+\+`',								// ins
+);
+$toreplace= array(
+	'<q>$1</q>',																// citation
+	'&nbsp;»',																	// close quote
+	'«&nbsp;',																	// open quote
+	'&nbsp;!',																	// !
+	'&nbsp;:',																	// :
+	'<a href="$1">$1</a>',														// url
+	'<a href="$2">$1</a>',														// a href
+	'<span style="font-weight: bold;">$1</span>',						// strong
+	'<span style="font-style: italic;">$1</span>',						// italic
+	'<span style="text-decoration: line-through;">$1</span>',		// barre
+	'<span style="text-decoration: underline;">$1</span>',			// souligne
+);
+	$texte = "\n".nl2br($texte);
+	$texte = stripslashes(preg_replace($tofind, $toreplace, $texte));
+	$texte = '<p>'.$texte.'</p>';
+return $texte;
+}
+
 
 function date_formate($id) {
 	$retour ='';

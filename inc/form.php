@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -24,9 +25,9 @@ function afficher_form_recherche($mots_saisis='') {
 
 /// formulaires GENERAUX //////////
 
-function lien_nav($url, $id, $label, $current='') {
+function lien_nav($url, $id, $label, $active) {
 	print '<li><a href="'.$url.'" id="'.$id.'" ';
-	if ($current) {
+	if ($active == $url) {
 	print 'class="current"';
 	}
 	print '>'.$label.'</a></li>'."\n";

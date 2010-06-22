@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -118,8 +119,11 @@ hidden_input('nomsite', '');
 hidden_input('description', '');
 hidden_input('nb_maxi', '10');
 hidden_input('nb_list', '25');
+hidden_input('nb_list_com', '50');
 hidden_input('format_date', '0');
 hidden_input('format_heure', '0');
+hidden_input('onglet_commentaires', 'on');
+hidden_input('onglet_images', 'on');
 hidden_input('verif_envoi_3', '1');
 hidden_input('apercu', '1');
 hidden_input('theme', 'defaut');

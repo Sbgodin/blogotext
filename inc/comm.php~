@@ -2,7 +2,6 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
-#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -24,21 +23,31 @@ function liste_commentaires($dossier, $article_id) {
 		return $retour;
 	}
 }
-
 function en_lettres($captchavalue) {
 
 	switch($captchavalue) {
-		case '0': $lettres = $GLOBALS['lang']['0']; break;
-		case '1': $lettres = $GLOBALS['lang']['1']; break;
-		case '2': $lettres = $GLOBALS['lang']['2']; break;
-		case '3': $lettres = $GLOBALS['lang']['3']; break;
-		case '4': $lettres = $GLOBALS['lang']['4']; break;
-		case '5': $lettres = $GLOBALS['lang']['5']; break;
-		case '6': $lettres = $GLOBALS['lang']['6']; break;
-		case '7': $lettres = $GLOBALS['lang']['7']; break;
-		case '8': $lettres = $GLOBALS['lang']['8']; break;
-		case '9': $lettres = $GLOBALS['lang']['9']; break;
-		default: $lettres = ""; break;
+		case '0':
+			$lettres = "zero"; break;
+		case '1':
+			$lettres = "un"; break;
+		case '2':
+			$lettres = "deux"; break;
+		case '3':
+			$lettres = "trois"; break;
+		case '4':
+			$lettres = "quatre"; break;
+		case '5':
+			$lettres = "cinq"; break;
+		case '6':
+			$lettres = "six"; break;
+		case '7':
+			$lettres = "sept"; break;
+		case '8':
+			$lettres = "huit"; break;
+		case '9':
+			$lettres = "neuf"; break;
+		default:
+			$lettres = ""; break;
 	}
 return $lettres;
 }
@@ -48,9 +57,6 @@ function afficher_commentaire($comment) {
 		print '<div class="commentbloc" >'."\n";
 		print '<h3 class="titre-commentaire">'.$comment['auteur'].'</h3>'."\n";
 		print '<p class="email"><a href="mailto:'.$comment['email'].'">'.$comment['email'].'</a></p>'."\n";
-		if ($with_link == 1) {
-			print '<p class="lien_article_de_com"><a href="commentaires.php?post_id='.$comment['article_id'].'">'.get_titre($comment['article_id']).'</a></p>'."\n";
-		}
 		print '<p class="date">'.date_formate($comment['id']).', '.heure_formate($comment['id']).'</p>';
 	print '<p>'.$comment['contenu'].'</p>';
 	print '<p class="suppr-commentaire"><a href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&del='.$comment['id'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\')" />'.$GLOBALS['lang']['supprimer'].'</a></p>'."\n";
@@ -97,28 +103,10 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 			);
 	} else {
-		if (isset($_COOKIE['auteur_c'])) {
-			$auteur_c = htmlspecialchars($_COOKIE['auteur_c']);
-			}
-		else {
-			$auteur_c = "";
-			}
-		if (isset($_COOKIE['email_c'])) {
-			$email_c = htmlspecialchars($_COOKIE['email_c']);
-			}
-		else {
-			$email_c = "";
-			}
-		if (isset($_COOKIE['webpage_c'])) {
-			$webpage_c = htmlspecialchars($_COOKIE['webpage_c']);
-			}
-		else {
-			$webpage_c = "";
-			}
 		$defaut = array(
-			'auteur' => "$auteur_c",
-			'email' => $email_c,
-			'webpage' => $webpage_c,
+			'auteur' => '',
+			'email' => '',
+			'webpage' => '',
 			'commentaire' => '',
 			'captcha' => '',
 			);
@@ -146,7 +134,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			$GLOBALS['form_commentaire'] .= '<input type="hidden" id="captcha" name="captcha" value="'.$defaut['captcha'].'" />'."\n";
 	} else {
 		$GLOBALS['form_commentaire'] .= '<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres($GLOBALS['captcha']['x']).'</b> + <b>'.en_lettres($GLOBALS['captcha']['y']).'</b> ?</label>'."\n";
-		$GLOBALS['form_commentaire'] .= '<input type="text" id="captcha" name="captcha" value="'.$defaut['captcha'].'" size="25" /><br/>'."\n";
+		$GLOBALS['form_commentaire'] .= '<input type="text" id="captcha" name="captcha" value="'.$defaut['captcha'].'" size="25" />'."\n";
 	}
 		$GLOBALS['form_commentaire'] .= '<input class="submit" accesskey="s" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";
 		$GLOBALS['form_commentaire'] .= '</form>';

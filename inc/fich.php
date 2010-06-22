@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -227,7 +228,7 @@ function fichier_user() {
 	if (!strlen(trim($_POST['nouveau-mdp']))) {
 	$new_mdp = $GLOBALS['mdp']; 
 } else {
-	$new_mdp = crypt($_POST['nouveau-mdp'], $GLOBALS['salt']);
+	$new_mdp = ww_hach_sha($_POST['nouveau-mdp'], $GLOBALS['salt']);
 }
 		$user .= "<?php\n";
 		$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";												\n";
@@ -247,17 +248,20 @@ function fichier_user() {
 function fichier_prefs() {
 		$prefs='';
 		$prefs .= "<?php\n";
-		$prefs .= "\$GLOBALS['auteur'] = '".clean_txt($_POST['auteur'])."';								\n";	
-		$prefs .= "\$GLOBALS['email'] = '".clean_txt($_POST['email'])."';									\n";
-		$prefs .= "\$GLOBALS['nom_du_site'] = '".clean_txt($_POST['nomsite'])."';					\n";
-		$prefs .= "\$GLOBALS['description'] = '".clean_txt($_POST['description'])."';			\n";
-		$prefs .= "\$GLOBALS['racine'] = '".trim($_POST['racine'])."';										\n";
-		$prefs .= "\$GLOBALS['nb_maxi'] = '".$_POST['nb_maxi']."';												\n";
-		$prefs .= "\$GLOBALS['nb_list'] = '".$_POST['nb_list']."';												\n";
-		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';								\n";
-		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';							\n";
-		$prefs .= "\$GLOBALS['activer_apercu']= '".$_POST['apercu']."';										\n";
-		$prefs .= "\$GLOBALS['theme_choisi']= '".$_POST['theme']."';											\n";	
+		$prefs .= "\$GLOBALS['auteur'] = '".clean_txt($_POST['auteur'])."';					\n";	
+		$prefs .= "\$GLOBALS['email'] = '".clean_txt($_POST['email'])."';						\n";
+		$prefs .= "\$GLOBALS['nom_du_site'] = '".clean_txt($_POST['nomsite'])."';			\n";
+		$prefs .= "\$GLOBALS['description'] = '".clean_txt($_POST['description'])."';		\n";
+		$prefs .= "\$GLOBALS['racine'] = '".trim($_POST['racine'])."';							\n";
+		$prefs .= "\$GLOBALS['nb_maxi'] = '".$_POST['nb_maxi']."';								\n";
+		$prefs .= "\$GLOBALS['nb_list'] = '".$_POST['nb_list']."';								\n";
+		$prefs .= "\$GLOBALS['nb_list_com'] = '".$_POST['nb_list_com']."';					\n";
+		$prefs .= "\$GLOBALS['onglet_commentaires'] = '".$_POST['onglet_commentaires']."';	\n";
+		$prefs .= "\$GLOBALS['onglet_images'] = '".$_POST['onglet_images']."';					\n";
+		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';					\n";
+		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';					\n";
+		$prefs .= "\$GLOBALS['activer_apercu']= '".$_POST['apercu']."';						\n";
+		$prefs .= "\$GLOBALS['theme_choisi']= '".$_POST['theme']."';							\n";	
 		$prefs .= "?>";
 		$fichier_prefs = '../config/prefs.php';
 		$new_file_pref=fopen($fichier_prefs,'wb+');

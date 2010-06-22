@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -40,11 +41,9 @@ afficher_msg();
 print '<div id="top">';
 moteur_recherche();
 print '<ul id="nav">';
-lien_nav('index.php', 'lien-liste', $GLOBALS['lang']['mesarticles'], 'true');
-lien_nav('ecrire.php', 'lien-nouveau', $GLOBALS['lang']['nouveau']);
-lien_nav('preferences.php', 'lien-preferences', $GLOBALS['lang']['preferences']);
-lien_nav($GLOBALS['racine'], 'lien-site', $GLOBALS['lang']['lien_blog']);
-lien_nav('logout.php', 'lien-deconnexion', $GLOBALS['lang']['deconnexion']);
+
+afficher_menu('index.php');
+
 print '</ul>';
 print '</div>';
 print '<div id="axe">'."\n";

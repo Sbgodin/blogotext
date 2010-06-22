@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -18,6 +19,22 @@ if (!get_magic_quotes_gpc()) {
    $return = trim($text);
 }
 return $return;
+}
+
+/// menu panneau admin /////////
+
+function afficher_menu($active) {
+	lien_nav('index.php', 'lien-liste', $GLOBALS['lang']['mesarticles'], $active);
+	if ($GLOBALS['onglet_commentaires'] == 'on') {
+		lien_nav('lastcom.php', 'lien-lscom', $GLOBALS['lang']['titre_commentaires'], $active);
+	}
+	lien_nav('ecrire.php', 'lien-nouveau', $GLOBALS['lang']['nouveau'], $active);
+	lien_nav('preferences.php', 'lien-preferences', $GLOBALS['lang']['preferences'], $active);
+	lien_nav($GLOBALS['racine'], 'lien-site', $GLOBALS['lang']['lien_blog'], $active);
+	if ($GLOBALS['onglet_images'] == 'on') {
+		lien_nav('image.php', 'lien-image', $GLOBALS['lang']['nouvelle_image'], $active);
+	}
+	lien_nav('logout.php', 'lien-deconnexion', $GLOBALS['lang']['deconnexion'], $active);
 }
 
 /// formulaires GENERIQUES //////////
@@ -44,6 +61,15 @@ function form_text($id, $defaut, $label) {
 	print '</p>'."\n";
 }
 
+function form_check($id, $defaut, $label) {
+	$checked = ($defaut == 'on') ? 'checked="checked" ' : "";
+
+	print '<p>'."\n";
+	print '<label for="'.$id.'">'.$label.'</label>'."\n";
+	print '<input type="checkbox" id="'.$id.'" name="'.$id.'" '.$checked.'/>'."\n";
+	print '</p>'."\n";
+}
+
 function form_password($id, $defaut, $label) {
 	print '<p>'."\n";
 	print '<label for="'.$id.'">'.$label.'</label>'."\n";
@@ -65,6 +91,10 @@ function input_supprimer() {
 
 function input_enregistrer() {
 	print '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
+}
+
+function input_upload() {
+	print '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
 }
 
 function hidden_input($nom, $valeur) {
@@ -144,6 +174,16 @@ function get_blogpath($id) {
 	$date= decode_id($id);
 	$path= $GLOBALS['racine'].'index.php?'.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(parse_xml($GLOBALS['dossier_data_articles'].'/'.get_path($id), 'titre'));
 	return $path;
+}
+
+function get_titre($id) {
+	$titre = parse_xml($GLOBALS['dossier_data_articles']."/".get_path($id), 'bt_title');
+	return $titre;
+}
+
+function ww_hach_sha($text) {
+	$out = hash("sha512", $text);
+	return $out;
 }
 
 ?>

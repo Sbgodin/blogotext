@@ -2,6 +2,7 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -25,7 +26,7 @@ if (isset($_POST['_verif_envoi'])) {
 	if ($erreurs_form = valider_form()) {
 		afficher_form($erreurs_form);
 	} else {
-		$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].crypt($_POST['mot_de_passe'], $GLOBALS['salt']);
+		$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']);
 	}
 } else {
 	afficher_form();
@@ -48,8 +49,8 @@ function afficher_form($erreur = '') {
 }
 	
 function valider_form() {
-		$mot_de_passe_ok = $GLOBALS['mdp'];
-		$mot_de_passe_essai = crypt($_POST['mot_de_passe'], $GLOBALS['salt']);
+		$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
+		$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$GLOBALS['identifiant'];
 			if ( ($mot_de_passe_essai !=  $mot_de_passe_ok) OR ($_POST['nom_utilisateur'] != $GLOBALS['identifiant']) ) {
 				$erreur = $GLOBALS['lang']['err_connexion'];
 			return $erreur;

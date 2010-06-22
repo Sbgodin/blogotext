@@ -2,7 +2,6 @@
 # *** LICENSE ***
 # This file is part of BlogoText.
 # Copyright (c) 2006 Frederic Nassar.
-#               2010 Timo Van Neerden
 # All rights reserved.
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
@@ -93,7 +92,7 @@ function parse_theme($fichier, $balise) {
 // AFFICHAGE INDEX.PHP
 
 function afficher_index($tableau) {
-//header ('Content-type: text/html; charset=UTF-8');
+header ('Content-type: text/html; charset=UTF-8');
 if 	($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste') AND 
 		($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut')) AND
 		($fin = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'fin')) ) {
