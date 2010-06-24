@@ -84,7 +84,6 @@ $toreplace= array(
 	'<br />',												// br
 	''														// vide
 );
-$texte_formate = stripslashes(preg_replace($tofind, $toreplace, $texte));
 return $texte_formate;
 }
 
