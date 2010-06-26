@@ -27,6 +27,8 @@ if (isset($_GET['l'])) {
        $GLOBALS['lang'] = $lang_fr;
    } elseif ($lang == $lang_en['id']) {
 	     $GLOBALS['lang'] = $lang_en;
+   } elseif ($lang == $lang_nl['id']) {
+	     $GLOBALS['lang'] = $lang_nl;
    }
 }
         		
