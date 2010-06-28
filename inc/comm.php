@@ -125,7 +125,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 	}
 	if (isset($article_id)) {
 		// ALLOW COMMENTS ON
-		if ($allow_comments == '1') {
+		if ($allow_comments == '1' and $GLOBALS['activer_global_comments'] == '0') {
 		$GLOBALS['form_commentaire'] .= '<form id="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&amp;n=mp" >'."\n";
 		$GLOBALS['form_commentaire'] .=	'<div class="field">'."\n";
 		$GLOBALS['form_commentaire'] .= '<label for="commentaire">'.$GLOBALS['lang']['comment_contenu'].'</label>'."\n";

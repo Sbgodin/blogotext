@@ -84,6 +84,7 @@ $nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300');
 form_select('nb_list', $nbs, $GLOBALS['nb_list'],$GLOBALS['lang']['pref_nb_list']);
 form_select('nb_list_com', $nbs, $GLOBALS['nb_list_com'],$GLOBALS['lang']['pref_nb_list_com']);
 select_yes_no('apercu', $GLOBALS['activer_apercu'], $GLOBALS['lang']['pref_apercu'] );
+select_yes_no('global_coments', $GLOBALS['activer_global_comments'], $GLOBALS['lang']['pref_allow_global_coms']);
 form_text('racine', $GLOBALS['racine'], $GLOBALS['lang']['pref_racine']);
 
 form_check('onglet_commentaires', $GLOBALS['onglet_commentaires'], $GLOBALS['lang']['pref_aff_onglet_comm']);

@@ -260,6 +260,7 @@ function fichier_prefs() {
 		$prefs .= "\$GLOBALS['onglet_images'] = '".$_POST['onglet_images']."';					\n";
 		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';					\n";
 		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';					\n";
+		$prefs .= "\$GLOBALS['activer_global_comments']= '".$_POST['global_coments']."';		\n";
 		$prefs .= "\$GLOBALS['activer_apercu']= '".$_POST['apercu']."';						\n";
 		$prefs .= "\$GLOBALS['theme_choisi']= '".$_POST['theme']."';							\n";	
 		$prefs .= "?>";
