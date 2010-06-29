@@ -43,46 +43,59 @@ return $result;
 }
 
 function formatage_wiki($texte) {
+$texte .= "\r";
 $texte = preg_replace("/(\r\n|\r\n\r|\n|\r)/", "\r", "\r".$texte."\r"); 
 $tofind= array(
-	'`<(.*?)>\r+`',											// html
-	'`@@(.*?)@@`',											// code
-	'`\r!!!!!(.*?)\r+`',									// h5
-	'`\r!!!!(.*?)\r+`',										// h4
-	'`\r!!!(.*?)\r+`',										// h3
-	'`\r!!(.*?)\r+`',										// h2
-	'`\r!(.*?)\r+`',										// h1
-	'`\(\((.*?)\|(.*?)\)\)`',								// img
-	'`\[\(\(([^[]+)\|([^[]+)\)\)\|([^[]+)\]`',				// img + a href
-	'`(.*?)\r+`',											// p
-	'`\[([^[]+)\|([^[]+)\]`',								// a href
-	'`\[(http://)([^[]+)\]`',								// url
-	'`\_\_(.*?)\_\_`',										// strong
-	'`##(.*?)##`',											// italic
-	'`--(.*?)--`',											// del
-	'`\+\+(.*?)\+\+`',										// ins
-	'`%%`',													// br
-	'`<p></p>`'												// vide
+	'` »`',											// close quote
+	'`« `', 										// open quote
+	'` !`',											// !
+	'` :`',											// :
+	'`<(.*?)>\r+`',									// html
+	'`@@(.*?)@@`',									// code
+	'`\r!!!!!(.*?)\r+`',							// h5
+	'`\r!!!!(.*?)\r+`',								// h4
+	'`\r!!!(.*?)\r+`',								// h3
+	'`\r!!(.*?)\r+`',								// h2
+	'`\r!(.*?)\r+`',								// h1
+	'`\(\((.*?)\|(.*?)\|(.*?)\|(.*?)\)\)`',			// img
+	'`\[\(\(([^[]+)\|([^[]+)\)\)\|([^[]+)\]`',		// img + a href
+	'`\r?(.*?)\r\r+`',									// p (laisse une interligne)
+	'`(.*?)\r`',										// br : retour à la ligne sans saut de ligne
+	'`\[([^[]+)\|([^[]+)\]`',						// a href
+	'`\[(http://)([^[]+)\]`',						// url
+	'`\_\_(.*?)\_\_`',								// strong
+	'`##(.*?)##`',									// italic
+	'`--(.*?)--`',									// strike
+	'`\+\+(.*?)\+\+`',								// ins
+	'`%%`',											// br
+	'`\[quote\](.*?)\[/quote\]`s',					// citation
+	'`\n?<p></p>\n?`',									// vide
 );
 $toreplace= array(
-	'<$1>'."\n",											// html
-	'<code><pre>$1</pre></code>',							// code
-	'<h5>$1</h5>'."\n",										// h5
-	'<h4>$1</h4>'."\n",										// h4
-	'<h3>$1</h3>'."\n",										// h3
-	'<h2>$1</h2>'."\n",										// h2
-	'<h1>$1</h1>'."\n",										// h1
-	'<img src="$1" alt="$2" />',							// img
-	'<a href="$3"><img src="$1" alt="$2" /></a>',			// img + a href
-	'<p>$1</p>'."\n",										// p
-	'<a href="$2">$1</a>',									// a href
-	'<a href="$1$2">$2</a>',								// url
-	'<strong>$1</strong>',									// strong
-	'<em>$1</em>',											// italic
-	'<del>$1</del>',										// del
-	'<ins>$1</ins>',										// ins
-	'<br />',												// br
-	''														// vide
+	'&nbsp;»',
+	'«&nbsp;',
+	'&nbsp;!',
+	'&nbsp;:',
+	'<$1>'."\n",												// html
+	'<code><pre>$1</pre></code>',								// code
+	'<h5>$1</h5>'."\n",											// h5
+	'<h4>$1</h4>'."\n",											// h4
+	'<h3>$1</h3>'."\n",											// h3
+	'<h2>$1</h2>'."\n",											// h2
+	'<h1>$1</h1>'."\n",											// h1
+	'<img src="$1" alt="$2" class="$3" title="$4" />',			// img
+	'<a href="$3"><img src="$1" alt="$2" /></a>',				// img + a href
+	"\n".'<p>$1</p>'."\n",												// p (laisse une interligne)
+	'$1<br/>'."\n",													// br : retour à la ligne sans saut de ligne
+	'<a href="$2">$1</a>',										// a href
+	'<a href="$1$2">$2</a>',									// url
+	'<span style="font-weight: bold;">$1</span>',				// strong
+	'<span style="font-style: italic;">$1</span>',				// italic
+	'<span style="text-decoration: line-through;">$1</span>',	// barre
+	'<span style="text-decoration: underline;">$1</span>',		// souligne
+	'<br />',													// br
+	'<q>$1</q>',												// citation
+	'',															// vide
 );
 $texte_formate = stripslashes(preg_replace($tofind, $toreplace, $texte));
 return $texte_formate;
@@ -115,7 +128,7 @@ $toreplace= array(
 	'<span style="text-decoration: line-through;">$1</span>',		// barre
 	'<span style="text-decoration: underline;">$1</span>',			// souligne
 );
-	$texte = "\n".nl2br($texte);
+//	$texte = "\n".nl2br($texte);
 	$texte = stripslashes(preg_replace($tofind, $toreplace, $texte));
 	$texte = '<p>'.$texte.'</p>';
 return $texte;

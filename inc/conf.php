@@ -13,7 +13,8 @@ $GLOBALS['nom_application']= 'BlogoText';
 $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['version']= '0.9.3';
 $GLOBALS['syntax_version']= '1';
-$GLOBALS['appsite']= 'http://www.blogotext.com/';
+//$GLOBALS['appsite']= 'http://www.blogotext.com/';
+$GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'txt';
 $GLOBALS['dossier_admin']= 'admin';
 // FOLDERS

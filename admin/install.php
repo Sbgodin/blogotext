@@ -117,8 +117,8 @@ print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_ST
 form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
 hidden_input('auteur', '');
 hidden_input('email', '');
-hidden_input('nomsite', '');
-hidden_input('description', '');
+hidden_input('nomsite', 'Blogotext');
+hidden_input('description', $GLOBALS['lang']['go_to_pref']);
 hidden_input('nb_maxi', '10');
 hidden_input('nb_list', '25');
 hidden_input('nb_list_com', '50');
@@ -126,6 +126,7 @@ hidden_input('format_date', '0');
 hidden_input('format_heure', '0');
 hidden_input('onglet_commentaires', 'on');
 hidden_input('onglet_images', 'on');
+hidden_input('global_coments', '0');
 hidden_input('verif_envoi_3', '1');
 hidden_input('apercu', '1');
 hidden_input('theme', 'defaut');

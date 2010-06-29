@@ -97,6 +97,13 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 			);
 	} else {
+		if (isset($_GET['n'])) {
+				$arguments = $_SERVER['QUERY_STRING'];
+				$ntab = explode('&',$arguments);
+				$page = $ntab['0'];
+				header('Location: '.'index.php?'.$page.'#top');
+			}
+
 		if (isset($_COOKIE['auteur_c'])) {
 			$auteur_c = htmlspecialchars($_COOKIE['auteur_c']);
 			}
@@ -126,7 +133,12 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 	if (isset($article_id)) {
 		// ALLOW COMMENTS ON
 		if ($allow_comments == '1' and $GLOBALS['activer_global_comments'] == '0') {
-		$GLOBALS['form_commentaire'] .= '<form id="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&amp;n=mp" >'."\n";
+			if (isset($_GET['n'])) {
+				$GLOBALS['form_commentaire'] .= '<form id="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" >'."\n";
+			}
+			else {
+				$GLOBALS['form_commentaire'] .= '<form id="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&amp;n=mp#erreurs" >'."\n";
+			}
 		$GLOBALS['form_commentaire'] .=	'<div class="field">'."\n";
 		$GLOBALS['form_commentaire'] .= '<label for="commentaire">'.$GLOBALS['lang']['comment_contenu'].'</label>'."\n";
 		$GLOBALS['form_commentaire'] .= '<textarea id="commentaire" name="commentaire" cols="50" rows="10">'.$defaut['commentaire'].'</textarea>'."\n";
@@ -149,7 +161,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 		$GLOBALS['form_commentaire'] .= '<input type="text" id="captcha" name="captcha" value="'.$defaut['captcha'].'" size="25" /><br/>'."\n";
 	}
 		$GLOBALS['form_commentaire'] .= '<input class="submit" accesskey="s" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";
-		$GLOBALS['form_commentaire'] .= '</form>';
+		$GLOBALS['form_commentaire'] .= '<p id="wiki" ><a href="javascript:ouvre(\'inc/wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n".'</form>';
 		// ALLOW COMMENTS OFF
 		} else {
 		$GLOBALS['form_commentaire'] .= '<p>'.$GLOBALS['lang']['comment_not_allowed'].'</p>'."\n";
