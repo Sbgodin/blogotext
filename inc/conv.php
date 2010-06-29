@@ -10,7 +10,7 @@
 
 function extraire_mots($texte) {
 $txt = preg_replace("/(\r\n|\n|\r|\s|\t)/", " ", $texte);
-$texte_propre = eregi_replace('[[:punct:]]', ' ', $txt);
+$texte_propre = preg_replace('#[[:punct:]]#i', ' ', $txt);
 $tableau= explode(' ', $texte_propre);
 foreach ($tableau as $mots) {
 	if (strlen($mots) >= '3') {
@@ -28,8 +28,8 @@ $texte = utf8_decode($texte);
 $tofind = utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
 $replac = utf8_decode('AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn');
 $texte_pre_pre_pre = trim(strtolower(strtr($texte,$tofind,$replac)));
-$texte_pre_pre = eregi_replace('[^a-zA-Z0-9_]', '-', $texte_pre_pre_pre);
-$texte_pre = eregi_replace('-+', '-', $texte_pre_pre);
+$texte_pre_pre = preg_replace('#[^a-zA-Z0-9_]#i', '-', $texte_pre_pre_pre);
+$texte_pre = preg_replace('#-+#', '-', $texte_pre_pre);
 $texte_final = substr($texte_pre, '0', '128');
 return $texte_final;
 }
@@ -102,7 +102,7 @@ return $texte_formate;
 }
 
 function formatage_commentaires($texte) {
-$tofind= array(
+$tofindc= array(
 	'`\[quote\](.+?)\[/quote\]`s',			// citation
 	'` »`',											// close quote
 	'`« `', 											// open quote
@@ -115,7 +115,7 @@ $tofind= array(
 	'`--(.*?)--`',										// strike
 	'`\+\+(.*?)\+\+`',								// ins
 );
-$toreplace= array(
+$toreplacec= array(
 	'<q>$1</q>',																// citation
 	'&nbsp;»',																	// close quote
 	'«&nbsp;',																	// open quote
@@ -128,8 +128,7 @@ $toreplace= array(
 	'<span style="text-decoration: line-through;">$1</span>',		// barre
 	'<span style="text-decoration: underline;">$1</span>',			// souligne
 );
-//	$texte = "\n".nl2br($texte);
-	$texte = stripslashes(preg_replace($tofind, $toreplace, $texte));
+	$texte = stripslashes(preg_replace($tofindc, $toreplacec, $texte));
 	$texte = '<p>'.$texte.'</p>';
 return $texte;
 }

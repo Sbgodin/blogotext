@@ -75,7 +75,7 @@ if ($theme_page = file_get_contents($fichier_theme)) {
 
 function parse_theme($fichier, $balise) {
 	if (isset($fichier)) {
-			if (ereg('\{'.$balise.'\}',$fichier)) {
+			if (preg_match('#\{'.$balise.'\}#',$fichier)) {
   			$sizeitem = strlen('{'.$balise.'}');
   			$debut = strpos($fichier, '{'.$balise.'}') + $sizeitem;
   			$fin = strpos($fichier, '{/'.$balise.'}');

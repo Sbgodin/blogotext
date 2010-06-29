@@ -12,8 +12,8 @@
 function table_recherche($depart, $txt, $statut='') {
 	$mor = array();
 	$table = array();
-	$txt = eregi_replace('[[:punct:]]', " ", $txt);
-		$mor = split('[[:space:]]', strtolower(trim($txt)));
+	$txt = preg_replace('#[[:punct:]]#i', " ", $txt);
+		$mor = preg_split('#[[:space:]]#', strtolower(trim($txt)));
 		foreach ($mor as $n => $mo ) {
 			if (strlen($mo) <= '3') {
 				unset($mor[$n]);
@@ -285,7 +285,7 @@ function apercu($article) {
 
 function parse_xml($fichier, $balise) {
 	if ($openfile = file_get_contents($fichier)) {
-			if (ereg('<'.$balise.'>',$openfile)) {
+			if (preg_match('#<'.$balise.'>#',$openfile)) {
   			$sizeitem = strlen('<'.$balise.'>');
   			$debut = strpos($openfile, '<'.$balise.'>') + $sizeitem;
   			$fin = strpos($openfile, '</'.$balise.'>');
