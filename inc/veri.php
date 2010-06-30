@@ -52,7 +52,7 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 			OR !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
 		}
-		if ( $captcha != $valid_captcha ) {
+		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
 	    }
     return $erreurs;

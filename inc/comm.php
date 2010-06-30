@@ -43,7 +43,7 @@ function en_lettres($captchavalue) {
 return $lettres;
 }
 
-function afficher_commentaire($comment) {
+function afficher_commentaire($comment, $with_link) {
 	$date = decode_id($comment['id']);
 		print '<div class="commentbloc" >'."\n";
 		print '<h3 class="titre-commentaire">'.$comment['auteur'].'</h3>'."\n";

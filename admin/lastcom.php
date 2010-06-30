@@ -51,7 +51,7 @@ print '<div id="page">'."\n";
 $tableau=table_derniers($GLOBALS['dossier_data_commentaires'], $GLOBALS['nb_list_com']);
 		foreach ($tableau as $id => $content) {
 			$comment = init_comment('admin', remove_ext($content));
-			afficher_commentaire($comment);
+			afficher_commentaire($comment, 1);
 		}
 footer();
 ?>

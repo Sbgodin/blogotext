@@ -209,7 +209,7 @@ $syntax_version = get_version($file);
 		}
 
 
-		$comment['contenu'] = nl2br(parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]));
+		$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]);
 		$comment['annee'] = $dec['annee'];
 		$comment['mois'] = $dec['mois'];
 		$comment['mois_en_lettres'] = mois_en_lettres($dec['mois']);

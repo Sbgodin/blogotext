@@ -128,7 +128,7 @@ $toreplacec= array(
 	'<span style="text-decoration: line-through;">$1</span>',		// barre
 	'<span style="text-decoration: underline;">$1</span>',			// souligne
 );
-	$texte = stripslashes(preg_replace($tofindc, $toreplacec, $texte));
+	$texte = nl2br(stripslashes(preg_replace($tofindc, $toreplacec, $texte)));
 	$texte = '<p>'.$texte.'</p>';
 return $texte;
 }
