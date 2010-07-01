@@ -89,6 +89,7 @@ $lang_en = array(
 'comment_contenu'					=> 'Comment',
 'comment_captcha'					=> 'Calculate this addition (anti-spam filter)',
 'comment_not_allowed'			=> 'Comments are closed for this article',
+'no_comments'						=> 'No comments have been posted yet',
 // Titles - liens
 'lien_article'						=> 'View article',
 'lien_blog'							=> 'View blog',

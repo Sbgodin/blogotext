@@ -49,9 +49,14 @@ print '<div id="page">'."\n";
 
 // COMMENTAIRES
 $tableau=table_derniers($GLOBALS['dossier_data_commentaires'], $GLOBALS['nb_list_com']);
+	if($tableau != ""){
 		foreach ($tableau as $id => $content) {
 			$comment = init_comment('admin', remove_ext($content));
 			afficher_commentaire($comment, 1);
 		}
+	}
+	else {
+		echo $GLOBALS['lang']['no_comments'];
+	}
 footer();
 ?>

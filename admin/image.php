@@ -133,7 +133,7 @@ if(isset($_FILES['photo'])) // Formulaire envoyé
 				$valid[]  = $GLOBALS['lang']['img_upload_succes'].'<br/>';
 				$valid[] .= '<a href="'.$dest_dossier . $dest_fichier.'">/'.$dest_fichier.'</a><br/>';
 				$nom_dossier = preg_replace('#\.\./#','',$GLOBALS['dossier_images']);
-				$valid[] .= '<input style="width:500px;" type="text" value=\'<img src="'.$nom_dossier.$dest_fichier.'" alt="'.$nom_entree.'" />\' />';
+				$valid[] .= '<input style="width:500px;" type="text" value=\'<img src="'.$GLOBALS['racine'].$nom_dossier.$dest_fichier.'" alt="'.$nom_entree.'" />\' />';
 				$valid[] .= '<center><img src="'.$dest_dossier.$dest_fichier.'" style="max-width: 400px;" /></center>';
 			} else {
 				$erreurs[] = $GLOBALS['lang']['img_err_chmod'].$dest_dossier;

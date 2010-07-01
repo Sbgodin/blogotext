@@ -89,6 +89,7 @@ $lang_nl = array(
 'comment_contenu'					=> '',
 'comment_captcha'					=> 'Hoe veel is ',
 'comment_not_allowed'			=> 'Reacties zijn gesloten voor dit artikel',
+'no_comments'						=> 'Er zijn nog geen reacties...',
 // Titles - liens
 'lien_article'						=> 'Bericht zien',
 'lien_blog'							=> 'Blog zien',

@@ -80,6 +80,7 @@ $lang_fr = array(
 'label_articles'					=> 'articles',
 'label_commentaire'				=> 'commentaire',
 'label_commentaires'				=> 'commentaires',
+'no_comments'						=> 'Il n\'y a aucun commentaire pour le moment.',
 // Commentaire
 'aucun'								=> 'aucun',
 'comment_ajout'					=> 'Ajouter un commentaire',

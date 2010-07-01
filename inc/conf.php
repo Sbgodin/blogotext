@@ -207,8 +207,6 @@ $syntax_version = get_version($file);
 		if ($comment['webpage'] != '') {
 			$comment['auteur'] = '<a href="'.$comment['webpage'].'" class="webpage">'.$comment['auteur'].'</a>';
 		}
-
-
 		$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]);
 		$comment['annee'] = $dec['annee'];
 		$comment['mois'] = $dec['mois'];
