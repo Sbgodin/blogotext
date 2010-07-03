@@ -9,19 +9,19 @@
 # *** LICENSE ***
 
 function confirmation($message) {
-	print '<div class="confirmation">'.$message.'</div>'."\n";
+	echo '<div class="confirmation">'.$message.'</div>'."\n";
 }
 
 function legend($legend, $class='') {
-	print '<legend class="'.$class.'">'.$legend.'</legend>'."\n"; 
+	echo '<legend class="'.$class.'">'.$legend.'</legend>'."\n"; 
 }
 
 function label($for, $txt) {
-	print "\n".'<label for="'.$for.'">'.$txt.'</label>'."\n"; 
+	echo "\n".'<label for="'.$for.'">'.$txt.'</label>'."\n"; 
 }
 
 function info($message) {
-	print '<p class="info">'.$message.'</p>'."\n";
+	echo '<p class="info">'.$message.'</p>'."\n";
 }
 
 function erreurs($erreurs) {
@@ -33,15 +33,15 @@ function erreurs($erreurs) {
     } else {
     $texte_erreur = '';
     }
-    print $texte_erreur; 
+    echo $texte_erreur; 
 }
 
 function erreur($message) {
-	  print '<p class="erreurs">'.$message.'</p>'."\n";
+	  echo '<p class="erreurs">'.$message.'</p>'."\n";
 }
 
 function question($message) {
-	  print '<p id="question">'.$message.'</p>';
+	  echo '<p id="question">'.$message.'</p>';
 }
 
 function afficher_msg() {
@@ -57,12 +57,12 @@ function moteur_recherche() {
 	if (isset($_GET['q'])) {
 		$requete= stripslashes($_GET['q']);
 	}
-	print '<form action="index.php" method="get">'."\n";
-	print '<div id="recherche">'."\n";
-	print	'<input id="champ" name="q" type="text" size="25" value="'.$requete.'" />'."\n";
-	print	'<input id="input-rechercher" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
-		print '</div>'."\n";
-	print	'</form>'."\n\n";
+	echo '<form action="index.php" method="get">'."\n";
+	echo '<div id="recherche">'."\n";
+	echo	'<input id="champ" name="q" type="text" size="25" value="'.$requete.'" />'."\n";
+	echo	'<input id="input-rechercher" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
+		echo '</div>'."\n";
+	echo	'</form>'."\n\n";
 }
 
 function afficher_top($titre) {
@@ -72,31 +72,31 @@ function afficher_top($titre) {
 		$lang_id = 'fr';
 	}
 header ('Content-type: text/html; charset=UTF-8');
-print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
-print	'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
-print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
-print '<head>'."\n";
-print '<meta http-equiv="content-type" content="text/html; charset='.$GLOBALS['charset'].'" />'."\n";
-print '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
-print '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
-print	'<script type="text/javascript">'."\n";
-print "function ouvre(fichier) {"."\n";
-print "ff=window.open(fichier,\"popup\", \"width=380, height=460, scrollbars=1, resizable=1\") }"."\n";
-print '</script>'."\n";
-print '</head>'."\n\n";
-print '<body>'."\n\n";
+echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
+echo	'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
+echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
+echo '<head>'."\n";
+echo '<meta http-equiv="content-type" content="text/html; charset='.$GLOBALS['charset'].'" />'."\n";
+echo '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
+echo '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
+echo	'<script type="text/javascript">'."\n";
+echo "function ouvre(fichier) {"."\n";
+echo "ff=window.open(fichier,\"popup\", \"width=380, height=460, scrollbars=1, resizable=1\") }"."\n";
+echo '</script>'."\n";
+echo '</head>'."\n\n";
+echo '<body>'."\n\n";
 }
 
 function afficher_titre($titre, $id, $niveau) {
-	print '<h'.$niveau.' id="'.$id.'">'.$titre.'</h'.$niveau.'>'."\n";
+	echo '<h'.$niveau.' id="'.$id.'">'.$titre.'</h'.$niveau.'>'."\n";
 }
 
 function footer() {
-print '</div>'."\n";
-print '</div>'."\n";
-print '<p id="footer">© <a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].'</a> '.$GLOBALS['version'].'</p>'."\n";
-print '</body>'."\n";
-print '</html>'."\n";
+echo '</div>'."\n";
+echo '</div>'."\n";
+echo '<p id="footer">© <a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].'</a> '/*.$GLOBALS['version'].*/.'</p>'."\n";
+echo '</body>'."\n";
+echo '</html>'."\n";
 }
 
 function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {    		    

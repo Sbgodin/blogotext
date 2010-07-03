@@ -85,63 +85,63 @@ $contenu = parcourir_dossier($dossier, $statut);
 // RETOURNE UN TABLEAU DE TOUS LES ARTICLES
 function table_derniers($dossier, $limite='', $statut='') {
 	$contenu= array();
-if ( $ouverture = opendir($dossier) ) { 
-       while ( false !== ($file = readdir($ouverture)) ) {
-       	if (preg_match('/\d{4}/', $file) ){
-       		$annees[]=$file;
-       	}
-       }
-       closedir($ouverture);
-}
-if (isset($annees)) {
-foreach ($annees as $id => $dossier_annee) {
- 	$chemin = $dossier.'/'.$dossier_annee.'/';
-	 if ( $ouverture = opendir($chemin) ) { 
-       while ( false !== ($file_mois = readdir($ouverture)) ) {
-       		if (preg_match('/\d{2}/', $file_mois) ){
-       		$dossier_mois[]= $dossier.'/'.$dossier_annee.'/'.$file_mois;
-	       	rsort($dossier_mois);
-       		}
-       }
-       closedir($ouverture);
-		}
-}
-}
-$i= '0';
-if (isset($dossier_mois)) {
-foreach ($dossier_mois as $id => $path) {
-		if ( $ouverture = opendir($path) ) {
-			while ( ($fichiers = readdir($ouverture)) ) {
-				// On verifie Extension
-				$chemin= $path.'/'.$fichiers;
-				if ((get_ext($fichiers)) == $GLOBALS['ext_data']) {
-					if  ( (isset($statut)) AND ($statut != '') ) {
-						if (get_statut($chemin) === $statut) {
-							$contenu[$i++]=$fichiers;
-       				rsort($contenu);
-						}
-					} else {
-						$contenu[$i++]=$fichiers;
-       			rsort($contenu);
-					}
-				}
-			}
-			closedir($ouverture);
-		}
-}
-}
-if ( (isset($limite)) AND ($limite!='') ) {
-foreach ($contenu as $num => $entry) {
-	if ($num < $limite) {
-		$retour[$num]= $entry;
+	if ( $ouverture = opendir($dossier) ) { 
+		    while ( false !== ($file = readdir($ouverture)) ) {
+		    	if (preg_match('/\d{4}/', $file) ){
+		    		$annees[]=$file;
+		    	}
+		    }
+		    closedir($ouverture);
 	}
-}
-} else {
-		$retour= $contenu;
-}
-if (isset($retour)) {
-	return $retour;
-}
+	if (isset($annees)) {
+		foreach ($annees as $id => $dossier_annee) {
+		 	$chemin = $dossier.'/'.$dossier_annee.'/';
+			 if ( $ouverture = opendir($chemin) ) { 
+				 while ( false !== ($file_mois = readdir($ouverture)) ) {
+				 		if (preg_match('/\d{2}/', $file_mois) ){
+				 		$dossier_mois[]= $dossier.'/'.$dossier_annee.'/'.$file_mois;
+					 	rsort($dossier_mois);
+				 		}
+				 }
+				 closedir($ouverture);
+				}
+		}
+	}
+	$i= '0';
+	if (isset($dossier_mois)) {
+		foreach ($dossier_mois as $id => $path) {
+				if ( $ouverture = opendir($path) ) {
+					while ( ($fichiers = readdir($ouverture)) ) {
+						// On verifie Extension
+						$chemin= $path.'/'.$fichiers;
+						if ((get_ext($fichiers)) == $GLOBALS['ext_data']) {
+							if  ( (isset($statut)) AND ($statut != '') ) {
+								if (get_statut($chemin) === $statut) {
+									$contenu[$i++]=$fichiers;
+				 				rsort($contenu);
+								}
+							} else {
+								$contenu[$i++]=$fichiers;
+				 			rsort($contenu);
+							}
+						}
+					}
+					closedir($ouverture);
+				}
+		}
+	}
+	if ( (isset($limite)) AND ($limite!='') ) {
+		foreach ($contenu as $num => $entry) {
+			if ($num < $limite) {
+				$retour[$num]= $entry;
+			}
+		}
+	} else {
+			$retour= $contenu;
+	}
+	if (isset($retour)) {
+		return $retour;
+	}
 }
 
 function traiter_form_billet($billet) {
@@ -208,8 +208,9 @@ function parcourir_dossier($dossier, $statut='') {
    					if (get_statut($dossier.$fichiers) === $statut) {
        				$contenu[] = $fichiers;
    					}
-   				} else {
-       		$contenu[] = $fichiers;
+   				}
+					else {
+       				$contenu[] = $fichiers;
    				}
    			}
 			}
@@ -279,7 +280,7 @@ function apercu($article) {
 				$apercu = '<h1>'.$article['titre'].'</h1>'."\n";
     		$apercu .= '<div><strong>'.$article['chapo'].'</strong></div>'."\n";
     		$apercu .= '<div>'.$article['contenu'].'</div>'."\n";
-    	print '<div id="apercu">'."\n".$apercu.'</div>'."\n\n";
+    	echo '<div id="apercu">'."\n".$apercu.'</div>'."\n\n";
 	    }
 }
 

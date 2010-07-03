@@ -12,6 +12,7 @@
 $GLOBALS['nom_application']= 'BlogoText';
 $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['version']= '0.9.3';
+//$GLOBALS['version']= '';
 $GLOBALS['syntax_version']= '1';
 //$GLOBALS['appsite']= 'http://www.blogotext.com/';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
@@ -56,9 +57,17 @@ else {
 	$mot_2 = 1;
 	$page = $mot_1 + $mot_2;
 }
+$captch_x = ((strlen($page) % $mot_2) + (strlen($page) % $mot_1)) % 10;
+$captch_y = ($mot_2 % $mot_1) % 10;
+
+if ($captch_x == 0 and $captch_y == 0) {
+	$captch_x = 4;
+	$captch_y = 3;
+}
+
 $GLOBALS['captcha'] = array (
-	'x' => ((strlen($page) % $mot_2) + (strlen($page) % $mot_1)) % 10,
-	'y' => ($mot_2 % $mot_1) % 10,
+	'x' => ("$captch_x"),
+	'y' => ("$captch_y"),
 );
 
 

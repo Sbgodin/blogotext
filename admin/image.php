@@ -56,7 +56,7 @@ if ( !file_exists($GLOBALS['dossier_images'])) {
 }
 
 $dest_dossier = $GLOBALS['dossier_images']; // Creez ce dossier et chmoodez le !
-//print_r($_FILES['photo']);
+//echo_r($_FILES['photo']);
 if(isset($_FILES['photo'])) // Formulaire envoyé
 {
 	// Les erreurs que PHP renvoi
@@ -143,47 +143,47 @@ if(isset($_FILES['photo'])) // Formulaire envoyé
 if(!empty($valid)) {
 	confirmation($GLOBALS['lang']['confirm_image_ajout']);
 }
-print '<div id="top">'."\n";
+echo '<div id="top">'."\n";
 moteur_recherche();
-print '<ul id="nav">'."\n";
+echo '<ul id="nav">'."\n";
 
 afficher_menu('image.php');
-print '</ul></div>';
-print '<div id="axe">'."\n".'<div id="page">'."\n";
+echo '</ul></div>';
+echo '<div id="axe">'."\n".'<div id="page">'."\n";
 
 
 
-print '<form method="post" action="" enctype="multipart/form-data" >';
-print '<fieldset class="pref">';
+echo '<form method="post" action="" enctype="multipart/form-data" >';
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_image'], 'legend-image');
-print '<p>'."\n";
-print '<label for="photo">'.$GLOBALS['lang']['nouvelle_image'].' : </label>'."\n";
-print '<input type="file" name="photo" id="photo" />'."\n".'</p>'."\n".'<p>';
-print '<label for="nom_entree">'.$GLOBALS['lang']['img_nom_donnee'].'</label>';
-print '<input type="text" name="nom_entree" /> '.$GLOBALS['lang']['img_avert_format_nom']."\n";
-print '</p>'."\n";
+echo '<p>'."\n";
+echo '<label for="photo">'.$GLOBALS['lang']['nouvelle_image'].' : </label>'."\n";
+echo '<input type="file" name="photo" id="photo" />'."\n".'</p>'."\n".'<p>';
+echo '<label for="nom_entree">'.$GLOBALS['lang']['img_nom_donnee'].'</label>';
+echo '<input type="text" name="nom_entree" /> '.$GLOBALS['lang']['img_avert_format_nom']."\n";
+echo '</p>'."\n";
 
 if(!empty($erreurs)) {
-	print '<div id="erreurs"><strong>'.$GLOBALS['lang']['erreurs'].'</strong> :<ul>';
+	echo '<div id="erreurs"><strong>'.$GLOBALS['lang']['erreurs'].'</strong> :<ul>';
 	foreach($erreurs as $erreur) {
-		print '<li>'.$erreur.'</li>';
+		echo '<li>'.$erreur.'</li>';
 	}
-	print '</ul></div>';
+	echo '</ul></div>';
 }
 
 if(!empty($valid)) {
-	print '<div id="succes"><strong>'.$GLOBALS['lang']['succes'].' : </strong><ul>';
+	echo '<div id="succes"><strong>'.$GLOBALS['lang']['succes'].' : </strong><ul>';
 	foreach($valid as $text) {
-		print '<li>'.$text.'</li>';
+		echo '<li>'.$text.'</li>';
 	}
-	print '</ul></div>';
+	echo '</ul></div>';
 }
 
-print '</fieldset>';
-print '<div id="bt">';
+echo '</fieldset>';
+echo '<div id="bt">';
 input_upload();
-print '</div>';
-print '</form>';
+echo '</div>';
+echo '</form>';
 
 footer();
 ?>

@@ -8,6 +8,32 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 
+/* 
+--------------------------------------------------------------------------------------*/
+
+function liste_commentaires($dossier, $article_id) {
+	$date = decode_id($article_id);
+	$liste= array();
+	for ($i = $date['annee']; $i <= date('Y'); $i++) {
+		for ($j = $date['mois']; $j <= date('m') ; $j++) {
+			if (strlen($j) == '1') {
+				$j = '0'.$j;
+			}
+			if(is_dir($dossier.'/'.$i.'/'.$j)) {
+				$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
+				foreach ($liste as $comm) {
+					if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+						$path = $dossier.'/'.get_path_no_ext($comm);
+						$syntax_version= get_version($path);
+				  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+					 		$retour[] =$comm;
+	}	}	}	}	}	}
+	if (isset($retour)) {
+		return $retour;
+	}
+}
+
+/*
 function liste_commentaires($dossier, $article_id) {
 	$liste= array();
 	if ($liste = table_derniers($dossier)) {
@@ -24,7 +50,7 @@ function liste_commentaires($dossier, $article_id) {
 		return $retour;
 	}
 }
-
+*/
 function en_lettres($captchavalue) {
 
 	switch($captchavalue) {

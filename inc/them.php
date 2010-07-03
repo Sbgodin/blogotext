@@ -69,7 +69,7 @@ if ($theme_page = file_get_contents($fichier_theme)) {
   			return $fin;
   		}
 	 } else {
-			print 'Fichier theme liste introuvable ou illisible';
+			echo 'Fichier theme liste introuvable ou illisible';
 	}
 }
 
@@ -97,13 +97,13 @@ function afficher_index($tableau) {
 if 	($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste') AND 
 		($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut')) AND
 		($fin = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'fin')) ) {
-	print $debut;
+	echo $debut;
 	if (isset($tableau)) {
 		liste_articles($tableau, $template_liste);
 	} else {
 	erreur($GLOBALS['lang']['note_no_article']);
 	}
-	print $fin;
+	echo $fin;
 		}
 }
 
@@ -139,14 +139,14 @@ $theme_page = file_get_contents($GLOBALS['theme_article']);
 $template_comments = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'liste');
 				$debut = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'debut');
 				$fin = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'fin');
-				print conversions_theme($debut, $billet);
+				echo conversions_theme($debut, $billet);
 				if (isset($commentaire)) {
 					foreach ($commentaire as $element) {
 						$comm = conversions_theme($template_comments, '', $element);
-						print $comm;
+						echo $comm;
 					}
 				}
-				print conversions_theme($fin, $billet);
+				echo conversions_theme($fin, $billet);
 }
 
 ?>

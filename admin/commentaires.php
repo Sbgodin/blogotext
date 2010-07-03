@@ -25,7 +25,7 @@ if (isset($_SERVER['QUERY_STRING'])) {
 				$post= init_billet('admin', $article_id);
 				$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article_id);
 			} else {
-				print $GLOBALS['lang']['note_no_article'];
+				echo $GLOBALS['lang']['note_no_article'];
 				exit;
 			}
 		}
@@ -51,9 +51,9 @@ if ( empty($erreurs_form) )  {
 // DEBUT PAGE
 afficher_top($GLOBALS['lang']['titre_commentaires']);
 afficher_msg();
-print '<div id="top">'."\n";
+echo '<div id="top">'."\n";
 moteur_recherche();
-print '<ul id="nav">'."\n";
+echo '<ul id="nav">'."\n";
 
 if ( (isset($article_id)) AND ($article_id != '') ) {
 	afficher_menu('index.php');
@@ -61,20 +61,20 @@ if ( (isset($article_id)) AND ($article_id != '') ) {
 	afficher_menu('ecrire.php');
 }
 
-print '</ul>'."\n";
-print '</div>'."\n";
+echo '</ul>'."\n";
+echo '</div>'."\n";
 
 // SUBNAV
-print '<div id="subnav">';
+echo '<div id="subnav">';
 back_list();
-print '<ul id="mode">';
-	print '<li id="lien-edit"><a href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].'</a></li>';
-	print '<li id="lien-comments">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</li>';
-print '</ul>';
-print '</div>';
+echo '<ul id="mode">';
+	echo '<li id="lien-edit"><a href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].'</a></li>';
+	echo '<li id="lien-comments">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</li>';
+echo '</ul>';
+echo '</div>';
  	
-print '<div id="axe">'."\n";
-print '<div id="page">'."\n";
+echo '<div id="axe">'."\n";
+echo '<div id="page">'."\n";
 
 // COMMENTAIRES
 	if ($post['nb_comments'] >= '1') {
@@ -87,7 +87,7 @@ print '<div id="page">'."\n";
 	}
 
 	afficher_form_commentaire($article_id, 'admin', $post['allow_comments'], $erreurs_form);
-	print '<h2 class="poster-comment">'.$GLOBALS['lang']['comment_ajout'].'</h2>';
-	print $GLOBALS['form_commentaire'];
+	echo '<h2 class="poster-comment">'.$GLOBALS['lang']['comment_ajout'].'</h2>';
+	echo $GLOBALS['form_commentaire'];
 footer();
 ?>

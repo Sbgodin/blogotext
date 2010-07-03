@@ -38,16 +38,16 @@ if (isset($_GET['q'])) {
 
 afficher_top($GLOBALS['lang']['mesarticles']);
 afficher_msg();
-print '<div id="top">';
+echo '<div id="top">';
 moteur_recherche();
-print '<ul id="nav">';
+echo '<ul id="nav">';
 
 afficher_menu('index.php');
 
-print '</ul>';
-print '</div>';
-print '<div id="axe">'."\n";
-print '<div id="page">'."\n";
+echo '</ul>';
+echo '</div>';
+echo '<div id="axe">'."\n";
+echo '<div id="page">'."\n";
 if (isset($_GET['filtre'])) {
 afficher_form_filtre($_GET['filtre']);
 } else {

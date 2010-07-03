@@ -26,7 +26,7 @@ if (isset($_SERVER['QUERY_STRING'])) {
 				$post= init_billet('admin', $article_id);
 				$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article_id);
 			} else {
-				print $GLOBALS['lang']['note_no_article'];
+				echo $GLOBALS['lang']['note_no_article'];
 				exit;
 			}
 		}
@@ -54,9 +54,9 @@ if ( isset($fichier_data) ) {
 // DEBUT PAGE
 afficher_top($titre_ecrire);
 afficher_msg();
-print '<div id="top">'."\n";
+echo '<div id="top">'."\n";
 moteur_recherche();
-print '<ul id="nav">'."\n";
+echo '<ul id="nav">'."\n";
 
 
 if ( (isset($article_id)) AND ($article_id != '') ) {
@@ -65,22 +65,22 @@ if ( (isset($article_id)) AND ($article_id != '') ) {
 	afficher_menu('ecrire.php');
 }
 
-print '</ul>'."\n";
-print '</div>'."\n";
+echo '</ul>'."\n";
+echo '</div>'."\n";
 
 // SUBNAV
  	if ($article_id != '') {
- 		print '<div id="subnav">';
+ 		echo '<div id="subnav">';
  			back_list();
- 	print '<ul id="mode">';
- 			print '<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>';
- 			print '<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>';
- 	print '</ul>';
- 		print '</div>';
+ 	echo '<ul id="mode">';
+ 			echo '<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>';
+ 			echo '<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>';
+ 	echo '</ul>';
+ 		echo '</div>';
  	}
  	
-print '<div id="axe">'."\n";
-print '<div id="page">'."\n";
+echo '<div id="axe">'."\n";
+echo '<div id="page">'."\n";
 
 // EDIT
 	if ( ($GLOBALS['activer_apercu'] == '1') AND ($article_id != '') ) {

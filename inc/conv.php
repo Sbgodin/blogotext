@@ -221,25 +221,25 @@ function jour_en_lettres($jour, $mois, $annee) {
 }
 
 function mois_en_lettres($chaine) {
-			$mois = array(
-			'01' => $GLOBALS['lang']['janvier'],
-			'02' => $GLOBALS['lang']['fevrier'],
-			'03' => $GLOBALS['lang']['mars'], 
-			'04' => $GLOBALS['lang']['avril'], 
-      '05' => $GLOBALS['lang']['mai'],
-      '06' => $GLOBALS['lang']['juin'],
-      '07' => $GLOBALS['lang']['juillet'],
-      '08' => $GLOBALS['lang']['aout'],
-      '09' => $GLOBALS['lang']['septembre'],
-      '10' => $GLOBALS['lang']['octobre'],
-      '11' => $GLOBALS['lang']['novembre'], 
-      '12' => $GLOBALS['lang']['decembre']
-      );
-       foreach ($mois as $cle => $valeur) {
-	       if ($chaine == $cle) {
-	        return $valeur;
-	       }
-       }
+	$mois = array(
+		'01' => $GLOBALS['lang']['janvier'],
+		'02' => $GLOBALS['lang']['fevrier'],
+		'03' => $GLOBALS['lang']['mars'], 
+		'04' => $GLOBALS['lang']['avril'], 
+		'05' => $GLOBALS['lang']['mai'],
+		'06' => $GLOBALS['lang']['juin'],
+		'07' => $GLOBALS['lang']['juillet'],
+		'08' => $GLOBALS['lang']['aout'],
+		'09' => $GLOBALS['lang']['septembre'],
+		'10' => $GLOBALS['lang']['octobre'],
+		'11' => $GLOBALS['lang']['novembre'], 
+		'12' => $GLOBALS['lang']['decembre']
+	);
+	foreach ($mois as $cle => $valeur) {
+		if ($chaine == $cle) {
+			return $valeur;
+		}
+	}
 }
 
 function nombre_formate($chaine) {

@@ -26,11 +26,11 @@ function afficher_form_recherche($mots_saisis='') {
 /// formulaires GENERAUX //////////
 
 function lien_nav($url, $id, $label, $active) {
-	print '<li><a href="'.$url.'" id="'.$id.'" ';
+	echo '<li><a href="'.$url.'" id="'.$id.'" ';
 	if ($active == $url) {
-	print 'class="current"';
+	echo 'class="current"';
 	}
-	print '>'.$label.'</a></li>'."\n";
+	echo '>'.$label.'</a></li>'."\n";
 }
 
 /// formulaires PREFERENCES //////////
@@ -40,18 +40,18 @@ function select_yes_no($name, $defaut, $label) {
 								'1' => $GLOBALS['lang']['oui'],
 								'0' => $GLOBALS['lang']['non']
                 );
-      print '<p>'."\n";
-	     print '<label>'.$label.'</label>'."\n";
-			print '<select name="'.$name.'">'."\n" ;
+      echo '<p>'."\n";
+	     echo '<label>'.$label.'</label>'."\n";
+			echo '<select name="'.$name.'">'."\n" ;
 			   foreach ($choix as $option => $label) {
-        	print '<option value="'.htmlentities($option).'"';
+        	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>';
+        	echo '>' . htmlentities($label) . '</option>';
 			   }
-			print '</select>'."\n";
-			print '</p>'."\n";
+			echo '</select>'."\n";
+			echo '</p>'."\n";
 }
 
 function form_format_date($defaut) {
@@ -66,18 +66,18 @@ function form_format_date($defaut) {
 			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),	// vendredi, janvier 14, 1983
 			'6' => date('Y').'-'.date('m').'-'.date('d')							// 1983-01-14
 		);
-	print '<p>';
-	print '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>';
-	print '<select name="format_date">' ;
+	echo '<p>';
+	echo '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>';
+	echo '<select name="format_date">' ;
 			   foreach ($formats as $option => $label) {
-        	print '<option value="'.htmlentities($option).'"';
+        	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>';
+        	echo '>' . htmlentities($label) . '</option>';
 			   }
-			print '</select> ';
-	print '</p>';
+			echo '</select> ';
+	echo '</p>';
 }
 
 function form_format_heure($defaut) {
@@ -87,45 +87,45 @@ function form_format_heure($defaut) {
 			'2' => date('h').':'.date('i').':'.date('s').' '.date('A'),				// 11:56:04 PM
 			'3' => date('h').':'.date('i').' '.date('A')										// 11:56 PM
 		);
-	print '<p>';
-	print '<label>'.$GLOBALS['lang']['pref_format_heure'].'</label>';
-	print '<select name="format_heure">' ;
+	echo '<p>';
+	echo '<label>'.$GLOBALS['lang']['pref_format_heure'].'</label>';
+	echo '<select name="format_heure">' ;
 			   foreach ($formats as $option => $label) {
-        	print '<option value="'.htmlentities($option).'"';
+        	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>';
+        	echo '>' . htmlentities($label) . '</option>';
 			   }
-			print '</select> ';
-	print '</p>';
+			echo '</select> ';
+	echo '</p>';
 }
 
 function form_langue($defaut) {
-			print '<p>';
-      print '<label>'.$GLOBALS['lang']['pref_langue'].'</label>';
-			print '<select name="langue">' ;
+			echo '<p>';
+      echo '<label>'.$GLOBALS['lang']['pref_langue'].'</label>';
+			echo '<select name="langue">' ;
 			   foreach ($GLOBALS['langs'] as $option => $label) {
-        	print '<option value="'.htmlentities($option).'"';
+        	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>'.$label.'</option>';
+        	echo '>'.$label.'</option>';
 			   }
-			print '</select> ';
-			print '</p>';
+			echo '</select> ';
+			echo '</p>';
 }
 
 function form_langue_install($label) {
-			print '<p>';
-      print '<label>'.$label.'</label>';
-			print '<select name="langue">' ;
+			echo '<p>';
+      echo '<label>'.$label.'</label>';
+			echo '<select name="langue">' ;
 			   foreach ($GLOBALS['langs'] as $option => $label) {
-        	print '<option value="'.htmlentities($option).'"';
-        	print '>'.$label.'</option>';
+        	echo '<option value="'.htmlentities($option).'"';
+        	echo '>'.$label.'</option>';
 			   }
-			print '</select> ';
-			print '</p>';
+			echo '</select> ';
+			echo '</p>';
 }
 
 function liste_themes($chemin) {
@@ -145,11 +145,11 @@ return $themes;
 // formulaires ARTICLES //////////
 
 function afficher_form_filtre($defaut='') {
-print '<form method="get" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
-print '<div id="form-filtre">'."\n";
+echo '<form method="get" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
+echo '<div id="form-filtre">'."\n";
 	filtre($GLOBALS['dossier_data_articles'], $defaut);
-print '</div>'."\n";
-print '</form>'."\n";
+echo '</div>'."\n";
+echo '</form>'."\n";
 }
 
 function filtre($dossier, $defaut='') {
@@ -179,37 +179,37 @@ foreach ($annees as $id => $dossier_annee) {
 }
 }
 if (isset($dossier_mois)) {
-print '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
-print "\n".'<select name="filtre">'."\n" ;
-print '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
+echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
+echo "\n".'<select name="filtre">'."\n" ;
+echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
 /// BROUILLONS
-print '<option value="draft"';
+echo '<option value="draft"';
 	if ($defaut == 'draft') {
-		print ' selected="selected"';
+		echo ' selected="selected"';
 	}
-print '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
+echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
 /// PUBLIES
-print '<option value="pub"';
+echo '<option value="pub"';
 	if ($defaut == 'pub') {
-		print ' selected="selected"';
+		echo ' selected="selected"';
 	}
-print '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
-					print '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
+echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
+					echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
 			   foreach ($dossier_mois as $option => $label) {
-        	print '<option value="' . htmlentities($option) . '"';
+        	echo '<option value="' . htmlentities($option) . '"';
         	if ($defaut == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>'."\n";
+        	echo '>' . htmlentities($label) . '</option>'."\n";
 			   }
-			   print '</optgroup>';
-			print '</select> '."\n\n";
-			print '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
+			   echo '</optgroup>';
+			echo '</select> '."\n\n";
+			echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 }
 }
 
 function back_list() {
-	print '<a id="backlist" href="index.php">'.$GLOBALS['lang']['retour_liste'].'</a>';
+	echo '<a id="backlist" href="index.php">'.$GLOBALS['lang']['retour_liste'].'</a>';
 }
 
 /// formulaires BILLET //////////
@@ -251,34 +251,34 @@ if ($erreurs) {
 	erreurs($erreurs);
 }
 if (isset($article['id'])) {
-print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
+echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
 } else {
-print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
+echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 }
-print '<div id="form">'."\n";
+echo '<div id="form">'."\n";
 label('titre', $GLOBALS['lang']['label_titre']);
 form_titre($titredefaut) ;
 label('chapo', $GLOBALS['lang']['label_chapo']);
 form_chapo($chapodefaut) ;
-print '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
+echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
 label('contenu', $GLOBALS['lang']['label_contenu']);
 form_contenu($contenudefaut) ;
 if 	(!$article) {
-			print '<div id="date">'."\n";
-			print '<div id="formdate">';
+			echo '<div id="date">'."\n";
+			echo '<div id="formdate">';
 				form_annee($defaut_annee) ;
 				form_mois($defaut_mois) ;
 				form_jour($defaut_jour) ;
-			print '</div>';
-			print '<div id="formheure">';
+			echo '</div>';
+			echo '<div id="formheure">';
 				form_heure($defaut_heure, $defaut_minutes, $defaut_secondes) ;
-			print '</div>';
-			print '</div>'."\n";
+			echo '</div>';
+			echo '</div>'."\n";
 } else {
-print '<div id="date">';
-print '<p id="formdate">'.date_formate($article['id']).'</p>';
-print '<p id="formheure">'.heure_formate($article['id']).'</p>';
-print '</div>';
+echo '<div id="date">';
+echo '<p id="formdate">'.date_formate($article['id']).'</p>';
+echo '<p id="formheure">'.heure_formate($article['id']).'</p>';
+echo '</div>';
 hidden_input('annee', $article['annee']);
 hidden_input('mois', $article['mois']);
 hidden_input('jour', $article['jour']);
@@ -286,19 +286,19 @@ hidden_input('heure', $article['heure']);
 hidden_input('minutes', $article['minutes']);
 hidden_input('secondes', $article['secondes']);
 }
-			print '<div id="opts">'."\n";
+			echo '<div id="opts">'."\n";
 			form_statut($statutdefaut);
 			form_allow_comment($allowcommentdefaut);
-			print '</div>'."\n";
-	print '<div id="bt">';
+			echo '</div>'."\n";
+	echo '<div id="bt">';
 		input_enregistrer();
 		if ($article) {
 		input_supprimer();
 		}
-	print '</div>';
+	echo '</div>';
 hidden_input('_verif_envoi', '1');
-print '</div>'."\n";
-print '</form>'."\n";
+echo '</div>'."\n";
+echo '</form>'."\n";
 }
 // FIN AFFICHER_FORM_BILLET
 
@@ -309,15 +309,15 @@ function form_jour($jour_affiche) {
                 "09" => '9', "10" => '10', "11" => '11', "12" => '12', "13" => '13', "14" => '14', "15" => '15', "16" => '16',
                 "17" => '17', "18" => '18', "19" => '19', "20" => '20', "21" => '21', "22" => '22', "23" => '23', "24" => '24',
                 "25" => '25', "26" => '26', "27" => '27', "28" => '28', "29" => '29', "30" => '30', "31" => '31');
-			print '<select name="jour">'."\n";
+			echo '<select name="jour">'."\n";
 			   foreach ($jours as $option => $label) {
-        	print '<option value="' . htmlentities($option) . '"';
+        	echo '<option value="' . htmlentities($option) . '"';
         	if ($jour_affiche == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>'."\n";
+        	echo '>' . htmlentities($label) . '</option>'."\n";
 			   }
-			print '</select>'."\n\n";
+			echo '</select>'."\n\n";
 }
 
 function form_mois($mois_affiche) {
@@ -329,15 +329,15 @@ function form_mois($mois_affiche) {
                 "09" => $GLOBALS['lang']['septembre'], "10" => $GLOBALS['lang']['octobre'], 
                 "11" => $GLOBALS['lang']['novembre'], "12" => $GLOBALS['lang']['decembre']
                 );
-			print '<select name="mois">'."\n" ;
+			echo '<select name="mois">'."\n" ;
 			   foreach ($mois as $option => $label) {
-        	print '<option value="' . htmlentities($option) . '"';
+        	echo '<option value="' . htmlentities($option) . '"';
         	if ($mois_affiche == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>'.$label.'</option>'."\n";
+        	echo '>'.$label.'</option>'."\n";
 			   }
-			print '</select>'."\n\n";
+			echo '</select>'."\n\n";
 }
 
 function form_annee($annee_affiche) {
@@ -345,36 +345,36 @@ function form_annee($annee_affiche) {
 			for ($annee = date('Y') -3, $annee_max = date('Y') +4; $annee < $annee_max; $annee++) {
     	$annees[$annee] = $annee;
 	    }
-	    print '<select name="annee">'."\n" ;
+	    echo '<select name="annee">'."\n" ;
 			   foreach ($annees as $option => $label) {
-        	print '<option value="' . htmlentities($option) . '"';
+        	echo '<option value="' . htmlentities($option) . '"';
          	if ($annee_affiche == $option) {
-            print ' selected="selected"';
+            echo ' selected="selected"';
         	}
-        	print '>' . htmlentities($label) . '</option>'."\n";
+        	echo '>' . htmlentities($label) . '</option>'."\n";
 			   }
-			print '</select>'."\n\n";
+			echo '</select>'."\n\n";
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-		print '<input name="heure" type="text" size="2" maxlength="2" value="'.$heureaffiche.'" /> :';
-		print '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" /> :' ;
-		print '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" />' ;
+		echo '<input name="heure" type="text" size="2" maxlength="2" value="'.$heureaffiche.'" /> :';
+		echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" /> :' ;
+		echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" />' ;
 }
 
 
 function form_statut($etat) {
-		print '<div id="formstatut">'."\n";
+		echo '<div id="formstatut">'."\n";
 		$choix= array(
 			'1' => $GLOBALS['lang']['label_publie'],
 			'0' => $GLOBALS['lang']['label_brouillon']
 		);
 		form_select('statut', $choix, $etat, $GLOBALS['lang']['label_statut']);
-		print '</div>'."\n";
+		echo '</div>'."\n";
 }
 
 function form_allow_comment($etat) {
-		print '<div id="formallowcomment">'."\n";
+		echo '<div id="formallowcomment">'."\n";
 		$choix= array(
 			'1' => $GLOBALS['lang']['ouverts'],
 			'0' => $GLOBALS['lang']['fermes']
@@ -384,19 +384,19 @@ function form_allow_comment($etat) {
 			$etat= '1';
 		}
 		form_select('allowcomment', $choix, $etat, $GLOBALS['lang']['label_allowcomment']);
-		print '</div>'."\n";
+		echo '</div>'."\n";
 }
 
 function form_titre($titreaffiche) {
-		print '<input id="titre" name="titre" type="text" size="50" value="'.$titreaffiche.'" />'."\n" ;
+		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titreaffiche.'" />'."\n" ;
 }
 
 function form_chapo($chapoaffiche) {
-    print '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
+    echo '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
 }
 
 function form_contenu($contenuaffiche) {
-    print '<textarea id="contenu" name="contenu" rows="20" cols="60">'.$contenuaffiche.'</textarea>'."\n" ;
+    echo '<textarea id="contenu" name="contenu" rows="20" cols="60">'.$contenuaffiche.'</textarea>'."\n" ;
 }
 
 ?>

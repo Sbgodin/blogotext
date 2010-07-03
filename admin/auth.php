@@ -18,8 +18,8 @@ if (isset($_POST['_verif_envoi'])) {
 require_once '../inc/inc.php';
 
 afficher_top('Identification');
-print '<div id="axe">'."\n";
-print '<div id="pageauth">'."\n";
+echo '<div id="axe">'."\n";
+echo '<div id="pageauth">'."\n";
 afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 
 if (isset($_POST['_verif_envoi'])) {
@@ -36,16 +36,16 @@ function afficher_form($erreur = '') {
 	if ($erreur) {
 		erreur($erreur);
 	}
-		print	'<form method="post" action="'.$_SERVER['PHP_SELF'].'">'."\n";
-		print	'<div id="auth">'."\n";
-		print	'<p><label for="nom_utilisateur">'.$GLOBALS['lang']['label_identifiant'].'</label>'."\n";
-		print	'<input type="text" id="nom_utilisateur" name="nom_utilisateur" value="" /></p>'."\n";
-		print	'<p><label for="mot_de_passe">'.$GLOBALS['lang']['label_motdepasse'].'</label>';
-		print	'<input type="password" id="mot_de_passe" name="mot_de_passe" value="" /></p>'."\n";
-		print	'<input class="inpauth" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />';
-		print	'<input type="hidden" name="_verif_envoi" value="1" />';
-		print	'</div>'."\n";
-		print	'</form>';
+		echo	'<form method="post" action="'.$_SERVER['PHP_SELF'].'">'."\n";
+		echo	'<div id="auth">'."\n";
+		echo	'<p><label for="nom_utilisateur">'.$GLOBALS['lang']['label_identifiant'].'</label>'."\n";
+		echo	'<input type="text" id="nom_utilisateur" name="nom_utilisateur" value="" /></p>'."\n";
+		echo	'<p><label for="mot_de_passe">'.$GLOBALS['lang']['label_motdepasse'].'</label>';
+		echo	'<input type="password" id="mot_de_passe" name="mot_de_passe" value="" /></p>'."\n";
+		echo	'<input class="inpauth" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />';
+		echo	'<input type="hidden" name="_verif_envoi" value="1" />';
+		echo	'</div>'."\n";
+		echo	'</form>';
 }
 	
 function valider_form() {

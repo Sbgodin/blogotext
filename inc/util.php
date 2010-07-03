@@ -40,65 +40,65 @@ function afficher_menu($active) {
 /// formulaires GENERIQUES //////////
 
 function form_select($id, $choix, $defaut, $label) {
-	print '<p>'."\n";
-	print '<label for="'.$id.'">'.$label.'</label>'."\n";
-	print '<select id="'.$id.'" name="'.$id.'">'."\n";
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<select id="'.$id.'" name="'.$id.'">'."\n";
 		foreach ($choix as $valeur => $mot) {
-		print '<option value="'.$valeur.'"';
+		echo '<option value="'.$valeur.'"';
 			if ($defaut == $valeur) {
-				print ' selected="selected"';
+				echo ' selected="selected"';
 			}
-		print '>'.$mot.'</option>'."\n";
+		echo '>'.$mot.'</option>'."\n";
 		}
-	print '</select>';
-	print '</p>'."\n";
+	echo '</select>';
+	echo '</p>'."\n";
 }
 
 function form_text($id, $defaut, $label) {
-	print '<p>'."\n";
-	print '<label for="'.$id.'">'.$label.'</label>'."\n";
-	print '<input type="text" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
-	print '</p>'."\n";
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<input type="text" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
+	echo '</p>'."\n";
 }
 
 function form_check($id, $defaut, $label) {
 	$checked = ($defaut == 'on') ? 'checked="checked" ' : "";
 
-	print '<p>'."\n";
-	print '<label for="'.$id.'">'.$label.'</label>'."\n";
-	print '<input type="checkbox" id="'.$id.'" name="'.$id.'" '.$checked.'/>'."\n";
-	print '</p>'."\n";
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<input type="checkbox" id="'.$id.'" name="'.$id.'" '.$checked.'/>'."\n";
+	echo '</p>'."\n";
 }
 
 function form_password($id, $defaut, $label) {
-	print '<p>'."\n";
-	print '<label for="'.$id.'">'.$label.'</label>'."\n";
-	print '<input type="password" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
-	print '</p>'."\n";
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<input type="password" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
+	echo '</p>'."\n";
 }
 
 
 function textarea($id, $defaut, $label, $cols, $rows) {
-	print '<p>'."\n";
-	print '<label for="'.$id.'">'.$label.'</label>'."\n";
-	print '<textarea id="'.$id.'" name="'.$id.'" cols="'.$cols.'" rows="'.$rows.'">'.$defaut.'</textarea>'."\n";
-	print '</p>'."\n";
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<textarea id="'.$id.'" name="'.$id.'" cols="'.$cols.'" rows="'.$rows.'">'.$defaut.'</textarea>'."\n";
+	echo '</p>'."\n";
 }
 
 function input_supprimer() {
-	print '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
+	echo '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
 }
 
 function input_enregistrer() {
-	print '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
+	echo '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
 }
 
 function input_upload() {
-	print '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
+	echo '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
 }
 
 function hidden_input($nom, $valeur) {
-	print '<input type="hidden" class="nodisplay" name="'.$nom.'" value="'.$valeur.'" />'."\n";
+	echo '<input type="hidden" class="nodisplay" name="'.$nom.'" value="'.$valeur.'" />'."\n";
 }
 
 /// DECODAGES //////////
@@ -114,12 +114,12 @@ function get_id($file) {
 }
 
 function get_version($file) {
-	$version = parse_xml($file, 'bt_version');
+/*	$version = parse_xml($file, 'bt_version');
 	if ($version == '') {
 	$syntax_version = '0';
-} elseif ($version== '0.9.3') {
+} elseif ($version== '0.9.3') {*/
 	$syntax_version = '1';
-}
+//}
 return $syntax_version;
 }
 
