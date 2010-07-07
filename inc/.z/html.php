@@ -55,7 +55,7 @@ if (isset($_GET['msg'])) {
 function moteur_recherche() {
 	$requete='';
 	if (isset($_GET['q'])) {
-		$requete= htmlspecialchars(stripslashes($_GET['q']));
+		$requete= stripslashes($_GET['q']);
 	}
 	echo '<form action="index.php" method="get">'."\n";
 	echo '<div id="recherche">'."\n";

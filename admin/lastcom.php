@@ -37,10 +37,6 @@ echo '</div>'."\n";
 // SUBNAV
 echo '<div id="subnav">';
 back_list();
-echo '<ul id="mode">';
-	echo '<li id="lien-edit"><a href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].'</a></li>';
-	echo '<li id="lien-comments">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</li>';
-echo '</ul>';
 echo '</div>';
  	
 echo '<div id="axe">'."\n";

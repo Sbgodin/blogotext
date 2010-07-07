@@ -135,6 +135,10 @@ print '</form>' ;
 }
 
 function traiter_install_2() {
+$config_dir = '../config';
+if ( !is_dir($config_dir)) {
+	creer_dossier($config_dir);
+}
 	fichier_user();
 }
 

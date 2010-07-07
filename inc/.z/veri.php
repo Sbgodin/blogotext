@@ -41,8 +41,8 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 			}
 		}
 
-		if ( (filter_var(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]), FILTER_VALIDATE_EMAIL) === FALSE)
-			or (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]))) ) {
+		if ( (! preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i', trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]])))
+			OR (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]))) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
 		}
 		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]])) or $commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]] == "<p></p>") {

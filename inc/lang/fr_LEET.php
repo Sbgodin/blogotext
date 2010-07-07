@@ -2,12 +2,12 @@
 /* ##############################################################################################
    ----------------------------------------- Francais -----------------------------------------*/
 
-$lang_fr = array(
-'id'								=> 'fr',
+$lang_l33t_fr = array(
+'id'								=> '1337fr',
 // Install
-'install'							=> 'Installation',
-'install_id'						=> 'Choisissez un identifiant',
-'install_mdp'						=> 'Choisissez un mot de passe',
+'install'							=> '1N57@11@7!Ø|\|',
+'install_id'						=> '(HØ15!55€|z U|\| ![)3N7!F!4|\|T',
+'install_mdp'						=> '(|\|0!51$$€2 U|\| |V|Ø7 [)3 |°4$53',
 'install_remdp'					=> 'Confirmez votre mot de passe',
 'install_ok'						=> 'Félicitations ! Installation réussie',
 'install_echec' 					=> 'Désolé, votre serveur n\'est pas compatible',

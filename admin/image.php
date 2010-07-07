@@ -27,10 +27,9 @@ afficher_top($GLOBALS['lang']['titre_image']);
 afficher_msg();
 
 /**
- * Script d'upload d'image PHP
- * http://damienalexandre.fr/
- * Novembre 2007 - v1.3
+ * adapté du script d'upload d'image PHP de 
  * http://damienalexandre.fr/Upload-d-image-en-PHP.html
+ * licence CC-NC
  */
 
 function get_extension($nom) {
@@ -119,21 +118,25 @@ if(isset($_FILES['photo'])) // Formulaire envoyé
 				}
 
 			$dest_fichier = strtr($dest_fichier, 'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïðòóôõöùúûüýÿ', 'AAAAAACEEEEIIIIOOOOOUUUUYaaaaaaceeeeiiiioooooouuuuyy');
-			// un chtit regex pour remplacer tous ce qui n'est ni chiffre ni lettre par "_"
-			$dest_fichier = preg_replace('/([^.a-z0-9]+)/i', '_', $dest_fichier);
-			$dest_fichier = "blog-".date('ymd').'-'.$dest_fichier;
-            
+			// un chtit regex pour remplacer tous ce qui n'est ni chiffre ni lettre par "-"
+			$dest_fichier = preg_replace('/([^.a-z0-9]+)/i', '-', $dest_fichier);
+
+			$id = 'blog-'.date('ymd');
 			// pour ne pas ecraser un fichier existant
-			while(file_exists($dest_dossier . $dest_fichier)) {
+			while(file_exists($dest_dossier.$id.'-'.$dest_fichier)) {
 				$dest_fichier = rand(0,9).$dest_fichier;
 			}
+
+			$dest_fichier = $id.'-'.$dest_fichier;
+
             
 			// copie du fichier
 			if(move_uploaded_file($_FILES['photo']['tmp_name'], $dest_dossier . $dest_fichier)) {
+				list($width, $height) = getimagesize($dest_dossier.'/'.$dest_fichier);
 				$valid[]  = $GLOBALS['lang']['img_upload_succes'].'<br/>';
 				$valid[] .= '<a href="'.$dest_dossier . $dest_fichier.'">/'.$dest_fichier.'</a><br/>';
 				$nom_dossier = preg_replace('#\.\./#','',$GLOBALS['dossier_images']);
-				$valid[] .= '<input style="width:500px;" type="text" value=\'<img src="'.$GLOBALS['racine'].$nom_dossier.$dest_fichier.'" alt="'.$nom_entree.'" />\' />';
+				$valid[] .= '<input style="width:100%;" type="text" value=\'<img src="'.$GLOBALS['racine'].$nom_dossier.$dest_fichier.'" alt="'.$nom_entree.'" style="width:'.$width.'px; height:'.$height.'px;" />\' />';
 				$valid[] .= '<center><img src="'.$dest_dossier.$dest_fichier.'" style="max-width: 400px;" /></center>';
 			} else {
 				$erreurs[] = $GLOBALS['lang']['img_err_chmod'].$dest_dossier;

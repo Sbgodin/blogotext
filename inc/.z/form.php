@@ -12,7 +12,7 @@
 
 function afficher_form_recherche($mots_saisis='') {
 	if ( (isset($mots_saisis)) AND ($mots_saisis != '') ) {
-		$defaut = htmlspecialchars(stripslashes($mots_saisis));
+		$defaut = stripslashes($mots_saisis);
 	} else {
 		$defaut = '';
 	}

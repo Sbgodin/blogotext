@@ -18,7 +18,8 @@ if (isset($_POST['webpage'])) {
 }
 
 if ( !file_exists('config/user.php') || !file_exists('config/prefs.php') ) {
-	header('Location: admin/install.php');
+	require_once 'inc/conf.php';
+	header('Location: '.$GLOBALS['dossier_admin'].'/install.php');
 }
 require_once 'inc/lang.php';
 require_once 'config/user.php';

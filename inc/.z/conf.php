@@ -8,19 +8,16 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 
-
-// DOSSIER ADMIN
-$GLOBALS['dossier_admin']= 'admin';
-
-
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
 $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['version']= '0.9.3';
+//$GLOBALS['version']= '';
 $GLOBALS['syntax_version']= '1';
 //$GLOBALS['appsite']= 'http://www.blogotext.com/';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'txt';
+$GLOBALS['dossier_admin']= 'admin';
 // FOLDERS
 $GLOBALS['dossier_data_articles']= '../articles';
 $GLOBALS['dossier_articles']= 'articles';
@@ -31,34 +28,47 @@ $GLOBALS['dossier_vignettes']= 'thb';
 $GLOBALS['salt']= '123456';
 
 // CAPTCHA
-if (!empty($_SERVER['QUERY_STRING'])) {
-	if (isset($_GET['post_id'])) {
-		$id = $_GET['post_id'];
+if (isset($_SERVER['QUERY_STRING']) and ($_SERVER['QUERY_STRING'] != '')) {
+	$query =  $_SERVER['QUERY_STRING'];
+	$ntab = explode('&',$_SERVER['QUERY_STRING']);
+
+	if (isset($ntab['0'])) {
+		$page = $ntab['0'];
+		$mots = explode('-',$page);
+
+		if (isset($mots['0'])) {
+			$mot_1 = strlen($mots['0']) +1;
+		}		
+		else $mot_1 = 4;
+
+		if (isset($mots['1'])) {
+			$mot_2 = strlen($mots['1']) +1;
+		}
+		else $mot_2 = 2;
 	}
 	else {
-		$pre_pre_id = explode('&',$_SERVER['QUERY_STRING']);
-		$pre_id= explode('-',$pre_pre_id['0']);
-		$id = preg_replace('#/#','',$pre_id['0']);
+		$mot_1 = 5;
+		$mot_2 = 3;
+		$page = $mot_1 + $mot_2;
 	}
-	if (strlen($id) == 14) {
-		$mot1 = substr($id,'6','6');
-		$mot2 = substr($id,'12','2')+1;
-
-		$captcha_x = (($mot1 % $mot2)%9)+1;
-		$captcha_y = (($mot1%9)+1);
-	}
-$GLOBALS['captcha'] = array (
-	'x' => ("$captcha_x"),
-	'y' => ("$captcha_y"),
-);
 }
 else {
-$GLOBALS['captcha'] = array (
-	'x' => ('8'),
-	'y' => ('2'),
-);
+	$mot_1 = 6;
+	$mot_2 = 1;
+	$page = $mot_1 + $mot_2;
+}
+$captch_x = ((strlen($page) % $mot_2) + (strlen($page) % $mot_1)) % 10;
+$captch_y = ($mot_2 % $mot_1) % 10;
+
+if ($captch_x == 0 and $captch_y == 0) {
+	$captch_x = 4;
+	$captch_y = 3;
 }
 
+$GLOBALS['captcha'] = array (
+	'x' => ("$captch_x"),
+	'y' => ("$captch_y"),
+);
 
 
 // THEMES

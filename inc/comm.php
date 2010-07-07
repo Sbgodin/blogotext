@@ -14,8 +14,10 @@
 function liste_commentaires($dossier, $article_id) {
 	$date = decode_id($article_id);
 	$liste= array();
-	for ($i = $date['annee']; $i <= date('Y'); $i++) {
-		for ($j = $date['mois']; $j <= date('m') ; $j++) {
+	$year = date('Y');
+	$month = date('m');
+	for ($i = $date['annee']; $i <= $year; $i++) {
+		for ($j = $date['mois']; $j <= $month ; $j++) {
 			if (strlen($j) == '1') {
 				$j = '0'.$j;
 			}
@@ -106,11 +108,11 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 	if ( (isset($_POST['_verif_envoi'])) AND (isset($erreurs)) AND ($erreurs != '') ) {
 		$defaut = array(
-			'auteur' => stripslashes($_POST['auteur']),
-			'email' => stripslashes($_POST['email']),
-			'webpage' => stripslashes($_POST['webpage']),
-			'commentaire' => stripslashes($_POST['commentaire']),
-			'captcha' => stripslashes($_POST['captcha']),
+			'auteur' => htmlspecialchars(stripslashes($_POST['auteur'])),
+			'email' => htmlspecialchars(stripslashes($_POST['email'])),
+			'webpage' => htmlspecialchars(stripslashes($_POST['webpage'])),
+			'commentaire' => htmlspecialchars(stripslashes($_POST['commentaire'])),
+			'captcha' => htmlspecialchars(stripslashes($_POST['captcha'])),
 			);
 
 	} elseif (isset($mode) AND $mode == 'admin') {
@@ -124,7 +126,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			);
 	} else {
 		if (isset($_GET['n'])) {
-				$arguments = $_SERVER['QUERY_STRING'];
+				$arguments = htmlspecialchars($_SERVER['QUERY_STRING']);
 				$ntab = explode('&',$arguments);
 				$page = $ntab['0'];
 				header('Location: '.'index.php?'.$page.'#top');
