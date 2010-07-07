@@ -89,6 +89,10 @@ function input_supprimer() {
 	echo '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
 }
 
+function input_supprimer_comment() {
+	echo '<input class="submit-suppr-comm" type="submit" name="supprimer_comm" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\')" />'."\n";
+}
+
 function input_enregistrer() {
 	echo '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
 }

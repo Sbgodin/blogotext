@@ -31,34 +31,44 @@ $GLOBALS['dossier_vignettes']= 'thb';
 $GLOBALS['salt']= '123456';
 
 // CAPTCHA
-if (!empty($_SERVER['QUERY_STRING'])) {
-	if (isset($_GET['post_id'])) {
-		$id = $_GET['post_id'];
+function mk_captcha($x_or_y) {
+	if (!empty($_SERVER['QUERY_STRING'])) {
+		if (isset($_GET['post_id'])) {
+			$id = $_GET['post_id'];
+		}
+		else {
+			$pre_pre_id = explode('&',$_SERVER['QUERY_STRING']);
+			$pre_id= explode('-',$pre_pre_id['0']);
+			$id = preg_replace('#/#','',$pre_id['0']);
+		}
+		if (strlen($id) == 14) {
+			$mot1 = substr($id,'6','6');
+			$mot2 = substr($id,'12','2')+1;
+
+			$captcha_x = (($mot1 % $mot2)%9)+1;
+			$captcha_y = (($mot1%9)+1);
+		}
+	else {
+		$captcha_x = '2';
+		$captcha_y = '3';
+	}
 	}
 	else {
-		$pre_pre_id = explode('&',$_SERVER['QUERY_STRING']);
-		$pre_id= explode('-',$pre_pre_id['0']);
-		$id = preg_replace('#/#','',$pre_id['0']);
+		$captcha_x = '8';
+		$captcha_y = '2';
 	}
-	if (strlen($id) == 14) {
-		$mot1 = substr($id,'6','6');
-		$mot2 = substr($id,'12','2')+1;
+	$captcha = array (
+		'x' => ("$captcha_x"),
+		'y' => ("$captcha_y"),
+	);
 
-		$captcha_x = (($mot1 % $mot2)%9)+1;
-		$captcha_y = (($mot1%9)+1);
+	if ($x_or_y == 'x') {
+		return $captcha['x'];
 	}
-$GLOBALS['captcha'] = array (
-	'x' => ("$captcha_x"),
-	'y' => ("$captcha_y"),
-);
+	elseif ($x_or_y == 'y') {
+		return $captcha['y'];
+	}
 }
-else {
-$GLOBALS['captcha'] = array (
-	'x' => ('8'),
-	'y' => ('2'),
-);
-}
-
 
 
 // THEMES

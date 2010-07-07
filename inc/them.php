@@ -118,7 +118,7 @@ $comment= init_post_comment($id);
 // TRAITEMENT
 $erreurs_form= array();
 if (isset($_POST['_verif_envoi'])) {
-		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], ($GLOBALS['captcha']['x']+$GLOBALS['captcha']['y']));
+		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], (mk_captcha('x')+mk_captcha('y')));
 }
 if ( empty($erreurs_form) )  {
 		afficher_form_commentaire($id, 'public', $billet['allow_comments']);

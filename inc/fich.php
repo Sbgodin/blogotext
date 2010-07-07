@@ -192,7 +192,7 @@ function fichier_data($dossier, $billet) {
 
 function creer_dossier($dossier) {
 	if ( !is_dir($dossier) ) {
-		if (mkdir($dossier, 0755) === FALSE) {
+		if (mkdir($dossier, 0700) === FALSE) {
 			return 'FALSE';
 		} else {
 		return 'TRUE';

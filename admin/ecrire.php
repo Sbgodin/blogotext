@@ -20,7 +20,7 @@ $post='';
 $article_id='';
 if (isset($_SERVER['QUERY_STRING'])) {
 		if (isset($_GET['post_id'])) {
-			$article_id=$_GET['post_id'];
+			$article_id=htmlspecialchars($_GET['post_id']);
 			$loc_data= $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
 			if ( (file_exists($loc_data)) AND (preg_match('/\d{4}/',$article_id)) ) {
 				$post= init_billet('admin', $article_id);

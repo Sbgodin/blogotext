@@ -16,8 +16,8 @@ if ( (!isset($_SESSION['nom_utilisateur'])) || ($_SESSION['nom_utilisateur'] != 
 	exit;
 }
 // SUPPRIMER
-if (isset($_GET['del'])) {
-		supprimer_commentaire($article_id, $_GET['del']);
+if (isset($_POST['supprimer_comm'])) {
+		supprimer_commentaire($article_id, htmlspecialchars($_POST['comm_id']));
 }
 
 // DEBUT PAGE

@@ -8,9 +8,6 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 
-/* 
---------------------------------------------------------------------------------------*/
-
 function liste_commentaires($dossier, $article_id) {
 	$date = decode_id($article_id);
 	$liste= array();
@@ -73,18 +70,24 @@ return $lettres;
 
 function afficher_commentaire($comment, $with_link) {
 	$date = decode_id($comment['id']);
-		print '<div class="commentbloc" >'."\n";
-		print '<h3 class="titre-commentaire">'.$comment['auteur'].'</h3>'."\n";
-		print '<p class="email"><a href="mailto:'.$comment['email'].'">'.$comment['email'].'</a></p>'."\n";
+		echo '<div class="commentbloc" >'."\n";
+		echo '<h3 class="titre-commentaire">'.$comment['auteur'].'</h3>'."\n";
+		echo '<p class="email"><a href="mailto:'.$comment['email'].'">'.$comment['email'].'</a></p>'."\n";
 		if ($with_link == 1) {
-			print '<p class="lien_article_de_com"><a href="commentaires.php?post_id='.$comment['article_id'].'">'.get_titre($comment['article_id']).'</a></p>'."\n";
+			echo '<p class="lien_article_de_com"><a href="commentaires.php?post_id='.$comment['article_id'].'">'.get_titre($comment['article_id']).'</a></p>'."\n";
 		}
-		print '<p class="date">'.date_formate($comment['id']).', '.heure_formate($comment['id']).'</p>';
-	print '<p>'.$comment['contenu'].'</p>';
-	print '<p class="suppr-commentaire"><a href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&del='.$comment['id'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\')" />'.$GLOBALS['lang']['supprimer'].'</a></p>'."\n";
-	print '</div>'."\n";
+		echo '<p class="date">'.date_formate($comment['id']).', '.heure_formate($comment['id']).'</p>';
+		echo $comment['contenu'];
+		echo "\n".'<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">';
+			echo '<p>';
+				input_supprimer_comment();
+				hidden_input('comm_id', $comment['id']);
+				echo '<br style="clear: right;"/>';
+			echo '</p>';
+		echo '</form>';
+	echo '</div>'."\n";
 		if (isset($_POST['suppr-commentaire'])) {
-			print 'ok'.$comment['id'];
+			echo 'ok'.$comment['id'];
 		}
 }
 
@@ -92,9 +95,9 @@ function supprimer_commentaire($article_id, $comment_id) {
 $loc_comment= '../'.$GLOBALS['dossier_commentaires'].'/'.get_path_no_ext($comment_id).'.'.$GLOBALS['ext_data'];
 	if (unlink($loc_comment)) {
 		redirection($_SERVER['PHP_SELF'].'?post_id='.$article_id.'&msg=confirm_comment_suppr');
-		} else {
-			erreur('Impossible de supprimer le fichier');
-		}
+	} else {
+		erreur('Impossible de supprimer le fichier');
+	}
 }
 
 function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs='') {
@@ -121,7 +124,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			'email' => $GLOBALS['email'],
 			'webpage' => $GLOBALS['racine'],
 			'commentaire' => '',
-			'captcha' => $GLOBALS['captcha']['x']+$GLOBALS['captcha']['y'],
+			'captcha' => mk_captcha('x')+mk_captcha('y'),
 
 			);
 	} else {
@@ -167,10 +170,11 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			else {
 				$GLOBALS['form_commentaire'] .= '<form id="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&amp;n=mp#erreurs" >'."\n";
 			}
-		$GLOBALS['form_commentaire'] .=	'<div class="field">'."\n";
+		$GLOBALS['form_commentaire'] .= '<div class="formulaire">'."\n";
+		$GLOBALS['form_commentaire'] .= '<div class="field">'."\n";
 		$GLOBALS['form_commentaire'] .= '<label for="commentaire">'.$GLOBALS['lang']['comment_contenu'].'</label>'."\n";
 		$GLOBALS['form_commentaire'] .= '<textarea id="commentaire" name="commentaire" cols="50" rows="10">'.$defaut['commentaire'].'</textarea>'."\n";
-		$GLOBALS['form_commentaire'] .=	'</div>'."\n";
+		$GLOBALS['form_commentaire'] .= '</div>'."\n";
 		$GLOBALS['form_commentaire'] .= '<label for="auteur">'.$GLOBALS['lang']['comment_nom'].'</label>'."\n";
 		$GLOBALS['form_commentaire'] .= '<input type="text" id="auteur" name="auteur" value="'.$defaut['auteur'].'" size="25" /><br/>'."\n";
 		$GLOBALS['form_commentaire'] .= '<label for="email">'.$GLOBALS['lang']['comment_email'].'</label>'."\n";
@@ -185,10 +189,11 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 		if (isset($mode) AND $mode == 'admin') {
 			$GLOBALS['form_commentaire'] .= '<input type="hidden" id="captcha" name="captcha" value="'.$defaut['captcha'].'" />'."\n";
 	} else {
-		$GLOBALS['form_commentaire'] .= '<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres($GLOBALS['captcha']['x']).'</b> + <b>'.en_lettres($GLOBALS['captcha']['y']).'</b> ?</label>'."\n";
+		$GLOBALS['form_commentaire'] .= '<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres(mk_captcha('x')).'</b> + <b>'.en_lettres(mk_captcha('y')).'</b> ?</label>'."\n";
 		$GLOBALS['form_commentaire'] .= '<input type="text" id="captcha" name="captcha" value="'.$defaut['captcha'].'" size="25" /><br/>'."\n";
 	}
 		$GLOBALS['form_commentaire'] .= '<input class="submit" accesskey="s" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";
+		$GLOBALS['form_commentaire'] .= '</div>';
 		$GLOBALS['form_commentaire'] .= '<p id="wiki" ><a href="javascript:ouvre(\'inc/wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n".'</form>';
 		// ALLOW COMMENTS OFF
 		} else {

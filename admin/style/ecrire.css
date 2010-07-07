@@ -499,6 +499,16 @@ textarea {
 	border-color: #990000;
 	font-size: 14px;
 }
+.submit-suppr-comm {
+	display: block;
+	float: right;
+	margin-left: 15px;
+	padding: 2px 5px;
+	color: #fff;
+	background: #CC0000;
+	border-color: #990000;
+	font-size: 14px;
+}
 
 .info {
 	padding-left: 20px;

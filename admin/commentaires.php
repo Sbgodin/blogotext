@@ -19,7 +19,7 @@ if ( (!isset($_SESSION['nom_utilisateur'])) || ($_SESSION['nom_utilisateur'] != 
 $article_id='';
 if (isset($_SERVER['QUERY_STRING'])) {
 		if (isset($_GET['post_id'])) {
-			$article_id=$_GET['post_id'];
+			$article_id=htmlspecialchars($_GET['post_id']);
 			$loc_data= $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
 			if ( (file_exists($loc_data)) AND (preg_match('/\d{4}/',$article_id)) ) {
 				$post= init_billet('admin', $article_id);
@@ -32,8 +32,8 @@ if (isset($_SERVER['QUERY_STRING'])) {
 }
 
 // SUPPRIMER
-if (isset($_GET['del'])) {
-		supprimer_commentaire($article_id, $_GET['del']);
+if (isset($_POST['supprimer_comm'])) {
+		supprimer_commentaire($article_id, htmlspecialchars($_POST['comm_id']));
 }
 
 // COMMENT POST INIT
@@ -42,7 +42,7 @@ $comment= init_post_comment($article_id);
 // TRAITEMENT
 $erreurs_form= array();
 if (isset($_POST['_verif_envoi'])) {
-		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], $GLOBALS['captcha']['x']+$GLOBALS['captcha']['y']);
+		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], mk_captcha('x')+mk_captcha('y'));
 }
 if ( empty($erreurs_form) )  {
 		traiter_form_commentaire($GLOBALS['dossier_data_commentaires'], $comment);
