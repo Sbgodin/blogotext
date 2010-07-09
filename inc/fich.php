@@ -152,34 +152,48 @@ function traiter_form_billet($billet) {
 					erreur('Ecriture impossible');
 					exit;
 					}
-	} else if (isset($_POST['supprimer'])) {
-							if (unlink($GLOBALS['dossier_data_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]))) {
-								redirection('index.php?msg=confirm_article_suppr');
-							} else {
-								erreur('Impossible de supprimer le fichier');
-								exit;
-							}
-							$dossier_annee_mois= $GLOBALS['dossier_data_articles'].'/'.$annee.'/'.$mois.'/';
-							rmdir($dossier_annee_mois);
-							$dossier_annee= $GLOBALS['dossier_data_articles'].'/'.$annee.'/';
-							rmdir($dossier_annee);
-						}
+	} elseif (isset($_POST['supprimer'])) {
+
+		if (isset($_POST['security_coin_article']) and htmlspecialchars($_POST['security_coin_article']) == md5($_POST['article_id'].$_SESSION['time_supprimer_article']) and $_SESSION['time_supprimer_article'] >= (time() - 300) ) {
+
+					if (unlink($GLOBALS['dossier_data_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]))) {
+						redirection('index.php?msg=confirm_article_suppr');
+					}
+					else {
+						redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'&errmsg=error_article_suppr_impos');
+						exit;
+					}
+				$dossier_annee_mois= $GLOBALS['dossier_data_articles'].'/'.$annee.'/'.$mois.'/';
+				rmdir($dossier_annee_mois);
+				$dossier_annee= $GLOBALS['dossier_data_articles'].'/'.$annee.'/';
+				rmdir($dossier_annee);
+
+		} else {
+			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'&errmsg=error_article_suppr');
+			exit;
+		}
+	}
 }
 
 function fichier_data($dossier, $billet) {
 		$article_data = '';
+		$article_data .= '<?php die("If you were looking for the answer to life, the universe and everything... It is not here..."); ?>';
+		$article_data .= "\n";
 		$date= decode_id($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]);
 	foreach ($billet as $markup => $content) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);
+			fichier_index($dossier_ini, '1');
 		} 
 		if ( !is_dir(($dossier).'/'.$date['annee']) ) {
 			$dossier_annee = creer_dossier($dossier.'/'.$date['annee']);
+			fichier_index($dossier.'/'.$date['annee'], '2');
 		}
 		if ( !is_dir(($dossier).'/'.$date['annee'].'/'.$date['mois']) ) {
 			$dossier_mois = creer_dossier($dossier.'/'.$date['annee'].'/'.$date['mois']);
+			fichier_index($dossier.'/'.$date['annee'].'/'.$date['mois'], '3');
 		}
 		$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'.'.$GLOBALS['ext_data'];
 		$new_file_data=fopen($fichier_data,'wb+');
@@ -274,6 +288,42 @@ function fichier_prefs() {
 			return 'TRUE';
 		}
 }
+
+function fichier_index($dossier, $recur) {
+	$prefix_dossier = str_repeat("../", $recur);
+	$content = '';
+	$content .= '<html>'."\n";
+	$content .= "\t".'<head>'."\n";
+	$content .= "\t\t".'<title>Access denied</title>'."\n";
+	$content .= "\t".'</head>'."\n";
+	$content .= "\t".'<body>'."\n";
+	$content .= "\t\t".'<a href="'.$prefix_dossier.'">Retour au blog</a>'."\n";
+	$content .= "\t".'</body>'."\n";
+	$content .= '</html>';
+	$index_html = $GLOBALS['racine'].$dossier.'/index.html';
+	$dest_file=fopen($index_html,'wb+');
+	if (fwrite($dest_file,$content) === FALSE) {
+		return 'FALSE';
+	} else {
+		fclose($index_html);
+		return 'TRUE';
+	}
+}
+
+function fichier_htaccess($dossier) {
+	$content = '';
+	$content .= 'Allow from none'."\n";
+	$content .= 'Deny from all'."\n";
+	$htaccess = $GLOBALS['racine'].$dossier.'/.htaccess';
+	$dest_file=fopen($htaccess,'wb+');
+	if (fwrite($dest_file,$content) === FALSE) {
+		return 'FALSE';
+	} else {
+		fclose($htaccess);
+		return 'TRUE';
+	}
+}
+
 
 function apercu($article) {
 			if (isset($article)) {

@@ -11,6 +11,9 @@
 function confirmation($message) {
 	echo '<div class="confirmation">'.$message.'</div>'."\n";
 }
+function no_confirmation($message) {
+	echo '<div class="no_confirmation">'.$message.'</div>'."\n";
+}
 
 function legend($legend, $class='') {
 	echo '<legend class="'.$class.'">'.$legend.'</legend>'."\n"; 
@@ -45,11 +48,18 @@ function question($message) {
 }
 
 function afficher_msg() {
-if (isset($_GET['msg'])) {
-		if (array_key_exists($_GET['msg'], $GLOBALS['lang'])) {
+	if (isset($_GET['msg'])) {
+		if (array_key_exists(htmlspecialchars($_GET['msg']), $GLOBALS['lang'])) {
 			confirmation($GLOBALS['lang'][$_GET['msg']]);
 		}
+	}
 }
+function afficher_msg_error() {
+	if (isset($_GET['errmsg'])) {
+		if (array_key_exists($_GET['errmsg'], $GLOBALS['lang'])) {
+			no_confirmation($GLOBALS['lang'][$_GET['errmsg']]);
+		}
+	}
 }
 
 function moteur_recherche() {

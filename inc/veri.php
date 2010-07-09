@@ -41,17 +41,23 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 			}
 		}
 
-		if ( (filter_var(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]), FILTER_VALIDATE_EMAIL) === FALSE)
-			or (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]]))) ) {
+		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
 		}
 		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]])) or $commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]] == "<p></p>") {
 			$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
 		}
 		if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]))
-			OR !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
+			or !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
 		}
+
+		if (trim($commentaire[$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']]]) != "") {
+			if (!preg_match('#^(https?://[\w.-]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire[$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']]])) ) {
+				$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
+			}
+		}
+
 		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
 	    }
@@ -93,25 +99,25 @@ function valider_form_preferences() {
 	    if (!strlen(trim($_POST['auteur']))) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_auteur'];
 	    }
-	    if ( (! preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i', trim($_POST['email']))) OR (!strlen(trim($_POST['email']))) ) {
+		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($_POST['email']))) {
     	$erreurs[] = $GLOBALS['lang']['err_prefs_email'] ;
 	    }
 	    if (!strlen(trim($_POST['identifiant']))) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_identifiant'];
 	    }
-	   	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] AND (!strlen($_POST['ancien-mdp'])) ) {
+	   	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['ancien-mdp'])) ) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	    }
-	    if ( (strlen(trim($_POST['ancien-mdp']))) AND (ww_hach_sha($_POST['ancien-mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
+	    if ( (strlen(trim($_POST['ancien-mdp']))) and (ww_hach_sha($_POST['ancien-mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
     	$erreurs[] = $GLOBALS['lang']['err_prefs_oldmdp'];
 	    }
-	    if ( (strlen($_POST['ancien-mdp'])) AND (strlen($_POST['nouveau-mdp']) < '6') ) {
+	    if ( (strlen($_POST['ancien-mdp'])) and (strlen($_POST['nouveau-mdp']) < '6') ) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_mdp'];
 	    }
-	    if ( (strlen($_POST['nouveau-mdp'])) AND (!strlen($_POST['ancien-mdp'])) ) {
+	    if ( (strlen($_POST['nouveau-mdp'])) and (!strlen($_POST['ancien-mdp'])) ) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_newmdp'] ;
 	    }
-	    if ( ($_POST['nb_maxi'] > '50') OR ($_POST['nb_maxi'] < '5') ) {
+	    if ( ($_POST['nb_maxi'] > '50') or ($_POST['nb_maxi'] < '5') ) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_nbmax'];
 	    }
     return $erreurs;

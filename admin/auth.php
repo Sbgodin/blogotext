@@ -7,14 +7,25 @@
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
-//error_reporting(E_ALL);
+error_reporting(E_ALL);
 if ( !file_exists('../config/user.php') || !file_exists('../config/prefs.php') ) {
 	header('Location: install.php');
 }
 session_start() ;
+
 if (isset($_POST['_verif_envoi'])) {
+	session_regenerate_id();
 	header('Location: index.php');
 }
+
+if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else { 
+	$ip = $_SERVER['REMOTE_ADDR'];
+}
+$_SESSION['antivol'] = md5($_SERVER['HTTP_USER_AGENT'].$ip);
+$_SESSION['timestamp'] = time();
+
 require_once '../inc/inc.php';
 
 afficher_top('Identification');

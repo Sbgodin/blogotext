@@ -14,19 +14,45 @@ function liste_commentaires($dossier, $article_id) {
 	$year = date('Y');
 	$month = date('m');
 	for ($i = $date['annee']; $i <= $year; $i++) {
-		for ($j = $date['mois']; $j <= $month ; $j++) {
-			if (strlen($j) == '1') {
-				$j = '0'.$j;
+		if ($date['annee'] == $year) {
+			for ($j = $date['mois']; $j <= $month ; $j++) {
+				if (strlen($j) == '1') {
+					$j = '0'.$j;
+				}
+				if(is_dir($dossier.'/'.$i.'/'.$j)) {
+					$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
+					foreach ($liste as $comm) {
+						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+							$path = $dossier.'/'.get_path_no_ext($comm);
+							$syntax_version= get_version($path);
+					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+						 		$retour[] =$comm;
+							}
+						}
+					}
+				}
 			}
-			if(is_dir($dossier.'/'.$i.'/'.$j)) {
-				$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
-				foreach ($liste as $comm) {
-					if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-						$path = $dossier.'/'.get_path_no_ext($comm);
-						$syntax_version= get_version($path);
-				  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-					 		$retour[] =$comm;
-	}	}	}	}	}	}
+		}
+		elseif ($date['annee'] < $year) {
+			for ($j = '01'; $j <= '12' ; $j++) {
+				if (strlen($j) == '1') {
+					$j = '0'.$j;
+				}
+				if(is_dir($dossier.'/'.$i.'/'.$j)) {
+					$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
+					foreach ($liste as $comm) {
+						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+							$path = $dossier.'/'.get_path_no_ext($comm);
+							$syntax_version= get_version($path);
+					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+						 		$retour[] =$comm;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	if (isset($retour)) {
 		return $retour;
 	}
@@ -82,6 +108,9 @@ function afficher_commentaire($comment, $with_link) {
 			echo '<p>';
 				input_supprimer_comment();
 				hidden_input('comm_id', $comment['id']);
+				$time = time();
+				$_SESSION['time_supprimer_commentaire'] = $time;
+				hidden_input('security_coin', md5($comment['id'].$time));
 				echo '<br style="clear: right;"/>';
 			echo '</p>';
 		echo '</form>';
@@ -97,6 +126,7 @@ $loc_comment= '../'.$GLOBALS['dossier_commentaires'].'/'.get_path_no_ext($commen
 		redirection($_SERVER['PHP_SELF'].'?post_id='.$article_id.'&msg=confirm_comment_suppr');
 	} else {
 		erreur('Impossible de supprimer le fichier');
+		redirection($_SERVER['PHP_SELF'].'?post_id='.$article_id.'&errmsg=error_comment_suppr_impos');
 	}
 }
 
@@ -137,20 +167,17 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 		if (isset($_COOKIE['auteur_c'])) {
 			$auteur_c = htmlspecialchars($_COOKIE['auteur_c']);
-			}
-		else {
+		} else {
 			$auteur_c = "";
-			}
+		}
 		if (isset($_COOKIE['email_c'])) {
 			$email_c = htmlspecialchars($_COOKIE['email_c']);
-			}
-		else {
+		} else {
 			$email_c = "";
-			}
+		}
 		if (isset($_COOKIE['webpage_c'])) {
 			$webpage_c = htmlspecialchars($_COOKIE['webpage_c']);
-			}
-		else {
+		} else {
 			$webpage_c = "";
 			}
 		$defaut = array(

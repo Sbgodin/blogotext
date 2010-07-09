@@ -157,6 +157,7 @@ $lang_nl = array(
 'err_comm_email'					=> 'Emailadres is ongeldig',
 'err_comm_contenu'				=> 'Uw reactie is leeg',
 'err_comm_captcha'				=> 'Het anti-spam som is niet correct',
+'err_comm_webpage'				=> 'Het URL is niet correct',
 // Questions
 'question_suppr_article'		=> 'Bent u zeker dat u deze artikel wilt verwijderen ?',
 'question_suppr_comment'		=> 'Bent u zeker dat u deze commentaar wilt verwijderen ?',
@@ -170,6 +171,11 @@ $lang_nl = array(
 'confirm_logout_ok'				=> 'U bent uitgemeld',
 'confirm_comment_ajout'			=> 'Uw commentaar is toegevoegd',
 'confirm_comment_suppr'			=> 'Het commentaar is verwijdert',
+// No-onfiramtion
+'error_comment_suppr'			=> 'Het commentaar is *niet* verweijdert',
+'error_comment_suppr_impos'	=> 'Het commentaar kan niet voorden verweijdert',
+'error_article_suppr_impos'	=> 'Het artikel kan niet voorden verweijdert',
+'error_article_suppr'			=> 'Het artikel is *niet* verweijdert',
 // Redirections
 'retour_liste'						=> '« Lijst met berichten',
 // Titres des pages

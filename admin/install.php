@@ -7,7 +7,7 @@
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
-//error_reporting(E_ALL);
+error_reporting(E_ALL);
 if ( (file_exists('../config/user.php')) AND (file_exists('../config/prefs.php')) ) {
 	header('Location: auth.php');
 	exit;
@@ -140,6 +140,8 @@ if ( !is_dir($config_dir)) {
 	creer_dossier($config_dir);
 }
 	fichier_user();
+	fichier_index($config_dir, '1');
+	fichier_htaccess($config_dir);
 }
 
 function traiter_install_3() {
@@ -157,6 +159,11 @@ function traiter_install_3() {
 	  	$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => '1'
 	  );
 	fichier_data($GLOBALS['dossier_data_articles'], $first_post);
+
+	fichier_index($GLOBALS['dossier_data_articles'], '1');
+	fichier_htaccess($GLOBALS['dossier_data_articles']);
+	fichier_index($GLOBALS['dossier_data_commentaires'], '1');
+	fichier_htaccess($GLOBALS['dossier_data_commentaires']);
 }
 
 function valid_install_1() {

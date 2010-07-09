@@ -251,9 +251,9 @@ if ($erreurs) {
 	erreurs($erreurs);
 }
 if (isset($article['id'])) {
-echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
+	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
 } else {
-echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
+	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 }
 echo '<div id="form">'."\n";
 label('titre', $GLOBALS['lang']['label_titre']);
@@ -293,7 +293,11 @@ hidden_input('secondes', $article['secondes']);
 	echo '<div id="bt">';
 		input_enregistrer();
 		if ($article) {
-		input_supprimer();
+			input_supprimer();
+			$time = time();
+			$_SESSION['time_supprimer_article'] = $time;
+			hidden_input('security_coin_article', md5($article['id'].$time));
+			hidden_input('article_id', $article['id']);
 		}
 	echo '</div>';
 hidden_input('_verif_envoi', '1');

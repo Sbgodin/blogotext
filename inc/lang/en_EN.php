@@ -157,6 +157,7 @@ $lang_en = array(
 'err_comm_email'					=> 'Invalid email address',
 'err_comm_contenu'				=> 'The comment is empty',
 'err_comm_captcha'				=> 'Incorrect addition',
+'err_comm_webpage'				=> 'Invalid URL',
 // Questions
 'question_suppr_article'		=> 'Are you sure you want to delete this article ?',
 'question_suppr_comment'		=> 'Are you sure you want to delete this comment ?',
@@ -170,6 +171,11 @@ $lang_en = array(
 'confirm_logout_ok'				=> 'You have been disconnected',
 'confirm_comment_ajout'			=> 'Your comment has been added',
 'confirm_comment_suppr'			=> 'The comment has been deleted',
+// No-onfiramtion
+'error_comment_suppr'			=> 'The comment has *not* been deleted',
+'error_comment_suppr_impos'	=> 'The comment cannot be deleted',
+'error_article_suppr_impos'	=> 'Your article cannot been deleted',
+'error_article_suppr'			=> 'Your article has not been deleted',
 // Redirections
 'retour_liste'						=> '« List of articles',
 // Titres des pages

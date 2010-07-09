@@ -20,7 +20,7 @@ $GLOBALS['version']= '0.9.3';
 $GLOBALS['syntax_version']= '1';
 //$GLOBALS['appsite']= 'http://www.blogotext.com/';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
-$GLOBALS['ext_data']= 'txt';
+$GLOBALS['ext_data']= 'php';
 // FOLDERS
 $GLOBALS['dossier_data_articles']= '../articles';
 $GLOBALS['dossier_articles']= 'articles';

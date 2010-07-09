@@ -157,6 +157,7 @@ $lang_l33t_fr = array(
 'err_comm_email'					=> 'L\'adresse e-mail n\'est pas valide',
 'err_comm_contenu'				=> 'Le commentaire est vide',
 'err_comm_captcha'				=> 'La somme est incorrecte',
+'err_comm_webpage'				=> 'Invalid URL',
 // Questions
 'question_suppr_article'		=> 'Êtes-vous sûr de vouloir supprimer cet article ?',
 'question_suppr_comment'		=> 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
@@ -170,6 +171,11 @@ $lang_l33t_fr = array(
 'confirm_logout_ok'				=> 'Vous êtes bien déconnecté',
 'confirm_comment_ajout'			=> 'Votre commentaire a été ajouté',
 'confirm_comment_suppr'			=> 'Le commentaire a été supprimé',
+// No-onfiramtion
+'error_comment_suppr'			=> 'Le commentaire *n\'a pas* été supprimé',
+'error_comment_suppr_impos'	=> 'Le commentaire n\'a pas pu être supprimé',
+'error_article_suppr_impos'	=> 'L\'article n\'a pas pu être supprimé',
+'error_article_suppr'			=> 'L\'article n\'a pas été supprimé',
 // Redirections
 'retour_liste'						=> '« Liste des articles',
 // Titres des pages

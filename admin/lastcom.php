@@ -11,22 +11,40 @@
 
 require_once '../inc/inc.php';
 session_start() ;
-if ( (!isset($_SESSION['nom_utilisateur'])) || ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
+/*if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
 	header('Location: auth.php');
 	exit;
+}*/
+
+if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else { 
+	$ip = $_SERVER['REMOTE_ADDR'];
 }
+
+
+if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) or (!isset($_SESSION['antivol'])) or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip)) or (!isset($_SESSION['timestamp'])) or ($_SESSION['timestamp'] < time()-1800)) {
+	header('Location: logout.php');
+	exit;
+}
+$_SESSION['timestamp'] = time();
+
 // SUPPRIMER
 if (isset($_POST['supprimer_comm'])) {
-		supprimer_commentaire($article_id, htmlspecialchars($_POST['comm_id']));
+	if (isset($_POST['security_coin']) and htmlspecialchars($_POST['security_coin']) == md5($_POST['comm_id'].$_SESSION['time_supprimer_commentaire']) and $_SESSION['time_supprimer_commentaire'] >= (time() - 300) ) {
+		supprimer_commentaire(htmlspecialchars($article_id), htmlspecialchars($_POST['comm_id']));
+	}
+	else {
+		redirection($_SERVER['PHP_SELF'].'?post_id='.$article_id.'&errmsg=error_comment_suppr');
+	}
 }
 
 // DEBUT PAGE
 afficher_top($GLOBALS['lang']['titre_commentaires']);
 afficher_msg();
+afficher_msg_error();
 
 echo '<div id="top">'."\n";
-moteur_recherche();
-
 echo '<ul id="nav">'."\n";
 
 afficher_menu('lastcom.php');

@@ -10,10 +10,23 @@
 //error_reporting(E_ALL);
 require_once '../inc/inc.php';
 session_start() ;
-if ( (!isset($_SESSION['nom_utilisateur'])) || ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
+/*if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
 	header('Location: auth.php');
 	exit;
+}*/
+
+if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else { 
+	$ip = $_SERVER['REMOTE_ADDR'];
 }
+
+
+if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) or (!isset($_SESSION['antivol'])) or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip)) or (!isset($_SESSION['timestamp'])) or ($_SESSION['timestamp'] < time()-1800)) {
+	header('Location: logout.php');
+	exit;
+}
+$_SESSION['timestamp'] = time();
 
 if (isset($_GET['q'])) {
 				$tableau=table_recherche($GLOBALS['dossier_data_articles'], $_GET['q']);
