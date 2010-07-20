@@ -120,6 +120,7 @@ hidden_input('email', '');
 hidden_input('nomsite', 'Blogotext');
 hidden_input('description', $GLOBALS['lang']['go_to_pref']);
 hidden_input('nb_maxi', '10');
+hidden_input('nb_maxi_comm', '5');
 hidden_input('nb_list', '25');
 hidden_input('nb_list_com', '50');
 hidden_input('format_date', '0');

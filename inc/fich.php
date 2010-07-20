@@ -269,6 +269,7 @@ function fichier_prefs() {
 		$prefs .= "\$GLOBALS['description'] = '".clean_txt($_POST['description'])."';		\n";
 		$prefs .= "\$GLOBALS['racine'] = '".trim($_POST['racine'])."';							\n";
 		$prefs .= "\$GLOBALS['nb_maxi'] = '".$_POST['nb_maxi']."';								\n";
+		$prefs .= "\$GLOBALS['nb_maxi_comm'] = '".$_POST['nb_maxi_comm']."';					\n";
 		$prefs .= "\$GLOBALS['nb_list'] = '".$_POST['nb_list']."';								\n";
 		$prefs .= "\$GLOBALS['nb_list_com'] = '".$_POST['nb_list_com']."';					\n";
 		$prefs .= "\$GLOBALS['onglet_commentaires'] = '".$_POST['onglet_commentaires']."';	\n";

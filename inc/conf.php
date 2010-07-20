@@ -100,6 +100,9 @@ $GLOBALS['boucles'] = array(
 $GLOBALS['balises']= array(
 	'charset' => array('{charset}'),
 	'version' => array('{version}'),
+	'style' => array('{style}'),
+	'racine_du_site' => array('{racine_du_site}'),
+	'rss' => array('{rss}'),
 // Blog
 	'blog_nom' => array('{nom_du_blog}','{blog_nom}','{blog_name}'),
 	'blog_description' => array('{blog_description}','{description}'),
@@ -109,6 +112,7 @@ $GLOBALS['balises']= array(
 	'form_recherche' => array('{recherche}', '{search}'),
 	'form_calendrier' => array('{calendrier}', '{calendar}'),
 	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
+	'commentaires_encart' => array('{commentaires_encart}'),
 // Article
 	'article_titre' => array('{article_titre}','{article_title}'),
 	'article_chapo' => array('{article_chapo}','{article_abstract}'),
@@ -124,7 +128,8 @@ $GLOBALS['balises']= array(
 	'commentaire_heure'=> array('{commentaire_heure}','{comment_time}'),
 	'commentaire_date'=> array('{commentaire_date}','{comment_date}'),
 	'commentaire_email'=> array('{commentaire_email}','{comment_email}'),
-	'commentaire_webpage'=> array('{commentaire_webpage}','{comment_webpage}')
+	'commentaire_webpage'=> array('{commentaire_webpage}','{comment_webpage}'),
+	'commentaire_anchor'=> array('{commentaire_ancre}','{comment_anchor}')
 );
 
 // SYNTAX FOR DATA STORAGE
@@ -216,6 +221,8 @@ $syntax_version = get_version($file);
 		if ($comment['webpage'] != '') {
 			$comment['auteur'] = '<a href="'.$comment['webpage'].'" class="webpage">'.$comment['auteur'].'</a>';
 		}
+
+		$comment['anchor'] = '<a href="#'.article_anchor($comment['id']).'" id="'.article_anchor($comment['id']).'">#</a>';
 		$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]);
 		$comment['annee'] = $dec['annee'];
 		$comment['mois'] = $dec['mois'];
@@ -263,4 +270,7 @@ $comment= array();
 	}
 return $comment;
 }
+
+
+
 ?>

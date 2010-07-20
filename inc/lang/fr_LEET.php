@@ -207,6 +207,7 @@ $lang_l33t_fr = array(
 'pref_racine'						=> 'Adresse du blog (URL)',
 'pref_dossier_images'			=> 'Emplacement des images',
 'pref_nb_maxi'						=> 'Nombre d\'articles sur l\'accueil',
+'pref_nb_maxi_comm'				=> 'Nombre de commentaires dans l\'aperçu sur l\'accueil',
 'pref_nb_list'						=> 'Nombre d\'articles dans la liste',
 'pref_nb_list_com'				=> 'Nombre de commentaires dans la liste',
 'pref_apercu'						=> 'Activer l\'aperçu',

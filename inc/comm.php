@@ -21,12 +21,14 @@ function liste_commentaires($dossier, $article_id) {
 				}
 				if(is_dir($dossier.'/'.$i.'/'.$j)) {
 					$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
-					foreach ($liste as $comm) {
-						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-							$path = $dossier.'/'.get_path_no_ext($comm);
-							$syntax_version= get_version($path);
-					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-						 		$retour[] =$comm;
+					if ($liste != "") {
+						foreach ($liste as $comm) {
+							if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+								$path = $dossier.'/'.get_path_no_ext($comm);
+								$syntax_version= get_version($path);
+						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+							 		$retour[] =$comm;
+								}
 							}
 						}
 					}
@@ -40,12 +42,14 @@ function liste_commentaires($dossier, $article_id) {
 				}
 				if(is_dir($dossier.'/'.$i.'/'.$j)) {
 					$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
-					foreach ($liste as $comm) {
-						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-							$path = $dossier.'/'.get_path_no_ext($comm);
-							$syntax_version= get_version($path);
-					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-						 		$retour[] =$comm;
+					if ($liste != "") {
+						foreach ($liste as $comm) {
+							if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+								$path = $dossier.'/'.get_path_no_ext($comm);
+								$syntax_version= get_version($path);
+						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+							 		$retour[] =$comm;
+								}
 							}
 						}
 					}
@@ -58,24 +62,41 @@ function liste_commentaires($dossier, $article_id) {
 	}
 }
 
-/*
-function liste_commentaires($dossier, $article_id) {
+function liste_derniers_comm($nb_comm) {
+	$dossier = $GLOBALS['dossier_commentaires'];
 	$liste= array();
-	if ($liste = table_derniers($dossier)) {
-		foreach ($liste as $comm) {
-			$path = $dossier.'/'.get_path_no_ext($comm);
-			$syntax_version= get_version($path);
-     			if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-       			$retour[]=$comm;
-     			}
+	$year = date('Y');
+	$month = date('m');
+	if (date('m') == '01') {
+		$month = '12';
+		$year = date('Y')-1;
+	}
+	for ($i = $year; $i <= date('Y'); $i++) {
+		for ($j = $month-1; $j <= date('m') ; $j++) {
+			if (strlen($j) == '1') {
+				$j = '0'.$j;
+			}
+			if(is_dir($dossier.'/'.$i.'/'.$j)) {
+				$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
+				if ($liste != "") {
+					foreach ($liste as $comm) {
+						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+							$path = $dossier.'/'.get_path_no_ext($comm);
+							$syntax_version= get_version($path);
+					 		$retour[] =$comm;
+						}
+					}
+				}
+			}
 		}
 	}
 	if (isset($retour)) {
-		krsort($retour);
+		$retour = array_slice($retour, -$nb_comm, $nb_comm);
+		rsort($retour);
 		return $retour;
 	}
 }
-*/
+
 function en_lettres($captchavalue) {
 
 	switch($captchavalue) {

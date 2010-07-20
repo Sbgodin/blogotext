@@ -207,6 +207,7 @@ $lang_en = array(
 'pref_racine'						=> 'Blog URL',
 'pref_dossier_images'			=> 'Images location',
 'pref_nb_maxi'						=> 'Number of articles on home page',
+'pref_nb_maxi_comm'				=> 'Number of comments preview on home page',
 'pref_nb_list'						=> 'Number of articles in the list',
 'pref_nb_list_com'				=> 'Number of comments in the list',
 'pref_apercu'						=> 'Show article preview',

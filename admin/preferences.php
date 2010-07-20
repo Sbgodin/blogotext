@@ -71,12 +71,14 @@ print '</fieldset>';
 print '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_apparence'], 'legend-apparence');
 
-$choix_nb= array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25');
-form_select('nb_maxi', $choix_nb, $GLOBALS['nb_maxi'],$GLOBALS['lang']['pref_nb_maxi']);
+$choix_nb_articles= array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25');
+form_select('nb_maxi', $choix_nb_articles, $GLOBALS['nb_maxi'],$GLOBALS['lang']['pref_nb_maxi']);
+$choix_nb_com= array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'15', '20'=>'20');
+form_select('nb_maxi_comm', $choix_nb_com, $GLOBALS['nb_maxi_comm'],$GLOBALS['lang']['pref_nb_maxi_comm']);
 $themes= liste_themes($GLOBALS['dossier_themes']);
 form_select('theme', $themes, $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
-
 print '</fieldset>';
+
 print '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_securite'], 'legend-securite');
 form_text('identifiant', $GLOBALS['identifiant'], $GLOBALS['lang']['pref_identifiant']);

@@ -180,6 +180,12 @@ function get_blogpath($id) {
 	return $path;
 }
 
+function get_blogpath_from_blog($id) {
+	$date= decode_id($id);
+	$path= $GLOBALS['racine'].'index.php?'.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(parse_xml($GLOBALS['dossier_articles'].'/'.get_path($id), 'titre'));
+	return $path;
+}
+
 function get_titre($id) {
 	$titre = parse_xml($GLOBALS['dossier_data_articles']."/".get_path($id), 'bt_title');
 	return $titre;
@@ -188,6 +194,11 @@ function get_titre($id) {
 function ww_hach_sha($text) {
 	$out = hash("sha512", $text);
 	return $out;
+}
+
+function article_anchor($id) {
+	$anchor = substr(md5($id), '0', '6');
+	return $anchor;
 }
 
 ?>

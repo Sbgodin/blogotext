@@ -7,6 +7,8 @@
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
+//error_reporting(E_ALL);
+
 if (isset($_POST['auteur'])) {
 	setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true);
 }

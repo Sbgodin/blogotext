@@ -207,6 +207,7 @@ $lang_nl = array(
 'pref_racine'						=> 'Adres (URL) van uw blog',
 'pref_dossier_images'			=> 'Map mat afbeeldingen',
 'pref_nb_maxi'						=> 'Aantal items op uw homepage',
+'pref_nb_maxi_comm'				=> 'Aantal commentaaren previews op de homepage',
 'pref_nb_list'						=> 'Aantal itemps in de lijst',
 'pref_nb_list_com'				=> 'Aantal commentaaren in de lijst',
 'pref_apercu'						=> 'Overzicht',
