@@ -141,8 +141,6 @@ if ( !is_dir($config_dir)) {
 	creer_dossier($config_dir);
 }
 	fichier_user();
-	fichier_index($config_dir, '1');
-	fichier_htaccess($config_dir);
 }
 
 function traiter_install_3() {
@@ -160,11 +158,6 @@ function traiter_install_3() {
 	  	$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => '1'
 	  );
 	fichier_data($GLOBALS['dossier_data_articles'], $first_post);
-
-	fichier_index($GLOBALS['dossier_data_articles'], '1');
-	fichier_htaccess($GLOBALS['dossier_data_articles']);
-	fichier_index($GLOBALS['dossier_data_commentaires'], '1');
-	fichier_htaccess($GLOBALS['dossier_data_commentaires']);
 }
 
 function valid_install_1() {

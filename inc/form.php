@@ -166,13 +166,15 @@ foreach ($annees as $id => $dossier_annee) {
  	$chemin = $dossier.'/'.$dossier_annee.'/';
 	 if ( $ouverture = opendir($chemin) ) { 
        while ( false !== ($file_mois = readdir($ouverture)) ) {
-       	if ($fichiers = opendir($chemin.$file_mois)) {
-       		while ($files=readdir($fichiers)) {
-       			if ( (preg_match('/\d{2}/', $file_mois)) AND ((substr($files,'-3','3')) == $GLOBALS['ext_data']) ){
-       			$dossier_mois[$dossier_annee.$file_mois]= mois_en_lettres($file_mois).' '.$dossier_annee;	
-       		}
-       		}
-       	}
+       	if (is_dir($chemin.$file_mois)) {
+		    	if ($fichiers = opendir($chemin.$file_mois)) {
+		    		while ($files=readdir($fichiers)) {
+		    			if ( (preg_match('/\d{2}/', $file_mois)) AND ((substr($files,'-3','3')) == $GLOBALS['ext_data']) ){
+		    			$dossier_mois[$dossier_annee.$file_mois]= mois_en_lettres($file_mois).' '.$dossier_annee;	
+		    		}
+		    		}
+		    	}
+			}
        }
        closedir($ouverture);
 		}

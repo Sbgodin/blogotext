@@ -185,15 +185,15 @@ function fichier_data($dossier, $billet) {
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);
-			fichier_index($dossier_ini, '1');
+//			fichier_index($dossier_ini);
 		} 
 		if ( !is_dir(($dossier).'/'.$date['annee']) ) {
 			$dossier_annee = creer_dossier($dossier.'/'.$date['annee']);
-			fichier_index($dossier.'/'.$date['annee'], '2');
+//			fichier_index($dossier_annee);
 		}
 		if ( !is_dir(($dossier).'/'.$date['annee'].'/'.$date['mois']) ) {
 			$dossier_mois = creer_dossier($dossier.'/'.$date['annee'].'/'.$date['mois']);
-			fichier_index($dossier.'/'.$date['annee'].'/'.$date['mois'], '3');
+//			fichier_index($dossier_mois);
 		}
 		$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'.'.$GLOBALS['ext_data'];
 		$new_file_data=fopen($fichier_data,'wb+');
@@ -209,6 +209,8 @@ function creer_dossier($dossier) {
 		if (mkdir($dossier, 0700) === FALSE) {
 			return 'FALSE';
 		} else {
+		fichier_index($dossier);
+		fichier_htaccess($dossier);
 		return 'TRUE';
 		}
 	}
@@ -290,23 +292,22 @@ function fichier_prefs() {
 		}
 }
 
-function fichier_index($dossier, $recur) {
-	$prefix_dossier = str_repeat("../", $recur);
+function fichier_index($dossier) {
 	$content = '';
 	$content .= '<html>'."\n";
 	$content .= "\t".'<head>'."\n";
 	$content .= "\t\t".'<title>Access denied</title>'."\n";
 	$content .= "\t".'</head>'."\n";
 	$content .= "\t".'<body>'."\n";
-	$content .= "\t\t".'<a href="'.$prefix_dossier.'">Retour au blog</a>'."\n";
+	$content .= "\t\t".'<a href="/">Retour a la racine du site</a>'."\n";
 	$content .= "\t".'</body>'."\n";
 	$content .= '</html>';
-	$index_html = $GLOBALS['racine'].$dossier.'/index.html';
+	$index_html = $dossier.'/index.html';
 	$dest_file=fopen($index_html,'wb+');
 	if (fwrite($dest_file,$content) === FALSE) {
 		return 'FALSE';
 	} else {
-		fclose($index_html);
+		fclose($dest_file);
 		return 'TRUE';
 	}
 }
@@ -315,12 +316,12 @@ function fichier_htaccess($dossier) {
 	$content = '';
 	$content .= 'Allow from none'."\n";
 	$content .= 'Deny from all'."\n";
-	$htaccess = $GLOBALS['racine'].$dossier.'/.htaccess';
+	$htaccess = $dossier.'/.htaccess';
 	$dest_file=fopen($htaccess,'wb+');
 	if (fwrite($dest_file,$content) === FALSE) {
 		return 'FALSE';
 	} else {
-		fclose($htaccess);
+		fclose($dest_file);
 		return 'TRUE';
 	}
 }
