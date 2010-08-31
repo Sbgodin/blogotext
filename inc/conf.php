@@ -264,10 +264,10 @@ $comment= array();
 			$GLOBALS['data_syntax']['bt_version'][$GLOBALS['syntax_version']] => $GLOBALS['version'],
 			$GLOBALS['data_syntax']['comment_id'][$GLOBALS['syntax_version']] => date('Y').date('m').date('d').date('H').date('i').date('s'),
 			$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']] => $id,
-			$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']] => formatage_commentaires(htmlspecialchars(($_POST['commentaire']))),
-			$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes($_POST['auteur'])),
-			$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(($_POST['email']))),
-			$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(($_POST['webpage']))),
+			$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']] => formatage_commentaires(stripslashes(htmlspecialchars(clean_txt($_POST['commentaire'])))),
+			$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
+			$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
+			$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
 			);
 	}
 return $comment;

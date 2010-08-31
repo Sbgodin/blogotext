@@ -162,11 +162,11 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 	if ( (isset($_POST['_verif_envoi'])) AND (isset($erreurs)) AND ($erreurs != '') ) {
 		$defaut = array(
-			'auteur' => htmlspecialchars($_POST['auteur']),
-			'email' => htmlspecialchars($_POST['email']),
-			'webpage' => htmlspecialchars($_POST['webpage']),
-			'commentaire' => htmlspecialchars($_POST['commentaire']),
-			'captcha' => htmlspecialchars($_POST['captcha']),
+			'auteur' => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
+			'email' => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
+			'webpage' => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
+			'commentaire' => htmlspecialchars(stripslashes(clean_txt($_POST['commentaire']))),
+			'captcha' => htmlspecialchars(stripslashes(clean_txt($_POST['captcha']))),
 			);
 
 	} elseif (isset($mode) AND $mode == 'admin') {
@@ -180,24 +180,24 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			);
 	} else {
 		if (isset($_GET['n'])) {
-				$arguments = htmlspecialchars($_SERVER['QUERY_STRING']);
+				$arguments = htmlspecialchars(stripslashes($_SERVER['QUERY_STRING']));
 				$ntab = explode('&',$arguments);
 				$page = $ntab['0'];
 				header('Location: '.'index.php?'.$page.'#top');
 			}
 
 		if (isset($_COOKIE['auteur_c'])) {
-			$auteur_c = htmlspecialchars($_COOKIE['auteur_c']);
+			$auteur_c = htmlspecialchars(stripslashes(clean_txt($_COOKIE['auteur_c'])));
 		} else {
 			$auteur_c = "";
 		}
 		if (isset($_COOKIE['email_c'])) {
-			$email_c = htmlspecialchars($_COOKIE['email_c']);
+			$email_c = htmlspecialchars(stripslashes(clean_txt($_COOKIE['email_c'])));
 		} else {
 			$email_c = "";
 		}
 		if (isset($_COOKIE['webpage_c'])) {
-			$webpage_c = htmlspecialchars($_COOKIE['webpage_c']);
+			$webpage_c = htmlspecialchars(stripslashes(clean_txt($_COOKIE['webpage_c'])));
 		} else {
 			$webpage_c = "";
 			}

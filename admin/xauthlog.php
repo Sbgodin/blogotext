@@ -20,3 +20,5 @@
 01 09 2010 / 12:17:23 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
 01 09 2010 / 12:28:30 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
 01 09 2010 / 12:33:37 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
+01 09 2010 / 17:34:11 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
+01 09 2010 / 18:08:40 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
