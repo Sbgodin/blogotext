@@ -70,6 +70,13 @@ function form_check($id, $defaut, $label) {
 	echo '</p>'."\n";
 }
 
+function form_radio($name, $id, $value, $label) {
+	echo '<p>'."\n";
+	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
+	echo '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" />'."\n";
+	echo '</p>'."\n";
+}
+
 function form_password($id, $defaut, $label) {
 	echo '<p>'."\n";
 	echo '<label for="'.$id.'">'.$label.'</label>'."\n";
@@ -95,6 +102,10 @@ function input_supprimer_comment() {
 
 function input_enregistrer() {
 	echo '<input accesskey="s" class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
+}
+
+function input_valider() {
+	echo '<input accesskey="s" class="submit" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
 }
 
 function input_upload() {

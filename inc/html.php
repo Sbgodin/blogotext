@@ -162,7 +162,7 @@ if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) {
 	    			$GLOBALS['calendrier'].=  '<td></td>';
 	    		}
 	    	}
-	    	// Indique le jour consultÈ
+	    	// Indique le jour consulte
 	    	for ($jour = 1; $jour <= $jours_dans_mois; $jour++) {
 	    		if ($jour == $ce_jour) {
 	    			$class = ' class="active"';
@@ -221,5 +221,55 @@ function encart_commentaires() {
 		return $GLOBALS['lang']['no_comments'];
 	}
 }
+
+function decompte_sleep() {
+	if ((!isset($GLOBALS['connexion_delai']) or $GLOBALS['connexion_delai'] != '0')) {
+		echo '<div id="msgcompt" style="text-align: center; color:white;">';
+		echo $GLOBALS['lang']['patientez'];
+		echo ' <span id="decompte">&nbsp;</span> ';
+		echo $GLOBALS['lang']['secondes'];
+		echo ' '.$GLOBALS['lang']['note_delay_desactivable'];
+		echo '.</div>';
+		echo '
+<script type="text/javascript">
+	chrono=10;
+	function decompte() 
+	{
+		window.document.getElementById("msgcompt").style.color = "black";
+		if (chrono > 0)
+		{
+			chrono--;
+			window.document.getElementById("decompte").innerHTML = chrono;
+			setTimeout(decompte,1000);
+		}
+	}
+</script>
+';
+	}
+}
+
+function js_reload_captcha() {
+
+echo '<script language="javascript">'."\n";
+echo '<!--'."\n";
+echo 'function new_freecap()'."\n";
+echo '{'."\n";
+echo '// loads new freeCap image'."\n";
+echo 'if(document.getElementById)'."\n";
+echo '{'."\n";
+echo 'thesrc = document.getElementById("freecap").src;'."\n";
+echo 'thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);'."\n";
+
+echo 'document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);'."\n";
+echo '} else {'."\n";
+echo 'alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");'."\n";
+echo '}'."\n";
+echo '}'."\n";
+echo '//-->'."\n";
+echo '</script>'."\n";
+
+}
+
+
 
 ?>

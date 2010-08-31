@@ -440,6 +440,18 @@ fieldset input, fieldset textarea {
 	background: url("image.gif") no-repeat 5px;
 }
 
+.legend-question{
+	background: url("question.gif") no-repeat 5px;
+}
+
+.legend-tic{
+	background: url("on.gif") no-repeat 5px;
+}
+
+.legend-cross{
+	background: url("off.gif") no-repeat 5px;
+}
+
 
 /* APERCU */
 
@@ -496,6 +508,11 @@ textarea {
 	border-color: #2E83D9;
 	font-size: 14px;
 	font-weight: bold;
+}
+
+fieldset.valid-center .submit {
+	float: none;
+	margin: 0 auto;
 }
 
 .submit-suppr {
@@ -707,6 +724,9 @@ input.inline {
 	color: #999;
 }
 
+#freecap {
+	border: 1px dashed silver;
+}
 
 /* LISTE BILLETS */
 

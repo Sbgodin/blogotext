@@ -128,6 +128,11 @@ hidden_input('format_heure', '0');
 hidden_input('onglet_commentaires', 'on');
 hidden_input('onglet_images', 'on');
 hidden_input('global_coments', '0');
+
+hidden_input('global_coments', '0');
+hidden_input('connexion_delay', '1');
+hidden_input('connexion_captcha', '0' );
+
 hidden_input('verif_envoi_3', '1');
 hidden_input('apercu', '1');
 hidden_input('theme', 'defaut');
@@ -141,6 +146,8 @@ if ( !is_dir($config_dir)) {
 	creer_dossier($config_dir);
 }
 	fichier_user();
+	fichier_index($config_dir, '1');
+	fichier_htaccess($config_dir);
 }
 
 function traiter_install_3() {
@@ -155,9 +162,15 @@ function traiter_install_3() {
    		$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']] => $GLOBALS['lang']['first_edit'],
    		$GLOBALS['data_syntax']['article_wiki_content'][$GLOBALS['syntax_version']] => $GLOBALS['lang']['first_edit'],
    		$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => '',
-	  	$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => '1'
+		  	$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => '1',
+	  	$GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => '1'
 	  );
 	fichier_data($GLOBALS['dossier_data_articles'], $first_post);
+
+	fichier_index($GLOBALS['dossier_data_articles'], '1');
+	fichier_htaccess($GLOBALS['dossier_data_articles']);
+	fichier_index($GLOBALS['dossier_data_commentaires'], '1');
+	fichier_htaccess($GLOBALS['dossier_data_commentaires']);
 }
 
 function valid_install_1() {

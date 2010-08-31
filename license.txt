@@ -1,0 +1,33 @@
+=======================================================
+=== Blogotext =========================================
+=======================================================
+This file is part of BlogoText.
+ Copyright (c) 2006 - Frederic Nassar.
+               2010 - Timo Van Neerden
+ All rights reserved.
+ http://lehollandaisvolant.net/blogotext/
+
+ BlogoText is free software, you can redistribute it under the terms of the
+ Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+
+ ( http://creativecommons.org/licenses/by-nc-nd/2.0/deed.fr )
+
+===========================================
+=== Third parts software ==================
+
+===========================================
+=== image upload script ===================
+Blogotext includes a image-upload script by Damien Alexandre
+ the script is under Creative Common Attribution-NonCommercial- 2.0 France Licence 
+ ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
+ 
+ http://damienalexandre.fr/Upload-d-image-en-PHP.html
+
+
+===========================================
+=== Captcha script ========================
+Blogotext includes the Freecap captcha script by Howard Yeend
+ the script is under GNU General Public License v2 ( http://www.gnu.org/licenses/gpl-2.0.html )
+
+ http://www.puremango.co.uk
+

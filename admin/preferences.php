@@ -44,31 +44,31 @@ function afficher_form($erreurs = '') {
 $titre_page= $GLOBALS['lang']['preferences'];
 afficher_top($titre_page);
 afficher_msg();
-print '<div id="top">';
-print '<ul id="nav">';
+echo '<div id="top">';
+echo '<ul id="nav">';
 
 afficher_menu('preferences.php');
 
-print '</ul>';
-print '</div>';
+echo '</ul>';
+echo '</div>';
 
-print '<div id="axe">'."\n";
-print '<div id="page">'."\n";
+echo '<div id="axe">'."\n";
+echo '<div id="page">'."\n";
 
 erreurs($erreurs);
 
-print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
+echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
 
-print '<fieldset class="pref">';
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_utilisateur'], 'legend-user');
 
 form_text('auteur', $GLOBALS['auteur'], $GLOBALS['lang']['pref_auteur']);
 form_text('email', $GLOBALS['email'], $GLOBALS['lang']['pref_email']);
 form_text('nomsite', $GLOBALS['nom_du_site'], $GLOBALS['lang']['pref_nom_site']);
 textarea('description', $GLOBALS['description'], $GLOBALS['lang']['pref_desc'], '35', '3');
-print '</fieldset>';
+echo '</fieldset>';
 
-print '<fieldset class="pref">';
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_apparence'], 'legend-apparence');
 
 $choix_nb_articles= array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25');
@@ -77,22 +77,25 @@ $choix_nb_com= array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'
 form_select('nb_maxi_comm', $choix_nb_com, $GLOBALS['nb_maxi_comm'],$GLOBALS['lang']['pref_nb_maxi_comm']);
 $themes= liste_themes($GLOBALS['dossier_themes']);
 form_select('theme', $themes, $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
-print '</fieldset>';
+echo '</fieldset>';
 
-print '<fieldset class="pref">';
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_securite'], 'legend-securite');
 form_text('identifiant', $GLOBALS['identifiant'], $GLOBALS['lang']['pref_identifiant']);
 form_password('ancien-mdp', '', $GLOBALS['lang']['pref_mdp']);
 form_password('nouveau-mdp', '', $GLOBALS['lang']['pref_mdp_nouv']);
-print '</fieldset>';
 
-print '<fieldset class="pref">';
+select_yes_no('connexion_delay', $GLOBALS['connexion_delai'], $GLOBALS['lang']['pref_connexion_delai'] );
+select_yes_no('connexion_captcha', $GLOBALS['connexion_captcha'], $GLOBALS['lang']['pref_connexion_captcha'] );
+echo '</fieldset>';
+
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_dateheure'], 'legend-dateheure');
 form_format_date($GLOBALS['format_date']);
 form_format_heure($GLOBALS['format_heure']);
-print '</fieldset>';
+echo '</fieldset>';
 
-print '<fieldset class="pref">';
+echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_config'], 'legend-config');
 form_langue($GLOBALS['lang']['id']);
 $nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300');
@@ -105,13 +108,19 @@ form_text('racine', $GLOBALS['racine'], $GLOBALS['lang']['pref_racine']);
 form_check('onglet_commentaires', $GLOBALS['onglet_commentaires'], $GLOBALS['lang']['pref_aff_onglet_comm']);
 form_check('onglet_images', $GLOBALS['onglet_images'], $GLOBALS['lang']['pref_aff_onglet_images']);
 
-print '</fieldset>';
+echo '</fieldset>';
 
-print '<div id="bt">';
+echo '<fieldset class="pref">';
+legend($GLOBALS['lang']['titre_backup'], 'legend-config');
+echo '<p><a href="backup.php">'.$GLOBALS['lang']['pref_make_backup'].'</a></p>';
+
+echo '</fieldset>';
+
+echo '<div id="bt">';
 hidden_input('_verif_envoi', '1');
 input_enregistrer();
-print '</div>';
-print '</form>';
+echo '</div>';
+echo '</form>';
 footer();
 }
 

@@ -102,6 +102,7 @@ return $texte_formate;
 }
 
 function formatage_commentaires($texte) {
+$texte = " ".$texte;
 $tofindc= array(
 	'`\[quote\](.+?)\[/quote\]`s',			// citation
 	'` »`',											// close quote
@@ -128,7 +129,7 @@ $toreplacec= array(
 	'<span style="text-decoration: line-through;">$1</span>',		// barre
 	'<span style="text-decoration: underline;">$1</span>',			// souligne
 );
-	$texte = nl2br(stripslashes(preg_replace($tofindc, $toreplacec, $texte)));
+	$texte = trim(nl2br(preg_replace($tofindc, $toreplacec, $texte)));
 	$texte = '<p>'.$texte.'</p>';
 return $texte;
 }

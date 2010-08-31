@@ -162,11 +162,11 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 
 	if ( (isset($_POST['_verif_envoi'])) AND (isset($erreurs)) AND ($erreurs != '') ) {
 		$defaut = array(
-			'auteur' => htmlspecialchars(stripslashes($_POST['auteur'])),
-			'email' => htmlspecialchars(stripslashes($_POST['email'])),
-			'webpage' => htmlspecialchars(stripslashes($_POST['webpage'])),
-			'commentaire' => htmlspecialchars(stripslashes($_POST['commentaire'])),
-			'captcha' => htmlspecialchars(stripslashes($_POST['captcha'])),
+			'auteur' => htmlspecialchars($_POST['auteur']),
+			'email' => htmlspecialchars($_POST['email']),
+			'webpage' => htmlspecialchars($_POST['webpage']),
+			'commentaire' => htmlspecialchars($_POST['commentaire']),
+			'captcha' => htmlspecialchars($_POST['captcha']),
 			);
 
 	} elseif (isset($mode) AND $mode == 'admin') {
@@ -242,7 +242,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 	}
 		$GLOBALS['form_commentaire'] .= '<input class="submit" accesskey="s" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";
 		$GLOBALS['form_commentaire'] .= '</div>';
-		$GLOBALS['form_commentaire'] .= '<p id="wiki" ><a href="javascript:ouvre(\'inc/wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n".'</form>';
+		$GLOBALS['form_commentaire'] .= '<p id="wiki" ><a href="inc/wiki.php" onclick="ouvre(\'inc/wiki.php\');return false">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n".'</form>';
 		// ALLOW COMMENTS OFF
 		} else {
 		$GLOBALS['form_commentaire'] .= '<p>'.$GLOBALS['lang']['comment_not_allowed'].'</p>'."\n";

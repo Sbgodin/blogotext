@@ -40,6 +40,7 @@ $lang_nl = array(
 'preferences'						=> 'Instellingen',
 'connexion' 						=> 'Aanmelden',
 'enregistrer' 						=> 'Opslaan',
+'valider'	 						=> 'Ok',
 'envoyer' 							=> 'Verzenden',
 'mesarticles' 						=> 'Mijn berichten',
 'nouveau' 							=> 'Nieuw bericht',
@@ -53,6 +54,11 @@ $lang_nl = array(
 'fermes' 							=> 'Verboden',
 'depuis' 							=> 'sinds',
 'sur' 								=> 'op',
+'patientez'							=> 'wacht',
+'secondes'							=> 'secondes',
+'du'									=> 'van de',
+'alert_captcha'					=> 'Als u en beeld kunt zien, en als de captcha goed werkt, dan kunt u de captcha anschakelen in de intelingen.<br/>Dit « test » is nodig vant niel alle serves zijt compatibel…',
+
 // Modes
 'ecrire'								=> 'Bijwerken',
 'apercu'								=> 'overzicht',
@@ -66,6 +72,8 @@ $lang_nl = array(
 'label_contenu'					=> 'Inhoud',
 'label_identifiant'				=> 'Login',
 'label_motdepasse'				=> 'Wachtwoord',
+'label_word_captcha'				=> 'Tekst in het beld',
+'label_changer_captcha'			=> 'Nieuw beld',
 'label_statut'						=> 'Staatus',
 'label_publie'						=> 'Gepubliceerd',
 'label_brouillon'					=> 'Concept',
@@ -139,6 +147,7 @@ $lang_nl = array(
 'err_secondes' 					=> 'De seconden zijn niet correct',
 'err_id_exist' 					=> 'Dit ID bestaad al. Bedankt voor het veranderen van de datum van bericht',
 'err_data_dir_notfound' 		=> 'Het data-bestand is niet gevonden',
+'err_file_write'					=> 'Kan het bestand niet maken',
 'err_prefs_write'					=> 'Kan het bestand met instellingen niet schrijven',
 'err_prefs_auteur'				=> 'Auteur\'s naam is leeg',
 'err_prefs_email'					=> 'E-mailadres is ongeldig',
@@ -171,11 +180,13 @@ $lang_nl = array(
 'confirm_logout_ok'				=> 'U bent uitgemeld',
 'confirm_comment_ajout'			=> 'Uw commentaar is toegevoegd',
 'confirm_comment_suppr'			=> 'Het commentaar is verwijdert',
+'confirm_backupfile_suppr'		=> 'Het backup bestand is verwijdert',
 // No-onfiramtion
 'error_comment_suppr'			=> 'Het commentaar is *niet* verweijdert',
 'error_comment_suppr_impos'	=> 'Het commentaar kan niet voorden verweijdert',
 'error_article_suppr_impos'	=> 'Het artikel kan niet voorden verweijdert',
 'error_article_suppr'			=> 'Het artikel is *niet* verweijdert',
+'error_backupfile_suppr'		=> 'Het backup bestand is *niet* verweijdert',
 // Redirections
 'retour_liste'						=> '« Lijst met berichten',
 // Titres des pages
@@ -187,6 +198,7 @@ $lang_nl = array(
 'titre_commentaires' 			=> 'Reacties',
 'titre_preferences' 				=> 'Instellingen',
 'titre_image'						=> 'Afbeeldingen',
+'titre_backup'						=> 'Backup',
 // Preferences
 'prefs_legend_utilisateur'		=> 'Login',
 'prefs_legend_apparence'		=> 'Verschijning',
@@ -212,16 +224,21 @@ $lang_nl = array(
 'pref_nb_list_com'				=> 'Aantal commentaaren in de lijst',
 'pref_apercu'						=> 'Overzicht',
 'pref_theme'						=> 'Thema',
-'pref_images'						=> 'Utiliser les images',
+'pref_images'						=> 'Afbeldingen gebruijken',
 'pref_commentaires'				=> 'Reacties aan zeten',
 'pref_aff_onglet_comm'			=> 'Reacties tabblad vergeven',
 'pref_aff_onglet_images'		=> 'Afbeldingen tabblad vergeven',
 'pref_allow_global_coms'		=> 'Sluiten van alle reacties',
+'pref_connexion_delai'			=> 'Beveiliging vertraging bij het inloggen',
+'pref_connexion_captcha'		=> 'Captcha bij het inloggen (<a href="captcha_test.php" target="_blank"><b>testen !</b></a>)',
+'pref_make_backup'				=> 'En backup-bestand van uw berichten/reacties maken.',
+'legend_what_doyouwant'			=> 'Wat wilt u doen ?',
 // Notes
 'note_no_article'					=> 'Geen bericht gevonden',
 'note_no_comment'					=> 'Geen reacties',
 'resultats_recherche'			=> 'Zoekresultaten:',
 'note_no_image'					=> 'Geen afbeldingen',
+'note_delay_desactivable'		=> '(deze beveiliging vertrag kan in de instellingen uitgeshakeld worden)',
 //Formulaire Images
 'img_nom_donnee'					=> 'Naam (optioneel) :',
 'img_avert_format_nom'			=> '(cijvers en leters alleen)',
@@ -235,8 +252,21 @@ $lang_nl = array(
 'img_phperr_nofile'				=> 'Geen bestand was gegeven.',
 'img_phperr_tempfolder'			=> 'Is is geen tijdelijke map (voor PHP)',
 'img_phperr_DiskWrite'			=> 'Kan het bestand niet op schijf opslaan.',
+'file_format_error'				=> 'Verkeerde bestand type.',
+// page backup
+'bak_succes_save'					=> 'Backup succesvol voltooid',
+'bak_youcannowsave'				=> 'De XML-bestand met all uw berichten en reacties is succesvol gemaakt. U kunt het nu opslaan door rechts te klikken en "opslaan als" kiezen',
+'bak_delete_source'				=> 'Wilt u het backup bestand vanuw server verwijderen ?',
+'bak_save2xml'						=> 'En backup maken ?',
+'bak_restorefromxml'				=> 'En backup herstellen ?',
+'bak_nothing'						=> 'Niets doen',
+'bak_choosefile'					=> 'Bestand kiezen',
+'bak_restor_done'					=> 'Backup voltooid',
+'bak_restor_done_mesage'		=> 'Uw berichten en reacties zijn geüpload. Zie hieronder of er fouten zijn.<br/>Bovendien voord het geüploaden bestand niet opgeslagen op de server',
+
 
 'succes'								=> "Success",
+'echec'								=> 'mislukt',
 
 // Chiffres 0 à 9 pour captcha
 '0'									=> 'nul',

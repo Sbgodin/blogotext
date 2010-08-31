@@ -185,15 +185,12 @@ function fichier_data($dossier, $billet) {
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);
-//			fichier_index($dossier_ini);
 		} 
 		if ( !is_dir(($dossier).'/'.$date['annee']) ) {
 			$dossier_annee = creer_dossier($dossier.'/'.$date['annee']);
-//			fichier_index($dossier_annee);
 		}
 		if ( !is_dir(($dossier).'/'.$date['annee'].'/'.$date['mois']) ) {
 			$dossier_mois = creer_dossier($dossier.'/'.$date['annee'].'/'.$date['mois']);
-//			fichier_index($dossier_mois);
 		}
 		$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'.'.$GLOBALS['ext_data'];
 		$new_file_data=fopen($fichier_data,'wb+');
@@ -265,22 +262,25 @@ function fichier_user() {
 function fichier_prefs() {
 		$prefs='';
 		$prefs .= "<?php\n";
-		$prefs .= "\$GLOBALS['auteur'] = '".clean_txt($_POST['auteur'])."';					\n";	
-		$prefs .= "\$GLOBALS['email'] = '".clean_txt($_POST['email'])."';						\n";
-		$prefs .= "\$GLOBALS['nom_du_site'] = '".clean_txt($_POST['nomsite'])."';			\n";
-		$prefs .= "\$GLOBALS['description'] = '".clean_txt($_POST['description'])."';		\n";
-		$prefs .= "\$GLOBALS['racine'] = '".trim($_POST['racine'])."';							\n";
-		$prefs .= "\$GLOBALS['nb_maxi'] = '".$_POST['nb_maxi']."';								\n";
-		$prefs .= "\$GLOBALS['nb_maxi_comm'] = '".$_POST['nb_maxi_comm']."';					\n";
-		$prefs .= "\$GLOBALS['nb_list'] = '".$_POST['nb_list']."';								\n";
-		$prefs .= "\$GLOBALS['nb_list_com'] = '".$_POST['nb_list_com']."';					\n";
+		$prefs .= "\$GLOBALS['auteur'] = '".clean_txt($_POST['auteur'])."';						\n";	
+		$prefs .= "\$GLOBALS['email'] = '".clean_txt($_POST['email'])."';							\n";
+		$prefs .= "\$GLOBALS['nom_du_site'] = '".clean_txt($_POST['nomsite'])."';				\n";
+		$prefs .= "\$GLOBALS['description'] = '".clean_txt($_POST['description'])."';			\n";
+		$prefs .= "\$GLOBALS['racine'] = '".trim($_POST['racine'])."';								\n";
+		$prefs .= "\$GLOBALS['nb_maxi'] = '".$_POST['nb_maxi']."';									\n";
+		$prefs .= "\$GLOBALS['nb_maxi_comm'] = '".$_POST['nb_maxi_comm']."';						\n";
+		$prefs .= "\$GLOBALS['nb_list'] = '".$_POST['nb_list']."';									\n";
+		$prefs .= "\$GLOBALS['nb_list_com'] = '".$_POST['nb_list_com']."';						\n";
 		$prefs .= "\$GLOBALS['onglet_commentaires'] = '".$_POST['onglet_commentaires']."';	\n";
 		$prefs .= "\$GLOBALS['onglet_images'] = '".$_POST['onglet_images']."';					\n";
-		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';					\n";
-		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';					\n";
+		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';						\n";
+		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';						\n";
 		$prefs .= "\$GLOBALS['activer_global_comments']= '".$_POST['global_coments']."';		\n";
-		$prefs .= "\$GLOBALS['activer_apercu']= '".$_POST['apercu']."';						\n";
-		$prefs .= "\$GLOBALS['theme_choisi']= '".$_POST['theme']."';							\n";	
+		$prefs .= "\$GLOBALS['connexion_delai']= '".$_POST['connexion_delay']."';				\n";
+		$prefs .= "\$GLOBALS['connexion_captcha']= '".$_POST['connexion_captcha']."';			\n";
+		$prefs .= "\$GLOBALS['activer_apercu']= '".$_POST['apercu']."';							\n";
+		$prefs .= "\$GLOBALS['theme_choisi']= '".$_POST['theme']."';								\n";
+
 		$prefs .= "?>";
 		$fichier_prefs = '../config/prefs.php';
 		$new_file_pref=fopen($fichier_prefs,'wb+');

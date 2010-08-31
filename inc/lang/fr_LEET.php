@@ -40,6 +40,7 @@ $lang_l33t_fr = array(
 'preferences'						=> 'Préférences',
 'connexion' 						=> 'Connexion',
 'enregistrer' 						=> 'Enregistrer',
+'valider'	 						=> 'Valider',
 'envoyer' 							=> 'Envoyer',
 'mesarticles' 						=> 'Mes articles',
 'nouveau' 							=> 'Nouvel article',
@@ -53,6 +54,11 @@ $lang_l33t_fr = array(
 'fermes' 							=> 'Interdits',
 'depuis' 							=> 'depuis',
 'sur' 								=> 'sur',
+'patientez'							=> 'patientez',
+'secondes'							=> 'secondes',
+'du'									=> 'du',
+'alert_captcha'					=> 'Si vous voyez le captcha, et que si ce dernier fonctionne correctement, vous pouvez l\'activer dans les préférences.<br/>Ce test est nescessaire, car tous les serveurs/hébergements ne sont pas forcément compatibles.',
+
 // Modes
 'ecrire'								=> 'Modifier',
 'apercu'								=> 'Aperçu',
@@ -66,6 +72,8 @@ $lang_l33t_fr = array(
 'label_contenu'					=> 'Contenu',
 'label_identifiant'				=> 'Identifiant',
 'label_motdepasse'				=> 'Mot de passe',
+'label_word_captcha'				=> 'texte dans l\'image',
+'label_changer_captcha'			=> 'Changer d\'image',
 'label_statut'						=> 'État',
 'label_publie'						=> 'Publié',
 'label_brouillon'					=> 'Brouillon',
@@ -139,6 +147,7 @@ $lang_l33t_fr = array(
 'err_secondes' 					=> 'Les secondes sont incorrectes',
 'err_id_exist' 					=> 'Cet identifiant existe déjà, merci de modifier la date de publication',
 'err_data_dir_notfound' 		=> 'Le dossier data est introuvable',
+'err_file_write'					=> 'Impossible de créer le fichier',
 'err_prefs_write'					=> 'Écriture impossible du fichier des préférences',
 'err_prefs_auteur'				=> 'Le nom de l\'auteur est vide',
 'err_prefs_email'					=> 'L\'adresse e-mail n\'est pas valide',
@@ -171,11 +180,13 @@ $lang_l33t_fr = array(
 'confirm_logout_ok'				=> 'Vous êtes bien déconnecté',
 'confirm_comment_ajout'			=> 'Votre commentaire a été ajouté',
 'confirm_comment_suppr'			=> 'Le commentaire a été supprimé',
+'confirm_backupfile_suppr'		=> 'Le fichier de sauvegarde a été supprimé',
 // No-onfiramtion
 'error_comment_suppr'			=> 'Le commentaire *n\'a pas* été supprimé',
 'error_comment_suppr_impos'	=> 'Le commentaire n\'a pas pu être supprimé',
 'error_article_suppr_impos'	=> 'L\'article n\'a pas pu être supprimé',
 'error_article_suppr'			=> 'L\'article n\'a pas été supprimé',
+'error_backupfile_suppr'		=> 'Le fichier de sauvegarde n\'a pas pu être supprimé',
 // Redirections
 'retour_liste'						=> '« Liste des articles',
 // Titres des pages
@@ -187,6 +198,7 @@ $lang_l33t_fr = array(
 'titre_commentaires' 			=> 'Commentaires',
 'titre_preferences' 				=> 'Préférences',
 'titre_image'						=> 'Envoyer une image',
+'titre_backup' 					=> 'Sauvegarder',
 // Preferences
 'prefs_legend_utilisateur'		=> 'Utilisateur',
 'prefs_legend_apparence'		=> 'Apparence',
@@ -217,11 +229,16 @@ $lang_l33t_fr = array(
 'pref_aff_onglet_comm'			=> 'Afficher l\'onglet "Commentaires"',
 'pref_aff_onglet_images'		=> 'Afficher l\'onglet "Image"',
 'pref_allow_global_coms'		=> 'Fermeture de tous les commentaires',
+'pref_connexion_delai'			=> 'Activer le délai de sécurité lors de la connexion',
+'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="captcha_test.php" target="_blank"><b>tester avant !</b></a>)',
+'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
+'legend_what_doyouwant'			=> 'Que voulez vous faire ?',
 // Notes
 'note_no_article'					=> 'Aucun article trouvé',
 'note_no_comment'					=> 'Aucun commentaire',
 'resultats_recherche'			=> 'Résultat(s) de votre recherche :',
 'note_no_image'					=> 'Aucune image',
+'note_delay_desactivable'		=> '(Ce délai de sécurité peut être désactivé dans les préférences)',
 //Formulaire Images
 'img_nom_donnee'					=> 'Nom (facultatif) :',
 'img_avert_format_nom'			=> '(chiffres et lettres seulement)',
@@ -235,8 +252,20 @@ $lang_l33t_fr = array(
 'img_phperr_nofile'				=> 'Aucun fichier n\'a été spécifié.',
 'img_phperr_tempfolder'			=> 'Un dossier temporaire est manquant',
 'img_phperr_DiskWrite'			=> 'Échec de l\'écriture du fichier sur le disque.',
+'file_format_error'				=> 'Mauvais format de fichier.',
+// page backup
+'bak_succes_save'					=> 'Sauvegarde réussie',
+'bak_youcannowsave'				=> 'Le fichier xml contenant tous les messages et leurs commentaires a été créé avec succés.<br/> Vous pouvez maintenant l\'enregistrer en faisant un clic droit puis «&nbsp;enregistrer la cible sous&nbsp;»&nbsp;:',
+'bak_delete_source'				=> 'Voulez vous supprimer le fichier de sauvegarde de votre hébergement ?',
+'bak_save2xml'						=> 'Créer un fichier de sauvegarde',
+'bak_restorefromxml'				=> 'Restaurer une sauvegarde',
+'bak_nothing'						=> 'Rien',
+'bak_choosefile'					=> 'Choisir un fichier',
+'bak_restor_done'					=> 'Restauration éfectuée',
+'bak_restor_done_mesage'		=> 'Vos méssages et les commentaires ont été uploadés. Voyez ci dessous s\'il y a des erreurs.<br/>Par ailleurs, le fichier uploadé n\'est pas conservé sur le serveur.',
 
 'succes'								=> "Succès",
+'echec'								=> 'échec',
 
 // Chiffres 0 à 9 pour captcha
 '0'									=> 'zéro',

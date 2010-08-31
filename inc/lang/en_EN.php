@@ -40,6 +40,7 @@ $lang_en = array(
 'preferences'						=> 'Preferences',
 'connexion' 						=> 'Connect',
 'enregistrer' 						=> 'Save',
+'valider'	 						=> 'Choose',
 'envoyer' 							=> 'Send',
 'mesarticles' 						=> 'My articles',
 'nouveau' 							=> 'New article',
@@ -53,6 +54,11 @@ $lang_en = array(
 'fermes' 							=> 'Closed',
 'depuis' 							=> 'from',
 'sur' 								=> 'of',
+'patientez'							=> 'wait',
+'secondes'							=> 'seconds',
+'du'									=> 'of',
+'alert_captcha'					=> 'If you see the captcha and if it is working correctly, you can turn it on in the panel.<br/>This test is needed, cause of not all server are compatible with PHP-generated-images.',
+
 // Modes
 'ecrire'								=> 'Edit',
 'apercu'								=> 'Preview',
@@ -66,6 +72,8 @@ $lang_en = array(
 'label_contenu'					=> 'Content',
 'label_identifiant'				=> 'Login',
 'label_motdepasse'				=> 'Password',
+'label_word_captcha'				=> 'Text in image',
+'label_changer_captcha'			=> 'Change image',
 'label_statut'						=> 'Status',
 'label_publie'						=> 'Published',
 'label_brouillon'					=> 'Draft',
@@ -139,6 +147,7 @@ $lang_en = array(
 'err_secondes' 					=> 'The seconds are not correct',
 'err_id_exist' 					=> 'This ID already exists, please modify the publishing date',
 'err_data_dir_notfound'			=> 'Can\'t find the data folder.',
+'err_file_write'					=> 'Unable to create the file',
 'err_prefs_write'				 	=> 'Unable to write the preferences file',
 'err_prefs_auteur'				=> 'The author name is missing',
 'err_prefs_email'					=> 'Invalid email address',
@@ -171,11 +180,13 @@ $lang_en = array(
 'confirm_logout_ok'				=> 'You have been disconnected',
 'confirm_comment_ajout'			=> 'Your comment has been added',
 'confirm_comment_suppr'			=> 'The comment has been deleted',
-// No-onfiramtion
+'confirm_backupfile_suppr'		=> 'The backup file has been deleted',
+// No-confiramtion
 'error_comment_suppr'			=> 'The comment has *not* been deleted',
 'error_comment_suppr_impos'	=> 'The comment cannot be deleted',
 'error_article_suppr_impos'	=> 'Your article cannot been deleted',
 'error_article_suppr'			=> 'Your article has not been deleted',
+'error_backupfile_suppr'		=> 'The backup file has not been deleted',
 // Redirections
 'retour_liste'						=> '« List of articles',
 // Titres des pages
@@ -187,6 +198,7 @@ $lang_en = array(
 'titre_commentaires' 			=> 'Comments',
 'titre_preferences' 				=> 'Settings',
 'titre_image'						=> 'Upload an image',
+'titre_backup'						=> 'Backup',
 // Preferences
 'prefs_legend_utilisateur'		=> 'User',
 'prefs_legend_apparence'		=> 'Appearance',
@@ -217,11 +229,16 @@ $lang_en = array(
 'pref_aff_onglet_comm'			=> 'Display the "Comments" tab',
 'pref_aff_onglet_images'		=> 'Display the "Image" tab',
 'pref_allow_global_coms'		=> 'Close comments on all articles',
+'pref_connexion_delai'			=> 'Security delay on login',
+'pref_connexion_captcha'		=> 'Captcha on login (<a href="captcha_test.php" target="_blank"><b>test before !</b></a>)',
+'pref_make_backup'				=> 'Make a backup file of your articles/comments.',
+'legend_what_doyouwant'			=> 'What do you you want to do ?',
 // Notes
 'note_no_article'					=> 'No article found',
 'note_no_comment'					=> 'No comments',
 'resultats_recherche'			=> 'Search result(s) :',
 'note_no_image'					=> 'No image',
+'note_delay_desactivable'		=> '(This security delay can be disabled in préférences)',
 //Formulaire Images
 'img_nom_donnee'					=> 'New file-name (optional)',
 'img_avert_format_nom'			=> '(ciffers and letters only)',
@@ -235,8 +252,20 @@ $lang_en = array(
 'img_phperr_nofile'				=> 'No file has been specified.',
 'img_phperr_tempfolder'			=> "Temporary folder is missing",
 'img_phperr_DiskWrite'			=> 'Error while writing file on disk.',
+'file_format_error'				=> 'Wrong file type.',
+// page backup
+'bak_succes_save'					=> 'Backupfile successfully saved',
+'bak_youcannowsave'				=> 'The XML file with all your articles and comments has been created.<br/>You can now download it by doing a right clic on the link below and «&nbsp;save liked file as&nbsp;»&nbsp;:',
+'bak_delete_source'				=> 'Do you want to delete the backup file from your web server ?',
+'bak_save2xml'						=> 'Create a backup file',
+'bak_restorefromxml'				=> 'Restore a backup',
+'bak_nothing'						=> 'Nothing',
+'bak_choosefile'					=> 'Choose a file',
+'bak_restor_done'					=> 'Restoration done',
+'bak_restor_done_mesage'		=> 'Your articles and comments have been uploade. Watch below to find out if any errors occured.<br/>By the way, the file you\'ve upload will not be saved on the server',
 
 'succes'								=> "Success",
+'echec'								=> 'fail',
 
 // Chiffres 0 à 9 pour captcha
 '0'									=> 'zero',
