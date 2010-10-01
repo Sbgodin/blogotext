@@ -202,16 +202,21 @@ function encart_commentaires() {
 		$listeLastComments = '<ul class="encart_lastcom">';
 		foreach ($tableau as $id => $content) {
 			$comment = init_comment('public', remove_ext($content));
+
+// ----- needed to solve the 'strlen' bug with UTF8 caracters who are encoded on 2 bytes...
+//			$tofind = utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
+//			$replac = utf8_decode('AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn');
+//			$comment['contenu_abbr'] = strtr(utf8_decode($comment['contenu']),$tofind,$replac);
+// -----
+
 			$comment['contenu_abbr'] = strtolower(preg_replace('#<.*>#U', '', $comment['contenu']));
 			if (strlen($comment['contenu_abbr']) >= '60') { $comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 59).'…'; }
 
-			$comment['article_titre_abbr'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
-			$comment['article_titre_abbr_orig'] = $comment['article_titre_abbr'];
-			if (strlen($comment['article_titre_abbr']) >= '30') { $comment['article_titre_abbr'] = substr($comment['article_titre_abbr'], 0, 29).'…'; }
-			$comment['auteur_abbr'] = strtolower(preg_replace('#</?.*>#U', '', $comment['auteur']));
-			if (strlen($comment['auteur_abbr']) >= '12') { $comment['auteur_abbr'] = substr($comment['auteur_abbr'], 0, 11).'…'; }
+			$comment['article_titre_orig'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
+			$comment['auteur_abbr'] = preg_replace('#</?.*>#U', '', $comment['auteur']);
+//			if (strlen($comment['auteur_abbr']) >= '12') { $comment['auteur_abbr'] = substr($comment['auteur_abbr'], 0, 11).'…'; }
 
-			$comment['article_lien'] = get_blogpath_from_blog($comment['article_id']).titre_url($comment['article_titre_abbr_orig']).'#'.article_anchor($comment['id']);
+			$comment['article_lien'] = get_blogpath_from_blog($comment['article_id']).titre_url($comment['article_titre_orig']).'#'.article_anchor($comment['id']);
 
 			$listeLastComments .= '<li><b>'.$comment['auteur_abbr'].'</b> '.date_formate($comment['id']).'<br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
 		}

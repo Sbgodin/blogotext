@@ -27,7 +27,7 @@ function liste_commentaires($dossier, $article_id) {
 								$path = $dossier.'/'.get_path_no_ext($comm);
 								$syntax_version= get_version($path);
 						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-							 		$retour[] =$comm;
+							 		$retour[] = $comm;
 								}
 							}
 						}
@@ -48,7 +48,7 @@ function liste_commentaires($dossier, $article_id) {
 								$path = $dossier.'/'.get_path_no_ext($comm);
 								$syntax_version= get_version($path);
 						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
-							 		$retour[] =$comm;
+							 		$retour[] = $comm;
 								}
 							}
 						}
@@ -81,8 +81,8 @@ function liste_derniers_comm($nb_comm) {
 				if ($liste != "") {
 					foreach ($liste as $comm) {
 						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-							$path = $dossier.'/'.get_path_no_ext($comm);
-							$syntax_version= get_version($path);
+//							$path = $dossier.'/'.get_path_no_ext($comm);
+//							$syntax_version= get_version($path);
 					 		$retour[] =$comm;
 						}
 					}

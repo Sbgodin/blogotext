@@ -117,6 +117,7 @@ $GLOBALS['balises']= array(
 	'commentaires_encart' => array('{commentaires_encart}'),
 // Article
 	'article_titre' => array('{article_titre}','{article_title}'),
+	'article_titre_url' => array('{article_titre_url}','{article_title_url}'),
 	'article_chapo' => array('{article_chapo}','{article_abstract}'),
 	'article_contenu' => array('{article_contenu}','{article_content}'),
 	'article_heure'=> array('{article_heure}','{article_time}'),

@@ -14,7 +14,7 @@ function liste_articles($liste, $template_liste) {
 				if ($extension == $GLOBALS['ext_data']) {
 					$id = substr($article, '0', '14');
 					$billet = init_billet('public', $id);
-					$liste_articles = conversions_theme($template_liste, $billet);
+					$liste_articles = conversions_theme_article($template_liste, $billet);
 				echo $liste_articles;
 				}
 		}

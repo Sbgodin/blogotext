@@ -53,91 +53,96 @@ if ((isset($txt)) AND ($txt != '') ) {
 
 // RETOURNE UN TABLEAU SELON DATE
 function table_date($depart, $annee, $mois, $jour='', $statut='') {
-$liste=array();
-$dossier = $depart.'/'.$annee.'/'.$mois.'/';
-if ($jour == '') {
-$contenu = parcourir_dossier($dossier, $statut);
-} else {
-	if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) { 
-		$contenu = array();
+	$liste=array();
+	$dossier = $depart.'/'.$annee.'/'.$mois.'/';
+	if ($jour == '') {
+		$contenu = parcourir_dossier($dossier, $statut);
+	} else {
+		if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) { 
+			$contenu = array();
 			while ($fichiers = readdir($ouverture)){
-				$jour_fichier= substr($fichiers, '6', '2');
-   			if (is_file($dossier.$fichiers) AND ($jour == $jour_fichier) ){
-   				if  ( (isset($statut)) AND ($statut != '') ) {
+				$jour_fichier = substr($fichiers, '6', '2');
+				if (is_file($dossier.$fichiers) AND ($jour == $jour_fichier) ){
+					if  ( (isset($statut)) AND ($statut != '') ) {
 						if (get_statut($dossier.$fichiers) === $statut) {
-       				$contenu[] = $fichiers;
+		 				$contenu[] = $fichiers;
 						}
-   				} else {
-	   					$contenu[] = $fichiers;
-   				}
-   			}
+					} else {
+	  					$contenu[] = $fichiers;
+					}
+				}
 			}
 			closedir($ouverture);
-	}
-}
-		if (isset($contenu)) {
-			natcasesort($contenu);
-			$liste = array_reverse($contenu);
-			return $liste;
 		}
+	}
+	if (isset($contenu)) {
+		natcasesort($contenu);
+		$liste = array_reverse($contenu);
+		return $liste;
+	}
 }
 
 // RETOURNE UN TABLEAU DE TOUS LES ARTICLES
 function table_derniers($dossier, $limite='', $statut='') {
-	$contenu= array();
-	if ( $ouverture = opendir($dossier) ) { 
-		    while ( false !== ($file = readdir($ouverture)) ) {
-		    	if (preg_match('/\d{4}/', $file) ){
-		    		$annees[]=$file;
-		    	}
-		    }
-		    closedir($ouverture);
+	$contenu = array();
+
+	// listage des dossiers des annees.
+	if ( $ouverture = opendir($dossier)) { 
+		while ( false !== ($file = readdir($ouverture)) ) {
+			if (preg_match('/\d{4}/', $file)) {
+				$annees[]=$file;
+			}
+		}
+		closedir($ouverture);
 	}
+
+	// listage des dossiers des mois dans chaque dossier des annees
 	if (isset($annees)) {
 		foreach ($annees as $id => $dossier_annee) {
-		 	$chemin = $dossier.'/'.$dossier_annee.'/';
-			 if ( $ouverture = opendir($chemin) ) { 
-				 while ( false !== ($file_mois = readdir($ouverture)) ) {
-				 		if (preg_match('/\d{2}/', $file_mois) ){
-				 		$dossier_mois[]= $dossier.'/'.$dossier_annee.'/'.$file_mois;
-					 	rsort($dossier_mois);
-				 		}
-				 }
-				 closedir($ouverture);
+			$chemin = $dossier.'/'.$dossier_annee.'/';
+			for ($mois = 01 ; $mois <= 12 ; $mois++) {
+				if (strlen($mois) == '1') {
+					$mois = '0'.$mois;
 				}
+				$file_mois = $chemin.$mois;
+				if (is_dir($chemin.$mois) ) { 
+					if (preg_match('#'.$chemin.'\d{2}'.'#', $file_mois) ) {
+						$dossier_mois[]= $dossier.'/'.$dossier_annee.'/'.$mois;
+					}
+				}
+			}
 		}
 	}
-	$i= '0';
+
+// listage des fichiers dans chaque dossiers des mois
 	if (isset($dossier_mois)) {
-		foreach ($dossier_mois as $id => $path) {
-				if ( $ouverture = opendir($path) ) {
+		$i= '0';
+		foreach ($dossier_mois as $path) { 
+				if (is_dir($path) and $ouverture = opendir($path)) {
 					while ( ($fichiers = readdir($ouverture)) ) {
 						// On verifie Extension
 						$chemin= $path.'/'.$fichiers;
-						if ((get_ext($fichiers)) == $GLOBALS['ext_data']) {
-							if  ( (isset($statut)) AND ($statut != '') ) {
+						if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
+							if  ( (isset($statut)) and ($statut != '') ) {
 								if (get_statut($chemin) === $statut) {
 									$contenu[$i++]=$fichiers;
-				 				rsort($contenu);
 								}
 							} else {
 								$contenu[$i++]=$fichiers;
-				 			rsort($contenu);
 							}
 						}
 					}
-					closedir($ouverture);
 				}
+			closedir($ouverture);
 		}
-	}
-	if ( (isset($limite)) AND ($limite!='') ) {
-		foreach ($contenu as $num => $entry) {
-			if ($num < $limite) {
-				$retour[$num]= $entry;
+		if (isset($contenu)) {
+			rsort($contenu);
+			if ( (isset($limite)) and ($limite!='') ) {
+				$retour = array_slice($contenu, '0', $limite);
+			} else {
+					$retour= $contenu;
 			}
 		}
-	} else {
-			$retour= $contenu;
 	}
 	if (isset($retour)) {
 		return $retour;
@@ -214,27 +219,29 @@ function creer_dossier($dossier) {
 }
 
 function parcourir_dossier($dossier, $statut='') {
-	if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) { 
-			while ($fichiers = readdir($ouverture)){
-   			if (is_file($dossier.$fichiers)){
-   				if ( (isset($statut)) AND ($statut != '') ) {
-   					if (get_statut($dossier.$fichiers) === $statut) {
-       				$contenu[] = $fichiers;
-   					}
-   				}
+	if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) {
+		while ($fichiers = readdir($ouverture)) {
+			if (is_file($dossier.$fichiers)) {
+				if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
+					if ( (isset($statut)) AND ($statut != '') ) {
+						if (get_statut($dossier.$fichiers) === $statut) {
+		 				$contenu[] = $fichiers;
+						}
+					}
 					else {
-       				$contenu[] = $fichiers;
-   				}
-   			}
+		 				$contenu[] = $fichiers;
+					}
+				}
 			}
-			closedir($ouverture);
-			if (isset($contenu)) {
-				natcasesort($contenu);
-				return $contenu;
-			}
-			} else {
-				$erreur = 'Aucun article';
-			}
+		}
+		closedir($ouverture);
+		if (isset($contenu)) {
+			natcasesort($contenu);
+			return $contenu;
+		}
+	} else {
+		$erreur = 'Aucun article';
+	}
 }
 
 function fichier_user() {
@@ -337,19 +344,21 @@ function apercu($article) {
 }
 
 function parse_xml($fichier, $balise) {
-	if ($openfile = file_get_contents($fichier)) {
-			if (preg_match('#<'.$balise.'>#',$openfile)) {
-  			$sizeitem = strlen('<'.$balise.'>');
-  			$debut = strpos($openfile, '<'.$balise.'>') + $sizeitem;
-  			$fin = strpos($openfile, '</'.$balise.'>');
-  			$lenght = $fin - $debut;
-  			$return = substr($openfile, $debut, $lenght); 
-  		return $return;
-			} else {
-				return '';
-			}
-	} else {
-		erreur('Impossible de lire le fichier');
+	if (is_file($fichier)) {
+		if ($openfile = file_get_contents($fichier)) {
+				if (preg_match('#<'.$balise.'>#',$openfile)) {
+	  			$sizeitem = strlen('<'.$balise.'>');
+	  			$debut = strpos($openfile, '<'.$balise.'>') + $sizeitem;
+	  			$fin = strpos($openfile, '</'.$balise.'>');
+	  			$lenght = $fin - $debut;
+	  			$return = substr($openfile, $debut, $lenght); 
+	  		return $return;
+				} else {
+					return '';
+				}
+		} else {
+			erreur('Impossible de lire le fichier'.$fichier);
+		}
 	}
 }
 

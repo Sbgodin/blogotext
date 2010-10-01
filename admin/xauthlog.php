@@ -22,3 +22,12 @@
 01 09 2010 / 12:33:37 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
 01 09 2010 / 17:34:11 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
 01 09 2010 / 18:08:40 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.61
+22 09 2010 / 19:58:24 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 20:02:54 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 20:02:58 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 20:03:03 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 20:04:32 : 127.0.0.1 ;	login :	 avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 20:04:36 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.9.2.10) Gecko/20100915 Linux Mint/9 (Lucid) Firefox/3.6.6 (Ubuntu)
+22 09 2010 / 22:14:08 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
+02 10 2010 / 14:06:27 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
+02 10 2010 / 14:10:19 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
