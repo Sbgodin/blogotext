@@ -23,16 +23,36 @@ $retour = implode(', ',$tableau);
 return $retour;
 }
 
-function titre_url($texte) {
-$texte = utf8_decode($texte);
-$tofind = utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
-$replac = utf8_decode('AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn');
-$texte_pre_pre_pre = trim(strtolower(strtr($texte,$tofind,$replac)));
-$texte_pre_pre = preg_replace('#[^a-zA-Z0-9_]#i', '-', $texte_pre_pre_pre);
-$texte_pre = preg_replace('#-+#', '-', $texte_pre_pre);
-$texte_final = substr($texte_pre, '0', '128');
+function titre_url($url) {
+
+/*
+	$texte = utf8_decode($texte);
+	$tofind = utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
+	$replac = utf8_decode('AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn');
+	$texte_pre_pre_pre = trim(strtolower(strtr($texte,$tofind,$replac)));
+	$texte_pre_pre = preg_replace('#[^a-zA-Z0-9_]#i', '-', $texte_pre_pre_pre);
+	$texte_pre = preg_replace('#-+#', '-', $texte_pre_pre);
+	$texte_final = substr($texte_pre, '0', '128');
 return $texte_final;
+*/
+
+	$url = strtolower(strip_tags($url));
+	$url = html_entity_decode($url, ENT_QUOTES, 'UTF-8'); 
+	$url = htmlentities($url, ENT_QUOTES, 'UTF-8');
+	$url = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash);#', '$1', $url);
+	$url = preg_replace('#&([a-z]{2})lig;#i', '$1', $url);
+	$url = preg_replace('#&[a-z0-9\#]*;#U', '-', $url);
+	$url = preg_replace('#[^a-z0-9]+#', '-', $url);
+	$url = trim($url, '-');
+	return $url;
 }
+
+
+function url_titre($titre) {
+	$titre = urlencode(strtolower(strip_tags($titre)));
+	return $titre;
+}
+
 
 function protect_markup($text) {
 $patterns = array(
@@ -111,10 +131,10 @@ $tofindc= array(
 	'` :`',											// :
 	'`[^\||\[]((https?|ftps?)://(www\.)?([a-z0-9._-]){2,64}\.[a-z]{2,4}/[\w/\?,;&\#\.:=%-]*)`i', // url regex
 	'`\[([^[]+)\|([^[]+)\]`',						// a href
-	'`\_\_(.*?)\_\_`',								// strong
-	'`##(.*?)##`',										// italic
-	'`--(.*?)--`',										// strike
-	'`\+\+(.*?)\+\+`',								// ins
+	'`\_\_(.*?)\_\_`s',								// strong
+	'`##(.*?)##`s',										// italic
+	'`--(.*?)--`s',										// strike
+	'`\+\+(.*?)\+\+`s',								// ins
 );
 $toreplacec= array(
 	'<q>$1</q>',																// citation
@@ -129,8 +149,13 @@ $toreplacec= array(
 	'<span style="text-decoration: line-through;">$1</span>',		// barre
 	'<span style="text-decoration: underline;">$1</span>',			// souligne
 );
-	$texte = trim(nl2br(preg_replace($tofindc, $toreplacec, $texte)));
-	$texte = '<p>'.$texte.'</p>';
+
+	$toreplaceArrayLength = sizeof($tofindc);
+	for ( $i=0; $i < $toreplaceArrayLength ; $i++) {
+		$texte2 = preg_replace($tofindc["$i"], $toreplacec["$i"], $texte);
+		$texte = $texte2;
+	}
+	$texte = '<p>'.trim(nl2br(stripslashes($texte))).'</p>';
 return $texte;
 }
 

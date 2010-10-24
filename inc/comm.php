@@ -175,7 +175,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 			'email' => $GLOBALS['email'],
 			'webpage' => $GLOBALS['racine'],
 			'commentaire' => '',
-			'captcha' => mk_captcha('x')+mk_captcha('y'),
+			'captcha' => session_id(),
 
 			);
 	} else {
@@ -235,9 +235,9 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 		$GLOBALS['form_commentaire'] .= '<input type="hidden" class="nodisplay" name="_verif_envoi" value="1" />'."\n";
 		$GLOBALS['form_commentaire'] .= '</div>';
 		if (isset($mode) AND $mode == 'admin') {
-			$GLOBALS['form_commentaire'] .= '<input type="hidden" id="captcha" name="captcha" value="'.$defaut['captcha'].'" />'."\n";
+			$GLOBALS['form_commentaire'] .= '<input type="hidden" id="captcha" name="captcha" value="'.session_id().'" />'."\n";
 	} else {
-		$GLOBALS['form_commentaire'] .= '<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres(mk_captcha('x')).'</b> + <b>'.en_lettres(mk_captcha('y')).'</b> ?</label>'."\n";
+		$GLOBALS['form_commentaire'] .= '<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?</label>'."\n";
 		$GLOBALS['form_commentaire'] .= '<input type="text" id="captcha" name="captcha" value="'.$defaut['captcha'].'" size="25" /><br/>'."\n";
 	}
 		$GLOBALS['form_commentaire'] .= '<input class="submit" accesskey="s" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";

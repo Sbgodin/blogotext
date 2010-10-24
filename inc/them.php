@@ -29,8 +29,9 @@ function conversions_theme($texte, $billet='', $commentaire='') {
 		else { $texte = str_replace($GLOBALS['balises']['rss'], '', $texte); }
 
 	if (isset($GLOBALS['balises']['commentaires_encart']) and preg_match('#'.$GLOBALS['balises']['commentaires_encart'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['commentaires_encart'], encart_commentaires(), $texte);}
-// Article
-	 return $texte;
+	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
+
+ return $texte;
 }
 
 
@@ -50,11 +51,12 @@ function conversions_theme_commentaire($texte, $billet='', $commentaire='') {
 
 
 function conversions_theme_article($texte, $billet='', $commentaire='') {
+	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
 // Article
 	if (isset($billet)) {
 		if (isset($billet['titre'])) {
 			$texte = str_replace($GLOBALS['balises']['article_titre'], $billet['titre'], $texte) ;
-			$billet['article_titre_url'] = preg_replace('# #', '%20', $billet['titre']); /* cree aussi un titre W3C correct */
+			$billet['article_titre_url'] = url_titre($billet['titre']);
 		}
 		if (isset($billet['chapo'])) { $texte = str_replace($GLOBALS['balises']['article_chapo'], $billet['chapo'], $texte); }
 		if (isset($billet['contenu'])) { $texte = str_replace($GLOBALS['balises']['article_contenu'], $billet['contenu'], $texte); }
@@ -137,7 +139,7 @@ $comment= init_post_comment($id);
 // TRAITEMENT
 $erreurs_form= array();
 if (isset($_POST['_verif_envoi'])) {
-		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], (mk_captcha('x')+mk_captcha('y')));
+		$erreurs_form= valider_form_commentaire($comment, $_POST['captcha'], ($_SESSION['captx']+$_SESSION['capty']));
 }
 if ( empty($erreurs_form) )  {
 		afficher_form_commentaire($id, 'public', $billet['allow_comments']);

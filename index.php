@@ -8,7 +8,7 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 //error_reporting(E_ALL);
-
+session_start() ;
 if (isset($_POST['auteur'])) {
 	setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true);
 }

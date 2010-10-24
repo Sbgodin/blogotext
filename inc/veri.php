@@ -58,9 +58,11 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 			}
 		}
 
-		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha) ) {
-			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
-	    }
+		if ($captcha != session_id()) {
+			if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha)) {
+				$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
+			}
+		}
     return $erreurs;
 }
 

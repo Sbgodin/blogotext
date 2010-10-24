@@ -81,7 +81,7 @@ function afficher_top($titre) {
 	} else {
 		$lang_id = 'fr';
 	}
-header ('Content-type: text/html; charset=UTF-8');
+//header ('Content-type: text/html; charset=UTF-8');
 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
 echo	'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
 echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
@@ -142,7 +142,9 @@ if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) {
 }
 	    	$GLOBALS['calendrier'] = '<table id="calendrier">'."\n";
 	    	$GLOBALS['calendrier'].= '<caption>';
+	    	if ( $annee.$ce_mois > $GLOBALS['date_premier_message_blog']) {
 	    	$GLOBALS['calendrier'].= '<a href="'.$prev_mois.'">&#171;</a>&nbsp;';
+	    	}
 // Si on affiche un jour on ajoute le lien sur le mois
 	    	if ($ce_jour) {
 	    			$GLOBALS['calendrier'].= '<a href="'.$_SERVER['PHP_SELF'].'?'.$annee.'/'.$ce_mois.'">'.mois_en_lettres($ce_mois).' '.$annee.'</a>';
@@ -203,14 +205,11 @@ function encart_commentaires() {
 		foreach ($tableau as $id => $content) {
 			$comment = init_comment('public', remove_ext($content));
 
-// ----- needed to solve the 'strlen' bug with UTF8 caracters who are encoded on 2 bytes...
-//			$tofind = utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
-//			$replac = utf8_decode('AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn');
-//			$comment['contenu_abbr'] = strtr(utf8_decode($comment['contenu']),$tofind,$replac);
-// -----
-
 			$comment['contenu_abbr'] = strtolower(preg_replace('#<.*>#U', '', $comment['contenu']));
-			if (strlen($comment['contenu_abbr']) >= '60') { $comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 59).'…'; }
+			if (strlen($comment['contenu_abbr']) >= '60') {
+				$comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 59);
+				$comment['contenu_abbr'] = preg_replace('#.$#', '…', $comment['contenu_abbr']);
+			}
 
 			$comment['article_titre_orig'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
 			$comment['auteur_abbr'] = preg_replace('#</?.*>#U', '', $comment['auteur']);

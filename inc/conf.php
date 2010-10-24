@@ -30,47 +30,27 @@ $GLOBALS['dossier_backup']= 'bt_backup';
 $GLOBALS['dossier_data_backup']= '../bt_backup';
 $GLOBALS['dossier_images']= '../img/';
 $GLOBALS['dossier_vignettes']= 'thb';
+$GLOBALS['date_premier_message_blog'] = '199001';/* éviter que l'on puisse aller trop loin dans le passé avec le calendrier (format : YYYYMM) */
 $GLOBALS['salt']= '123456';
 
 // CAPTCHA
-function mk_captcha($x_or_y) {
-	if (!empty($_SERVER['QUERY_STRING'])) {
-		if (isset($_GET['post_id'])) {
-			$id = $_GET['post_id'];
-		}
-		else {
-			$pre_pre_id = explode('&',$_SERVER['QUERY_STRING']);
-			$pre_id= explode('-',$pre_pre_id['0']);
-			$id = preg_replace('#/#','',$pre_id['0']);
-		}
-		if (strlen($id) == 14) {
-			$mot1 = substr($id,'6','6');
-			$mot2 = substr($id,'12','2')+1;
+function mk_captcha() {
 
-			$captcha_x = (($mot1 % $mot2)%9)+1;
-			$captcha_y = (($mot1%9)+1);
-		}
-	else {
-		$captcha_x = '2';
-		$captcha_y = '3';
-	}
-	}
-	else {
-		$captcha_x = '8';
-		$captcha_y = '2';
-	}
-	$captcha = array (
-		'x' => ("$captcha_x"),
-		'y' => ("$captcha_y"),
-	);
+	$captcha['x'] = rand(rand(1,5),rand(6,9));
+	$captcha['y'] = rand(rand(1,rand(3,7)),9);
 
-	if ($x_or_y == 'x') {
-		return $captcha['x'];
-	}
-	elseif ($x_or_y == 'y') {
-		return $captcha['y'];
-	}
+	return $captcha;
 }
+if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialchars($_POST['captcha']) == $_SESSION['captx']+$_SESSION['capty']) ) {
+	$GLOBALS['captcha'] = mk_captcha();
+	$_SESSION['captx'] = $GLOBALS['captcha']['x'];
+	$_SESSION['capty'] = $GLOBALS['captcha']['y'];
+}
+/*   for debug
+echo $_SESSION['captx'].'<br/>';
+echo $_SESSION['capty'].'<br/>';
+echo $_SESSION['captx']+$_SESSION['capty'].'<br/>';
+*/
 
 
 // THEMES
@@ -105,6 +85,7 @@ $GLOBALS['balises']= array(
 	'style' => array('{style}'),
 	'racine_du_site' => array('{racine_du_site}'),
 	'rss' => array('{rss}'),
+	'rss_comments' => '{rss_comments}',
 // Blog
 	'blog_nom' => array('{nom_du_blog}','{blog_nom}','{blog_name}'),
 	'blog_description' => array('{blog_description}','{description}'),
@@ -187,6 +168,7 @@ $syntax_version = get_version($file);
 		$billet['heure'] = $dec['heure'];
 		$billet['minutes'] = $dec['minutes'];
 		$billet['secondes'] = $dec['secondes'];
+		$GLOBALS['rss_comments'] = $GLOBALS['racine'].'rss.php?id='.$billet['id'];
 		$billet['lien'] = $_SERVER['PHP_SELF'].'?'.$dec['annee'].'/'.$dec['mois'].'/'.$dec['jour'].'/'.$dec['heure'].'/'.$dec['minutes'].'/'.$dec['secondes'].'-'.titre_url($billet['titre']);
 		$billet['nb_comments'] = count(liste_commentaires($com_directory, $id));
 		if ($billet['version'] == '') {
@@ -212,6 +194,7 @@ $syntax_version = get_version($file);
 		$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]);
 		$comment['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version'][$syntax_version]);
 		$comment['auteur'] = parse_xml($file, $GLOBALS['data_syntax']['comment_author'][$syntax_version]);
+		$comment['auteur_ss_lien'] = $comment['auteur'];
 		$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email'][$syntax_version]);
 		$comment['webpage'] = parse_xml($file, $GLOBALS['data_syntax']['comment_webpage'][$syntax_version]);
 
@@ -248,9 +231,9 @@ if (isset($_POST['_verif_envoi'])) {
    	$GLOBALS['data_syntax']['article_abstract'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
    	$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']] => formatage_wiki(protect_markup($_POST['contenu'])),
    	$GLOBALS['data_syntax']['article_wiki_content'][$GLOBALS['syntax_version']] => stripslashes(protect_markup($_POST['contenu'])),
-  	$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
-	  $GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => $_POST['statut'],
-	  $GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => $_POST['allowcomment']
+		$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
+		$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => $_POST['statut'],
+		$GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => $_POST['allowcomment']
 	  );
 	}
 return $billet;

@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <link type="text/css" rel="stylesheet" href="{style}" />
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{rss}" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - Blog" href="{rss}" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - Commentaires sur « {article_titre} »" href="{rss_comments}" />
 <meta http-equiv="content-type" content="text/html; charset={charset}" />
 <meta name="generator" content="BlogoText" /> 
 <meta name="robots" content="all" />
@@ -45,6 +46,7 @@ function ouvre(fichier) {
 	</div>
 	{/BOUCLE_commentaire}
 
+	<p><a href="{rss_comments}">Flux RSS des commentaires de cet article</a></p>
 	<div id="postcom">
 	{formulaire_commentaire}
 	</div>
