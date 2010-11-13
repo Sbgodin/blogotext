@@ -35,7 +35,7 @@ function ouvre(fichier) {
 
 	<div class="contenu">
 	{article_contenu}
-	<p>Dans les catégories : {article_tags}</p>
+	{article_tags}
 	</div>
 
 <h2>{nombre_commentaires}</h2>

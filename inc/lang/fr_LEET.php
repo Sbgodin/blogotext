@@ -231,6 +231,7 @@ $lang_l33t_fr = array(
 'pref_allow_global_coms'		=> 'Fermeture de tous les commentaires',
 'pref_connexion_delai'			=> 'Activer le délai de sécurité lors de la connexion',
 'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="captcha_test.php" target="_blank"><b>tester avant !</b></a>)',
+'pref_all'							=> 'Tout',
 'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
 'legend_what_doyouwant'			=> 'Que voulez vous faire ?',
 // Notes

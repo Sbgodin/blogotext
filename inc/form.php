@@ -153,61 +153,64 @@ echo '</form>'."\n";
 }
 
 function filtre($dossier, $defaut='') {
-if ( $ouverture = opendir($dossier) ) { 
-       while ( false !== ($file = readdir($ouverture)) ) {
-       	if (preg_match('/\d{4}/', $file) ){
-       		$annees[]=$file;
-       	}
-       }
-       closedir($ouverture);
-}
-if (isset($annees)) {
-foreach ($annees as $id => $dossier_annee) {
- 	$chemin = $dossier.'/'.$dossier_annee.'/';
-	 if ( $ouverture = opendir($chemin) ) { 
-       while ( false !== ($file_mois = readdir($ouverture)) ) {
-       	if (is_dir($chemin.$file_mois)) {
-		    	if ($fichiers = opendir($chemin.$file_mois)) {
-		    		while ($files=readdir($fichiers)) {
-		    			if ( (preg_match('/\d{2}/', $file_mois)) AND ((substr($files,'-3','3')) == $GLOBALS['ext_data']) ){
-			    			$dossier_mois[$dossier_annee.$file_mois]= mois_en_lettres($file_mois).' '.$dossier_annee;	
-			    		}
-		    		}
+	if ( $ouverture = opendir($dossier) ) { 
+		    while ( false !== ($file = readdir($ouverture)) ) {
+		    	if (preg_match('/\d{4}/', $file) ){
+		    		$annees[]=$file;
 		    	}
-			}
-       }
-       closedir($ouverture);
+		    }
+		    closedir($ouverture);
+	}
+	if (isset($annees)) {
+		foreach ($annees as $id => $dossier_annee) {
+		 	$chemin = $dossier.'/'.$dossier_annee.'/';
+			 if ( $ouverture = opendir($chemin) ) { 
+				 while ( false !== ($file_mois = readdir($ouverture)) ) {
+				 	if (is_dir($chemin.$file_mois)) {
+					 	if ($fichiers = opendir($chemin.$file_mois)) {
+					 		while ($files=readdir($fichiers)) {
+					 			if ( (preg_match('/\d{2}/', $file_mois)) AND ((substr($files,'-3','3')) == $GLOBALS['ext_data']) ){
+						 			$dossier_mois[$dossier_annee.$file_mois]= mois_en_lettres($file_mois).' '.$dossier_annee;	
+						 		}
+					 		}
+					 	}
+					}
+				 }
+				 closedir($ouverture);
+				}
 		}
-}
-}
-if (isset($dossier_mois)) {
-echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
-echo "\n".'<select name="filtre">'."\n" ;
-echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
-/// BROUILLONS
-echo '<option value="draft"';
-	if ($defaut == 'draft') {
-		echo ' selected="selected"';
 	}
-echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
-/// PUBLIES
-echo '<option value="pub"';
-	if ($defaut == 'pub') {
-		echo ' selected="selected"';
+	if (isset($dossier_mois)) {
+		krsort($dossier_mois);
+		echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
+		echo "\n".'<select name="filtre">'."\n" ;
+		echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
+
+		/// BROUILLONS
+		echo '<option value="draft"';
+		if ($defaut == 'draft') {
+			echo ' selected="selected"';
+		}
+		echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
+
+		/// PUBLIES
+		echo '<option value="pub"';
+		if ($defaut == 'pub') {
+			echo ' selected="selected"';
+		}
+		echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
+		echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
+		foreach ($dossier_mois as $option => $label) {
+		  	echo '<option value="' . htmlentities($option) . '"';
+		  	if ($defaut == $option) {
+		      echo ' selected="selected"';
+		  	}
+		  	echo '>' . htmlentities($label) . '</option>'."\n";
+		}
+		echo '</optgroup>';
+		echo '</select> '."\n\n";
+		echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 	}
-echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
-					echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
-			   foreach ($dossier_mois as $option => $label) {
-        	echo '<option value="' . htmlentities($option) . '"';
-        	if ($defaut == $option) {
-            echo ' selected="selected"';
-        	}
-        	echo '>' . htmlentities($label) . '</option>'."\n";
-			   }
-			   echo '</optgroup>';
-			echo '</select> '."\n\n";
-			echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
-}
 }
 
 function back_list() {
@@ -218,7 +221,7 @@ function back_list() {
 
 function afficher_form_billet($article='', $erreurs= '') {
 // Valeurs par defaut
-    if (isset($_POST['_verif_envoi'])) {
+	if (isset($_POST['_verif_envoi'])) {
 			$defaut_jour = $_POST['jour'];
 			$defaut_mois = $_POST['mois'];
 			$defaut_annee = $_POST['annee'];
@@ -227,46 +230,63 @@ function afficher_form_billet($article='', $erreurs= '') {
 			$defaut_secondes = $_POST['secondes'];
 			$titredefaut = stripslashes($_POST['titre']);
 			$chapodefaut = stripslashes($_POST['chapo']);
+			if ($GLOBALS['activer_categories'] == '1') {
+				$categoriesdefaut = stripslashes($_POST['categories']);
+			}
 			$contenudefaut = stripslashes($_POST['contenu']);
 			$statutdefaut = $_POST['statut'];
 			$allowcommentdefaut = $_POST['allowcomment'];
-    	} elseif ($article != '') {
+	} elseif ($article != '') {
     		$titredefaut = $article['titre'];
     		$chapodefaut = $article['chapo'];
-				$contenudefaut = $article['contenu_wiki'];
-				$statutdefaut = $article['statut'];
-				$allowcommentdefaut = $article['allow_comments'];
-				} else {
-					$defaut_jour = date('d');
-					$defaut_mois = date('m');
-					$defaut_annee = date('Y');
-					$defaut_heure = date('H');
-					$defaut_minutes = date('i');
-					$defaut_secondes = date('s');
-					$chapodefaut = '';
-					$contenudefaut = '';
-					$titredefaut = '';
-					$statutdefaut = '1';
-					$allowcommentdefaut = '1';
-		}
-if ($erreurs) {
-	erreurs($erreurs);
-}
-if (isset($article['id'])) {
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
-} else {
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
-}
-echo '<div id="form">'."\n";
-label('titre', $GLOBALS['lang']['label_titre']);
-form_titre($titredefaut) ;
-label('chapo', $GLOBALS['lang']['label_chapo']);
-form_chapo($chapodefaut) ;
-echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
-label('contenu', $GLOBALS['lang']['label_contenu']);
-form_contenu($contenudefaut) ;
-if 	(!$article) {
-			echo '<div id="date">'."\n";
+			if (isset($article['categories'])) {
+				$categoriesdefaut = $article['categories'];
+			} else {
+				$categoriesdefaut = '';
+			}
+			$contenudefaut = $article['contenu_wiki'];
+			$statutdefaut = $article['statut'];
+			$allowcommentdefaut = $article['allow_comments'];
+	} else {
+			$defaut_jour = date('d');
+			$defaut_mois = date('m');
+			$defaut_annee = date('Y');
+			$defaut_heure = date('H');
+			$defaut_minutes = date('i');
+			$defaut_secondes = date('s');
+			$chapodefaut = '';
+			$contenudefaut = '';
+			$categoriesdefaut = '';
+			$titredefaut = '';
+			$statutdefaut = '1';
+			$allowcommentdefaut = '1';
+	}
+	if ($erreurs) {
+		erreurs($erreurs);
+	}
+	if (isset($article['id'])) {
+		echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['id'].'" >'."\n";
+	} else {
+		echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
+	}
+	echo '<div id="form">'."\n";
+	label('titre', $GLOBALS['lang']['label_titre']);
+	form_titre($titredefaut) ;
+	label('chapo', $GLOBALS['lang']['label_chapo']);
+	form_chapo($chapodefaut) ;
+
+	if ($GLOBALS['activer_categories'] == '1') {
+		label('categories', $GLOBALS['lang']['label_categories']);
+		form_categories($categoriesdefaut) ;
+	} else {
+		hidden_input('categories', '');
+	}
+
+	echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
+	label('contenu', $GLOBALS['lang']['label_contenu']);
+	form_contenu($contenudefaut) ;
+	if (!$article) {
+		echo '<div id="date">'."\n";
 			echo '<div id="formdate">';
 				form_annee($defaut_annee) ;
 				form_mois($defaut_mois) ;
@@ -275,23 +295,23 @@ if 	(!$article) {
 			echo '<div id="formheure">';
 				form_heure($defaut_heure, $defaut_minutes, $defaut_secondes) ;
 			echo '</div>';
-			echo '</div>'."\n";
-} else {
-echo '<div id="date">';
-echo '<p id="formdate">'.date_formate($article['id']).'</p>';
-echo '<p id="formheure">'.heure_formate($article['id']).'</p>';
-echo '</div>';
-hidden_input('annee', $article['annee']);
-hidden_input('mois', $article['mois']);
-hidden_input('jour', $article['jour']);
-hidden_input('heure', $article['heure']);
-hidden_input('minutes', $article['minutes']);
-hidden_input('secondes', $article['secondes']);
-}
-			echo '<div id="opts">'."\n";
-			form_statut($statutdefaut);
-			form_allow_comment($allowcommentdefaut);
-			echo '</div>'."\n";
+		echo '</div>'."\n";
+	} else {
+		echo '<div id="date">';
+			echo '<p id="formdate">'.date_formate($article['id']).'</p>';
+			echo '<p id="formheure">'.heure_formate($article['id']).'</p>';
+		echo '</div>';
+		hidden_input('annee', $article['annee']);
+		hidden_input('mois', $article['mois']);
+		hidden_input('jour', $article['jour']);
+		hidden_input('heure', $article['heure']);
+		hidden_input('minutes', $article['minutes']);
+		hidden_input('secondes', $article['secondes']);
+	}
+	echo '<div id="opts">'."\n";
+		form_statut($statutdefaut);
+		form_allow_comment($allowcommentdefaut);
+	echo '</div>'."\n";
 	echo '<div id="bt">';
 		input_enregistrer();
 		if ($article) {
@@ -302,9 +322,9 @@ hidden_input('secondes', $article['secondes']);
 			hidden_input('article_id', $article['id']);
 		}
 	echo '</div>';
-hidden_input('_verif_envoi', '1');
-echo '</div>'."\n";
-echo '</form>'."\n";
+	hidden_input('_verif_envoi', '1');
+	echo '</div>'."\n";
+	echo '</form>'."\n";
 }
 // FIN AFFICHER_FORM_BILLET
 
@@ -328,13 +348,13 @@ function form_jour($jour_affiche) {
 
 function form_mois($mois_affiche) {
 			$mois = array(
-								"01" => $GLOBALS['lang']['janvier'], "02" => $GLOBALS['lang']['fevrier'], 
-								"03" => $GLOBALS['lang']['mars'], "04" => $GLOBALS['lang']['avril'], 
-                "05" => $GLOBALS['lang']['mai'], "06" => $GLOBALS['lang']['juin'], 
-                "07" => $GLOBALS['lang']['juillet'], "08" => $GLOBALS['lang']['aout'],
-                "09" => $GLOBALS['lang']['septembre'], "10" => $GLOBALS['lang']['octobre'], 
-                "11" => $GLOBALS['lang']['novembre'], "12" => $GLOBALS['lang']['decembre']
-                );
+					"01" => $GLOBALS['lang']['janvier'], "02" => $GLOBALS['lang']['fevrier'], 
+					"03" => $GLOBALS['lang']['mars'], "04" => $GLOBALS['lang']['avril'], 
+					"05" => $GLOBALS['lang']['mai'], "06" => $GLOBALS['lang']['juin'], 
+					"07" => $GLOBALS['lang']['juillet'], "08" => $GLOBALS['lang']['aout'],
+					"09" => $GLOBALS['lang']['septembre'], "10" => $GLOBALS['lang']['octobre'], 
+					"11" => $GLOBALS['lang']['novembre'], "12" => $GLOBALS['lang']['decembre']
+			);
 			echo '<select name="mois">'."\n" ;
 			   foreach ($mois as $option => $label) {
         	echo '<option value="' . htmlentities($option) . '"';
@@ -399,6 +419,42 @@ function form_titre($titreaffiche) {
 
 function form_chapo($chapoaffiche) {
     echo '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
+}
+
+function form_categories($categoriesaffiche) {
+	if (!empty($GLOBALS['tags'])) {
+		echo '<script type="text/javascript">'."\n";
+		echo 'function unfold(box, button) {'."\n";
+		echo '	var mbox = document.getElementById(box);'."\n";
+		echo '	if (mbox.style.display !== \'\') {'."\n";
+		echo '		mbox.style.display = \'\';'."\n";
+		echo '		button.value = \'Masquer la liste\';'."\n";
+		echo '	} else {'."\n";
+		echo '		mbox.style.display = \'none\';'."\n";
+		echo '		button.value = \'Afficher la liste des tags\';'."\n";
+		echo '	}'."\n";
+		echo '}'."\n";
+		echo 'function insertTag(inputId, tag) {'."\n";
+		echo '	var field = document.getElementById(inputId);'."\n";
+		echo '	if (field.value !== \'\') {'."\n";
+		echo '		field.value += \', \';'."\n";
+		echo '	}'."\n";
+		echo '	field.value += tag;'."\n";
+		echo '}'."\n";
+		echo '</script>'."\n";
+		echo '<input onclick="unfold(\'masknshow\', this);" value="Afficher la liste des tags" type="button" id="showw" />'."\n";
+		echo '<p style="display: none;" id="masknshow">'."\n";
+
+		$tags = explode(',', $GLOBALS['tags']);
+		$nb = sizeof($tags);
+		for ($i = 0 ; $i < $nb ; $i++) {
+			$tags[$i] = trim($tags[$i]);
+			echo "\t".'<input class="tags" id="tag'.$i.'" onclick="insertTag(\'categories\', \''.$tags[$i].'\');" value="'.$tags[$i].'" type="button"/>'."\n";
+		}
+
+		echo '</p>'."\n";
+	}
+	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" />'."\n";
 }
 
 function form_contenu($contenuaffiche) {

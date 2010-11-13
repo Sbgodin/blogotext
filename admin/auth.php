@@ -8,7 +8,7 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 error_reporting(E_ALL);
-if ( !file_exists('../config/user.php') || !file_exists('../config/prefs.php') ) {
+if ( !file_exists('../config/user.php') or !file_exists('../config/prefs.php') or !file_exists('../config/tags.php') ) {
 	header('Location: install.php');
 }
 

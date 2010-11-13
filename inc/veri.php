@@ -96,7 +96,7 @@ function valider_form_billet($billet) {
     return $erreurs;
 }
 
-function valider_form_preferences() {		
+function valider_form_preferences() {
 			$erreurs = array();
 	    if (!strlen(trim($_POST['auteur']))) {
 	    $erreurs[] = $GLOBALS['lang']['err_prefs_auteur'];

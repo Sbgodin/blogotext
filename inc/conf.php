@@ -8,10 +8,11 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 
+// VERSION
+$GLOBALS['version_timo'] = '20';
 
 // DOSSIER ADMIN
 $GLOBALS['dossier_admin']= 'admin';
-
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -32,6 +33,7 @@ $GLOBALS['dossier_images']= '../img/';
 $GLOBALS['dossier_vignettes']= 'thb';
 $GLOBALS['date_premier_message_blog'] = '199001';/* éviter que l'on puisse aller trop loin dans le passé avec le calendrier (format : YYYYMM) */
 $GLOBALS['salt']= '123456';
+$GLOBALS['activer_apercu']= '1';
 
 // CAPTCHA
 function mk_captcha() {
@@ -46,11 +48,6 @@ if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialch
 	$_SESSION['captx'] = $GLOBALS['captcha']['x'];
 	$_SESSION['capty'] = $GLOBALS['captcha']['y'];
 }
-/*   for debug
-echo $_SESSION['captx'].'<br/>';
-echo $_SESSION['capty'].'<br/>';
-echo $_SESSION['captx']+$_SESSION['capty'].'<br/>';
-*/
 
 
 // THEMES
@@ -79,6 +76,7 @@ $GLOBALS['boucles'] = array(
 	'articles' => array('BOUCLE_article', 'BOUCLE_articles', 'LOOP_post'),
 	'commentaires' => array('BOUCLE_commentaire', 'BOUCLE_commentaires', 'LOOP_comments')
 );
+
 $GLOBALS['balises']= array(
 	'charset' => array('{charset}'),
 	'version' => array('{version}'),
@@ -95,7 +93,9 @@ $GLOBALS['balises']= array(
 	'form_recherche' => array('{recherche}', '{search}'),
 	'form_calendrier' => array('{calendrier}', '{calendar}'),
 	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
+// Encarts
 	'commentaires_encart' => array('{commentaires_encart}'),
+	'categories_encart' => array('{categories_encart}'),
 // Article
 	'article_titre' => array('{article_titre}','{article_title}'),
 	'article_titre_url' => array('{article_titre_url}','{article_title_url}'),
@@ -105,6 +105,7 @@ $GLOBALS['balises']= array(
 	'article_date'=> array('{article_date}','{article_date}'),
 	'article_motscles'=> array('{article_motscles}','{article_keywords}'),
 	'article_lien'=> array('{article_lien}','{article_link}'),
+	'article_tags'=> array('{article_tags}'),
 	'nb_commentaires'=> array('{nombre_commentaires}','{comments_number}'),
 // Commentaire
 	'commentaire_auteur' => array('{commentaire_auteur}','{comment_author}'),
@@ -129,6 +130,7 @@ $GLOBALS['data_syntax'] = array(
 	'article_keywords' => array('motscles', 'bt_keywords'),
 	'article_status' => array('statut', 'bt_status'),
 	'article_allow_comments' => array('commentaires', 'bt_allow_comments'),
+	'article_categories' => array('categories', 'bt_categories'),
 	// COMMENTS
 	'comment_id' => array('id', 'bt_id'),
 	'comment_article_id' => array('article_id', 'bt_article_id'),
@@ -161,6 +163,7 @@ $syntax_version = get_version($file);
 		$billet['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['article_content'][$syntax_version]);
 		$billet['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['article_wiki_content'][$syntax_version]);
 		$billet['mots_cles'] = parse_xml($file, $GLOBALS['data_syntax']['article_keywords'][$syntax_version]);
+		$billet['categories'] = parse_xml($file, $GLOBALS['data_syntax']['article_categories'][$syntax_version]);
 		$billet['annee'] = $dec['annee'];
 		$billet['mois'] = $dec['mois'];
 		$billet['mois_en_lettres'] = mois_en_lettres($dec['mois']);
@@ -203,7 +206,7 @@ $syntax_version = get_version($file);
 			$comment['auteur'] = '<span class="admin">'.$comment['auteur'].'</span>';
 		}
 
-// le site web du visiteur (regarde s'il existe ou s'il est vide...)
+// le site web du visiteur
 		if ($comment['webpage'] != '') {
 			$comment['auteur'] = '<a href="'.$comment['webpage'].'" class="webpage">'.$comment['auteur'].'</a>';
 		}
@@ -232,6 +235,7 @@ if (isset($_POST['_verif_envoi'])) {
    	$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']] => formatage_wiki(protect_markup($_POST['contenu'])),
    	$GLOBALS['data_syntax']['article_wiki_content'][$GLOBALS['syntax_version']] => stripslashes(protect_markup($_POST['contenu'])),
 		$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
+		$GLOBALS['data_syntax']['article_categories'][$GLOBALS['syntax_version']] => traiter_tags($_POST['categories']),
 		$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => $_POST['statut'],
 		$GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => $_POST['allowcomment']
 	  );
@@ -256,7 +260,5 @@ $comment= array();
 	}
 return $comment;
 }
-
-
 
 ?>

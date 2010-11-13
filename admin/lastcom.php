@@ -63,10 +63,14 @@ echo '<div id="page">'."\n";
 // COMMENTAIRES
 $tableau=table_derniers($GLOBALS['dossier_data_commentaires'], $GLOBALS['nb_list_com']);
 	if($tableau != ""){
+		$nb = 0;
 		foreach ($tableau as $id => $content) {
+			$nb++;
 			$comment = init_comment('admin', remove_ext($content));
 			afficher_commentaire($comment, 1);
 		}
+echo '<p style="text-align: center;">'.$nb.' '.$GLOBALS['lang']['label_commentaires'].' '.$GLOBALS['lang']['sur'].' '.count(table_derniers($GLOBALS['dossier_data_commentaires']))."</p>\n";
+
 	}
 	else {
 		echo $GLOBALS['lang']['no_comments'];

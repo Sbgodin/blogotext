@@ -234,7 +234,7 @@ function fichier_data($dossier, $billet) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
 	}
 	if (!empty($billet['bt_categories'])) {
-		fichier_tags($billet['bt_categories'], '0');
+		fichier_tags($billet['bt_categories']);
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);

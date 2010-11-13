@@ -171,6 +171,10 @@ p {
 	background: #fff url("images.gif") no-repeat center 5px;
 }
 
+#lien-maintenance {
+	background: #fff url("application_go.gif") no-repeat center 5px;
+}
+
 /* SUBNAV */
 
 #subnav {
@@ -553,6 +557,20 @@ fieldset.valid-center .submit {
 	padding-left: 20px;
 }
 
+#showw {
+	margin: 3px 0;
+	background-color: silver;
+}
+
+.tags {
+	margin: auto 1px 3px 0px;
+}
+
+#masknshow {
+	width: 99%;
+	text-align: justify;
+}
+
 /* MODES ECRIRE */
 
 #mode {
@@ -658,6 +676,14 @@ fieldset.valid-center .submit {
 	background: #fffae5;
 	padding: 5px;
 	margin-bottom: 15px;
+}
+
+#categories {
+	width: 98%;
+	clear: both;
+	padding: 5px;
+	margin-bottom: 15px;
+	background: #fffae5;
 }
 
 #contenu {

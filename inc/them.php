@@ -29,6 +29,7 @@ function conversions_theme($texte, $billet='', $commentaire='') {
 		else { $texte = str_replace($GLOBALS['balises']['rss'], '', $texte); }
 
 	if (isset($GLOBALS['balises']['commentaires_encart']) and preg_match('#'.$GLOBALS['balises']['commentaires_encart'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['commentaires_encart'], encart_commentaires(), $texte);}
+	if (isset($GLOBALS['balises']['categories_encart']) and preg_match('#'.$GLOBALS['balises']['categories_encart'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['categories_encart'], encart_categories(), $texte);}
 	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
 
  return $texte;
@@ -67,6 +68,7 @@ function conversions_theme_article($texte, $billet='', $commentaire='') {
 		if (isset($billet['auteur'])) { $texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $billet['auteur'], $texte); }
 		if (isset($billet['lien'])) { $texte = str_replace($GLOBALS['balises']['article_lien'], $billet['lien'], $texte); }
 		if (isset($billet['article_titre_url'])) { $texte = str_replace($GLOBALS['balises']['article_titre_url'], $billet['article_titre_url'], $texte); }
+		if (isset($billet['categories'])) { $texte = str_replace($GLOBALS['balises']['article_tags'], liste_tags_article($billet), $texte); }
 	}
 // Commentaire
 	 return $texte;

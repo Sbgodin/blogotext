@@ -10,6 +10,7 @@
 require_once 'lang.php';
 require_once '../config/user.php';
 require_once '../config/prefs.php';
+require_once '../config/tags.php';
 require_once 'conf.php';
 require_once 'them.php' ;
 require_once 'html.php' ;

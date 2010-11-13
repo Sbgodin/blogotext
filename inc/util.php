@@ -212,4 +212,16 @@ function article_anchor($id) {
 	return $anchor;
 }
 
+function traiter_tags($tags) {
+	$tags_array = explode(',' , trim($tags, ','));
+	$nb = sizeof($tags_array);
+	for ($i = 0 ; $i < $nb ; $i ++) {
+		$tags_array[$i] = trim($tags_array[$i]);
+	}
+	$tags_array = array_unique($tags_array);
+	sort($tags_array);
+	
+	$str_tags = implode(', ' , $tags_array);
+	return $str_tags;
+}
 ?>

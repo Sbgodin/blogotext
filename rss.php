@@ -51,6 +51,7 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 				echo '<item>'."\n";
 					echo '<title>'.$comment['auteur_ss_lien'].'</title>'."\n";
 					echo '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
+					echo '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
 					echo '<pubDate>'.$jour_abbr.', '.$comment['jour'].' '.$mois_abbr.' '.$comment['annee'].' '.$comment['heure'].':'.$comment['minutes'].':'.$comment['secondes'].' +0000</pubDate>'."\n";
 					echo '<description>'.htmlspecialchars($comment['contenu']).'</description>'."\n";
 				echo '</item>'."\n";
@@ -59,6 +60,7 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 		echo '<item>'."\n";
 			echo '<title>'.$GLOBALS['lang']['note_no_comment'].'</title>'."\n";
 			echo '<guid>'.$GLOBALS['racine'].'index.php</guid>'."\n";
+			echo '<link>'.$GLOBALS['racine'].'index.php</link>'."\n";
 			echo '<pubDate>'.date('D').', '.date('d').' '.date('m').' '.date('Y').' '.date('h').':'.date('i').':'.date('s').' +0000</pubDate>'."\n";
 			echo '<description>'.$GLOBALS['lang']['no_comments'].'</description>'."\n";
 		echo '</item>'."\n";
@@ -87,6 +89,7 @@ foreach ($liste as $id => $article) {
 				print '<item>'."\n";
 				print '<title>'.$billet['titre'].'</title>'."\n";
 				print '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
+				print '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
 				print '<pubDate>'.$jour_abbr.', '.$billet['jour'].' '.$mois_abbr.' '.$billet['annee'].' '.$billet['heure'].':'.$billet['minutes'].':'.$billet['secondes'].' +0000</pubDate>'."\n";
 				print '<description>'.$billet['chapo'].'</description>'."\n";
 				print '</item>'."\n";

@@ -26,6 +26,7 @@ if ( !file_exists('config/user.php') || !file_exists('config/prefs.php') ) {
 require_once 'inc/lang.php';
 require_once 'config/user.php';
 require_once 'config/prefs.php';
+require_once 'config/tags.php';
 require_once 'inc/conf.php';
 require_once 'inc/them.php';
 require_once 'inc/fich.php';
@@ -53,6 +54,11 @@ if ( isset($_SERVER['QUERY_STRING']) AND (url_article($_SERVER['QUERY_STRING']) 
 				afficher_form_recherche($_GET['q']);
 		    afficher_calendrier($depart, date('m'), date('Y'));
 				$tableau=table_recherche($depart, $_GET['q'], '1');
+				afficher_index($tableau);
+} elseif (isset($_GET['tag'])) {
+				afficher_form_recherche();
+		    afficher_calendrier($depart, date('m'), date('Y'));
+				$tableau=table_tags($depart, $_GET['tag'], '1');
 				afficher_index($tableau);
 } elseif ( (isset($_SERVER['QUERY_STRING'])  AND (url_date($_SERVER['QUERY_STRING']) === 'TRUE') ) ) {
 				$tab = explode('/', ($_SERVER['QUERY_STRING']));

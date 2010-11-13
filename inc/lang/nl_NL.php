@@ -1,4 +1,13 @@
 <?php
+# *** LICENSE ***
+# This file is part of BlogoText.
+# Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
+# All rights reserved.
+# BlogoText is free software, you can redistribute it under the terms of the
+# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# *** LICENSE ***
+
 /* ##############################################################################################
    ----------------------------------------- Nederlands -----------------------------------------*/
 
@@ -17,7 +26,7 @@ $lang_nl = array(
 // Wiki
 'label_wiki'						=> 'Opmaak',
 'wiki_titre'						=> 'Titel',
-'wiki_titre_exp'					=> '! Groote titel !! Gemiddelde titel !!! Kleine titre',
+'wiki_titre_exp'					=> '! Groote titel <br/>!! Gemiddelde titel <br/>!!! Kleine titre',
 'wiki_lien'							=> 'Link',
 'wiki_lien_exp'					=> '[link tekst|link URL]',
 'wiki_gras'							=> 'Vet',
@@ -88,6 +97,7 @@ $lang_nl = array(
 'label_articles'					=> 'Berichten',
 'label_commentaire'				=> 'Reactie',
 'label_commentaires'				=> 'Reacties',
+'label_categories'				=> 'Tags, met en comma geschijden',
 // Commentaire
 'aucun'								=> 'geen',
 'comment_ajout'					=> 'Reagegen',
@@ -181,6 +191,7 @@ $lang_nl = array(
 'confirm_comment_ajout'			=> 'Uw commentaar is toegevoegd',
 'confirm_comment_suppr'			=> 'Het commentaar is verwijdert',
 'confirm_backupfile_suppr'		=> 'Het backup bestand is verwijdert',
+'confirm_tags_cleand'			=> 'De tag-lijst is schoongemaakt',
 // No-onfiramtion
 'error_comment_suppr'			=> 'Het commentaar is *niet* verweijdert',
 'error_comment_suppr_impos'	=> 'Het commentaar kan niet voorden verweijdert',
@@ -199,6 +210,8 @@ $lang_nl = array(
 'titre_preferences' 				=> 'Instellingen',
 'titre_image'						=> 'Afbeeldingen',
 'titre_backup'						=> 'Backup',
+'titre_maintenance'				=> 'Onderhoud',
+
 // Preferences
 'prefs_legend_utilisateur'		=> 'Login',
 'prefs_legend_apparence'		=> 'Verschijning',
@@ -222,8 +235,9 @@ $lang_nl = array(
 'pref_nb_maxi_comm'				=> 'Aantal commentaaren previews op de homepage',
 'pref_nb_list'						=> 'Aantal itemps in de lijst',
 'pref_nb_list_com'				=> 'Aantal commentaaren in de lijst',
-'pref_apercu'						=> 'Overzicht',
+//'pref_apercu'						=> 'Overzicht',
 'pref_theme'						=> 'Thema',
+'pref_categories'					=> 'Gebruijk ?CATEGORIES? om artikels te classeren',
 'pref_images'						=> 'Afbeldingen gebruijken',
 'pref_commentaires'				=> 'Reacties aan zeten',
 'pref_aff_onglet_comm'			=> 'Reacties tabblad vergeven',
@@ -232,6 +246,8 @@ $lang_nl = array(
 'pref_connexion_delai'			=> 'Beveiliging vertraging bij het inloggen',
 'pref_connexion_captcha'		=> 'Captcha bij het inloggen (<a href="captcha_test.php" target="_blank"><b>testen !</b></a>)',
 'pref_make_backup'				=> 'En backup-bestand van uw berichten/reacties maken.',
+'pref_all'							=> 'Alles',
+'pref_go_to_mainteance'			=> 'Blogotext opruimen',
 'legend_what_doyouwant'			=> 'Wat wilt u doen ?',
 // Notes
 'note_no_article'					=> 'Geen bericht gevonden',
@@ -264,6 +280,17 @@ $lang_nl = array(
 'bak_restor_done'					=> 'Backup voltooid',
 'bak_restor_done_mesage'		=> 'Uw berichten en reacties zijn geüpload. Zie hieronder of er fouten zijn.<br/>Bovendien voord het geüploaden bestand niet opgeslagen op de server',
 
+// page clean tags
+'maint_clean_tag_list'			=> 'Lijst met tags opruijmen',
+'maint_info_clntags'				=> 'Met d tijd voord de tag lijst steeds langer. Hier kunt u de tag-lijst automatisch oprujmen en de niet-gebriujkte tags verwijderen (geen enkel bericht zal voorden verwijdert).',
+'maint_unused_tags_are'			=> 'De ongebriujkte tags zijn:',
+'maint_no_unused_tags'			=> 'Er zijn geen ongebriujkte tags',
+
+// vérifier les mises à jours
+'maint_chk_update'				=> 'Controleeren op updates',
+'maint_update_youisgood'		=> 'U gebruijkt nu de laatste versie van Blogotext.',
+'maint_update_youisbad'			=> 'En nieuwe versie van Blogotext is beschikbaar !',
+'maint_update_go_dl_it'			=> 'U kunt het hier downloaden:',
 
 'succes'								=> "Success",
 'echec'								=> 'mislukt',

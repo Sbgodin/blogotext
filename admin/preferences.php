@@ -10,10 +10,6 @@
 //error_reporting(E_ALL);
 require_once '../inc/inc.php';
 session_start() ;
-/*if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
-	header('Location: auth.php');
-	exit;
-}*/
 
 if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -98,10 +94,10 @@ echo '</fieldset>';
 echo '<fieldset class="pref">';
 legend($GLOBALS['lang']['prefs_legend_config'], 'legend-config');
 form_langue($GLOBALS['lang']['id']);
-$nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300');
+$nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300', '-1'=> $GLOBALS['lang']['pref_all']);
 form_select('nb_list', $nbs, $GLOBALS['nb_list'],$GLOBALS['lang']['pref_nb_list']);
 form_select('nb_list_com', $nbs, $GLOBALS['nb_list_com'],$GLOBALS['lang']['pref_nb_list_com']);
-select_yes_no('apercu', $GLOBALS['activer_apercu'], $GLOBALS['lang']['pref_apercu'] );
+select_yes_no('categories', $GLOBALS['activer_categories'], $GLOBALS['lang']['pref_categories'] );
 select_yes_no('global_coments', $GLOBALS['activer_global_comments'], $GLOBALS['lang']['pref_allow_global_coms']);
 form_text('racine', $GLOBALS['racine'], $GLOBALS['lang']['pref_racine']);
 
@@ -111,8 +107,8 @@ form_check('onglet_images', $GLOBALS['onglet_images'], $GLOBALS['lang']['pref_af
 echo '</fieldset>';
 
 echo '<fieldset class="pref">';
-legend($GLOBALS['lang']['titre_backup'], 'legend-config');
-echo '<p><a href="backup.php">'.$GLOBALS['lang']['pref_make_backup'].'</a></p>';
+legend($GLOBALS['lang']['titre_maintenance'], 'legend-config');
+echo '<p><a href="maintenance.php">'.$GLOBALS['lang']['pref_go_to_mainteance'].'</a></p>';
 
 echo '</fieldset>';
 

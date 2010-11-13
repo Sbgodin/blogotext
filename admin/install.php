@@ -8,7 +8,7 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 error_reporting(E_ALL);
-if ( (file_exists('../config/user.php')) AND (file_exists('../config/prefs.php')) ) {
+if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')) and (file_exists('../config/tags.php')) ) {
 	header('Location: auth.php');
 	exit;
 }
@@ -127,9 +127,13 @@ hidden_input('format_date', '0');
 hidden_input('format_heure', '0');
 hidden_input('onglet_commentaires', 'on');
 hidden_input('onglet_images', 'on');
-hidden_input('global_coments', '0');
+hidden_input('categories', '1');
+hidden_input('tags', '');
 
-hidden_input('global_coments', '0');
+
+hidden_input('activer_global_coments', '0');
+hidden_input('global_coments', '0'); // ????????  WTF : the above one must be good, not this !
+
 hidden_input('connexion_delay', '1');
 hidden_input('connexion_captcha', '0' );
 
@@ -152,6 +156,7 @@ if ( !is_dir($config_dir)) {
 
 function traiter_install_3() {
 	fichier_prefs();
+	fichier_tags($_POST['tags'], '0');
 	creer_dossier($GLOBALS['dossier_data_articles']);
 	creer_dossier($GLOBALS['dossier_data_commentaires']);
 		$first_post= array (

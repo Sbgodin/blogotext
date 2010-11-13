@@ -226,6 +226,37 @@ function encart_commentaires() {
 	}
 }
 
+function encart_categories() {
+	if (!empty($GLOBALS['tags']) and ($GLOBALS['activer_categories'] == '1')) {
+		$liste = explode(',' , $GLOBALS['tags']);
+
+		$uliste = '<ul>'."\n";
+		foreach($liste as $tag) {
+						$tagurl = urlencode(trim($tag));
+			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.$tag.'</a></li>'."\n";
+		}
+		$uliste .= '</ul>'."\n";
+		return $uliste;
+	}
+}
+
+function liste_tags_article($billet) {
+	if (!empty($billet['categories'])) {
+		$tag_list = explode(',', $billet['categories']);
+		$nb_tags = sizeof($tag_list);
+		$liste = '';
+		for ($i = 0 ; $i < $nb_tags ; $i++) {
+			$tag = trim($tag_list[$i]);
+			$tagurl = urlencode(trim($tag_list[$i]));
+			$liste .= '<a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.$tag.'</a>, ';
+		}
+		$liste = trim($liste, ', ');
+	} else {
+		$liste = '';
+	}
+	return $liste;
+}
+
 function decompte_sleep() {
 	if ((!isset($GLOBALS['connexion_delai']) or $GLOBALS['connexion_delai'] != '0')) {
 		echo '<div id="msgcompt" style="text-align: center; color:white;">';

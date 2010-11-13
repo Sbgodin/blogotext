@@ -98,6 +98,7 @@ if (isset($_POST['quefaire']) and ($_POST['quefaire'] == 'sauvegarde')) {
 			if (creer_dossier($dossier_backup) === 'FALSE') {
 				echo $GLOBALS['lang']['err_file_write'];
 			}
+			else { fichier_index($dossier_backup); }
 		}
 		$fichier = 'backup-'.date('Y').date('m').date('d').'-'.substr(md5(rand(100,999)),3,5).'.xml';
 		$path = $dossier_backup.'/'.$fichier;
@@ -259,6 +260,8 @@ elseif (isset($_POST['quefaire']) and ($_POST['quefaire'] == 'restore')) {
 				echo '<li>'.$erreur.'</li>';
 			}
 			echo '</ul></div>';
+			echo '<br/>in case of PHP errors : check out the maximal size of uploaded files (<b>upload_max_filesize</b> in your php.ini file, ask your webhosting-service provider)<br/>';
+			echo '<br/>en cas d\'erreurs renvoyées par PHP : vérifiez la taille maximale autorisée pour les fichiers envoyés (<b>upload_max_filesize</b> dans votre fichier php.ini, demandez conseil à votre service d\'hébergement. <br/>';
 		}
 	}
 	// page restore : upload xml

@@ -10,10 +10,6 @@
 //error_reporting(E_ALL);
 require_once '../inc/inc.php';
 session_start() ;
-/*if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) ) {
-	header('Location: auth.php');
-	exit;
-}*/
 
 if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];

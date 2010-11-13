@@ -1,4 +1,13 @@
 <?php
+# *** LICENSE ***
+# This file is part of BlogoText.
+# Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
+# All rights reserved.
+# BlogoText is free software, you can redistribute it under the terms of the
+# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# *** LICENSE ***
+
 /* ##############################################################################################
    ----------------------------------------- English -----------------------------------------*/
 
@@ -25,7 +34,7 @@ $lang_en = array(
 'wiki_italique'					=> 'Italic',
 'wiki_italique_exp'				=> '##Italic text##',
 'wiki_image'						=> 'Image',
-'wiki_image_exp'						=> '((Image URL|Alternate text))',
+'wiki_image_exp'					=> '((Image URL|Alternate text))',
 'wiki_lienimage' 					=> 'Link-image',
 'wiki_lienimage_exp' 			=> '[((Image URL|Alternate text))|Link URL]',
 'wiki_souligne' 					=> 'Underline',
@@ -88,6 +97,7 @@ $lang_en = array(
 'label_articles'					=> 'articles',
 'label_commentaire'				=> 'comment',
 'label_commentaires'				=> 'comments',
+'label_categories'				=> 'Tags, commas separated',
 // Commentaire
 'aucun'								=> 'no',
 'comment_ajout'					=> 'Post a comment',
@@ -181,6 +191,7 @@ $lang_en = array(
 'confirm_comment_ajout'			=> 'Your comment has been added',
 'confirm_comment_suppr'			=> 'The comment has been deleted',
 'confirm_backupfile_suppr'		=> 'The backup file has been deleted',
+'confirm_tags_cleand'			=> 'The tags have been cleaned',
 // No-confiramtion
 'error_comment_suppr'			=> 'The comment has *not* been deleted',
 'error_comment_suppr_impos'	=> 'The comment cannot be deleted',
@@ -199,6 +210,8 @@ $lang_en = array(
 'titre_preferences' 				=> 'Settings',
 'titre_image'						=> 'Upload an image',
 'titre_backup'						=> 'Backup',
+'titre_maintenance'				=> 'Miscelaneous',
+
 // Preferences
 'prefs_legend_utilisateur'		=> 'User',
 'prefs_legend_apparence'		=> 'Appearance',
@@ -222,8 +235,9 @@ $lang_en = array(
 'pref_nb_maxi_comm'				=> 'Number of comments preview on home page',
 'pref_nb_list'						=> 'Number of articles in the list',
 'pref_nb_list_com'				=> 'Number of comments in the list',
-'pref_apercu'						=> 'Show article preview',
+//'pref_apercu'						=> 'Show article preview',
 'pref_theme'						=> 'Theme',
+'pref_categories'					=> 'Organize articles into categories',
 'pref_images'						=> 'Use images',
 'pref_commentaires'				=> 'Use comments',
 'pref_aff_onglet_comm'			=> 'Display the "Comments" tab',
@@ -232,7 +246,9 @@ $lang_en = array(
 'pref_connexion_delai'			=> 'Security delay on login',
 'pref_connexion_captcha'		=> 'Captcha on login (<a href="captcha_test.php" target="_blank"><b>test before !</b></a>)',
 'pref_make_backup'				=> 'Make a backup file of your articles/comments.',
+'pref_all'							=> 'All',
 'legend_what_doyouwant'			=> 'What do you you want to do ?',
+'pref_go_to_mainteance'			=> 'Go to the maintenance page.',
 // Notes
 'note_no_article'					=> 'No article found',
 'note_no_comment'					=> 'No comments',
@@ -263,6 +279,19 @@ $lang_en = array(
 'bak_choosefile'					=> 'Choose a file',
 'bak_restor_done'					=> 'Restoration done',
 'bak_restor_done_mesage'		=> 'Your articles and comments have been uploade. Watch below to find out if any errors occured.<br/>By the way, the file you\'ve upload will not be saved on the server',
+
+// page clean tags
+'maint_clean_tag_list'			=> 'Clean tags list',
+'maint_info_clntags'				=> 'By usage, the list af tags can become long. Here, Blogotext will automaticaly clean up the tag-list by deleting those that are not used anymore. (No messages will be deleted.)',
+'maint_unused_tags_are'			=> 'Unused tags are',
+'maint_no_unused_tags'			=> 'There are no unused tags!',
+
+// vérifier les mises à jours
+'maint_chk_update'				=> 'Check for updates',
+'maint_update_youisgood'		=> 'Blogotext is up to date',
+'maint_update_youisbad'			=> 'A new version of Blogotext is available !',
+'maint_update_go_dl_it'			=> 'You can download it at:',
+
 
 'succes'								=> "Success",
 'echec'								=> 'fail',

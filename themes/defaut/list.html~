@@ -48,7 +48,7 @@
 				<p class="date">{article_date} à {article_heure} - <a href="{article_lien}">{nombre_commentaires}</a></p>
 				<p class="chapo">{article_chapo}</p>
 				{article_contenu}
-				<p>Dans les catégories : {article_tags}</p>
+				<p>Dans les catégories {article_tags}</p>
 
 			</div>
 			

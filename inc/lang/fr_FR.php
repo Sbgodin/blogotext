@@ -1,4 +1,13 @@
 <?php
+# *** LICENSE ***
+# This file is part of BlogoText.
+# Copyright (c) 2006 Frederic Nassar.
+#               2010 Timo Van Neerden
+# All rights reserved.
+# BlogoText is free software, you can redistribute it under the terms of the
+# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# *** LICENSE ***
+
 /* ##############################################################################################
    ----------------------------------------- Francais -----------------------------------------*/
 
@@ -17,7 +26,7 @@ $lang_fr = array(
 // Wiki
 'label_wiki'						=> 'Mise en forme',
 'wiki_titre'						=> 'Titre',
-'wiki_titre_exp'					=> '! Gros titre !! Titre moyen !!! Petit titre',
+'wiki_titre_exp'					=> '! Gros titre <br/>!! Titre moyen <br/>!!! Petit titre',
 'wiki_lien'							=> 'Lien',
 'wiki_lien_exp'					=> '[texte du lien|URL du lien]',
 'wiki_gras'							=> 'Gras',
@@ -25,7 +34,7 @@ $lang_fr = array(
 'wiki_italique'					=> 'Italique',
 'wiki_italique_exp'				=> '##Texte en italique##',
 'wiki_image'						=> 'Image',
-'wiki_image_exp'					=> '((src|alt|class|title))',
+'wiki_image_exp'					=> '((URL de l\'image|Texte alternatif))',
 'wiki_lienimage' 					=> 'Lien-image',
 'wiki_lienimage_exp' 			=> '[((URL de l\'image|texte alternatif))|URL du lien]',
 'wiki_souligne' 					=> 'Souligné',
@@ -88,6 +97,7 @@ $lang_fr = array(
 'label_articles'					=> 'articles',
 'label_commentaire'				=> 'commentaire',
 'label_commentaires'				=> 'commentaires',
+'label_categories'				=> 'Tags, séparés par des virgules',
 'no_comments'						=> 'Il n\'y a aucun commentaire pour le moment.',
 // Commentaire
 'aucun'								=> 'aucun',
@@ -181,6 +191,7 @@ $lang_fr = array(
 'confirm_comment_ajout'			=> 'Votre commentaire a été ajouté',
 'confirm_comment_suppr'			=> 'Le commentaire a été supprimé',
 'confirm_backupfile_suppr'		=> 'Le fichier de sauvegarde a été supprimé',
+'confirm_tags_cleand'			=> 'Le fichier des tags a été nettoyé',
 // No-onfiramtion
 'error_comment_suppr'			=> 'Le commentaire *n\'a pas* été supprimé',
 'error_comment_suppr_impos'	=> 'Le commentaire n\'a pas pu être supprimé',
@@ -199,6 +210,8 @@ $lang_fr = array(
 'titre_preferences' 				=> 'Préférences',
 'titre_image'						=> 'Envoyer une image',
 'titre_backup'						=> 'Sauvegarder',
+'titre_maintenance'				=> 'Maintenance',
+
 // Preferences
 'prefs_legend_utilisateur'		=> 'Utilisateur',
 'prefs_legend_apparence'		=> 'Apparence',
@@ -222,8 +235,9 @@ $lang_fr = array(
 'pref_nb_maxi_comm'				=> 'Nombre de commentaires dans l\'aperçu sur l\'accueil',
 'pref_nb_list'						=> 'Nombre d\'articles dans la liste',
 'pref_nb_list_com'				=> 'Nombre de commentaires dans la liste',
-'pref_apercu'						=> 'Activer l\'aperçu',
+//'pref_apercu'						=> 'Activer l\'aperçu',
 'pref_theme'						=> 'Thème',
+'pref_categories'					=> 'Classement des billets par catégories',
 'pref_images'						=> 'Utiliser les images',
 'pref_commentaires'				=> 'Utiliser les commentaires',
 'pref_aff_onglet_comm'			=> 'Afficher l\'onglet "Commentaires"',
@@ -232,6 +246,8 @@ $lang_fr = array(
 'pref_connexion_delai'			=> 'Activer le délai de sécurité lors de la connexion',
 'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="captcha_test.php" target="_blank"><b>tester avant !</b></a>)',
 'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
+'pref_all'							=> 'Tout',
+'pref_go_to_mainteance'			=> 'Accéder à la page de maintemance.',
 'legend_what_doyouwant'			=> 'Backup des méssages - Que voulez vous faire ?',
 // Notes
 'note_no_article'					=> 'Aucun article trouvé',
@@ -263,6 +279,18 @@ $lang_fr = array(
 'bak_choosefile'					=> 'Choisir un fichier',
 'bak_restor_done'					=> 'Restauration éfectuée',
 'bak_restor_done_mesage'		=> 'Vos méssages et les commentaires ont été uploadés. Voyez ci dessous s\'il y a des erreurs.<br/>Par ailleurs, le fichier uploadé n\'est pas conservé sur le serveur.',
+
+// page clean tags
+'maint_clean_tag_list'			=> 'Néttoyer la liste des tags',
+'maint_info_clntags'				=> 'Avec le temps, il se peut que la liste des tags grandit. Ici vous pouvez vérifier automatiquement les tags inutilisés et les supprimer. (Aucun billet ne sera supprimé.)',
+'maint_unused_tags_are'			=> 'Les tags non utilisés sont ',
+'maint_no_unused_tags'			=> 'Il n\'y a aucun tag orphelin !',
+
+// vérifier les mises à jours
+'maint_chk_update'				=> 'Mises à jours',
+'maint_update_youisgood'		=> 'Blogotext est à jour',
+'maint_update_youisbad'			=> 'Une nouvelle version de Blogotext est disponible !',
+'maint_update_go_dl_it'			=> 'Vous pouvez la télécharger à l\'adresse :',
 
 'succes'								=> 'Succès',
 'echec'								=> 'échec',
