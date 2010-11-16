@@ -234,7 +234,7 @@ function fichier_data($dossier, $billet) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
 	}
 	if (!empty($billet['bt_categories'])) {
-		fichier_tags($billet['bt_categories'], '0');
+		fichier_tags($billet['bt_categories']);
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);
@@ -328,7 +328,7 @@ function fichier_tags($new_tags, $reset) {
 			$new_tags_array[$i] = trim($new_tags_array[$i]);
 		}
 /* old tags */
-		if (isset($GLOBALS['tags']) and ($reset == '0')) {
+		if (isset($GLOBALS['tags']) and empty($reset)) {
 			$old_tags = $GLOBALS['tags'];
 			$old_tags_array = explode(',' , $old_tags);
 			$nb2 = sizeof($old_tags_array);

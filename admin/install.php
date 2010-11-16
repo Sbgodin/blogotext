@@ -132,7 +132,7 @@ hidden_input('tags', '');
 
 
 hidden_input('activer_global_coments', '0');
-hidden_input('global_coments', '0'); // ????????  WTF : the above one must be good, not this !
+// hidden_input('global_coments', '0');  ????????  WTF : the above one must be good, not this !
 
 hidden_input('connexion_delay', '1');
 hidden_input('connexion_captcha', '0' );
@@ -156,7 +156,7 @@ if ( !is_dir($config_dir)) {
 
 function traiter_install_3() {
 	fichier_prefs();
-	fichier_tags($_POST['tags'], '0');
+	fichier_tags($_POST['tags']);
 	creer_dossier($GLOBALS['dossier_data_articles']);
 	creer_dossier($GLOBALS['dossier_data_commentaires']);
 		$first_post= array (

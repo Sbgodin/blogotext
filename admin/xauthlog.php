@@ -79,8 +79,3 @@
 11 11 2010 / 15:31:12 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
 11 11 2010 / 16:11:25 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
 17 11 2010 / 21:20:40 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
-20 11 2010 / 23:06:07 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
-20 11 2010 / 23:53:21 : 127.0.0.1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.04 Chromium/9.0.591.0 Chrome/9.0.591.0 Safari/534.13
-21 11 2010 / 15:50:33 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
-21 11 2010 / 15:50:40 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60
-21 11 2010 / 15:50:43 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.6.30 Version/10.60

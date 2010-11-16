@@ -9,7 +9,7 @@
 # *** LICENSE ***
 
 // VERSION
-$GLOBALS['version_timo'] = '20';
+$GLOBALS['version_timo'] = '21';
 
 // DOSSIER ADMIN
 $GLOBALS['dossier_admin']= 'admin';
