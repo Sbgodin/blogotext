@@ -128,19 +128,8 @@ function get_id($file) {
 		return $retour;
 }
 
-function get_version($file) {
-/*	$version = parse_xml($file, 'bt_version');
-	if ($version == '') {
-	$syntax_version = '0';
-} elseif ($version== '0.9.3') {*/
-	$syntax_version = '1';
-//}
-return $syntax_version;
-}
-
 function get_statut($file) {
-	$syntax_version =  get_version($file);
-	$retour= parse_xml($file, $GLOBALS['data_syntax']['article_status'][$syntax_version]);
+	$retour= parse_xml($file, $GLOBALS['data_syntax']['article_status']);
 		return $retour;
 }
 

@@ -8,8 +8,13 @@
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
 
+if (isset($GLOBALS['fuseau_horaire'])) {
+	date_default_timezone_set($GLOBALS['fuseau_horaire']);
+} else {
+	date_default_timezone_set('UTC');
+}
 // VERSION
-$GLOBALS['version_timo'] = '21';
+$GLOBALS['version_timo'] = '22';
 
 // DOSSIER ADMIN
 $GLOBALS['dossier_admin']= 'admin';
@@ -18,7 +23,6 @@ $GLOBALS['dossier_admin']= 'admin';
 $GLOBALS['nom_application']= 'BlogoText';
 $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['version']= '0.9.3';
-$GLOBALS['syntax_version']= '1';
 //$GLOBALS['appsite']= 'http://www.blogotext.com/';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'php';
@@ -120,25 +124,25 @@ $GLOBALS['balises']= array(
 // SYNTAX FOR DATA STORAGE
 $GLOBALS['data_syntax'] = array(
 	// GENERAL
-	'bt_version' => array('version', 'bt_version'),
+	'bt_version' => 'bt_version',
 	// POST
-	'article_id' => array('id', 'bt_id'),
-	'article_title' => array('titre', 'bt_title'),
-	'article_abstract' => array('chapo', 'bt_abstract'),
-	'article_content' => array('contenu', 'bt_content'),
-	'article_wiki_content' => array('contenu_wiki', 'bt_wiki_content'),
-	'article_keywords' => array('motscles', 'bt_keywords'),
-	'article_status' => array('statut', 'bt_status'),
-	'article_allow_comments' => array('commentaires', 'bt_allow_comments'),
-	'article_categories' => array('categories', 'bt_categories'),
+	'article_id' => 'bt_id',
+	'article_title' => 'bt_title',
+	'article_abstract' => 'bt_abstract',
+	'article_content' => 'bt_content',
+	'article_wiki_content' => 'bt_wiki_content',
+	'article_keywords' => 'bt_keywords',
+	'article_status' => 'bt_status',
+	'article_allow_comments' => 'bt_allow_comments',
+	'article_categories' => 'bt_categories',
 	// COMMENTS
-	'comment_id' => array('id', 'bt_id'),
-	'comment_article_id' => array('article_id', 'bt_article_id'),
-	'comment_status' => array('statut', 'bt_status'),
-	'comment_content' => array('commentaire', 'bt_content'),
-	'comment_author' => array('auteur', 'bt_author'),
-	'comment_email' => array('email', 'bt_email'),
-	'comment_webpage' => array('webpage', 'bt_webpage'),
+	'comment_id' => 'bt_id',
+	'comment_article_id' => 'bt_article_id',
+	'comment_status' => 'bt_status',
+	'comment_content' => 'bt_content',
+	'comment_author' => 'bt_author',
+	'comment_email' => 'bt_email',
+	'comment_webpage' => 'bt_webpage',
 );
 
 // POST SYNTAX
@@ -155,15 +159,13 @@ if ($mode == 'public') {
 		$billet['version'] = parse_xml($file, 'bt_version');
 		$billet['id'] = $id;
 		
-// GET VERSION
-$syntax_version = get_version($file);
-		$billet['statut'] = parse_xml($file, $GLOBALS['data_syntax']['article_status'][$syntax_version]);
-		$billet['titre'] = parse_xml($file, $GLOBALS['data_syntax']['article_title'][$syntax_version]);
-		$billet['chapo'] = parse_xml($file, $GLOBALS['data_syntax']['article_abstract'][$syntax_version]);
-		$billet['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['article_content'][$syntax_version]);
-		$billet['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['article_wiki_content'][$syntax_version]);
-		$billet['mots_cles'] = parse_xml($file, $GLOBALS['data_syntax']['article_keywords'][$syntax_version]);
-		$billet['categories'] = parse_xml($file, $GLOBALS['data_syntax']['article_categories'][$syntax_version]);
+		$billet['statut'] = parse_xml($file, $GLOBALS['data_syntax']['article_status']);
+		$billet['titre'] = parse_xml($file, $GLOBALS['data_syntax']['article_title']);
+		$billet['chapo'] = parse_xml($file, $GLOBALS['data_syntax']['article_abstract']);
+		$billet['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['article_content']);
+		$billet['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['article_wiki_content']);
+		$billet['mots_cles'] = parse_xml($file, $GLOBALS['data_syntax']['article_keywords']);
+		$billet['categories'] = parse_xml($file, $GLOBALS['data_syntax']['article_categories']);
 		$billet['annee'] = $dec['annee'];
 		$billet['mois'] = $dec['mois'];
 		$billet['mois_en_lettres'] = mois_en_lettres($dec['mois']);
@@ -177,7 +179,7 @@ $syntax_version = get_version($file);
 		if ($billet['version'] == '') {
 			$billet['allow_comments'] = '1';
 		} else {
-			$billet['allow_comments'] = parse_xml($file, $GLOBALS['data_syntax']['article_allow_comments'][$syntax_version]);
+			$billet['allow_comments'] = parse_xml($file, $GLOBALS['data_syntax']['article_allow_comments']);
 		}
 	return $billet;
 }
@@ -192,14 +194,13 @@ if ($mode == 'public') {
 }
 $file = $com_directory.'/'.get_path($id);
 $comment['version'] = parse_xml($file, 'bt_version');
-$syntax_version = get_version($file);
 		$comment['id'] = $id;
-		$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]);
-		$comment['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version'][$syntax_version]);
-		$comment['auteur'] = parse_xml($file, $GLOBALS['data_syntax']['comment_author'][$syntax_version]);
+		$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id']);
+		$comment['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version']);
+		$comment['auteur'] = parse_xml($file, $GLOBALS['data_syntax']['comment_author']);
 		$comment['auteur_ss_lien'] = $comment['auteur'];
-		$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email'][$syntax_version]);
-		$comment['webpage'] = parse_xml($file, $GLOBALS['data_syntax']['comment_webpage'][$syntax_version]);
+		$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email']);
+		$comment['webpage'] = parse_xml($file, $GLOBALS['data_syntax']['comment_webpage']);
 
 // ceci ajoute une possibilite de distinguer les messages du webmaster des autres (ajout d'un <span> autour du nom)
 		if ($comment['auteur'] == $GLOBALS['auteur']) {
@@ -212,7 +213,7 @@ $syntax_version = get_version($file);
 		}
 
 		$comment['anchor'] = '<a href="#'.article_anchor($comment['id']).'" id="'.article_anchor($comment['id']).'">#</a>';
-		$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content'][$syntax_version]);
+		$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content']);
 		$comment['annee'] = $dec['annee'];
 		$comment['mois'] = $dec['mois'];
 		$comment['mois_en_lettres'] = mois_en_lettres($dec['mois']);
@@ -228,16 +229,16 @@ function init_post_article($id='') {
 $billet = array();
 if (isset($_POST['_verif_envoi'])) {
 	$billet= array (
-		$GLOBALS['data_syntax']['bt_version'][$GLOBALS['syntax_version']] => $GLOBALS['version'],
-		$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
-   	$GLOBALS['data_syntax']['article_title'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
-   	$GLOBALS['data_syntax']['article_abstract'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
-   	$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']] => formatage_wiki(protect_markup($_POST['contenu'])),
-   	$GLOBALS['data_syntax']['article_wiki_content'][$GLOBALS['syntax_version']] => stripslashes(protect_markup($_POST['contenu'])),
-		$GLOBALS['data_syntax']['article_keywords'][$GLOBALS['syntax_version']] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
-		$GLOBALS['data_syntax']['article_categories'][$GLOBALS['syntax_version']] => traiter_tags($_POST['categories']),
-		$GLOBALS['data_syntax']['article_status'][$GLOBALS['syntax_version']] => $_POST['statut'],
-		$GLOBALS['data_syntax']['article_allow_comments'][$GLOBALS['syntax_version']] => $_POST['allowcomment']
+		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+		$GLOBALS['data_syntax']['article_id'] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
+   	$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
+   	$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
+   	$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup($_POST['contenu'])),
+   	$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup($_POST['contenu'])),
+		$GLOBALS['data_syntax']['article_keywords'] => extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']),
+		$GLOBALS['data_syntax']['article_categories'] => traiter_tags($_POST['categories']),
+		$GLOBALS['data_syntax']['article_status'] => $_POST['statut'],
+		$GLOBALS['data_syntax']['article_allow_comments'] => $_POST['allowcomment']
 	  );
 	}
 return $billet;
@@ -249,13 +250,13 @@ function init_post_comment($id) {
 $comment= array();
 	if ( (isset($id)) AND (isset($_POST['_verif_envoi'])) ) {
 		$comment=array (
-			$GLOBALS['data_syntax']['bt_version'][$GLOBALS['syntax_version']] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['comment_id'][$GLOBALS['syntax_version']] => date('Y').date('m').date('d').date('H').date('i').date('s'),
-			$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']] => $id,
-			$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']] => formatage_commentaires(stripslashes(htmlspecialchars(clean_txt($_POST['commentaire'])))),
-			$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
-			$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
-			$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
+			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+			$GLOBALS['data_syntax']['comment_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),
+			$GLOBALS['data_syntax']['comment_article_id'] => $id,
+			$GLOBALS['data_syntax']['comment_content'] => formatage_commentaires(stripslashes(htmlspecialchars(clean_txt($_POST['commentaire'])))),
+			$GLOBALS['data_syntax']['comment_author'] => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
+			$GLOBALS['data_syntax']['comment_email'] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
+			$GLOBALS['data_syntax']['comment_webpage'] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
 			);
 	}
 return $comment;

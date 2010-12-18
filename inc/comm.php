@@ -25,8 +25,7 @@ function liste_commentaires($dossier, $article_id) {
 						foreach ($liste as $comm) {
 							if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
 								$path = $dossier.'/'.get_path_no_ext($comm);
-								$syntax_version= get_version($path);
-						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id']) == $article_id )  {
 							 		$retour[] = $comm;
 								}
 							}
@@ -46,8 +45,7 @@ function liste_commentaires($dossier, $article_id) {
 						foreach ($liste as $comm) {
 							if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
 								$path = $dossier.'/'.get_path_no_ext($comm);
-								$syntax_version= get_version($path);
-						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id'][$syntax_version]) == $article_id )  {
+						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id']) == $article_id )  {
 							 		$retour[] = $comm;
 								}
 							}
@@ -81,8 +79,6 @@ function liste_derniers_comm($nb_comm) {
 				if ($liste != "") {
 					foreach ($liste as $comm) {
 						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-//							$path = $dossier.'/'.get_path_no_ext($comm);
-//							$syntax_version= get_version($path);
 					 		$retour[] =$comm;
 						}
 					}
@@ -253,7 +249,7 @@ function afficher_form_commentaire($article_id, $mode, $allow_comments, $erreurs
 function traiter_form_commentaire($dossier, $commentaire) {
 	if (isset($_POST['enregistrer'])) {
 					fichier_data($dossier, $commentaire);
-					redirection($_SERVER['PHP_SELF'].'?post_id='.$commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]].'&msg=confirm_comment_ajout');
+					redirection($_SERVER['PHP_SELF'].'?post_id='.$commentaire[$GLOBALS['data_syntax']['comment_article_id']].'&msg=confirm_comment_ajout');
 	} 
 }
 

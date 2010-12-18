@@ -24,13 +24,14 @@ return $retour;
 }
 
 function titre_url($url) {
+
 	$url = strtolower(strip_tags($url));
-	$url = html_entity_decode($url, ENT_QUOTES, 'UTF-8'); 
-	$url = htmlentities($url, ENT_QUOTES, 'UTF-8');
-	$url = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash);#', '$1', $url);
-	$url = preg_replace('#&([a-z]{2})lig;#i', '$1', $url);
-	$url = preg_replace('#&[a-z0-9\#]*;#U', '-', $url);
-	$url = preg_replace('#[^a-z0-9]+#', '-', $url);
+//	$url = html_entity_decode($url, ENT_QUOTES, 'UTF-8'); 
+	$url = htmlentities($url, ENT_QUOTES, 'UTF-8'); // EXEMPLE : é => &eacute;
+	$url = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash);#', '$1', $url); // &eacute => e ; &ograve => o
+	$url = preg_replace('#&([a-z]{2})lig;#i', '$1', $url); // EX : œ => oe ; æ => ae 
+	$url = preg_replace('#&[a-z0-9\#]*;#U', '-', $url); // les autres (&quote; par exemple) sont virés
+	$url = preg_replace('#[^a-z0-9]+#', '-', $url); //tout le reste est supprimé
 	$url = trim($url, '-');
 	return $url;
 }
@@ -54,20 +55,20 @@ function formatage_wiki($texte) {
 
 $texte = preg_replace("/(\r\n|\r\n\r|\n|\r)/", "\r", "\r".$texte."\r"); 
 $tofind= array(
-	'`<(.*?)>\r+`',												// html
+	'`<(.*?)>\r+`',													// html
+	'`(\s|p>)((https?|ftps?)://(www\.)?\S+)(\s)?`i',	// Regex URL
 	'`@@(.*?)@@`',													// code
 	'`\r!!!!!(.*?)\r+`',											// h5
 	'`\r!!!!(.*?)\r+`',											// h4
 	'`\r!!!(.*?)\r+`',											// h3
 	'`\r!!(.*?)\r+`',												// h2
 	'`\r!(.*?)\r+`',												// h1
-	'`\(\((.*?)\|(.*?)\)\)`',									// img
+	'`\(\((.*?)\|(.*?)\|(.*?)\|(.*?)\)\)`',				// img
 	'`\[\(\(([^[]+)\|([^[]+)\)\)\|([^[]+)\]`',			// img + a href
 	'`\r?(.*?)\r\r+`',											// p (laisse une interligne)
 	'`(.*?)\r`',													// br : retour à la ligne sans saut de ligne
 	'`\[([^[]+)\|([^[]+)\]`',									// a href
-	'`\[(http://)([^[]+)\]`',									// url
-	'`(\s|p>)((https?|ftps?)://(www\.)?\S+)(\s)?`i',	// Regex URL
+	'`\[(https?://)([^[]+)\]`',									// url
 	'`\_\_(.*?)\_\_`',											// strong
 	'`##(.*?)##`',													// italic
 	'`--(.*?)--`',													// strike
@@ -82,19 +83,19 @@ $tofind= array(
 );
 $toreplace= array(
 	'<$1>'."\n",															// html
+	'$1<a href="$2">$2</a>$5',											// url regex
 	'<code><pre>$1</pre></code>',										// code
 	'<h5>$1</h5>'."\n",													// h5
 	'<h4>$1</h4>'."\n",													// h4
 	'<h3>$1</h3>'."\n",													// h3
 	'<h2>$1</h2>'."\n",													// h2
 	'<h1>$1</h1>'."\n",													// h1
-	'<img src="$1" alt="$2" />',										// img
+	'<img src="$1" alt="$2" class="$3" title="$4" />',			// img
 	'<a href="$3"><img src="$1" alt="$2" /></a>',				// img + a href
 	"\n".'<p>$1</p>'."\n",												// p (laisse une interligne)
 	'$1<br/>'."\n",														// br : retour à la ligne sans saut de ligne
 	'<a href="$2">$1</a>',												// a href
 	'<a href="$1$2">$2</a>',											// url
-	'$1<a href="$2">$2</a>$5',											// url regex
 	'<span style="font-weight: bold;">$1</span>',				// strong
 	'<span style="font-style: italic;">$1</span>',				// italic
 	'<span style="text-decoration: line-through;">$1</span>',// barre

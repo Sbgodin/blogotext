@@ -13,7 +13,7 @@ $GLOBALS['langs'] = array(
 		"nl" => 'Nederlands'
 );
 
-require_once('lang/fr_FR.php');
+include_once('lang/fr_FR.php');
 require_once('lang/en_EN.php');
 require_once('lang/nl_NL.php');
 

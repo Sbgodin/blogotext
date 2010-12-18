@@ -11,12 +11,9 @@
 require_once '../inc/inc.php';
 session_start() ;
 
-if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-} else { 
+if (!empty($_SERVER['REMOTE_ADDR'])) {
 	$ip = $_SERVER['REMOTE_ADDR'];
 }
-
 
 if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) or (!isset($_SESSION['antivol'])) or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip)) or (!isset($_SESSION['timestamp'])) or ($_SESSION['timestamp'] < time()-1800)) {
 	header('Location: logout.php');
@@ -362,6 +359,8 @@ if ((!empty($_GET['do']) and ($_GET['do'] == 'update')) or (empty($_GET['do'])))
 
 	echo '<form method="post" action="maintenance.php?do=update"><fieldset class="pref valid-center">';
 		legend($GLOBALS['lang']['maint_chk_update'], 'legend-question');
+		if (file_get_contents('http://lehollandaisvolant.net/blogotext/version.php')) {
+
 		$last_version = trim(file_get_contents('http://lehollandaisvolant.net/blogotext/version.php'));
 		if ($GLOBALS['version_timo'] == $last_version) {
 			echo '<p>'.$GLOBALS['lang']['maint_update_youisgood'].'</p>';
@@ -369,6 +368,9 @@ if ((!empty($_GET['do']) and ($_GET['do'] == 'update')) or (empty($_GET['do'])))
 			echo '<p>'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')</p>';
 			echo '<p>'.$GLOBALS['lang']['maint_update_go_dl_it'].' <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.';
 		}
+	} else {
+			echo '<p><b>Impossible to check if updates are available.</b><br/>Please check by yourselve at <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.</p>';
+	}
 	echo '</fieldset></form>'."\n";
 
 }

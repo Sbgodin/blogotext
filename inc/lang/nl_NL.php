@@ -235,6 +235,7 @@ $lang_nl = array(
 'pref_nb_maxi_comm'				=> 'Aantal commentaaren previews op de homepage',
 'pref_nb_list'						=> 'Aantal itemps in de lijst',
 'pref_nb_list_com'				=> 'Aantal commentaaren in de lijst',
+'pref_fuseau_horaire'			=> 'Tijd-zone',
 //'pref_apercu'						=> 'Overzicht',
 'pref_theme'						=> 'Thema',
 'pref_categories'					=> 'Gebruijk ?CATEGORIES? om artikels te classeren',

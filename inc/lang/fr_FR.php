@@ -66,7 +66,7 @@ $lang_fr = array(
 'patientez'							=> 'patientez',
 'secondes'							=> 'secondes',
 'du'									=> 'du',
-'alert_captcha'					=> 'Si vous voyez le captcha, et que si ce dernier fonctionne correctement, vous pouvez l\'activer dans les préférences.<br/>Ce test est nescessaire, car tous les serveurs/hébergements ne sont pas forcément compatibles.',
+'alert_captcha'					=> 'Si vous voyez le captcha, et que si ce dernier fonctionne correctement, vous pouvez l\'activer dans les préférences.<br/>Ce test est nécessaire, car tous les serveurs/hébergements ne sont pas forcément compatibles.',
 
 // Modes
 'ecrire'								=> 'Modifier',
@@ -247,8 +247,9 @@ $lang_fr = array(
 'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="captcha_test.php" target="_blank"><b>tester avant !</b></a>)',
 'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
 'pref_all'							=> 'Tout',
-'pref_go_to_mainteance'			=> 'Accéder à la page de maintemance.',
-'legend_what_doyouwant'			=> 'Backup des méssages - Que voulez vous faire ?',
+'pref_go_to_mainteance'			=> 'Accéder à la page de maintenance.',
+'legend_what_doyouwant'			=> 'Backup des messages - Que voulez vous faire ?',
+'pref_fuseau_horaire'			=> 'Fuseau horaire',
 // Notes
 'note_no_article'					=> 'Aucun article trouvé',
 'note_no_comment'					=> 'Aucun commentaire',
@@ -271,23 +272,23 @@ $lang_fr = array(
 'file_format_error'				=> 'Mauvais format de fichier.',
 // page backup
 'bak_succes_save'					=> 'Sauvegarde réussie',
-'bak_youcannowsave'				=> 'Le fichier xml contenant tous les messages et leurs commentaires a été créé avec succés.<br/> Vous pouvez maintenant l\'enregistrer en faisant un clic droit puis «&nbsp;enregistrer la cible sous&nbsp;»&nbsp;:',
+'bak_youcannowsave'				=> 'Le fichier xml contenant tous les messages et leurs commentaires a été créé avec succès.<br/> Vous pouvez maintenant l\'enregistrer en faisant un clic droit puis «&nbsp;enregistrer la cible sous&nbsp;»&nbsp;:',
 'bak_delete_source'				=> 'Voulez vous supprimer le fichier de sauvegarde de votre hébergement ?',
 'bak_save2xml'						=> 'Créer un fichier de sauvegarde',
 'bak_restorefromxml'				=> 'Restaurer une sauvegarde',
 'bak_nothing'						=> 'Rien',
 'bak_choosefile'					=> 'Choisir un fichier',
-'bak_restor_done'					=> 'Restauration éfectuée',
-'bak_restor_done_mesage'		=> 'Vos méssages et les commentaires ont été uploadés. Voyez ci dessous s\'il y a des erreurs.<br/>Par ailleurs, le fichier uploadé n\'est pas conservé sur le serveur.',
+'bak_restor_done'					=> 'Restauration effectuée',
+'bak_restor_done_mesage'		=> 'Vos messages et les commentaires ont été uploadés. Voyez ci dessous s\'il y a des erreurs.<br/>Par ailleurs, le fichier uploadé n\'est pas conservé sur le serveur.',
 
 // page clean tags
-'maint_clean_tag_list'			=> 'Néttoyer la liste des tags',
+'maint_clean_tag_list'			=> 'Nettoyer la liste des tags',
 'maint_info_clntags'				=> 'Avec le temps, il se peut que la liste des tags grandit. Ici vous pouvez vérifier automatiquement les tags inutilisés et les supprimer. (Aucun billet ne sera supprimé.)',
 'maint_unused_tags_are'			=> 'Les tags non utilisés sont ',
 'maint_no_unused_tags'			=> 'Il n\'y a aucun tag orphelin !',
 
 // vérifier les mises à jours
-'maint_chk_update'				=> 'Mises à jours',
+'maint_chk_update'				=> 'Mises à jour',
 'maint_update_youisgood'		=> 'Blogotext est à jour',
 'maint_update_youisbad'			=> 'Une nouvelle version de Blogotext est disponible !',
 'maint_update_go_dl_it'			=> 'Vous pouvez la télécharger à l\'adresse :',

@@ -83,13 +83,13 @@ function afficher_top($titre) {
 	}
 //header ('Content-type: text/html; charset=UTF-8');
 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
-echo	'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
+echo '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
 echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
 echo '<head>'."\n";
 echo '<meta http-equiv="content-type" content="text/html; charset='.$GLOBALS['charset'].'" />'."\n";
 echo '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
 echo '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
-echo	'<script type="text/javascript">'."\n";
+echo '<script type="text/javascript">'."\n";
 echo "function ouvre(fichier) {"."\n";
 echo "ff=window.open(fichier,\"popup\", \"width=380, height=460, scrollbars=1, resizable=1\") }"."\n";
 echo '</script>'."\n";
@@ -135,7 +135,7 @@ $dossier = $depart.'/'.$annee.'/'.$ce_mois.'/';
 if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) { 
 		$jour_fichier = array();
 			while ($fichiers = readdir($ouverture)){
-				if ( (is_file($dossier.$fichiers)) AND (get_statut($dossier.$fichiers) == '1') ) {
+				if ( (is_file($dossier.$fichiers)) and (get_statut($dossier.$fichiers) == '1') and (get_id($fichiers) <= date('YmdHis')) ) {
 				$jour_fichier[]= substr($fichiers, '6', '2');
 				}
 			}

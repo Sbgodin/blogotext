@@ -61,44 +61,61 @@ function form_format_date($defaut) {
 			'0' => date('d').'/'.date('m').'/'.date('Y'),							// 14/01/1983
 			'1' => date('m').'/'.date('d').'/'.date('Y'),							// 14/01/1983
 			'2' => date('d').' '.$mois_l.' '.date('Y'),								// 14 janvier 1983
-			'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),		// vendredi 14 janvier 1983
-			'4' => $mois_l.' '.date('d').', '.date('Y'),							// janvier 14, 1983
-			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),	// vendredi, janvier 14, 1983
-			'6' => date('Y').'-'.date('m').'-'.date('d')							// 1983-01-14
+			'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),				// vendredi 14 janvier 1983
+			'4' => $mois_l.' '.date('d').', '.date('Y'),								// janvier 14, 1983
+			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),			// vendredi, janvier 14, 1983
+			'6' => date('Y').'-'.date('m').'-'.date('d')								// 1983-01-14
 		);
 	echo '<p>';
-	echo '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>';
+	echo '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>'."\n";
 	echo '<select name="format_date">' ;
 			   foreach ($formats as $option => $label) {
         	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
             echo ' selected="selected"';
         	}
-        	echo '>' . htmlentities($label) . '</option>';
+        	echo '>' . htmlentities($label) . '</option>'."\n";
 			   }
-			echo '</select> ';
-	echo '</p>';
+			echo '</select> '."\n";
+	echo '</p>'."\n";
+}
+
+function form_fuseau_horaire($defaut) {
+	$liste_fuseau = DateTimeZone::listIdentifiers();
+	echo '<p>';
+	echo '<label>'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
+	echo '<select name="fuseau_horaire">' ;
+			   foreach ($liste_fuseau as $option) {
+        	echo '<option value="'.htmlentities($option).'"';
+        	if ($defaut == $option) {
+            echo ' selected="selected"';
+        	}
+        	echo '>' . htmlentities($option) . '</option>'."\n";
+			   }
+			echo '</select> '."\n";
+	echo '</p>'."\n";
+
 }
 
 function form_format_heure($defaut) {
 		$formats = array (
-			'0' => date('H').':'.date('i').':'.date('s'),											// 23:56:04
-			'1' => date('H').':'.date('i'),																		// 23:56
-			'2' => date('h').':'.date('i').':'.date('s').' '.date('A'),				// 11:56:04 PM
-			'3' => date('h').':'.date('i').' '.date('A')										// 11:56 PM
+			'0' => date('H').':'.date('i').':'.date('s'),							// 23:56:04
+			'1' => date('H').':'.date('i'),												// 23:56
+			'2' => date('h').':'.date('i').':'.date('s').' '.date('A'),			// 11:56:04 PM
+			'3' => date('h').':'.date('i').' '.date('A')								// 11:56 PM
 		);
 	echo '<p>';
 	echo '<label>'.$GLOBALS['lang']['pref_format_heure'].'</label>';
-	echo '<select name="format_heure">' ;
+	echo '<select name="format_heure">' ."\n";
 			   foreach ($formats as $option => $label) {
         	echo '<option value="'.htmlentities($option).'"';
         	if ($defaut == $option) {
             echo ' selected="selected"';
         	}
-        	echo '>' . htmlentities($label) . '</option>';
+        	echo '>' . htmlentities($label) . '</option>'."\n";
 			   }
-			echo '</select> ';
-	echo '</p>';
+			echo '</select> '."\n";
+	echo '</p>'."\n";
 }
 
 function form_langue($defaut) {
@@ -348,12 +365,12 @@ function form_jour($jour_affiche) {
 
 function form_mois($mois_affiche) {
 			$mois = array(
-					"01" => $GLOBALS['lang']['janvier'], "02" => $GLOBALS['lang']['fevrier'], 
-					"03" => $GLOBALS['lang']['mars'], "04" => $GLOBALS['lang']['avril'], 
-					"05" => $GLOBALS['lang']['mai'], "06" => $GLOBALS['lang']['juin'], 
-					"07" => $GLOBALS['lang']['juillet'], "08" => $GLOBALS['lang']['aout'],
-					"09" => $GLOBALS['lang']['septembre'], "10" => $GLOBALS['lang']['octobre'], 
-					"11" => $GLOBALS['lang']['novembre'], "12" => $GLOBALS['lang']['decembre']
+					"01" => $GLOBALS['lang']['janvier'],	"02" => $GLOBALS['lang']['fevrier'], 
+					"03" => $GLOBALS['lang']['mars'],		"04" => $GLOBALS['lang']['avril'], 
+					"05" => $GLOBALS['lang']['mai'],			"06" => $GLOBALS['lang']['juin'], 
+					"07" => $GLOBALS['lang']['juillet'],	"08" => $GLOBALS['lang']['aout'],
+					"09" => $GLOBALS['lang']['septembre'],	"10" => $GLOBALS['lang']['octobre'], 
+					"11" => $GLOBALS['lang']['novembre'],	"12" => $GLOBALS['lang']['decembre']
 			);
 			echo '<select name="mois">'."\n" ;
 			   foreach ($mois as $option => $label) {
@@ -383,7 +400,7 @@ function form_annee($annee_affiche) {
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-		echo '<input name="heure" type="text" size="2" maxlength="2" value="'.$heureaffiche.'" /> :';
+		echo '<input name="heure" type="text" size="2" maxlength="2" value="'.($heureaffiche /*- 7*/).'" /> :';
 		echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" /> :' ;
 		echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" />' ;
 }

@@ -27,33 +27,33 @@ if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 		$erreurs = array();
 		if (isset($_GET['post_id'])) {
-			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]])))  {
+			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']])))  {
 		   		$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 			}
 		}
 
 		if (!isset($_GET['post_id'])) {
-			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]]))) {
+			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']]))) {
 	   		$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 			}
-			if ($commentaire[$GLOBALS['data_syntax']['comment_author'][$GLOBALS['syntax_version']]] == $GLOBALS['auteur']) {
+			if ($commentaire[$GLOBALS['data_syntax']['comment_author']] == $GLOBALS['auteur']) {
 	   		$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
 			}
 		}
 
-		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email'][$GLOBALS['syntax_version']]])) ) {
+		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email']])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
 		}
-		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]])) or $commentaire[$GLOBALS['data_syntax']['comment_content'][$GLOBALS['syntax_version']]] == "<p></p>") {
+		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content']])) or $commentaire[$GLOBALS['data_syntax']['comment_content']] == "<p></p>") {
 			$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
 		}
-		if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]))
-			or !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id'][$GLOBALS['syntax_version']]]) ) {
+		if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id']]))
+			or !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id']]) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
 		}
 
-		if (trim($commentaire[$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']]]) != "") {
-			if (!preg_match('#^(https?://[\w.-]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire[$GLOBALS['data_syntax']['comment_webpage'][$GLOBALS['syntax_version']]])) ) {
+		if (trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']]) != "") {
+			if (!preg_match('#^(https?://[\w.-]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']])) ) {
 				$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
 			}
 		}
@@ -67,15 +67,15 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha) {
 }
 
 function valider_form_billet($billet) {
-	$date= decode_id($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]);
+	$date= decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
 			$erreurs = array();
-	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_title'][$GLOBALS['syntax_version']]]))) {
+	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_title']]))) {
 	    $erreurs[] = $GLOBALS['lang']['err_titre'];
 	    }
-	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_abstract'][$GLOBALS['syntax_version']]]))) {
+	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_abstract']]))) {
 	    $erreurs[] = $GLOBALS['lang']['err_chapo'];
 	    }
-	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_content'][$GLOBALS['syntax_version']]]))) {
+	    if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_content']]))) {
 	    $erreurs[] = $GLOBALS['lang']['err_contenu'];
 	    }
 	    if (!preg_match('/\d{4}/',$date['annee'])) {

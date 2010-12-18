@@ -10,8 +10,8 @@ This file is part of BlogoText.
  BlogoText is free software, you can redistribute it under the terms of the
  Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence.
 
- Whereas CC-NC-ND licence seems not to allow you to modify Blogotext
- for your own usage, I (Timo Van Neerden) give you that right anyway.
+ Whereas CC-NC-ND licence seems not allow you to modify Blogotext
+ even for your own usage, this right is given to you anyway.
 
  ( http://creativecommons.org/licenses/by-nc-nd/2.0/deed.fr )
 
@@ -30,7 +30,12 @@ Blogotext includes a image-upload script by Damien Alexandre
 ===========================================
 === Captcha script ========================
 Blogotext includes the Freecap captcha script by Howard Yeend
- the script is under GNU General Public License v2 ( http://www.gnu.org/licenses/gpl-2.0.html )
+ the script is under GNU General Public License v2
+ ( http://www.gnu.org/licenses/gpl-2.0.html )
+
+ Freecap is included in Blogotext with the accord of its owner
+ (Howard Yeend), since GNU-GPL is not (as is) compatible with
+ CC-BY-NC-ND licence.
 
  http://www.puremango.co.uk
 

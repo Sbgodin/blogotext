@@ -11,12 +11,9 @@
 require_once '../inc/inc.php';
 session_start() ;
 
-if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-} else { 
+if (!empty($_SERVER['REMOTE_ADDR'])) {
 	$ip = $_SERVER['REMOTE_ADDR'];
 }
-
 
 if ( (!isset($_SESSION['nom_utilisateur'])) or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp']) or (!isset($_SESSION['antivol'])) or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip)) or (!isset($_SESSION['timestamp'])) or ($_SESSION['timestamp'] < time()-1800)) {
 	header('Location: logout.php');

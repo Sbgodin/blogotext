@@ -129,7 +129,7 @@ hidden_input('onglet_commentaires', 'on');
 hidden_input('onglet_images', 'on');
 hidden_input('categories', '1');
 hidden_input('tags', '');
-hidden_input('fuseau_horaire', 'UTC');
+hidden_input('fuseau_horaire', date_default_timezone_get());
 
 hidden_input('activer_global_coments', '0');
 hidden_input('global_coments', '0'); // ????????  WTF : the above one must be good, not this !

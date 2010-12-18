@@ -235,6 +235,7 @@ $lang_en = array(
 'pref_nb_maxi_comm'				=> 'Number of comments preview on home page',
 'pref_nb_list'						=> 'Number of articles in the list',
 'pref_nb_list_com'				=> 'Number of comments in the list',
+'pref_fuseau_horaire'			=> 'Timezone',
 //'pref_apercu'						=> 'Show article preview',
 'pref_theme'						=> 'Theme',
 'pref_categories'					=> 'Organize articles into categories',

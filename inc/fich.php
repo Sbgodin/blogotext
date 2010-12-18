@@ -25,8 +25,7 @@ function table_recherche($depart, $txt, $statut='') {
 			foreach ($articles as $id) {
 				$dec = decode_id($id);
 				$dossier = $depart.'/'.$dec['annee'].'/'.$dec['mois'].'/';
-				$syntax_version= get_version($dossier.$id);
-				$article_mots_all=parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_keywords'][$syntax_version]);
+				$article_mots_all=parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_keywords']);
 				$article_mots = explode(', ', $article_mots_all);
 				$mot[$id]=$article_mots;
 				if (count(array_intersect($search_words, $article_mots)) == $nb) {
@@ -52,8 +51,7 @@ function table_tags($depart, $txt, $statut='') {
 		foreach ($articles as $id) {
 			$date = decode_id($id);
 			$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-			$syntax_version = get_version($dossier.$id);
-			$article_tags_all = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories'][$syntax_version]);
+			$article_tags_all = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
 			$article_tags = explode(', ', $article_tags_all);
 			if (in_array($searched, $article_tags)) {
 				$table_matchs[] = $id;
@@ -75,8 +73,7 @@ function list_all_tags() {
 	foreach ($articles as $id) {
 		$date = decode_id($id);
 		$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-		$syntax_version = get_version($dossier.$id);
-		$article_tags = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories'][$syntax_version]);
+		$article_tags = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
 		$tags .= $article_tags.',';
 	}
 	return $tags;
@@ -88,13 +85,24 @@ function table_date($depart, $annee, $mois, $jour='', $statut='') {
 	$liste=array();
 	$dossier = $depart.'/'.$annee.'/'.$mois.'/';
 	if ($jour == '') {
-		$contenu = parcourir_dossier($dossier, $statut);
+		$files = parcourir_dossier($dossier, $statut);
+		if ($depart == $GLOBALS['dossier_articles'] or $depart == $GLOBALS['dossier_commentaires']) {
+			if (!empty($files)) {
+				foreach ($files as $billet) {
+					if (get_id($billet) <= date('YmdHis')) {
+						$contenu[] = $billet;
+					}
+				}
+			}
+		} else {
+			$contenu = $files;
+		}
 	} else {
 		if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) { 
 			$contenu = array();
 			while ($fichiers = readdir($ouverture)){
 				$jour_fichier = substr($fichiers, '6', '2');
-				if (is_file($dossier.$fichiers) AND ($jour == $jour_fichier) ){
+				if ( is_file($dossier.$fichiers) and ($jour == $jour_fichier) ) {
 					if  ( (isset($statut)) AND ($statut != '') ) {
 						if (get_statut($dossier.$fichiers) === $statut) {
 		 				$contenu[] = $fichiers;
@@ -197,7 +205,7 @@ function table_derniers($dossier, $limite='', $statut='') {
 function traiter_form_billet($billet) {
 	if (isset($_POST['enregistrer'])) {
 					if (fichier_data($GLOBALS['dossier_data_articles'], $billet) !== 'FALSE') {
-					redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'&msg=confirm_article_ajout');
+					redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&msg=confirm_article_ajout');
 					} else {
 					erreur('Ecriture impossible');
 					exit;
@@ -206,11 +214,11 @@ function traiter_form_billet($billet) {
 
 		if (isset($_POST['security_coin_article']) and htmlspecialchars($_POST['security_coin_article']) == md5($_POST['article_id'].$_SESSION['time_supprimer_article']) and $_SESSION['time_supprimer_article'] >= (time() - 300) ) {
 
-					if (unlink($GLOBALS['dossier_data_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]))) {
+					if (unlink($GLOBALS['dossier_data_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id']]))) {
 						redirection('index.php?msg=confirm_article_suppr');
 					}
 					else {
-						redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'&errmsg=error_article_suppr_impos');
+						redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr_impos');
 						exit;
 					}
 				$dossier_annee_mois= $GLOBALS['dossier_data_articles'].'/'.$annee.'/'.$mois.'/';
@@ -219,7 +227,7 @@ function traiter_form_billet($billet) {
 				rmdir($dossier_annee);
 
 		} else {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'&errmsg=error_article_suppr');
+			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr');
 			exit;
 		}
 	}
@@ -229,12 +237,12 @@ function fichier_data($dossier, $billet) {
 		$article_data = '';
 		$article_data .= '<?php die("If you were looking for the answer to life, the universe and everything... It is not here..."); ?>';
 		$article_data .= "\n";
-		$date= decode_id($billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]]);
+		$date= decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
 	foreach ($billet as $markup => $content) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
 	}
 	if (!empty($billet['bt_categories'])) {
-		fichier_tags($billet['bt_categories']);
+		fichier_tags($billet['bt_categories'], '0');
 	}
 		if ( !is_dir($dossier) ) {
 			$dossier_ini = creer_dossier($dossier);
@@ -253,7 +261,7 @@ function fichier_data($dossier, $billet) {
 			fichier_index($dossier.'/'.$date['annee'].'/'.$date['mois']);
 			fichier_htaccess($dossier.'/'.$date['annee'].'/'.$date['mois']);
 		}
-		$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id'][$GLOBALS['syntax_version']]].'.'.$GLOBALS['ext_data'];
+	$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id']].'.'.$GLOBALS['ext_data'];
 		$new_file_data=fopen($fichier_data,'wb+');
 		if (fwrite($new_file_data,$article_data) === 'FALSE') {
 			return 'FALSE';
@@ -328,7 +336,7 @@ function fichier_tags($new_tags, $reset) {
 			$new_tags_array[$i] = trim($new_tags_array[$i]);
 		}
 /* old tags */
-		if (isset($GLOBALS['tags']) and empty($reset)) {
+		if (isset($GLOBALS['tags']) and ($reset == '0')) {
 			$old_tags = $GLOBALS['tags'];
 			$old_tags_array = explode(',' , $old_tags);
 			$nb2 = sizeof($old_tags_array);
@@ -372,6 +380,7 @@ function fichier_prefs() {
 		$prefs .= "\$GLOBALS['onglet_images'] = '".$_POST['onglet_images']."';\n";
 		$prefs .= "\$GLOBALS['format_date'] = '".$_POST['format_date']."';\n";
 		$prefs .= "\$GLOBALS['format_heure'] = '".$_POST['format_heure']."';\n";
+		$prefs .= "\$GLOBALS['fuseau_horaire'] = '".$_POST['fuseau_horaire']."';\n";
 		$prefs .= "\$GLOBALS['activer_global_comments']= '".$_POST['global_coments']."';\n";
 		$prefs .= "\$GLOBALS['connexion_delai']= '".$_POST['connexion_delay']."';\n";
 		$prefs .= "\$GLOBALS['connexion_captcha']= '".$_POST['connexion_captcha']."';\n";

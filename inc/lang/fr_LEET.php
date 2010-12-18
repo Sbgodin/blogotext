@@ -216,6 +216,7 @@ $lang_l33t_fr = array(
 'pref_desc'							=> 'Description',
 'pref_format_date'				=> 'Format de date',
 'pref_format_heure'				=> 'Format de l\'heure',
+'pref_fuseau_horaire'			=> 'Fuseau horaire',
 'pref_racine'						=> 'Adresse du blog (URL)',
 'pref_dossier_images'			=> 'Emplacement des images',
 'pref_nb_maxi'						=> 'Nombre d\'articles sur l\'accueil',
