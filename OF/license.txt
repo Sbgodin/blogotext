@@ -33,9 +33,10 @@ Blogotext includes the Freecap captcha script by Howard Yeend
  the script is under GNU General Public License v2
  ( http://www.gnu.org/licenses/gpl-2.0.html )
 
- Freecap is included in Blogotext with the accord of its owner
+ Freecap is used in Blogotext with the accord of its owner
  (Howard Yeend), since GNU-GPL is not (as is) compatible with
  CC-BY-NC-ND licence.
+
 
  http://www.puremango.co.uk
 

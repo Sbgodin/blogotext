@@ -61,31 +61,7 @@ function liste_commentaires($dossier, $article_id) {
 }
 
 function liste_derniers_comm($nb_comm) {
-	$dossier = $GLOBALS['dossier_commentaires'];
-	$liste= array();
-	$year = date('Y');
-	$month = date('m');
-	if (date('m') == '01') {
-		$month = '12';
-		$year = date('Y')-1;
-	}
-	for ($i = $year; $i <= date('Y'); $i++) {
-		for ($j = $month-1; $j <= date('m') ; $j++) {
-			if (strlen($j) == '1') {
-				$j = '0'.$j;
-			}
-			if(is_dir($dossier.'/'.$i.'/'.$j)) {
-				$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
-				if ($liste != "") {
-					foreach ($liste as $comm) {
-						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
-					 		$retour[] =$comm;
-						}
-					}
-				}
-			}
-		}
-	}
+	$retour =table_derniers($GLOBALS['dossier_commentaires'], $nb_comm);
 	if (isset($retour)) {
 		$retour = array_slice($retour, -$nb_comm, $nb_comm);
 		rsort($retour);

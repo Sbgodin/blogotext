@@ -213,7 +213,6 @@ function encart_commentaires() {
 
 			$comment['article_titre_orig'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
 			$comment['auteur_abbr'] = preg_replace('#</?.*>#U', '', $comment['auteur']);
-//			if (strlen($comment['auteur_abbr']) >= '12') { $comment['auteur_abbr'] = substr($comment['auteur_abbr'], 0, 11).'…'; }
 
 			$comment['article_lien'] = get_blogpath_from_blog($comment['article_id']).titre_url($comment['article_titre_orig']).'#'.article_anchor($comment['id']);
 

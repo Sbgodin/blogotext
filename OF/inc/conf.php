@@ -14,7 +14,7 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 	date_default_timezone_set('UTC');
 }
 // VERSION
-$GLOBALS['version_timo'] = '22';
+$GLOBALS['version_timo'] = '23';
 
 // DOSSIER ADMIN
 $GLOBALS['dossier_admin']= 'admin';
@@ -35,7 +35,7 @@ $GLOBALS['dossier_backup']= 'bt_backup';
 $GLOBALS['dossier_data_backup']= '../bt_backup';
 $GLOBALS['dossier_images']= '../img/';
 $GLOBALS['dossier_vignettes']= 'thb';
-$GLOBALS['date_premier_message_blog'] = '199001';/* éviter que l'on puisse aller trop loin dans le passé avec le calendrier (format : YYYYMM) */
+$GLOBALS['date_premier_message_blog'] = '199501';/* éviter que l'on puisse aller trop loin dans le passé avec le calendrier (format : YYYYMM) */
 $GLOBALS['salt']= '123456';
 $GLOBALS['activer_apercu']= '1';
 

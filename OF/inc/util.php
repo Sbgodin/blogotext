@@ -197,7 +197,7 @@ function ww_hach_sha($text) {
 }
 
 function article_anchor($id) {
-	$anchor = substr(md5($id), '0', '6');
+	$anchor = 'id'.substr(md5($id), '0', '6');
 	return $anchor;
 }
 

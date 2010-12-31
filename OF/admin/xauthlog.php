@@ -96,3 +96,4 @@
 17 12 2010 / 18:15:25 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.00
 17 12 2010 / 20:00:59 : 127.0.0.1 ;	login :	timo avec Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.00
 18 12 2010 / 22:43:53 : 127.0.0.1 ;	login :	timo avec Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)
+01 01 2011 / 13:44:06 : ::1 ;	login :	timo avec Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.10 (KHTML, like Gecko) Ubuntu/10.10 Chromium/8.0.552.224 Chrome/8.0.552.224 Safari/534.10
