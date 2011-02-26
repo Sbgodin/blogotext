@@ -1,0 +1,43 @@
+=======================================================
+=== Blogotext =========================================
+=======================================================
+This file is part of BlogoText.
+ 2006      - Frederic Nassar.
+ 2010-2011 - Timo Van Neerden
+
+ http://lehollandaisvolant.net/blogotext/
+
+ BlogoText is free software, you can redistribute it under the terms of the
+ Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence.
+
+ Whereas CC-NC-ND licence seems not allow you to modify Blogotext
+ even for your own usage, this right is given to you anyway.
+
+ ( http://creativecommons.org/licenses/by-nc-nd/2.0/deed.fr )
+
+===========================================
+=== Third parts software ==================
+
+===========================================
+=== image upload script ===================
+Blogotext bases some code on a image-upload script by Damien Alexandre
+ the original script is under Creative Common BY-NC - 2.0 France Licence 
+ ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
+ 
+ http://damienalexandre.fr/Upload-d-image-en-PHP.html
+
+
+===========================================
+=== Captcha script ========================
+Blogotext includes the Freecap captcha script by Howard Yeend
+ the script is under GNU General Public License v2
+ ( http://www.gnu.org/licenses/gpl-2.0.html )
+
+ Freecap is used in Blogotext with the accord of its owner
+ (Howard Yeend), since GNU-GPL is not (as is) compatible with
+ Blogotext's CC-BY-NC-ND licence.
+
+ http://www.puremango.co.uk
+
+===========================================
+
