@@ -25,14 +25,14 @@ require_once '../inc/util.php';
 if (isset($_GET['l'])) {
 	$lang = $_GET['l'];
 	if ($lang == $lang_fr['id']) {
-       $GLOBALS['lang'] = $lang_fr;
-   } elseif ($lang == $lang_en['id']) {
-	     $GLOBALS['lang'] = $lang_en;
-   } elseif ($lang == $lang_nl['id']) {
-	     $GLOBALS['lang'] = $lang_nl;
-   }
+		$GLOBALS['lang'] = $lang_fr;
+	} elseif ($lang == $lang_en['id']) {
+		$GLOBALS['lang'] = $lang_en;
+	} elseif ($lang == $lang_nl['id']) {
+		$GLOBALS['lang'] = $lang_nl;
+	}
 }
-        		
+
 if (isset($_GET['s'])) {
 	$step = $_GET['s'];
 } else { 
@@ -78,70 +78,48 @@ if ($step == '1') {
 
 function afficher_form_1($erreurs = '') {
 	afficher_top('Install');
-	print '<div id="axe">'."\n";
-	print '<div id="pageauth">'."\n";
+	echo '<div id="axe">'."\n";
+	echo '<div id="pageauth">'."\n";
 	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 	afficher_titre ('Bienvenue Welcome', 'step', '1');
 	erreurs($erreurs);
-	print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
+	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
 	form_langue_install('Choisissez votre langue / Choose your language');
-	print hidden_input('verif_envoi_1', '1');
-	print '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
-	print '</form>' ;
+	echo hidden_input('verif_envoi_1', '1');
+	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
+	echo '</form>' ;
 }
 
 function afficher_form_2($erreurs = '') {
 	afficher_top('Install');
-	print '<div id="axe">'."\n";
-	print '<div id="pageauth">'."\n";
+	echo '<div id="axe">'."\n";
+	echo '<div id="pageauth">'."\n";
 	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 	afficher_titre ($GLOBALS['lang']['install'], 'step', '1');
 	erreurs($erreurs);
-	print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" >' ;
-	print form_text('identifiant', '', $GLOBALS['lang']['install_id']);
-	print form_password('nouveau-mdp', '', $GLOBALS['lang']['install_mdp']);
-	print form_password('mdp_rep', '', $GLOBALS['lang']['install_remdp']);
-	print hidden_input('langue', $_GET['l']);
-	print hidden_input('verif_envoi_2', '1');
-	print '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
-	print '</form>' ;
+	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" onsubmit="return verifForm2(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
+	echo form_text('identifiant', '', $GLOBALS['lang']['install_id']);
+	echo form_password('mdp', '', $GLOBALS['lang']['install_mdp']);
+	echo form_password('mdp_rep', '', $GLOBALS['lang']['install_remdp']);
+	echo hidden_input('langue', $_GET['l']);
+	echo hidden_input('verif_envoi_2', '1');
+	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
+	echo '</form>' ;
 }
 
 function afficher_form_3($erreurs = '') {
 	afficher_top('Install');
-	print '<div id="axe">'."\n";
-	print '<div id="pageauth">'."\n";
+	echo '<div id="axe">'."\n";
+	echo '<div id="pageauth">'."\n";
 	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 	afficher_titre ($GLOBALS['lang']['install'], 'step', '1');
 	erreurs($erreurs);
-	print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" >' ;
-	print form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
-	print hidden_input('auteur', '');
-	print hidden_input('email', '');
-	print hidden_input('nomsite', 'Blogotext');
-	print hidden_input('description', $GLOBALS['lang']['go_to_pref']);
-	print hidden_input('nb_maxi', '10');
-	print hidden_input('nb_maxi_comm', '5');
-	print hidden_input('nb_list', '25');
-	print hidden_input('nb_list_com', '50');
-	print hidden_input('format_date', '0');
-	print hidden_input('format_heure', '0');
-	print hidden_input('onglet_commentaires', 'on');
-	print hidden_input('onglet_images', 'on');
-	print hidden_input('categories', '1');
-	print hidden_input('tags', '');
-	print hidden_input('fuseau_horaire', 'UTC');
-	//print hidden_input('activer_global_coments', '0');
-	print hidden_input('global_coments', '0');
-	print hidden_input('connexion_delay', '1');
-	print hidden_input('connexion_captcha', '0' );
-	print hidden_input('verif_envoi_3', '1');
-	print hidden_input('apercu', '1');
-	print hidden_input('theme', 'defaut');
-
-	print hidden_input('comm_defaut_status', '1');
-	print '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
-	print '</form>' ;
+	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" onsubmit="return verifForm3(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
+	echo form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
+	echo hidden_input('verif_envoi_3', '1');
+	echo hidden_input('comm_defaut_status', '1');
+	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
+	echo '</form>' ;
 }
 
 function traiter_install_2() {
@@ -162,14 +140,14 @@ function traiter_install_3() {
 		$first_post= array (
 			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
 			$GLOBALS['data_syntax']['article_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),
-   		$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
-   		$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
-   		$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
-   		$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
-   		$GLOBALS['data_syntax']['article_keywords'] => '',
-		  	$GLOBALS['data_syntax']['article_status'] => '1',
-	  	$GLOBALS['data_syntax']['article_allow_comments'] => '1'
-	  );
+			$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
+			$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_keywords'] => '',
+			$GLOBALS['data_syntax']['article_status'] => '1',
+		$GLOBALS['data_syntax']['article_allow_comments'] => '1'
+		);
 	fichier_data($GLOBALS['dossier_data_articles'], $first_post);
 
 	fichier_index($GLOBALS['dossier_data_articles'], '1');
@@ -191,18 +169,18 @@ function valid_install_2() {
 	if (!strlen(trim($_POST['identifiant']))) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_identifiant'];
 	}	
-	if ( (strlen($_POST['nouveau-mdp']) < '6') OR (strlen($_POST['mdp_rep']) < '6') ) {
+	if ( (strlen($_POST['mdp']) < 6) OR (strlen($_POST['mdp_rep']) < 6) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp'] ;
 	}
-	if ( ($_POST['nouveau-mdp']) !== ($_POST['mdp_rep']) ) {
-		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp'] ;
+	if ( ($_POST['mdp']) !== ($_POST['mdp_rep']) ) {
+		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp_diff'] ;
 	}
 	return $erreurs;
 }
 
 function valid_install_3() {
 	$erreurs = array();
-	if (!strlen(trim($_POST['racine']))) {
+	if ( !strlen(trim($_POST['racine'])) or !preg_match('/^http:\/\/[a-zA-Z0-9_.]/', $_POST['racine']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine'];
 	} elseif (!preg_match('/^http:\/\//', $_POST['racine'])) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_http'];
@@ -212,6 +190,101 @@ function valid_install_3() {
 	return $erreurs;
 }
 
+if (!empty($_GET['s'])) {
+echo '<script type="text/javascript">'."\n".'
+function surligne(champ, erreur) {
+	if(erreur)
+		champ.style.backgroundColor = "#fba";
+	else
+		champ.style.backgroundColor = "";
+}';
+}
 
+if (!empty($_GET['s']) and $_GET['s'] == 2) {
+echo '
+function verifForm2(form) {
+	var identifiantOk = false;
+	var mdp1Ok = false;
+	var mdp2Ok = false;
+	var mdpOk = false;
+	var msg = "";
+
+	if (form.identifiant.value.length < 1) {
+		surligne(form.identifiant, true);
+		msg = msg + "<li>'.$GLOBALS['lang']['err_prefs_identifiant'].'</li>\n";
+	} else {
+		surligne(form.identifiant, false);
+		identifiantOk = true;
+	}
+
+	if (form.mdp.value.length < 6 || !form.mdp.value.length) {
+		surligne(form.mdp, true);
+		msg = msg + "<li>'.$GLOBALS['lang']['err_prefs_mdp'].'</li>\n";
+	} else {
+		surligne(form.mdp, false);
+		mdp1Ok = true;
+	}
+
+	if (form.mdp_rep.value != form.mdp.value) {
+		surligne(form.mdp_rep, true);
+		msg = msg + "<li>'.$GLOBALS['lang']['err_prefs_mdp_diff'].'</li>\n";
+	} else {
+		surligne(form.mdp_rep, false);
+		mdp2Ok = true;
+	}
+
+	if (mdp1Ok && mdp2Ok) {
+		mdpOk = true;
+	}
+
+	if(identifiantOk && mdpOk) {
+		var regexw = /[a-z]/;
+		var regexW = /[A-Z]/;
+		var regexd = /[0-9]/;
+		var regexc = /[^a-zA-Z0-9]/;
+		if (!regexw.test(form.mdp.value) || !regexW.test(form.mdp.value) || !regexd.test(form.mdp.value) || !regexc.test(form.mdp.value)) {
+			return window.confirm(\''.$GLOBALS['lang']['err_prefs_mdp_weak'].'\');
+		} else {
+			return true;
+		}
+	} else {
+		msg = "<strong>'.$GLOBALS['lang']['erreurs'].'</strong> :<ul>\n" + msg + "</ul>\n";
+		window.document.getElementById("erreurs_js").innerHTML = msg;
+		return false;
+	}
+}
+</script>';
+
+} elseif (!empty($_GET['s']) and $_GET['s'] == 3) {
+echo '
+function verifForm3(form) {
+	var url = false;
+	var regexend = /[a-zA-Z0-9]\/$/;
+	var regexbeg = /^http:\/{2}/;
+	var msg = "";
+
+	if (!regexend.test(form.racine.value)) {
+		surligne(form.racine, true);
+		msg = msg + "<li>'.preg_replace('#"#', '\"', $GLOBALS['lang']['err_prefs_racine_slash']).'</li>\n";
+	} else {
+		if (!regexbeg.test(form.racine.value)) {
+			surligne(form.racine, true);
+			msg = msg + "<li>'.preg_replace('#(/|")#', '\\\$1', $GLOBALS['lang']['err_prefs_racine_http']).'</li>\n";
+		} else {
+			surligne(form.racine, false);
+			url = true;
+		}
+	}
+
+	if(url) {
+		return true;
+	} else {
+		msg = "<ul>\n" + msg + "</ul>\n";
+		window.document.getElementById("erreurs_js").innerHTML = msg;
+		return false;
+	}
+}</script>';
+
+}
 footer();
 ?>

@@ -79,7 +79,7 @@ $max_attempts = 1000;
 
 // list of fonts to use
 // the GDFontGenerator @ http://www.philiplb.de is excellent for convering ttf to GD
-$font_locations = Array("./.ht_freecap_font1.gdf","./.ht_freecap_font2.gdf","./.ht_freecap_font3.gdf","./.ht_freecap_font4.gdf","./.ht_freecap_font5.gdf");
+$font_locations = Array("./.ht_freecap_font1.gdf","./.ht_freecap_font2.gdf","./.ht_freecap_font5.gdf");
 
 // background:
 // 0=transparent (if jpg, white)
@@ -94,7 +94,7 @@ $bg_type = 2;
 $blur_bg = true;
 // for bg_type 3, which images should we use?
 // if you add your own, make sure they're fairly 'busy' images (ie a lot of shapes in them)
-$bg_images = Array("./.ht_freecap_im1.jpg","./.ht_freecap_im2.jpg","./.ht_freecap_im3.jpg","./.ht_freecap_im4.jpg","./.ht_freecap_im5.jpg");
+$bg_images = Array("./.ht_freecap_im1.jpg","./.ht_freecap_im3.jpg","./.ht_freecap_im5.jpg");
 // for non-transparent backgrounds only:
 	// if 0, merges CAPTCHA with bg
 	// if 1, write CAPTCHA over bg

@@ -45,7 +45,7 @@ function conversions_theme_commentaire($texte, $billet='', $commentaire='') {
 		if (isset($commentaire['id'])) { $texte = str_replace($GLOBALS['balises']['commentaire_date'], date_formate($commentaire['id']), $texte); }
 		if (isset($commentaire['id'])) { $texte = str_replace($GLOBALS['balises']['commentaire_heure'], heure_formate($commentaire['id']), $texte); }
 		if (isset($commentaire['email'])) { $texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['email'], $texte); }
-		if (isset($commentaire['auteur'])) { $texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $commentaire['auteur'], $texte); }
+		if (isset($commentaire['auteur'])) { $texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $commentaire['auteur_lien'], $texte); }
 		if (isset($commentaire['webpage'])) { $texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['webpage'], $texte); }
 		if (isset($commentaire['anchor'])) { $texte = str_replace($GLOBALS['balises']['commentaire_anchor'], $commentaire['anchor'], $texte); }
 	}
@@ -54,7 +54,7 @@ function conversions_theme_commentaire($texte, $billet='', $commentaire='') {
 
 
 function conversions_theme_article($texte, $billet='', $commentaire='') {
-	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
+	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte); }
 // Article
 	if (isset($billet)) {
 		if (isset($billet['titre'])) {
@@ -77,39 +77,39 @@ function conversions_theme_article($texte, $billet='', $commentaire='') {
 }
 
 function charger_template($fichier_theme, $balise, $renvoi) {
-if ($theme_page = file_get_contents($fichier_theme)) {
-	if (isset($balise)) {
-		$theme_page = str_replace($balise, $balise['0'], $theme_page) ;
+	if ($theme_page = file_get_contents($fichier_theme)) {
+		if (isset($balise)) {
+			$theme_page = str_replace($balise, $balise['0'], $theme_page) ;
 		}
-			$template_liste = parse_theme($theme_page, $balise['0']);
-				$balise_debut = strpos($theme_page, '{'.$balise['0'].'}');
-				$balise_fin = strpos($theme_page, '{/'.$balise['0'].'}') + strlen($balise['0']) + '3';
-  		if ($renvoi == 'liste') {
-  			return $template_liste;
-  		} else if ($renvoi == 'debut') {
-	  		$debut = conversions_theme(substr($theme_page, '0', $balise_debut));
-  			return $debut;
-  		} else if ($renvoi == 'fin') {
-	  		$fin = conversions_theme(substr($theme_page, $balise_fin));
-  			return $fin;
-  		}
-	 } else {
-			echo 'Fichier theme liste introuvable ou illisible';
+		$template_liste = parse_theme($theme_page, $balise['0']);
+		$balise_debut = strpos($theme_page, '{'.$balise['0'].'}');
+		$balise_fin = strpos($theme_page, '{/'.$balise['0'].'}') + strlen($balise['0']) + '3';
+		if ($renvoi == 'liste') {
+			return $template_liste;
+		} else if ($renvoi == 'debut') {
+			$debut = conversions_theme(substr($theme_page, 0, $balise_debut));
+			return $debut;
+		} elseif ($renvoi == 'fin') {
+			$fin = conversions_theme(substr($theme_page, $balise_fin));
+			return $fin;
+		}
+	} else {
+		echo 'Fichier theme liste introuvable ou illisible';
 	}
 }
 
 function parse_theme($fichier, $balise) {
 	if (isset($fichier)) {
-			if (preg_match('#\{'.$balise.'\}#',$fichier)) {
-  			$sizeitem = strlen('{'.$balise.'}');
-  			$debut = strpos($fichier, '{'.$balise.'}') + $sizeitem;
-  			$fin = strpos($fichier, '{/'.$balise.'}');
-  			$lenght = $fin - $debut;
-  			$return = substr($fichier, $debut, $lenght); 
-  		return $return;
-			} else {
-				return '';
-			}
+		if (preg_match('#\{'.$balise.'\}#',$fichier)) {
+			$sizeitem = strlen('{'.$balise.'}');
+			$debut = strpos($fichier, '{'.$balise.'}') + $sizeitem;
+			$fin = strpos($fichier, '{/'.$balise.'}');
+			$lenght = $fin - $debut;
+			$return = substr($fichier, $debut, $lenght); 
+			return $return;
+		} else {
+			return '';
+		}
 	} else {
 		erreur('Impossible de lire le fichier');
 	}
@@ -118,17 +118,17 @@ function parse_theme($fichier, $balise) {
 // AFFICHAGE INDEX.PHP
 
 function afficher_index($tableau) {
-if 	($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste') AND 
-		($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut')) AND
+	if ($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste') and
+		($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut')) and
 		($fin = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'fin')) ) {
-	echo $debut;
-	if (isset($tableau)) {
-		liste_articles($tableau, $template_liste);
-	} else {
-	erreur($GLOBALS['lang']['note_no_article']);
-	}
-	echo $fin;
+		echo $debut;
+		if (!empty($tableau)) {
+			liste_articles($tableau, $template_liste);
+		} else {
+			erreur($GLOBALS['lang']['note_no_article']);
 		}
+	echo $fin;
+	}
 }
 
 function afficher_article($id) {
@@ -139,7 +139,7 @@ function afficher_article($id) {
 	$erreurs_form= array();
 	if (isset($_POST['_verif_envoi'])) {
 		// COMMENT POST INIT
-		$comment= init_post_comment($id);
+		$comment = init_post_comment($id);
 		$erreurs_form = valider_form_commentaire($comment, $_POST['captcha'], ($_SESSION['captx']+$_SESSION['capty']), 'public');
 	}
 	if (empty($erreurs_form)) {
@@ -151,7 +151,7 @@ function afficher_article($id) {
 		afficher_form_commentaire($id, 'public', $erreurs_form);
 	}
 	// COMMENT INIT
-	if ($liste_commentaires=liste_commentaires($GLOBALS['dossier_commentaires'], $id)) {
+	if ($liste_commentaires = liste_commentaires($GLOBALS['dossier_commentaires'], $id)) {
 		foreach ($liste_commentaires as $nb => $comment) {
 			$commentaire[$nb] = init_comment('public', get_id($comment));
 		}

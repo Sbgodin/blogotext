@@ -8,7 +8,7 @@ html, body {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
-form {
+form, p {
 	margin: 0;
 }
 
@@ -64,10 +64,6 @@ img {
 	border: none;
 }
 
-p {
-	margin: 0;
-}
-
 .nodisplay {
 	display: none;
 }
@@ -91,9 +87,12 @@ p {
 
 /* TOP */
 
-#top {
+#top, #top h1, #top #nav, #nav a, #nav li, #subnav, #wikipage, #form-images, #images, .image {
 	display: block;
 	float: left;
+}
+
+#top {
 	padding-top: 10px;
 	width: 100%;
 	clear: both;
@@ -101,8 +100,6 @@ p {
 }
 
 #top h1 {
-	display: block;
-	float: left;
 	width: 100%;
 	clear: both;
 	font-size: 18px;
@@ -112,15 +109,11 @@ p {
 /* NAVIGATION */
 
 #top #nav {
-	display: block;
-	float: left;
 	padding-left: 15px;
 	margin: 0;
 }
 
 #nav a {
-	display: block;
-	float: left;
 	padding : 25px 10px 5px 10px;
 	text-decoration: none;
 	text-align: center;
@@ -130,56 +123,27 @@ p {
 }
 
 #nav li {
-	display: block;
-	float: left;
 	list-style: none;
 	padding:0 0 0 7px;
 }
 
 #nav a.current {
-	border-top: 1px solid #c8c8c8;
-	border-left: 1px solid #c8c8c8;
-	border-right: 1px solid #c8c8c8;
+	border: 1px solid #c8c8c8;
+	border-bottom: none;
 	background-color: #fff;
 }
 
-#lien-deconnexion {
-	background: url("lock.gif") no-repeat center 5px;
-}
-
-#lien-site {
-	background: #fff url("report_magnify.gif") no-repeat center 5px;
-}
-
-#lien-lscom {
-	background: #fff url("comments.gif") no-repeat center 5px;
-}
-
-#lien-liste {
-	background: #fff url("page_copy.gif") no-repeat center 5px;
-}
-
-#lien-nouveau {
-	background: #fff url("page_edit.gif") no-repeat center 5px;
-}
-
-#lien-preferences {
-	background: #fff url("cog.gif") no-repeat center 5px;
-}
-
-#lien-image {
-	background: #fff url("images.gif") no-repeat center 5px;
-}
-
-#lien-maintenance {
-	background: #fff url("application_go.gif") no-repeat center 5px;
-}
+#lien-liste { background: #fff url("page_copy.gif") no-repeat center 5px; }
+#lien-site { background: #fff url("report_magnify.gif") no-repeat center 5px; }
+#lien-lscom { background: #fff url("comments.gif") no-repeat center 5px; }
+#lien-nouveau { background: #fff url("page_edit.gif") no-repeat center 5px; }
+#lien-preferences { background: #fff url("cog.gif") no-repeat center 5px; }
+#lien-image { background: #fff url("images.gif") no-repeat center 5px; }
+#lien-deconnexion { background: url("lock.gif") no-repeat center 5px; }
 
 /* SUBNAV */
 
 #subnav {
-	display: block;
-	float: left;
 	width: 100%;
 	padding: 15px 0 5px 0;
 }
@@ -187,8 +151,6 @@ p {
 /* AIDE WIKI */
 
 #wikipage {
-	display: block;
-	float: left;
 	width: 100%
 	background: #fff;
 }
@@ -196,8 +158,6 @@ p {
 /* FORMULAIRE IMAGE */
 
 #form-image {
-	display: block;
-	float: left;
 	width: 95%;
 	padding: 10px;
 	border: 1px solid #ddd;
@@ -207,15 +167,11 @@ p {
 /* LISTE IMAGES */
 
 #images {
-	display: block;
-	float: left;
 	width: 100%;
 	margin-top: 15px;
 }
 
 .image {
-	display: block;
-	float: left;
 	width: 145px;
 	height: 140px;
 	text-align: center;
@@ -258,7 +214,7 @@ p {
 	color: #f53151;
 }
 
-.commentbloc h3 {
+.commentbloc h3, .commentbloc .email {
 	display: inline;
 	margin-right: 15px;
 }
@@ -267,11 +223,6 @@ p {
 	font-style: italic;
 	margin-right: 15px;
 	margin-bottom: 15px;
-}
-
-.commentbloc .email {
-	display: inline;
-	margin-right: 15px;
 }
 
 .commentbloc .lien_article_de_com {
@@ -343,18 +294,17 @@ p {
 
 
 /* ERREURS */
-
-#erreurs, .erreurs {
+#erreurs, .erreurs, #succes, .succes {
 	display: block;
 	clear: both;
-	color: #D40000;
 	margin: 0 0 15px 0;
 }
+
+#erreurs, .erreurs {
+	color: #D40000;
+}
 #succes, .succes {
-	display: block;
-	clear: both;
 	color: #00A400;
-	margin: 0 0 15px 0;
 }
 
 #erreurs ul, #succes ul {
@@ -369,20 +319,18 @@ p {
 
 /* CONFIRM */
 
-.confirmation {
+.confirmation, .no_confirmation {
 	clear: both;
 	font-weight: bold;
 	margin: 0;
 	padding: 5px 5px 5px 25px;
+}
+.confirmation {
 	background: #e8fcd9 url("accept.gif") no-repeat 4px;
 	border-bottom: 1px dashed #badca0;
 	color : #4E9B41;
 }
 .no_confirmation {
-	clear: both;
-	font-weight: bold;
-	margin: 0;
-	padding: 5px 5px 5px 25px;
 	background: #fcdfd9 url("deny.gif") no-repeat 4px;
 	border-bottom: 1px dashed #fe90b7;
 	color : #ff3b3b;
@@ -394,15 +342,13 @@ p {
 	clear: both;
 	border: 1px solid #ccc;
 	padding: 10px;
-	margin: 0;
-	margin-bottom: 10px;
+	margin: 0 0 10px;
 }
 
 #preferences fieldset p {
 	display: block;
 	clear: both;
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin: 10px 0;
 }
 
 p.activer_yesno label {
@@ -429,50 +375,19 @@ p.activer_yesno label {
 	line-height: 1em;
 }
 
-.legend-user {
-	background: url("user.gif") no-repeat 5px;
-}
-
-.legend-apparence {
-	background: url("overlays.gif") no-repeat 5px;
-}
-
-.legend-securite {
-	background: url("lock_edit.gif") no-repeat 5px;
-}
-
-.legend-dateheure {
-	background: url("clock.gif") no-repeat 5px;
-}
-
-.legend-config {
-	background: url("bullet_wrench.gif") no-repeat 5px;
-}
-
-.legend-image {
-	background: url("image.gif") no-repeat 5px;
-}
-
-.legend-question {
-	background: url("question.gif") no-repeat 5px;
-}
-
-.legend-tic {
-	background: url("on.gif") no-repeat 5px;
-}
-
-.legend-cross {
-	background: url("off.gif") no-repeat 5px;
-}
-
-.legend-picture {
-	background: url("picture.gif") no-repeat 5px;
-}
-
-.legend-addimage {
-	background: url("image_add.gif") no-repeat 5px;
-}
-
+.legend-bin { background: url("bin.gif") no-repeat 5px; }
+.legend-tic { background: url("on.gif") no-repeat 5px; }
+.legend-user { background: url("user.gif") no-repeat 5px; }
+.legend-image { background: url("image.gif") no-repeat 5px; }
+.legend-cross { background: url("off.gif") no-repeat 5px; }
+.legend-backup { background: url("save.gif") no-repeat 5px; }
+.legend-config { background: url("bullet_wrench.gif") no-repeat 5px; }
+.legend-picture { background: url("picture.gif") no-repeat 5px; }
+.legend-question { background: url("question.gif") no-repeat 5px;}
+.legend-securite { background: url("lock_edit.gif") no-repeat 5px; }
+.legend-addimage { background: url("image_add.gif") no-repeat 5px; }
+.legend-dateheure { background: url("clock.gif") no-repeat 5px; }
+.legend-apparence { background: url("overlays.gif") no-repeat 5px; }
 
 /* APERCU */
 
@@ -547,17 +462,6 @@ fieldset.valid-center .submit {
 	font-size: 14px;
 }
 
-.submit-suppr-comm {
-	display: block;
-	float: right;
-	margin-left: 15px;
-	padding: 2px 5px;
-	color: #fff;
-	background: #CC0000;
-	border-color: #990000;
-	font-size: 14px;
-}
-
 .info {
 	padding-left: 20px;
 	background: no-repeat left center url("info.gif");
@@ -581,7 +485,15 @@ fieldset.valid-center .submit {
 }
 
 .tags {
-	margin: auto 1px 3px 0px;
+	color: black;
+	padding: 1px 3px;
+	background-color: silver;
+	border: 1px solid #999;
+}
+
+.tags:hover {
+	text-decoration: none;
+	cursor: pointer;
 }
 
 #masknshow {
@@ -627,13 +539,6 @@ fieldset.valid-center .submit {
 #date, #opts {
 	float: left;
 	clear: both;
-}
-
-#date {
-	margin-top: 15px
-}
-
-#opts {
 	margin-top: 10px
 }
 
@@ -656,7 +561,6 @@ fieldset.valid-center .submit {
 
 #formdate label {
 	display: none;
-	margin-right: 10px;
 }
 
 #formstatut {
@@ -677,38 +581,51 @@ fieldset.valid-center .submit {
 	background: url("comments.gif") no-repeat left;
 }
 
-#titre{
+#titre, #categories, #contenu, #mots_cles {
 	width: 98%;
 	clear: both;
 	padding: 5px;
 	margin-bottom: 15px;
+}
+
+#titre {
 	font-weight: bold;
 	font-size: 16px;
 	background: #fff;
 }
 
-#chapo {
-	width: 98%;
-	clear: both;
-	height: 75px;
-	background: #fffae5;
-	padding: 5px;
+#chapo_note {
+	width:98%;
 	margin-bottom: 15px;
 }
 
-#categories {
-	width: 98%;
-	clear: both;
+#blocchapo {
+	float:left;
+	width: 68%;
+}
+
+#blocnote {
+	float:right;
+	width: 30%;	
+}
+
+#chapo, #notes {
+	width: 100%;
+	background: #fffae5;
 	padding: 5px;
-	margin-bottom: 15px;
+	height: 100px;
+}
+
+#categories {
 	background: #fffae5;
 }
 
 #contenu {
-	width: 98%;
-	clear: both;
-	padding: 5px;
-	background-color: #f9f9f9;
+	background: #f9f9f9;
+}
+
+#mots_cles {
+	background: #fff;
 }
 
 label.inline {
@@ -731,16 +648,12 @@ input.inline {
 	background: url("logo.jpg") no-repeat left top;
 }
 
-#pageauth label {
-	margin-top: 15px;
-}
-
 #pageauth input {
 	padding: 2px;
 	background: #f5f5f5;
 }
 
-#pageauth #subauth {
+#pageauth #subauth, #pageauth label {
 	margin-top: 15px;
 }
 
@@ -776,7 +689,7 @@ input.inline {
 	width: 100%;
 	padding: 0;
 	margin: 0;
-	border-collapse:collapse;
+	border-collapse: collapse;
 }
 
 #billets a {
@@ -803,17 +716,17 @@ input.inline {
 	background: #edf3fe;
 }
 
-#billets .on {
+#billets .on, #billets .off {
 	padding-left: 25px;
 	color: #000;
 	margin: 0;
+}
+
+#billets .on {
 	background: url("on.gif") no-repeat left;
 }
 
 #billets .off {
-	padding-left: 25px;
-	color: #000;
-	margin: 0;
 	background: url("off.gif") no-repeat left;
 }
 

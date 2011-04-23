@@ -11,17 +11,17 @@
 
 function url_article($url) {
 if ( (preg_match('/\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($url))) ) {
-	return 'TRUE';
+	return TRUE;
 } else {
-	return 'FALSE';
+	return FALSE;
 }
 }
 
 function url_date($url) {
 if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/',($url)))   ) {
-	return 'TRUE';
+	return TRUE;
 } else {
-	return 'FALSE';
+	return FALSE;
 }
 }
 
@@ -67,7 +67,7 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 }
 
 function valider_form_billet($billet) {
-	$date= decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
+	$date = decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
 	$erreurs = array();
 	if (!strlen(trim($billet[$GLOBALS['data_syntax']['article_title']]))) {
 		$erreurs[] = $GLOBALS['lang']['err_titre'];
@@ -81,16 +81,19 @@ function valider_form_billet($billet) {
 	if (!preg_match('/\d{4}/',$date['annee'])) {
 		$erreurs[] = $GLOBALS['lang']['err_annee'];
 	}
-	if (!preg_match('/\d{2}/',$date['mois'])) {
+	if ( (!preg_match('/\d{2}/',$date['mois'])) or ($date['mois'] > '12') ) {
 		$erreurs[] = $GLOBALS['lang']['err_mois'];
 	}
-	if ( (!preg_match('/\d{2}/',$date['heure'])) || ($date['heure'] >'23') || !is_numeric($date['heure']) ) {
+	if ( (!preg_match('/\d{2}/',$date['jour'])) or ($date['jour'] > date('t', mktime(0, 0, 0, $date['mois'], 1, $date['annee'])))  ) {
+		$erreurs[] = $GLOBALS['lang']['err_jour'];
+	}
+	if ( (!preg_match('/\d{2}/',$date['heure'])) or ($date['heure'] > 23) ) {
 		$erreurs[] = $GLOBALS['lang']['err_heure'];
 	}
-	if ( (!preg_match('/\d{2}/',$date['minutes'])) || ($date['minutes'] >'59') || !is_numeric($date['minutes'])) {
+	if ( (!preg_match('/\d{2}/',$date['minutes'])) or ($date['minutes'] > 59) ) {
 		$erreurs[] = $GLOBALS['lang']['err_minutes'];
 	}
-	if ( (!preg_match('/\d{2}/',$date['secondes'])) || ($date['secondes'] >'59') || !is_numeric($date['secondes'])) {
+	if ( (!preg_match('/\d{2}/',$date['secondes'])) or ($date['secondes'] > 59) ) {
 		$erreurs[] = $GLOBALS['lang']['err_secondes'];
 	}
 	return $erreurs;
@@ -121,6 +124,18 @@ function valider_form_preferences() {
 	}
 	if ( ($_POST['nb_maxi'] > '50') or ($_POST['nb_maxi'] < '5') ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_nbmax'];
+	}
+	return $erreurs;
+}
+
+function valider_form_image() {
+	$erreurs = array();
+	if (($_FILES['fichier']['error'] == UPLOAD_ERR_INI_SIZE) or ($_FILES['fichier']['error'] == UPLOAD_ERR_FORM_SIZE)) {
+		$erreurs[] = 'Fichier trop gros';
+	} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_PARTIAL) {
+		$erreurs[] = 'dépot interrompu';
+	} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_NO_FILE) {
+		$erreurs[] = 'aucun fichier déposé';
 	}
 	return $erreurs;
 }

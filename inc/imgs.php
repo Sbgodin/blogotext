@@ -39,7 +39,7 @@ function traiter_form_image() {
 		);
 		return $img;
 	} else {
-		return 'FALSE';
+		return FALSE;
 	}
 }
 
@@ -78,27 +78,11 @@ function afficher_form_image($erreurs='', $image= '') {
 
 }
 
-
-function valider_form_image() {
-	$erreurs = array();
-	if (($_FILES['fichier']['error'] == UPLOAD_ERR_INI_SIZE) or ($_FILES['fichier']['error'] == UPLOAD_ERR_FORM_SIZE)) {
-		$erreurs[] = 'Fichier trop gros';
-	} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_PARTIAL) {
-		$erreurs[] = 'dépot interrompu';
-	} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_NO_FILE) {
-		$erreurs[] = 'aucun fichier déposé';
-	}
-	return $erreurs;
-}
-
-
 function get_extension($nom) {
 	$nom = explode(".", $nom);
 	$nb = count($nom);
 	return strtolower($nom[$nb-1]);
 }
-
-
 
 function find_image($article_id) {
 	$image = $GLOBALS['dossier_images'].'/'.$article_id.'/'.$image;

@@ -39,7 +39,10 @@ session_start() ;
 if (isset($_POST['_verif_envoi'])) {
 	
 	if ((!isset($GLOBALS['connexion_delai']) or $GLOBALS['connexion_delai'] != '0')) {
-		sleep(10);
+		usleep(10000000);
+	}
+	else {
+		usleep(100000); // sleep during 100,000µs == 100ms to avoid bruteforce
 	}
 	session_regenerate_id();
 	header('Location: index.php');
@@ -64,15 +67,15 @@ afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 
 if (isset($_POST['_verif_envoi'])) {
 	if ($erreurs_form = valider_form()) {
-		afficher_form($erreurs_form);
+		afficher_form_login($erreurs_form);
 	} else {
 		$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']);
 	}
 } else {
-	afficher_form();
+	afficher_form_login();
 }
 
-function afficher_form($erreur = '') {
+function afficher_form_login($erreur = '') {
 	if ($erreur) {
 		erreur($erreur);
 	}
@@ -86,7 +89,7 @@ function afficher_form($erreur = '') {
 	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) {
 		echo	'<p><label for="word">'.$GLOBALS['lang']['label_word_captcha'].'</label>';
 		echo	'<input type="text" id="word" name="word" value="" /></p>'."\n";
-		echo	'<p><a href="#" onClick="this.blur();new_freecap();return false;" title="'.$GLOBALS['lang']['label_changer_captcha'].'"><img src="../inc/freecap/freecap.php" id="freecap"></a></p>'."\n";
+		echo	'<p><a href="#" onclick="this.blur();new_freecap();return false;" title="'.$GLOBALS['lang']['label_changer_captcha'].'"><img src="../inc/freecap/freecap.php" id="freecap"></a></p>'."\n";
 	}
 		echo	'<input class="inpauth" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />';
 		echo	'<input type="hidden" name="_verif_envoi" value="1" />';
@@ -97,8 +100,8 @@ function afficher_form($erreur = '') {
 
 function valider_form() {
 	$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
-	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$GLOBALS['identifiant'];
-	if ( ($mot_de_passe_essai !=  $mot_de_passe_ok) or ($_POST['nom_utilisateur'] != $GLOBALS['identifiant'])) {
+	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
+	if ( ($mot_de_passe_essai !=  $mot_de_passe_ok) or ($_POST['nom_utilisateur'] != $GLOBALS['identifiant'])) { // after "or": avoids "$a.$bc" to be equal to "$ab.$c"
 		$erreur = $GLOBALS['lang']['err_connexion'];
 		return $erreur;
 	}

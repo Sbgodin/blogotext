@@ -10,13 +10,13 @@
 # *** LICENSE ***
 // gzip compression
 
-/*function initOutputFilter() {
+function initOutputFilter() {
   ob_start('ob_gzhandler');
   register_shutdown_function('ob_end_flush');
 }
 initOutputFilter();
-*/
 
+//$begin = microtime(TRUE);
 //error_reporting(-1);
 
 session_start() ;
@@ -30,10 +30,11 @@ if (isset($_POST['webpage'])) {
 	setcookie('webpage_c', $_POST['webpage'], time() + 365*24*3600, null, null, false, true);
 }
 
-if ( !file_exists('config/user.php') || !file_exists('config/prefs.php') ) {
+if ( !file_exists('config/user.php') or !file_exists('config/prefs.php') ) {
 	require_once 'inc/conf.php';
 	header('Location: '.$GLOBALS['dossier_admin'].'/install.php');
 }
+
 require_once 'inc/lang.php';
 require_once 'config/user.php';
 require_once 'config/prefs.php';
@@ -50,10 +51,9 @@ require_once 'inc/util.php';
 require_once 'inc/veri.php';
 
 
-$o_time = microtime();
 $depart=$GLOBALS['dossier_articles'];
 
-if ( isset($_SERVER['QUERY_STRING']) AND (url_article($_SERVER['QUERY_STRING']) === 'TRUE') ) {
+if ( isset($_SERVER['QUERY_STRING']) and (url_article($_SERVER['QUERY_STRING']) === TRUE) ) {
 		$article_id= $_SERVER['QUERY_STRING'] ;
 		$tab = explode('/',$article_id);
 			$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
@@ -73,19 +73,19 @@ if ( isset($_SERVER['QUERY_STRING']) AND (url_article($_SERVER['QUERY_STRING']) 
 				afficher_calendrier($depart, date('m'), date('Y'));
 				$tableau=table_tags($depart, $_GET['tag'], '1');
 				afficher_index($tableau);
-} elseif ( (isset($_SERVER['QUERY_STRING'])  AND (url_date($_SERVER['QUERY_STRING']) === 'TRUE') ) ) {
+} elseif (isset($_SERVER['QUERY_STRING'])  and (url_date($_SERVER['QUERY_STRING']) === TRUE) ) {
 				$tab = explode('/', ($_SERVER['QUERY_STRING']));
 				if ( preg_match('/\d{4}/',($tab['0'])) ) {
 					$annee = $tab['0'];
 				} else {
 					$annee = date('Y');
 				}
-				if ( isset($tab['1']) AND (preg_match('/\d{2}/',($tab['1']))) ) {
+				if ( isset($tab['1']) and (preg_match('/\d{2}/',($tab['1']))) ) {
 					$mois = $tab['1'];
 				} else {
 					$mois = date('m');
 				}
-				if ( isset($tab['2']) AND( preg_match('/\d{2}/',($tab['2'])) ) ) {
+				if ( isset($tab['2']) and (preg_match('/\d{2}/',($tab['2']))) ) {
 					$jour = $tab['2'];
 				} else {
 					$jour = '';
@@ -94,15 +94,15 @@ if ( isset($_SERVER['QUERY_STRING']) AND (url_article($_SERVER['QUERY_STRING']) 
 			afficher_calendrier($depart, $mois, $annee, $jour);
 			$tableau = table_date($depart, $annee, $mois, $jour, '1');
 			afficher_index($tableau);
-} elseif (!isset($_SERVER['QUERY_STRING']) OR ($_SERVER['QUERY_STRING'] == '') ) {
+} elseif (!isset($_SERVER['QUERY_STRING']) or ($_SERVER['QUERY_STRING'] == '') ) {
 	afficher_form_recherche();
 	afficher_calendrier($depart, date('m'), date('Y'));
-	$tableau=table_derniers($depart, $GLOBALS['nb_maxi'], '1');
+	$tableau = table_derniers($depart, $GLOBALS['max_bill_acceuil'], '1');
 	afficher_index($tableau);
 }
 
+// $end = microtime(TRUE);
+// echo round(($end - $begin),6).' seconds';
 
-$n_time = microtime();
-$time = $n_time - $o_time;
-//echo $time; // generation time
 ?>
+

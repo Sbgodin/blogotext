@@ -19,7 +19,7 @@ if (isset($_POST['_verif_envoi'])) {
 	$erreurs = valider_form_image();
 	if (empty($erreurs)) {
 		$image = traiter_form_image();
-		if($image == 'FALSE') {
+		if($image === FALSE) {
 			erreur('Envoi impossible');
 		} else {
 			confirmation($GLOBALS['lang']['confirm_image_ajout']);

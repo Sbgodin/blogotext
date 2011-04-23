@@ -18,10 +18,10 @@ $post='';
 $article_id='';
 if (isset($_SERVER['QUERY_STRING'])) {
 		if (isset($_GET['post_id'])) {
-			$article_id=htmlspecialchars($_GET['post_id']);
-			$loc_data= $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
-			if ( (file_exists($loc_data)) AND (preg_match('/\d{4}/',$article_id)) ) {
-				$post= init_billet('admin', $article_id);
+			$article_id = htmlspecialchars($_GET['post_id']);
+			$loc_data = $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
+			if ( file_exists($loc_data) and preg_match('/\d{4}/',$article_id) ) {
+				$post = init_billet('admin', $article_id);
 				$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article_id);
 			} else {
 				echo $GLOBALS['lang']['note_no_article'];
@@ -31,14 +31,14 @@ if (isset($_SERVER['QUERY_STRING'])) {
 }
 
 // INIT POST BILLET
-$billet= init_post_article();
+$billet = init_post_article();
 
 // TRAITEMENT
-$erreurs_form= array();
+$erreurs_form = array();
 if (isset($_POST['_verif_envoi'])) {
-	$erreurs_form= valider_form_billet($billet);
-	if ( empty($erreurs_form) )  {
-			traiter_form_billet($billet);
+	$erreurs_form = valider_form_billet($billet);
+	if (empty($erreurs_form)) {
+		traiter_form_billet($billet);
 	}
 }
 // TITRE PAGE
@@ -56,8 +56,7 @@ echo '<div id="top">'."\n";
 moteur_recherche();
 echo '<ul id="nav">'."\n";
 
-
-if ( (isset($article_id)) AND ($article_id != '') ) {
+if ( !empty($article_id) ) {
 	afficher_menu('index.php');
 } else {
 	afficher_menu('ecrire.php');
@@ -67,24 +66,23 @@ echo '</ul>'."\n";
 echo '</div>'."\n";
 
 // SUBNAV
- 	if ($article_id != '') {
- 		echo '<div id="subnav">';
- 			back_list();
- 	echo '<ul id="mode">';
- 			echo '<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>';
- 			echo '<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>';
- 	echo '</ul>';
- 		echo '</div>';
- 	}
+if ($article_id != '') {
+	echo '<div id="subnav">'."\n";
+	back_list();
+echo '<ul id="mode">'."\n";
+	echo "\t".'<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>'."\n";
+	echo "\t".'<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>'."\n";
+echo '</ul>'."\n";
+	echo '</div>'."\n";
+}
  	
 echo '<div id="axe">'."\n";
 echo '<div id="page">'."\n";
 
 // EDIT
-	if ( ($GLOBALS['activer_apercu'] == '1') AND ($article_id != '') ) {
-		apercu($post);
-	}
-   afficher_form_billet($post, $erreurs_form);
-
+if ($article_id != '') {
+	apercu($post);
+}
+afficher_form_billet($post, $erreurs_form);
 footer();
 ?>

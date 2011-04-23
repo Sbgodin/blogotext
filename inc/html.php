@@ -105,7 +105,7 @@ function afficher_titre($titre, $id, $niveau) {
 function footer() {
 	echo '</div>'."\n";
 	echo '</div>'."\n";
-	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].'</a> '/*.$GLOBALS['version'].*/.'</p>'."\n";
+	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a></p>'."\n";
 	echo '</body>'."\n";
 	echo '</html>'."\n";
 }
@@ -133,11 +133,11 @@ function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {
 	}
 // On verifie si il y a un ou des articles du jour
 	$dossier = $depart.'/'.$annee.'/'.$ce_mois.'/';
-	if ( is_dir($dossier) AND $ouverture = opendir($dossier) ) {
+	if ( is_dir($dossier) and $ouverture = opendir($dossier) ) {
 		$jour_fichier = array();
 			while ($fichiers = readdir($ouverture)){
 				if ( (is_file($dossier.$fichiers)) and (parse_xml($dossier.$fichiers, $GLOBALS['data_syntax']['article_status']) == '1') and (get_id($fichiers) <= date('YmdHis')) ) {
-				$jour_fichier[]= substr($fichiers, '6', '2');
+				$jour_fichier[]= substr($fichiers, 6, 2);
 				}
 			}
 	}
@@ -172,7 +172,7 @@ function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {
 		} else {
 			$class = '';
 		}
-		if ( (isset($jour_fichier)) AND in_array($jour, $jour_fichier) ) {
+		if ( (isset($jour_fichier)) and in_array($jour, $jour_fichier) ) {
 			$lien= '<a href="'.$_SERVER['PHP_SELF'].'?'.$annee.'/'.$ce_mois.'/'.nombre_formate($jour).'">'.$jour.'</a>';
 		} else {
 			$lien= $jour;
@@ -181,16 +181,16 @@ function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {
 		$GLOBALS['calendrier'].= $lien;
 		$GLOBALS['calendrier'].= '</td>';
 		$decalage_jour++;
-		if ($decalage_jour == '7') {
-			$decalage_jour = '0';
+		if ($decalage_jour == 7) {
+			$decalage_jour = 0;
 			$GLOBALS['calendrier'].=  '</tr>';
 			if ($jour < $jours_dans_mois) {
 				$GLOBALS['calendrier'].= '<tr>';
 			}
 		}
 	}
-	if ($decalage_jour > '0') {
-		for ($i = $decalage_jour; $i < '7'; $i++) {
+	if ($decalage_jour > 0) {
+		for ($i = $decalage_jour; $i < 7; $i++) {
 			$GLOBALS['calendrier'].= '<td> </td>';
 		}
 		$GLOBALS['calendrier'].= '</tr>';
@@ -198,23 +198,22 @@ function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {
 	$GLOBALS['calendrier'].= '</table>';
 }
 
-
 function encart_commentaires() {
-	$tableau = liste_derniers_comm($GLOBALS['nb_maxi_comm']);
+	$tableau = table_derniers($GLOBALS['dossier_commentaires'], $GLOBALS['max_comm_encart']);
+
 	if($tableau != ""){
 		$listeLastComments = '<ul class="encart_lastcom">';
 		foreach ($tableau as $id => $content) {
 			$comment = init_comment('public', get_id($content));
 			$comment['contenu_abbr'] = preg_replace('#<.*>#U', '', $comment['contenu']);
-			if (strlen($comment['contenu_abbr']) >= '60') {
+			if (strlen($comment['contenu_abbr']) >= 60) {
 				$comment['contenu_abbr'] = diacritique($comment['contenu_abbr'], 1, 1); // EX : œ => oe
 				$comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 60);
 				$comment['contenu_abbr'] .= '…';
 			}
 			$comment['article_titre_orig'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
-			$comment['auteur_abbr'] = preg_replace('#</?.*>#U', '', $comment['auteur']);
 			$comment['article_lien'] = get_blogpath_from_blog($comment['article_id']).titre_url($comment['article_titre_orig']).'#'.article_anchor($comment['id']);
-			$listeLastComments .= '<li><b>'.$comment['auteur_abbr'].'</b> '.date_formate($comment['id']).'<br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
+			$listeLastComments .= '<li><b>'.$comment['auteur'].'</b> '.date_formate($comment['id']).'<br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
 		}
 		$listeLastComments .= '</ul>';
 		return $listeLastComments;
@@ -278,24 +277,20 @@ function decompte_sleep() {
 }
 
 function js_reload_captcha() {
-	echo '<script language="javascript">'."\n";
-	echo '<!--'."\n";
-	echo 'function new_freecap()'."\n";
-	echo '{'."\n";
-	echo '// loads new freeCap image'."\n";
-	echo 'if(document.getElementById)'."\n";
-	echo '{'."\n";
-	echo 'thesrc = document.getElementById("freecap").src;'."\n";
-	echo 'thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);'."\n";
-	echo 'document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);'."\n";
-	echo '} else {'."\n";
-	echo 'alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");'."\n";
-	echo '}'."\n";
-	echo '}'."\n";
-	echo '//-->'."\n";
-	echo '</script>'."\n";
+	echo '
+<script language="javascript">
+function new_freecap() {
+	// loads new freeCap image
+	if(document.getElementById) {
+		thesrc = document.getElementById("freecap").src;
+		thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);
+		document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);
+	} else {
+		alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");
+	}
 }
-
+</script>';
+}
 
 
 ?>

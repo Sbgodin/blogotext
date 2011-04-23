@@ -15,17 +15,8 @@ This file is part of BlogoText.
 
  ( http://creativecommons.org/licenses/by-nc-nd/2.0/deed.fr )
 
-===========================================
-=== Third parts software ==================
-
-===========================================
-=== image upload script ===================
-Blogotext bases some code on a image-upload script by Damien Alexandre
- the original script is under Creative Common BY-NC - 2.0 France Licence 
- ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
- 
- http://damienalexandre.fr/Upload-d-image-en-PHP.html
-
+=======================================================
+=== Third parts software included in Blogotext ========
 
 ===========================================
 === Captcha script ========================
@@ -38,6 +29,17 @@ Blogotext includes the Freecap captcha script by Howard Yeend
  Blogotext's CC-BY-NC-ND licence.
 
  http://www.puremango.co.uk
+
+
+===========================================
+=== Some icons used in panel ==============
+Icon "save.gif" based upon the work by 
+ François Vogelweight, with his Bisigi
+ Gnome thems.
+ ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
+
+ http://www.bisigi-project.org/
+
 
 ===========================================
 

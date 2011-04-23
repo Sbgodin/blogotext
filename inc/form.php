@@ -8,7 +8,7 @@
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
 # *** LICENSE ***
-
+error_reporting(-1);
 /// formulaires THEMES ///
 
 function afficher_form_recherche($mots_saisis='') {
@@ -82,20 +82,24 @@ function form_format_date($defaut) {
 }
 
 function form_fuseau_horaire($defaut) {
-	$liste_fuseau = DateTimeZone::listIdentifiers();
-	$form = '<p>';
-	$form .= '<label>'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
-	$form .= '<select name="fuseau_horaire">' ;
-	foreach ($liste_fuseau as $option) {
-		$form .= '<option value="'.htmlentities($option).'"';
-		if ($defaut == $option) {
-			$form .= ' selected="selected"';
+	if ($GLOBALS['version_PHP'] >= '5') {
+		$liste_fuseau = DateTimeZone::listIdentifiers();
+		$form = '<p>';
+		$form .= '<label>'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
+		$form .= '<select name="fuseau_horaire">' ;
+		foreach ($liste_fuseau as $option) {
+			$form .= '<option value="'.htmlentities($option).'"';
+			if ($defaut == $option) {
+				$form .= ' selected="selected"';
+			}
+			$form .= '>' . htmlentities($option) . '</option>'."\n";
 		}
-		$form .= '>' . htmlentities($option) . '</option>'."\n";
+		$form .= '</select> '."\n";
+		$form .= '</p>'."\n";
+		return $form;
+	} else {
+		return '';
 	}
-	$form .= '</select> '."\n";
-	$form .= '</p>'."\n";
-	return $form;
 }
 
 function form_format_heure($defaut) {
@@ -188,9 +192,9 @@ function filtre($dossier, $defaut='') {
 				while ( false !== ($file_mois = readdir($ouverture)) ) {
 					if (is_dir($chemin.$file_mois)) {
 						if ($fichiers = opendir($chemin.$file_mois)) {
-							while ($files=readdir($fichiers)) {
-								if ( (preg_match('/\d{2}/', $file_mois)) AND ((substr($files,'-3','3')) == $GLOBALS['ext_data']) ){
-									$dossier_mois[$dossier_annee.$file_mois]= mois_en_lettres($file_mois).' '.$dossier_annee;	
+							while ($files = readdir($fichiers)) {
+								if ( (preg_match('/\d{2}/', $file_mois)) and ((substr($files, -3, 3)) == $GLOBALS['ext_data']) ){
+									$dossier_mois[$dossier_annee.$file_mois] = mois_en_lettres($file_mois).' '.$dossier_annee;	
 								}
 							}
 						}
@@ -228,9 +232,24 @@ function filtre($dossier, $defaut='') {
 			echo '>' . htmlentities($label) . '</option>'."\n";
 		}
 		echo '</optgroup>';
+
+		if ($dossier == $GLOBALS['dossier_data_commentaires']) {
+			echo '<optgroup label="'.'Auteur'.'">';
+			$author_list = table_auteur($dossier, '', '');
+			$author_list = array_count_values($author_list);
+			arsort($author_list);
+			foreach ($author_list as $nom => $nb) {
+				echo '<option value="'.$nom.'"';
+				if ($defaut == $nom)
+					echo ' selected="selected"';
+				echo '>'.($nom.' ('.$nb.')').'</option>'."\n";
+			}
+			echo '</optgroup>';
+		}
 		echo '</select> '."\n\n";
 		echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 	}
+	
 }
 
 function back_list() {
@@ -250,21 +269,23 @@ function afficher_form_billet($article='', $erreurs= '') {
 			$defaut_secondes = $_POST['secondes'];
 			$titredefaut = stripslashes($_POST['titre']);
 			$chapodefaut = stripslashes($_POST['chapo']);
+			$notesdefaut = stripslashes($_POST['notes']);
 			if ($GLOBALS['activer_categories'] == '1') {
 				$categoriesdefaut = stripslashes($_POST['categories']);
 			}
 			$contenudefaut = stripslashes($_POST['contenu']);
+			if ($GLOBALS['automatic_keywords'] == '0') {
+				$motsclesdefaut = stripslashes($_POST['mots_cles']);
+			}
 			$statutdefaut = $_POST['statut'];
 			$allowcommentdefaut = $_POST['allowcomment'];
 	} elseif ($article != '') {
 			$titredefaut = $article['titre'];
 			$chapodefaut = $article['chapo'];
-			if (isset($article['categories'])) {
-				$categoriesdefaut = $article['categories'];
-			} else {
-				$categoriesdefaut = '';
-			}
+			$notesdefaut = (isset($article['notes'])) ? $article['notes'] : '';
+			$categoriesdefaut = (isset($article['categories'])) ? $article['categories'] : '';
 			$contenudefaut = $article['contenu_wiki'];
+			$motsclesdefaut = $article['mots_cles'];
 			$statutdefaut = $article['statut'];
 			$allowcommentdefaut = $article['allow_comments'];
 	} else {
@@ -276,8 +297,10 @@ function afficher_form_billet($article='', $erreurs= '') {
 			$defaut_secondes = date('s');
 			$chapodefaut = '';
 			$contenudefaut = '';
+			$motsclesdefaut = '';
 			$categoriesdefaut = '';
 			$titredefaut = '';
+			$notesdefaut = '';
 			$statutdefaut = '1';
 			$allowcommentdefaut = '1';
 	}
@@ -290,10 +313,15 @@ function afficher_form_billet($article='', $erreurs= '') {
 		echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	}
 	echo '<div id="form">'."\n";
-	label('titre', $GLOBALS['lang']['label_titre']);
-	form_titre($titredefaut) ;
-	label('chapo', $GLOBALS['lang']['label_chapo']);
-	form_chapo($chapodefaut) ;
+		label('titre', $GLOBALS['lang']['label_titre']);
+		form_titre($titredefaut);
+	echo '<div id="chapo_note">'."\n".'<div id="blocchapo">';
+		label('chapo', $GLOBALS['lang']['label_chapo']);
+		form_chapo($chapodefaut);
+	echo '</div>'."\n".'<div id="blocnote">'."\n";
+		label('notes', 'Notes');
+		form_notes($notesdefaut);
+	echo '</div>'."\n".'<br style="clear:both;"/>'."\n".'</div>'."\n";
 
 	if ($GLOBALS['activer_categories'] == '1') {
 		label('categories', $GLOBALS['lang']['label_categories']);
@@ -304,7 +332,11 @@ function afficher_form_billet($article='', $erreurs= '') {
 
 	echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
 	label('contenu', $GLOBALS['lang']['label_contenu']);
-	form_contenu($contenudefaut) ;
+	form_contenu($contenudefaut);
+	if ($GLOBALS['automatic_keywords'] == '0') {
+		label('mots_cles', $GLOBALS['lang']['label_motscles']);
+		echo '<div>'.form_motscles($motsclesdefaut).'</div>';
+	}
 	if (!$article) {
 		echo '<div id="date">'."\n";
 			echo '<div id="formdate">';
@@ -442,6 +474,10 @@ function form_chapo($chapoaffiche) {
 	echo '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
 }
 
+function form_notes($notesaffiche) {
+	echo '<textarea id="notes" name="notes" rows="5" cols="25">'.$notesaffiche.'</textarea>'."\n" ;
+}
+
 function form_categories($categoriesaffiche) {
 	if (!empty($GLOBALS['tags'])) {
 		$script = '<script type="text/javascript">'."\n";
@@ -470,7 +506,7 @@ function form_categories($categoriesaffiche) {
 		$nb = sizeof($tags);
 		for ($i = 0 ; $i < $nb ; $i++) {
 			$tags[$i] = trim($tags[$i]);
-			echo "\t".'<input class="tags" id="tag'.$i.'" onclick="insertTag(\'categories\', \''.$tags[$i].'\');" value="'.$tags[$i].'" type="button"/>'."\n";
+			echo "\t".'<a class="tags" id="tag'.$i.'" onclick="insertTag(\'categories\', \''.$tags[$i].'\');">'.$tags[$i]."</a>\n";
 		}
 
 		echo '</p>'."\n";
@@ -480,6 +516,10 @@ function form_categories($categoriesaffiche) {
 
 function form_contenu($contenuaffiche) {
 	echo '<textarea id="contenu" name="contenu" rows="20" cols="60">'.$contenuaffiche.'</textarea>'."\n" ;
+}
+
+function form_motscles($motsclesaffiche) {
+	echo '<input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesaffiche.'" />'."\n" ;
 }
 
 ?>

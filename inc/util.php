@@ -73,10 +73,11 @@ function form_check($id, $defaut, $label) {
 	return $form;
 }
 
-function form_radio($name, $id, $value, $label) {
+function form_radio($name, $id, $value, $label, $checked='') {
+	$coche = ($checked === TRUE) ? 'checked="checked"' : '';
 	$form = '<p>'."\n";
 	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" />'."\n";
+	$form .= '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" '.$coche.' />'."\n";
 	$form .= '</p>'."\n";
 	return $form;
 }
@@ -126,12 +127,12 @@ function hidden_input($nom, $valeur) {
 /// DECODAGES //////////
 
 function get_ext($file) {
-	$retour= substr($file, '-3', '3');
+	$retour= substr($file, -3, 3);
 	return $retour;
 }
 
 function get_id($file) {
-	$retour= substr($file, '0', '14');
+	$retour= substr($file, 0, 14);
 	return $retour;
 }
 
@@ -149,12 +150,12 @@ function get_statut($file) {
 
 function decode_id($id) {
 	$retour=array(
-		'annee' => substr($id, '0', '4'),
-		'mois' => substr($id, '4', '2'),
-		'jour' => substr($id, '6', '2'),
-		'heure' => substr($id, '8', '2'),
-		'minutes' => substr($id, '10', '2'),
-		'secondes' => substr($id, '12', '2')
+		'annee' => substr($id, 0, 4),
+		'mois' => substr($id, 4, 2),
+		'jour' => substr($id, 6, 2),
+		'heure' => substr($id, 8, 2),
+		'minutes' => substr($id, 10, 2),
+		'secondes' => substr($id, 12, 2)
 		);
 	return $retour;
 }
@@ -208,12 +209,16 @@ function get_titre($id) {
 */
 
 function ww_hach_sha($text) {
-	$out = hash("sha512", $text);
+	if ($GLOBALS['version_PHP'] >= '5') {
+		$out = hash("sha512", $text);		// PHP 5
+	} else {
+		$out = sha1($text).md5($text);	// PHP 4
+	}
 	return $out;
 }
 
 function article_anchor($id) {
-	$anchor = 'id'.substr(md5($id), '0', '6');
+	$anchor = 'id'.substr(md5($id), 0, 6);
 	return $anchor;
 }
 
@@ -252,7 +257,11 @@ function fermer_session() {
 	session_destroy();
 	if (ini_get("session.use_cookies")) {
 		$params = session_get_cookie_params();
-		setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+		if ($GLOBALS['version_PHP'] >= '5') {
+			setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);	// PHP >=5
+		} else {
+			setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"]);								// PHP < 5
+		}
 	}
 	header('Location: auth.php');
 	exit();

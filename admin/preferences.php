@@ -17,15 +17,15 @@ if (isset($_POST['_verif_envoi'])) {
 	if ($erreurs_form = valider_form_preferences()) {
 		afficher_form($erreurs_form);
 	} else {        		
-		if ( (fichier_user() == 'TRUE') AND (fichier_prefs() == 'TRUE') ) {
+		if ( (fichier_user() === TRUE) and (fichier_prefs() === TRUE) ) {
 		redirection($_SERVER['PHP_SELF'].'?msg=confirm_prefs_maj');
 		}
 	}
-	} else {	
+} else {	
 	afficher_form();
 }
 
-function afficher_form($erreurs = '') {
+function afficher_form($erreurs= '') {
 	$titre_page= $GLOBALS['lang']['preferences'];
 	afficher_top($titre_page);
 	afficher_msg();
@@ -53,10 +53,10 @@ function afficher_form($erreurs = '') {
 		$field_apparence = '<fieldset class="pref">';
 		$field_apparence .= legend($GLOBALS['lang']['prefs_legend_apparence'], 'legend-apparence');
 		$choix_nb_articles= array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25');
-		$field_apparence .= form_select('nb_maxi', $choix_nb_articles, $GLOBALS['nb_maxi'],$GLOBALS['lang']['pref_nb_maxi']);
+		$field_apparence .= form_select('nb_maxi', $choix_nb_articles, $GLOBALS['max_bill_acceuil'],$GLOBALS['lang']['pref_nb_maxi']);
 		$choix_nb_com= array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'15', '20'=>'20');
-		$field_apparence .= form_select('nb_maxi_comm', $choix_nb_com, $GLOBALS['nb_maxi_comm'],$GLOBALS['lang']['pref_nb_maxi_comm']);
-		$themes= liste_themes($GLOBALS['dossier_themes']);
+		$field_apparence .= form_select('nb_maxi_comm', $choix_nb_com, $GLOBALS['max_comm_encart'],$GLOBALS['lang']['pref_nb_maxi_comm']);
+		$themes = liste_themes($GLOBALS['dossier_themes']);
 		$field_apparence .= form_select('theme', $themes, $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
 		$field_apparence .= '</fieldset>';
 	echo $field_apparence;
@@ -67,13 +67,10 @@ function afficher_form($erreurs = '') {
 		$field_securite .= form_password('ancien-mdp', '', $GLOBALS['lang']['pref_mdp']);
 		$field_securite .= form_password('nouveau-mdp', '', $GLOBALS['lang']['pref_mdp_nouv']);
 		$field_securite .= '<p>'."\n";
-		$field_securite .= select_yes_no('connexion_delay', $GLOBALS['connexion_delai'], $GLOBALS['lang']['pref_connexion_delai'] );
-		$field_securite .= '</p>'."\n";
-		$field_securite .= '<p>'."\n";
 		$field_securite .= select_yes_no('connexion_captcha', $GLOBALS['connexion_captcha'], $GLOBALS['lang']['pref_connexion_captcha'] );
 		$field_securite .= '</p>'."\n";
 		$field_securite .= '<p>'."\n";
-		$nbss= array('1' => $GLOBALS['lang']['pref_comm_black_list'], '0' => $GLOBALS['lang']['pref_comm_white_list']);
+		$nbss = array('1' => $GLOBALS['lang']['pref_comm_black_list'], '0' => $GLOBALS['lang']['pref_comm_white_list']);
 		$field_securite .= form_select('comm_defaut_status', $nbss, $GLOBALS['comm_defaut_status'],$GLOBALS['lang']['pref_comm_BoW_list']);
 		$field_securite .= '</p>'."\n";
 		$field_securite .= '</fieldset>';
@@ -83,6 +80,7 @@ function afficher_form($erreurs = '') {
 		$field_dateheure .= legend($GLOBALS['lang']['prefs_legend_dateheure'], 'legend-dateheure');
 		$field_dateheure .= form_format_date($GLOBALS['format_date']);
 		$field_dateheure .= form_format_heure($GLOBALS['format_heure']);
+		// the line below is unavailable on PHP 4 and lower
 		$field_dateheure .= form_fuseau_horaire($GLOBALS['fuseau_horaire']);
 		$field_dateheure .= '</fieldset>';
 	echo $field_dateheure;
@@ -90,17 +88,18 @@ function afficher_form($erreurs = '') {
 		$field_config = '<fieldset class="pref">';
 		$field_config .= legend($GLOBALS['lang']['prefs_legend_config'], 'legend-config');
 		$field_config .= form_langue($GLOBALS['lang']['id']);
-		$nbs= array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300', '-1'=> $GLOBALS['lang']['pref_all']);
-		$field_config .= form_select('nb_list', $nbs, $GLOBALS['nb_list'],$GLOBALS['lang']['pref_nb_list']);
-		$field_config .= form_select('nb_list_com', $nbs, $GLOBALS['nb_list_com'],$GLOBALS['lang']['pref_nb_list_com']);
+		$nbs = array('10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '300'=>'300', '-1' => $GLOBALS['lang']['pref_all']);
+		$field_config .= form_select('nb_list', $nbs, $GLOBALS['max_bill_admin'],$GLOBALS['lang']['pref_nb_list']);
+		$field_config .= form_select('nb_list_com', $nbs, $GLOBALS['max_comm_admin'],$GLOBALS['lang']['pref_nb_list_com']);
 		$field_config .= '<p>'."\n";
-		$field_config .= select_yes_no('categories', $GLOBALS['activer_categories'], $GLOBALS['lang']['pref_categories'] );
+		$field_config .= select_yes_no('activer_categories', $GLOBALS['activer_categories'], $GLOBALS['lang']['pref_categories'] );
 		$field_config .= '</p>'."\n";
 		$field_config .= '<p>'."\n";
-		$field_config .= select_yes_no('global_coments', $GLOBALS['activer_global_comments'], $GLOBALS['lang']['pref_allow_global_coms']);
+		$field_config .= select_yes_no('auto_keywords', $GLOBALS['automatic_keywords'], $GLOBALS['lang']['pref_automatic_keywords'] );
 		$field_config .= '</p>'."\n";
-		$field_config .= form_check('onglet_commentaires', $GLOBALS['onglet_commentaires'], $GLOBALS['lang']['pref_aff_onglet_comm']);
-		$field_config .= form_check('onglet_images', $GLOBALS['onglet_images'], $GLOBALS['lang']['pref_aff_onglet_images']);
+		$field_config .= '<p>'."\n";
+		$field_config .= select_yes_no('global_comments', $GLOBALS['global_com_rule'], $GLOBALS['lang']['pref_allow_global_coms']);
+		$field_config .= '</p>'."\n";
 		$field_config .= '</fieldset>';
 	echo $field_config;
 

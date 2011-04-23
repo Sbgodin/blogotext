@@ -33,10 +33,10 @@ require_once '../inc/inc.php';
 <pre><?php print $GLOBALS['lang']['wiki_lien_exp']; ?></pre>
 
 <h2><?php print $GLOBALS['lang']['wiki_gras']; ?></h2>
-<pre><?php print $GLOBALS['lang']['wiki_gras_exp']; ?></pre>
+<pre><?php print '__'.$GLOBALS['lang']['wiki_gras'].'__'; ?></pre>
 
 <h2><?php print $GLOBALS['lang']['wiki_italique']; ?></h2>
-<pre><?php print $GLOBALS['lang']['wiki_italique_exp']; ?></pre>
+<pre><?php print '##'.$GLOBALS['lang']['wiki_italique'].'##'; ?></pre>
 
 <h2><?php print $GLOBALS['lang']['wiki_image']; ?></h2>
 <pre><?php print $GLOBALS['lang']['wiki_image_exp']; ?></pre>
@@ -45,10 +45,10 @@ require_once '../inc/inc.php';
 <pre><?php print $GLOBALS['lang']['wiki_lienimage_exp']; ?></pre>
 
 <h2><?php print $GLOBALS['lang']['wiki_souligne']; ?></h2>
-<pre><?php print $GLOBALS['lang']['wiki_souligne_exp']; ?></pre>
+<pre><?php print '++'.$GLOBALS['lang']['wiki_souligne'].'++'; ?></pre>
 
 <h2><?php print $GLOBALS['lang']['wiki_barre']; ?></h2>
-<pre><?php print $GLOBALS['lang']['wiki_barre_exp']; ?></pre>
+<pre><?php print '--'.$GLOBALS['lang']['wiki_barre'].'--'; ?></pre>
 
 
 </div>

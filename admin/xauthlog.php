@@ -1,457 +1,351 @@
 <?php die("If you were looking for the answer to life, the universe and everything... It is not here..."); ?>
 <? /*
 
-
-DATE : 27 01 2011 / 13:49:00 (TIMESTAMP: 1296132540 ) 
-		 IP: 127.0.46.232 
-		 LOGIN:  
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 27 Jan 2011 13:51:35 +0100 (TIMESTAMP: 1296132695 ) 
-		 IP: 127.0.46.232 
-		 LOGIN: tomi 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 27 Jan 2011 14:11:23 +0100 (TIMESTAMP: 1296133883 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 27 Jan 2011 14:12:11 +0100 (TIMESTAMP: 1296133931 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 27 Jan 2011 14:12:12 +0100 (TIMESTAMP: 1296133932 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 27 Jan 2011 14:12:55 +0100 (TIMESTAMP: 1296133975 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Mon, 07 Feb 2011 22:10:35 +0100 (TIMESTAMP: 1297113035 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Mon, 07 Feb 2011 22:10:41 +0100 (TIMESTAMP: 1297113041 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Mon, 07 Feb 2011 22:15:05 +0100 (TIMESTAMP: 1297113305 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Mon, 07 Feb 2011 23:23:44 +0100 (TIMESTAMP: 1297117424 ) 
+DATE : Sun, 27 Mar 2011 11:33:07 +0200 (TIMESTAMP: 1301218387 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Mon, 07 Feb 2011 23:23:51 +0100 (TIMESTAMP: 1297117431 ) 
+DATE : Sun, 27 Mar 2011 13:13:24 +0200 (TIMESTAMP: 1301224404 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:43:23 +0100 (TIMESTAMP: 1297194203 ) 
-		 IP: ::1 
-		 LOGIN:  
 		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:43:28 +0100 (TIMESTAMP: 1297194208 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:43:45 +0100 (TIMESTAMP: 1297194225 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:43:49 +0100 (TIMESTAMP: 1297194229 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:47:30 +0100 (TIMESTAMP: 1297194450 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:48:02 +0100 (TIMESTAMP: 1297194482 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:49:04 +0100 (TIMESTAMP: 1297194544 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:49:24 +0100 (TIMESTAMP: 1297194564 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:49:24 +0100 (TIMESTAMP: 1297194564 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:49:24 +0100 (TIMESTAMP: 1297194564 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:49:24 +0100 (TIMESTAMP: 1297194564 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:19 +0100 (TIMESTAMP: 1297194619 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:19 +0100 (TIMESTAMP: 1297194619 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:19 +0100 (TIMESTAMP: 1297194619 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:19 +0100 (TIMESTAMP: 1297194619 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:37 +0100 (TIMESTAMP: 1297194637 ) 
-		 IP: ::1 
-		 LOGIN:  
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 20:50:41 +0100 (TIMESTAMP: 1297194641 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 22:54:11 +0100 (TIMESTAMP: 1297202051 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 22:58:38 +0100 (TIMESTAMP: 1297202318 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:02:21 +0100 (TIMESTAMP: 1297202541 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:02:25 +0100 (TIMESTAMP: 1297202545 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:03:09 +0100 (TIMESTAMP: 1297202589 ) 
+DATE : Mon, 28 Mar 2011 22:45:52 +0200 (TIMESTAMP: 1301345152 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:04:25 +0100 (TIMESTAMP: 1297202665 ) 
+DATE : Tue, 29 Mar 2011 18:30:30 +0200 (TIMESTAMP: 1301416230 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Fri, 01 Apr 2011 21:54:21 +0200 (TIMESTAMP: 1301687661 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Sat, 02 Apr 2011 13:28:48 +0200 (TIMESTAMP: 1301743728 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Sun, 03 Apr 2011 14:03:11 +0200 (TIMESTAMP: 1301832191 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 03 Apr 2011 21:58:46 +0200 (TIMESTAMP: 1301860726 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 03 Apr 2011 23:19:13 +0200 (TIMESTAMP: 1301865553 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Mon, 04 Apr 2011 13:34:01 +0200 (TIMESTAMP: 1301916841 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Mon, 04 Apr 2011 14:25:35 +0200 (TIMESTAMP: 1301919935 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Tue, 05 Apr 2011 00:49:26 +0200 (TIMESTAMP: 1301957366 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Tue, 05 Apr 2011 12:54:33 +0200 (TIMESTAMP: 1302000873 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:18:25 +0200 (TIMESTAMP: 1302185905 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:23:17 +0200 (TIMESTAMP: 1302186197 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:23:22 +0200 (TIMESTAMP: 1302186202 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:25:57 +0200 (TIMESTAMP: 1302186357 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:26:03 +0200 (TIMESTAMP: 1302186363 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:26:23 +0200 (TIMESTAMP: 1302186383 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:27:03 +0200 (TIMESTAMP: 1302186423 ) 
+		 IP: ::1 
+		 LOGIN:  
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:29:56 +0200 (TIMESTAMP: 1302186596 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:30:12 +0200 (TIMESTAMP: 1302186612 ) 
+		 IP: ::1 
+		 LOGIN:  
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:30:53 +0200 (TIMESTAMP: 1302186653 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:31:26 +0200 (TIMESTAMP: 1302186686 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:31:31 +0200 (TIMESTAMP: 1302186691 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:33:48 +0200 (TIMESTAMP: 1302186828 ) 
+		 IP: ::1 
+		 LOGIN:  
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:33:58 +0200 (TIMESTAMP: 1302186838 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:34:06 +0200 (TIMESTAMP: 1302186846 ) 
+		 IP: ::1 
+		 LOGIN:  
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:34:21 +0200 (TIMESTAMP: 1302186861 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:39:37 +0200 (TIMESTAMP: 1302187177 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Thu, 07 Apr 2011 16:47:07 +0200 (TIMESTAMP: 1302187627 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
 		 BROWSER: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
  ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:07:08 +0100 (TIMESTAMP: 1297202828 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 08 Feb 2011 23:07:17 +0100 (TIMESTAMP: 1297202837 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.84 Chrome/9.0.597.84 Safari/534.13
- ---------------------------------------------------
-DATE : Thu, 10 Feb 2011 21:43:17 +0100 (TIMESTAMP: 1297370597 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Thu, 10 Feb 2011 21:43:21 +0100 (TIMESTAMP: 1297370601 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Thu, 10 Feb 2011 23:12:30 +0100 (TIMESTAMP: 1297375950 ) 
+DATE : Thu, 07 Apr 2011 16:47:36 +0200 (TIMESTAMP: 1302187656 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
+		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (Windows; U; Windows NT 6.1; fr-FR) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4
  ---------------------------------------------------
-DATE : Fri, 11 Feb 2011 18:26:31 +0100 (TIMESTAMP: 1297445192 ) 
+DATE : Thu, 07 Apr 2011 16:48:51 +0200 (TIMESTAMP: 1302187731 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
+		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (Windows NT 6.1; rv:2.0) Gecko/20100101 Firefox/4.0
  ---------------------------------------------------
-DATE : Sat, 12 Feb 2011 19:03:34 +0100 (TIMESTAMP: 1297533814 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Sat, 12 Feb 2011 20:29:16 +0100 (TIMESTAMP: 1297538956 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Sat, 12 Feb 2011 21:23:24 +0100 (TIMESTAMP: 1297542204 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Sat, 12 Feb 2011 23:22:41 +0100 (TIMESTAMP: 1297549361 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Sun, 13 Feb 2011 14:45:24 +0100 (TIMESTAMP: 1297604724 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Tue, 15 Feb 2011 20:23:58 +0100 (TIMESTAMP: 1297797838 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 15 Feb 2011 21:41:33 +0100 (TIMESTAMP: 1297802493 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 15 Feb 2011 22:16:07 +0100 (TIMESTAMP: 1297804567 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Tue, 15 Feb 2011 22:16:15 +0100 (TIMESTAMP: 1297804575 ) 
-		 IP: 127.0.0.1 
-		 LOGIN:  
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Wed, 16 Feb 2011 23:24:15 +0100 (TIMESTAMP: 1297895055 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Thu, 17 Feb 2011 12:53:55 +0100 (TIMESTAMP: 1297943635 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Thu, 17 Feb 2011 20:51:31 +0100 (TIMESTAMP: 1297972291 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Thu, 17 Feb 2011 23:05:55 +0100 (TIMESTAMP: 1297980355 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Fri, 18 Feb 2011 20:51:58 +0100 (TIMESTAMP: 1298058718 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Fri, 18 Feb 2011 23:05:58 +0100 (TIMESTAMP: 1298066758 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Sat, 19 Feb 2011 10:19:20 +0100 (TIMESTAMP: 1298107160 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Sat, 19 Feb 2011 16:11:30 +0100 (TIMESTAMP: 1298128290 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 14:25:32 +0100 (TIMESTAMP: 1298208332 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 18:32:16 +0100 (TIMESTAMP: 1298223136 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 19:26:56 +0100 (TIMESTAMP: 1298226416 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 21:48:31 +0100 (TIMESTAMP: 1298234911 ) 
-		 IP: ::1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 23:44:30 +0100 (TIMESTAMP: 1298241870 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Linux Mint/10 (Julia) Firefox/3.6.13
- ---------------------------------------------------
-DATE : Sun, 20 Feb 2011 23:46:59 +0100 (TIMESTAMP: 1298242019 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
- ---------------------------------------------------
-DATE : Mon, 21 Feb 2011 22:02:59 +0100 (TIMESTAMP: 1298322179 ) 
+DATE : Thu, 07 Apr 2011 16:55:13 +0200 (TIMESTAMP: 1302188113 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
 		 BROWSER: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)
  ---------------------------------------------------
-DATE : Mon, 21 Feb 2011 22:03:43 +0100 (TIMESTAMP: 1298322223 ) 
+DATE : Thu, 07 Apr 2011 16:56:08 +0200 (TIMESTAMP: 1302188168 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
 		 BROWSER: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
  ---------------------------------------------------
-DATE : Mon, 21 Feb 2011 22:15:41 +0100 (TIMESTAMP: 1298322941 ) 
+DATE : Sun, 10 Apr 2011 13:07:05 +0200 (TIMESTAMP: 1302433625 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
-		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Mon, 21 Feb 2011 22:17:58 +0100 (TIMESTAMP: 1298323078 ) 
+DATE : Sun, 10 Apr 2011 13:10:32 +0200 (TIMESTAMP: 1302433832 ) 
 		 IP: ::1 
 		 LOGIN: timo 
 		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
  ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 19:57:33 +0100 (TIMESTAMP: 1298401053 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 19:58:10 +0100 (TIMESTAMP: 1298401090 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)
- ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 19:59:00 +0100 (TIMESTAMP: 1298401140 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://10.0.2.2/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
- ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 20:46:16 +0100 (TIMESTAMP: 1298403976 ) 
-		 IP: 127.0.0.1 
-		 LOGIN: timo 
-		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 20:54:08 +0100 (TIMESTAMP: 1298404448 ) 
-		 IP: ::1 
-		 LOGIN: TIMO 
-		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
- ---------------------------------------------------
-DATE : Tue, 22 Feb 2011 20:54:14 +0100 (TIMESTAMP: 1298404454 ) 
+DATE : Sun, 10 Apr 2011 13:12:09 +0200 (TIMESTAMP: 1302433929 ) 
 		 IP: ::1 
 		 LOGIN: timo 
 		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.13 (KHTML, like Gecko) Ubuntu/10.10 Chromium/9.0.597.94 Chrome/9.0.597.94 Safari/534.13
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
  ---------------------------------------------------
-DATE : Thu, 24 Feb 2011 16:16:55 +0100 (TIMESTAMP: 1298560615 ) 
+DATE : Sun, 10 Apr 2011 13:12:24 +0200 (TIMESTAMP: 1302433944 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 13:12:45 +0200 (TIMESTAMP: 1302433965 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 13:20:19 +0200 (TIMESTAMP: 1302434419 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 14:34:09 +0200 (TIMESTAMP: 1302438849 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 15:55:08 +0200 (TIMESTAMP: 1302443708 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Thu, 24 Feb 2011 16:42:32 +0100 (TIMESTAMP: 1298562152 ) 
+DATE : Sun, 10 Apr 2011 15:56:53 +0200 (TIMESTAMP: 1302443813 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 17:05:43 +0200 (TIMESTAMP: 1302447943 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
  ---------------------------------------------------
-DATE : Sun, 27 Feb 2011 15:19:38 +0100 (TIMESTAMP: 1298816378 ) 
+DATE : Sun, 10 Apr 2011 17:47:55 +0200 (TIMESTAMP: 1302450475 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 18:32:26 +0200 (TIMESTAMP: 1302453146 ) 
+		 IP: ::1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Ubuntu/10.10 Chromium/10.0.648.133 Chrome/10.0.648.133 Safari/534.16
+ ---------------------------------------------------
+DATE : Sun, 10 Apr 2011 18:57:20 +0200 (TIMESTAMP: 1302454640 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Mon, 11 Apr 2011 20:54:24 +0200 (TIMESTAMP: 1302548064 ) 
 		 IP: 127.0.0.1 
 		 LOGIN: timo 
 		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
-		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01
+		 BROWSER: Mozilla/5.0 (X11; Linux i686; rv:2.0) Gecko/20100101 Firefox/4.0
+ ---------------------------------------------------
+DATE : Mon, 11 Apr 2011 21:42:24 +0200 (TIMESTAMP: 1302550944 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; Linux i686; rv:2.0) Gecko/20100101 Firefox/4.0
+ ---------------------------------------------------
+DATE : Tue, 12 Apr 2011 21:35:06 +0200 (TIMESTAMP: 1302636906 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Fri, 15 Apr 2011 18:46:58 +0200 (TIMESTAMP: 1302886018 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Fri, 15 Apr 2011 20:16:21 +0200 (TIMESTAMP: 1302891381 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Fri, 15 Apr 2011 21:07:10 +0200 (TIMESTAMP: 1302894430 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Sat, 16 Apr 2011 21:25:47 +0200 (TIMESTAMP: 1302981947 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Sat, 16 Apr 2011 21:26:50 +0200 (TIMESTAMP: 1302982010 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Wed, 20 Apr 2011 22:44:54 +0200 (TIMESTAMP: 1303332295 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://localhost/blogotext/OF/admin/auth.php 
+		 BROWSER: Opera/9.80 (X11; Linux i686; U; fr) Presto/2.8.119 Version/11.10
+ ---------------------------------------------------
+DATE : Fri, 22 Apr 2011 13:59:26 +0200 (TIMESTAMP: 1303473566 ) 
+		 IP: 127.0.0.1 
+		 LOGIN: timo 
+		 ORIGINE: http://127.0.0.1/blogotext/OF/admin/auth.php 
+		 BROWSER: Mozilla/5.0 (X11; Linux i686; rv:2.0) Gecko/20100101 Firefox/4.0
  ---------------------------------------------------

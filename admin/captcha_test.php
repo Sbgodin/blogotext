@@ -14,17 +14,7 @@ require_once '../inc/inc.php';
 
 check_session();
 
-if (isset($_POST['_verif_envoi'])) {
-	if ($erreurs_form = valider_form_preferences()) {
-		afficher_form($erreurs_form);
-	} else {        		
-		if ( (fichier_user() == 'TRUE') AND (fichier_prefs() == 'TRUE') ) {
-		redirection($_SERVER['PHP_SELF'].'?msg=confirm_prefs_maj');
-		}
-	}
-	} else {	
-	afficher_form();
-}
+afficher_form();
 
 function afficher_form($erreurs = '') {
 $titre_page= $GLOBALS['lang']['preferences'];

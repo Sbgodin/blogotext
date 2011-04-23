@@ -43,14 +43,14 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 	if ($liste != '') {
 		rsort($liste);
 		foreach ($liste as $file => $comment) {
-				$id = substr($comment, '0', '14');
+				$id = substr($comment, 0, 14);
 				$comment = init_comment('public', $id);
 				$date_article = decode_id($id);
-				$jour_abbr = date("D", mktime('0', '0', '0', $date_article['mois'], $date_article['jour'], $date_article['annee']));
-				$mois_abbr = date("M", mktime('0', '0', '0', $date_article['mois'], $date_article['jour'], $date_article['annee']));
+				$jour_abbr = date("D", mktime(0, 0, 0, $date_article['mois'], $date_article['jour'], $date_article['annee']));
+				$mois_abbr = date("M", mktime(0, 0, 0, $date_article['mois'], $date_article['jour'], $date_article['annee']));
 				$lien = $date_billet['annee'].'/'.$date_billet['mois'].'/'.$date_billet['jour'].'/'.$date_billet['heure'].'/'.$date_billet['minutes'].'/'.$date_billet['secondes'].'#'.article_anchor($comment['id']);
 				echo '<item>'."\n";
-					echo '<title>'.$comment['auteur_ss_lien'].'</title>'."\n";
+					echo '<title>'.$comment['auteur'].'</title>'."\n";
 					echo '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
 					echo '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
 					echo '<pubDate>'.$jour_abbr.', '.$comment['jour'].' '.$mois_abbr.' '.$comment['annee'].' '.$comment['heure'].':'.$comment['minutes'].':'.$comment['secondes'].' +0000</pubDate>'."\n";
@@ -78,14 +78,14 @@ else {
 		echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
 $liste = table_derniers($GLOBALS['dossier_articles'], '15', '1');
 foreach ($liste as $id => $article) {
-	$extension = substr($article, '-3');
+	$extension = substr($article, -3);
 		if ($extension == $GLOBALS['ext_data']) {
-			$id = substr($article, '0', '14');
+			$id = substr($article, 0, 14);
 			$billet = init_billet('public', $id);
 				$dossier= $GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
 				$fichier = $dossier.$article;
-				$jour_abbr = date("D", mktime('0', '0', '0', $billet['mois'], $billet['jour'] , $billet['annee']));
-				$mois_abbr = date("M", mktime('0', '0', '0', $billet['mois'], $billet['jour'], $billet['annee']));
+				$jour_abbr = date("D", mktime(0, 0, 0, $billet['mois'], $billet['jour'] , $billet['annee']));
+				$mois_abbr = date("M", mktime(0, 0, 0, $billet['mois'], $billet['jour'], $billet['annee']));
 				$lien = $billet['annee'].'/'.$billet['mois'].'/'.$billet['jour'].'/'.$billet['heure'].'/'.$billet['minutes'].'/'.$billet['secondes'].'-'.titre_url($billet['titre']);
 				print '<item>'."\n";
 				print '<title>'.$billet['titre'].'</title>'."\n";

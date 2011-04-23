@@ -13,7 +13,7 @@ function extraire_mots($texte) {
 	$texte_propre = preg_replace('#[[:punct:]]#i', ' ', $txt);
 	$tableau= explode(' ', $texte_propre);
 	foreach ($tableau as $mots) {
-		if (strlen($mots) >= '3') {
+		if (strlen($mots) >= 3) {
 			$table[] = strtolower($mots);
 			$tableau = array_unique($table);
 			natcasesort($tableau);
@@ -101,7 +101,7 @@ return $texte_formate;
 function formatage_commentaires($texte) {
 $texte = " ".$texte;
 $tofindc= array(
-	'#\[quote\](.+?)\[/quote\]#Us',									// citation
+	'#\[quote\](.+?)\[/quote\]#s',									// citation
 	'# »#',																	// close quote
 	'#« #', 																	// open quote
 	'# !#',																	// !
@@ -140,9 +140,9 @@ return $texte;
 function date_formate($id) {
 	$retour ='';
 	$date= decode_id($id);
-		$time_article = mktime('0', '0', '0', $date['mois'], $date['jour'], $date['annee']);
-		$auj = mktime('0', '0', '0', date('m'), date('d'), date('Y'));
-		$hier = mktime('0', '0', '0', date('m'), date('d')-'1', date('Y'));
+		$time_article = mktime(0, 0, 0, $date['mois'], $date['jour'], $date['annee']);
+		$auj = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+		$hier = mktime(0, 0, 0, date('m'), date('d')-'1', date('Y'));
 	if ( $time_article == $auj ) {
 		$retour = $GLOBALS['lang']['aujourdhui'];
 	} elseif ( $time_article == $hier ) {
@@ -181,7 +181,7 @@ function heure_formate($id) {
 }
 
 function jour_en_lettres($jour, $mois, $annee) {
-	$date = date('w', mktime('0', '0', '0', $mois, $jour, $annee));
+	$date = date('w', mktime(0, 0, 0, $mois, $jour, $annee));
 	switch($date) {
 		case '0': $nom = $GLOBALS['lang']['dimanche'];	break;
 		case '1': $nom = $GLOBALS['lang']['lundi'];		break;
