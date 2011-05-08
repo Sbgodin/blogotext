@@ -64,8 +64,8 @@ function afficher_form($erreurs= '') {
 		$field_securite = '<fieldset class="pref">';
 		$field_securite .= legend($GLOBALS['lang']['prefs_legend_securite'], 'legend-securite');
 		$field_securite .= form_text('identifiant', $GLOBALS['identifiant'], $GLOBALS['lang']['pref_identifiant']);
-		$field_securite .= form_password('ancien-mdp', '', $GLOBALS['lang']['pref_mdp']);
-		$field_securite .= form_password('nouveau-mdp', '', $GLOBALS['lang']['pref_mdp_nouv']);
+		$field_securite .= form_password('mdp', '', $GLOBALS['lang']['pref_mdp']);
+		$field_securite .= form_password('mdp_rep', '', $GLOBALS['lang']['pref_mdp_nouv']);
 		$field_securite .= '<p>'."\n";
 		$field_securite .= select_yes_no('connexion_captcha', $GLOBALS['connexion_captcha'], $GLOBALS['lang']['pref_connexion_captcha'] );
 		$field_securite .= '</p>'."\n";

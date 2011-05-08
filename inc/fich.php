@@ -331,18 +331,18 @@ function parcourir_dossier($dossier, $statut='') {
 
 function fichier_user() {
 		$user='';
-	if (!strlen(trim($_POST['mdp_rep']))) {
-	$new_mdp = $GLOBALS['mdp']; 
-} else {
-	$new_mdp = ww_hach_sha($_POST['mdp'], $GLOBALS['salt']).$GLOBALS['identifiant'];
-}
-		$user .= "<?php\n";
-		$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
-		$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
-		$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
-		$user .= "?>";
-		$fichier_user = '../config/user.php';
-		$new_file_user=fopen($fichier_user,'wb+');
+	if (strlen(trim($_POST['mdp'])) == 0) {
+		$new_mdp = $GLOBALS['mdp']; 
+	} else {
+		$new_mdp = ww_hach_sha($_POST['mdp_rep'], $GLOBALS['salt']);
+	}
+	$user .= "<?php\n";
+	$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
+	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
+	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
+	$user .= "?>";
+	$fichier_user = '../config/user.php';
+	$new_file_user=fopen($fichier_user,'wb+');
 	if (fwrite($new_file_user,$user) === FALSE) {
 		return FALSE;
 		} else {

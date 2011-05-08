@@ -113,13 +113,13 @@ function valider_form_preferences() {
 	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['ancien-mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	}
-	if ( (strlen(trim($_POST['ancien-mdp']))) and (ww_hach_sha($_POST['ancien-mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
+	if ( (strlen(trim($_POST['mdp']))) and (ww_hach_sha($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_oldmdp'];
 	}
-	if ( (strlen($_POST['ancien-mdp'])) and (strlen($_POST['nouveau-mdp']) < '6') ) {
+	if ( (strlen($_POST['mdp'])) and (strlen($_POST['mdp_rep']) < '6') ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp'];
 	}
-	if ( (strlen($_POST['nouveau-mdp'])) and (!strlen($_POST['ancien-mdp'])) ) {
+	if ( (strlen($_POST['mdp_rep'])) and (!strlen($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_newmdp'] ;
 	}
 	if ( ($_POST['nb_maxi'] > '50') or ($_POST['nb_maxi'] < '5') ) {

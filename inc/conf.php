@@ -19,7 +19,7 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 $GLOBALS['version_PHP'] = '5';
 
 // BLOGOTEXT VERSION (do not change)
-$GLOBALS['version']= '25';
+$GLOBALS['version']= '26';
 
 // DOSSIER ADMIN
 $GLOBALS['dossier_admin']= 'admin';
