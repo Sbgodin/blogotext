@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 function confirmation($message) {
@@ -68,12 +71,11 @@ function moteur_recherche() {
 	if (isset($_GET['q'])) {
 		$requete= htmlspecialchars(stripslashes($_GET['q']));
 	}
-	echo '<form action="index.php" method="get">'."\n";
-	echo '<div id="recherche">'."\n";
-	echo '<input id="champ" name="q" type="text" size="25" value="'.$requete.'" />'."\n";
-	echo '<input id="input-rechercher" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
-	echo '</div>'."\n";
-	echo '</form>'."\n\n";
+	$return  = '<form action="'.$_SERVER['PHP_SELF'].'" method="get" id="search">'."\n";
+	$return .= '<input id="q" name="q" type="search" size="25" value="'.$requete.'" />'."\n";
+	$return .= '<input id="input-rechercher" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
+	$return .= '</form>'."\n\n";
+	return $return;
 }
 
 function afficher_top($titre) {
@@ -82,7 +84,6 @@ function afficher_top($titre) {
 	} else {
 		$lang_id = 'fr';
 	}
-	//header ('Content-type: text/html; charset=UTF-8');
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
 	echo '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
 	echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
@@ -102,10 +103,27 @@ function afficher_titre($titre, $id, $niveau) {
 	echo '<h'.$niveau.' id="'.$id.'">'.$titre.'</h'.$niveau.'>'."\n";
 }
 
-function footer() {
+function footer($index='') {
+	if ($index != '') {
+		$file = '../config/ip.php';
+		if (file_exists($file) and is_readable($file)) {
+			include($file);
+			$new_ip = $_SERVER['REMOTE_ADDR'];
+			$last_time = strtolower(date_formate($GLOBALS['old_time'])).', '.heure_formate($GLOBALS['old_time']);
+			if ($new_ip == $GLOBALS['old_ip']) {
+				$msg = '<br/>'.$GLOBALS['lang']['derniere_connexion_le'].' '.$GLOBALS['old_ip'].' ('.$GLOBALS['lang']['cet_ordi'].'), '.$last_time;
+			} else {
+				$msg = '<br/>'.$GLOBALS['lang']['derniere_connexion_le'].' '.$GLOBALS['old_ip'].' '.$last_time;
+			}
+		} else {
+			$msg = '';
+		}
+	} else {
+		$msg = '';
+	}
 	echo '</div>'."\n";
 	echo '</div>'."\n";
-	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a></p>'."\n";
+	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg.'</p>'."\n";
 	echo '</body>'."\n";
 	echo '</html>'."\n";
 }
@@ -199,7 +217,8 @@ function afficher_calendrier($depart, $ce_mois, $annee, $ce_jour='') {
 }
 
 function encart_commentaires() {
-	$tableau = table_derniers($GLOBALS['dossier_commentaires'], $GLOBALS['max_comm_encart']);
+	$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
+	$tableau = table_derniers($dossier, $GLOBALS['max_comm_encart'], '1', 'public');
 
 	if($tableau != ""){
 		$listeLastComments = '<ul class="encart_lastcom">';
@@ -211,8 +230,8 @@ function encart_commentaires() {
 				$comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 60);
 				$comment['contenu_abbr'] .= '…';
 			}
-			$comment['article_titre_orig'] = parse_xml($GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title');
-			$comment['article_lien'] = get_blogpath_from_blog($comment['article_id']).titre_url($comment['article_titre_orig']).'#'.article_anchor($comment['id']);
+			$comment['article_titre_orig'] = parse_xml($dossier."/".get_path($comment['article_id']), 'bt_title');
+			$comment['article_lien'] = get_blogpath($comment['article_id']).titre_url($comment['article_titre_orig']).'#'.article_anchor($comment['id']);
 			$listeLastComments .= '<li><b>'.$comment['auteur'].'</b> '.date_formate($comment['id']).'<br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
 		}
 		$listeLastComments .= '</ul>';

@@ -1,13 +1,17 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 //error_reporting(-1);
 require_once '../inc/inc.php';
 
@@ -19,10 +23,10 @@ $article_id='';
 if (isset($_SERVER['QUERY_STRING'])) {
 		if (isset($_GET['post_id'])) {
 			$article_id = htmlspecialchars($_GET['post_id']);
-			$loc_data = $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
+			$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
 			if ( file_exists($loc_data) and preg_match('/\d{4}/',$article_id) ) {
 				$post = init_billet('admin', $article_id);
-				$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article_id);
+				$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '');
 			} else {
 				echo $GLOBALS['lang']['note_no_article'];
 				exit;
@@ -31,7 +35,9 @@ if (isset($_SERVER['QUERY_STRING'])) {
 }
 
 // INIT POST BILLET
-$billet = init_post_article();
+if (isset($_POST['_verif_envoi'])) {
+	$billet = init_post_article($article_id);
+}
 
 // TRAITEMENT
 $erreurs_form = array();
@@ -53,7 +59,6 @@ afficher_top($titre_ecrire);
 afficher_msg();
 afficher_msg_error();
 echo '<div id="top">'."\n";
-moteur_recherche();
 echo '<ul id="nav">'."\n";
 
 if ( !empty($article_id) ) {

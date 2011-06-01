@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 function redirection($url) {
@@ -136,18 +139,6 @@ function get_id($file) {
 	return $retour;
 }
 
-/*
-Function no more used.
-Instead use : 
-parse_xml($dossier.$fichier, $GLOBALS['data_syntax']['article_status'])
-
-
-function get_statut($file) {
-	$retour= parse_xml($file, $GLOBALS['data_syntax']['article_status']);
-		return $retour;
-}
-*/
-
 function decode_id($id) {
 	$retour=array(
 		'annee' => substr($id, 0, 4),
@@ -167,46 +158,22 @@ function url($niveau) {
 }
 
 function get_path_no_ext($id) {
-	$dec=decode_id($id);
+	$dec = decode_id($id);
 	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id;
 	return $retour;
 }
 
 function get_path($id) {
-	$dec=decode_id($id);
+	$dec = decode_id($id);
 	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id.'.'.$GLOBALS['ext_data'];
 	return $retour;
 }
 
-function get_comment_path($article_id, $comment_id) {
-	$dec=decode_id($article_id);
-	$path=$GLOBALS['dossier_data_articles'].'/'.$dec['annee'].'/'.$dec['mois'].'/'.$article_id.'/'.$comment_id.'.'.$GLOBALS['ext_data'];
-	return $path;
-}
-
 function get_blogpath($id) {
-	$date= decode_id($id);
-	$path= $GLOBALS['racine'].'index.php?'.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(parse_xml($GLOBALS['dossier_data_articles'].'/'.get_path($id), 'titre'));
+	$date = decode_id($id);
+	$path = $GLOBALS['racine'].'index.php?'.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(parse_xml($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($id), 'titre'));
 	return $path;
 }
-
-function get_blogpath_from_blog($id) {
-	$date= decode_id($id);
-	$path= $GLOBALS['racine'].'index.php?'.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(parse_xml($GLOBALS['dossier_articles'].'/'.get_path($id), 'titre'));
-	return $path;
-}
-
-/*
-FUNCTION NO MORE USED.
-Instead, use :
-parse_xml($GLOBALS['dossier_data_articles']."/".get_path($id), 'bt_title')
-
-function get_titre($id) {
-	$titre = parse_xml($GLOBALS['dossier_data_articles']."/".get_path($id), 'bt_title');
-	return $titre;
-}
-
-*/
 
 function ww_hach_sha($text) {
 	if ($GLOBALS['version_PHP'] >= '5') {
@@ -279,6 +246,7 @@ function diacritique($texte, $majuscules, $espaces) {
 	$texte = html_entity_decode($texte, ENT_QUOTES, 'UTF-8'); // &eacute => é ; é => é ; (uniformise)
 	$texte = htmlentities($texte, ENT_QUOTES, 'UTF-8'); // é => &eacute;
 	$texte = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash|caron);#', '$1', $texte); // &eacute => e
+	$texte = preg_replace('#(\t|\n|\r)#', ' ' , $texte); // retours à la ligne => espaces
 	$texte = preg_replace('#&([a-z]{2})lig;#i', '$1', $texte); // EX : œ => oe ; æ => ae 
 	$texte = preg_replace('#&[\w\#]*;#U', '', $texte); // les autres (&quote; par exemple) sont virés
 	$texte = preg_replace('#[^\w -]#U', '', $texte); // on ne garde que chiffres, lettres _ et - et espaces.

@@ -1,29 +1,18 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 error_reporting(-1);
-/// formulaires THEMES ///
-
-function afficher_form_recherche($mots_saisis='') {
-	if ( (isset($mots_saisis)) AND ($mots_saisis != '') ) {
-		$defaut = htmlspecialchars(stripslashes($mots_saisis));
-	} else {
-		$defaut = '';
-	}
-	$GLOBALS['form_recherche'] = '';
-	$GLOBALS['form_recherche'] .= '<form id="search" action="'.$_SERVER['PHP_SELF'].'" method="get">'."\n";
-	$GLOBALS['form_recherche'] .=	'<input name="q" id="q" type="text" size="15" value="'.$defaut.'" />'."\n";
-	$GLOBALS['form_recherche'] .=	'<input id="ok" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
-	$GLOBALS['form_recherche'] .= '</form>'."\n";
-}
-
 /// formulaires GENERAUX //////////
 
 function lien_nav($url, $id, $label, $active) {
@@ -153,30 +142,39 @@ function form_langue_install($label) {
 }
 
 function liste_themes($chemin) {
-	$dossier = '../'.$chemin;
-	if ( $ouverture = opendir($dossier) ) { 
+	if ( $ouverture = opendir($chemin) ) { 
 		while ($dossiers=readdir($ouverture) ) {
-			if ( file_exists($dossier.'/'.$dossiers.'/style.css') ) {
-				$themes[$dossiers]=$dossiers;
+			if ( file_exists($chemin.'/'.$dossiers.'/list.html') ) {
+				$themes[$dossiers] = $dossiers;
 			}
 		}
 		closedir($ouverture);
 	}
-	return $themes;
+	if (isset($themes)) {
+		return $themes;
+	} else {
+		return '';
+	}
 }
 
 
 // formulaires ARTICLES //////////
 
-function afficher_form_filtre($dossier,$defaut='') {
+function afficher_form_filtre($type, $filtre, $mode) {
 	echo '<form method="get" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	echo '<div id="form-filtre">'."\n";
-		filtre($dossier, $defaut);
+		filtre($type, $filtre, $mode);
 	echo '</div>'."\n";
 	echo '</form>'."\n";
 }
 
-function filtre($dossier, $defaut='') {
+function filtre($type, $filtre, $mode) {
+	if ($type == 'articles') {
+		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
+	} elseif ($type == 'commentaires') {
+		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
+	}
+
 	if ( $ouverture = opendir($dossier) ) { 
 		while ( false !== ($file = readdir($ouverture)) ) {
 			if (preg_match('/\d{4}/', $file) ){
@@ -204,51 +202,55 @@ function filtre($dossier, $defaut='') {
 			}
 		}
 	}
+
+	echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
+	echo "\n".'<select name="filtre">'."\n" ;
+	echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
+
+	/// BROUILLONS
+	echo '<option value="draft"';
+	if ($filtre == 'draft') {
+		echo ' selected="selected"';
+	}
+	echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
+
+	/// PUBLIES
+	echo '<option value="pub"';
+	if ($filtre == 'pub') {
+		echo ' selected="selected"';
+	}
+	echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
+
+	/// PAR DATE
 	if (isset($dossier_mois)) {
 		krsort($dossier_mois);
-		echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
-		echo "\n".'<select name="filtre">'."\n" ;
-		echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
 
-		/// BROUILLONS
-		echo '<option value="draft"';
-		if ($defaut == 'draft') {
-			echo ' selected="selected"';
-		}
-		echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
-
-		/// PUBLIES
-		echo '<option value="pub"';
-		if ($defaut == 'pub') {
-			echo ' selected="selected"';
-		}
-		echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
 		echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
 		foreach ($dossier_mois as $option => $label) {
 			echo '<option value="' . htmlentities($option) . '"';
-			if ($defaut == $option) {
+			if ($filtre == $option) {
 				echo ' selected="selected"';
 			}
 			echo '>' . htmlentities($label) . '</option>'."\n";
 		}
 		echo '</optgroup>';
-
-		if ($dossier == $GLOBALS['dossier_data_commentaires']) {
-			echo '<optgroup label="'.'Auteur'.'">';
-			$author_list = table_auteur($dossier, '', '');
-			$author_list = array_count_values($author_list);
-			arsort($author_list);
-			foreach ($author_list as $nom => $nb) {
-				echo '<option value="'.$nom.'"';
-				if ($defaut == $nom)
-					echo ' selected="selected"';
-				echo '>'.($nom.' ('.$nb.')').'</option>'."\n";
-			}
-			echo '</optgroup>';
-		}
-		echo '</select> '."\n\n";
-		echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 	}
+
+	if ($type == 'commentaires') {
+		echo '<optgroup label="'.'Auteur'.'">';
+		$author_list = table_auteur($dossier, '', '', $mode);
+		$author_list = array_count_values($author_list);
+		arsort($author_list);
+		foreach ($author_list as $nom => $nb) {
+			echo '<option value="'.$nom.'"';
+			if ($filtre == $nom)
+				echo ' selected="selected"';
+			echo '>'.($nom.' ('.$nb.')').'</option>'."\n";
+		}
+		echo '</optgroup>';
+	}
+	echo '</select> '."\n\n";
+	echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 	
 }
 
@@ -314,13 +316,13 @@ function afficher_form_billet($article='', $erreurs= '') {
 	}
 	echo '<div id="form">'."\n";
 		label('titre', $GLOBALS['lang']['label_titre']);
-		form_titre($titredefaut);
+		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required=""/>'."\n" ;
 	echo '<div id="chapo_note">'."\n".'<div id="blocchapo">';
 		label('chapo', $GLOBALS['lang']['label_chapo']);
-		form_chapo($chapodefaut);
+		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="">'.$chapodefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n".'<div id="blocnote">'."\n";
 		label('notes', 'Notes');
-		form_notes($notesdefaut);
+		echo '<textarea id="notes" name="notes" rows="5" cols="25">'.$notesdefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n".'<br style="clear:both;"/>'."\n".'</div>'."\n";
 
 	if ($GLOBALS['activer_categories'] == '1') {
@@ -332,10 +334,10 @@ function afficher_form_billet($article='', $erreurs= '') {
 
 	echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
 	label('contenu', $GLOBALS['lang']['label_contenu']);
-	form_contenu($contenudefaut);
+	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="">'.$contenudefaut.'</textarea>'."\n" ;
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		label('mots_cles', $GLOBALS['lang']['label_motscles']);
-		echo '<div>'.form_motscles($motsclesdefaut).'</div>';
+		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" /></div>'."\n";
 	}
 	if (!$article) {
 		echo '<div id="date">'."\n";
@@ -437,9 +439,9 @@ function form_annee($annee_affiche) {
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-	echo '<input name="heure" type="text" size="2" maxlength="2" value="'.($heureaffiche /*- 7*/).'" /> :';
-	echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" /> :' ;
-	echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" />' ;
+	echo '<input name="heure" type="text" size="2" maxlength="2" value="'.($heureaffiche /*- 7*/).'" required="" /> :';
+	echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" required="" /> :' ;
+	echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" required="" />' ;
 }
 
 function form_statut($etat) {
@@ -465,18 +467,21 @@ function form_allow_comment($etat) {
 	echo form_select('allowcomment', $choix, $etat, $GLOBALS['lang']['label_allowcomment']);
 	echo '</div>'."\n";
 }
-
+/*
 function form_titre($titreaffiche) {
 		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titreaffiche.'" />'."\n" ;
 }
-
+*/
+/*
 function form_chapo($chapoaffiche) {
 	echo '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
 }
-
+*/
+/*
 function form_notes($notesaffiche) {
 	echo '<textarea id="notes" name="notes" rows="5" cols="25">'.$notesaffiche.'</textarea>'."\n" ;
 }
+*/
 
 function form_categories($categoriesaffiche) {
 	if (!empty($GLOBALS['tags'])) {
@@ -513,13 +518,14 @@ function form_categories($categoriesaffiche) {
 	}
 	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" />'."\n";
 }
-
+/*
 function form_contenu($contenuaffiche) {
 	echo '<textarea id="contenu" name="contenu" rows="20" cols="60">'.$contenuaffiche.'</textarea>'."\n" ;
 }
-
+*/
+/*
 function form_motscles($motsclesaffiche) {
 	echo '<input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesaffiche.'" />'."\n" ;
 }
-
+*/
 ?>

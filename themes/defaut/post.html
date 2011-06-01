@@ -1,16 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<link type="text/css" rel="stylesheet" href="{style}" />
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - Blog" href="{rss}" />
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - Commentaires sur « {article_titre} »" href="{rss_comments}" />
-<meta http-equiv="content-type" content="text/html; charset={charset}" />
-<meta name="generator" content="BlogoText" /> 
-<meta name="robots" content="all" />
-<meta name="author" content="{blog_auteur}" />
-<meta name="description" content="{article_chapo}" />
-<meta name="keywords" content="{article_motscles}" />
-<title>{article_titre} - {blog_nom}</title>
+	<title>{article_titre} - {blog_nom}</title>
+	<meta http-equiv="content-type" content="text/html; charset={charset}" />
+	<meta name="generator" content="BlogoText" />
+	<meta name="robots" content="all" />
+	<meta name="author" content="{blog_auteur}" />
+	<meta name="description" content="{blog_description}" />
+	<meta name="keywords" content="{description}" />
+	<link type="text/css" rel="stylesheet" href="{style}/style.css" />
+	<link type="application/rss+xml" rel="alternate" title="RSS 2.0" href="{rss}" />
 <script type="text/javascript">
 function ouvre(fichier) {
  ff=window.open(fichier,"popup", "width=300, height=400, scrollbars=1, resizable=1")
@@ -57,6 +56,7 @@ function reply(code) {
 </head>
 
 <body>
+
 <div id="page">
 
 <div id="top">
@@ -64,19 +64,19 @@ function reply(code) {
 <h2>{blog_description}</h2>
 </div>
 
-<div id="post">
+<div id="contenu">
 
-	<h1>{article_titre}</h1>
-	<h4 class="date">{article_date} à {article_heure}</h4>
-
-	<p class="chapo">{article_chapo}</p>
-
-	<div class="contenu">
-	{article_contenu}
-	<p>Dans les catégories : {article_tags}</p>
+	<div class="news">
+		<h2 title="{article_chapo}">{article_titre}</h2>
+		<h3 class="date">{article_date} à {article_heure}</h3>
+		<p class="chapo">{article_chapo}</p>
+		<div class="contenu">
+			{article_contenu}
+			<p class="tags">Dans les catégories : {article_tags}</p>
+		</div>
 	</div>
 
-<h2>{nombre_commentaires}</h2>
+	<h2>{nombre_commentaires}</h2>
 
 	{BOUCLE_commentaire}
 	<div class="comment">
@@ -87,13 +87,15 @@ function reply(code) {
 
 	<p><a href="{rss_comments}">Flux RSS des commentaires de cet article</a></p>
 	<div id="postcom">
-	{formulaire_commentaire}
+		{formulaire_commentaire}
 	</div>
 
-</div>
 
-</div>
-<p id="footer">Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText {version}</a></p>
+</div> <!-- end #contenu-->
+
+</div> <!-- end #page -->
+
+<p id="footer">Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText {version}</a><span id="mobilelink"> - <a href="?m">version mobile/normale</a></span></p>
 </div>
 </body>
 </html>

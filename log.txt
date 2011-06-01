@@ -1,0 +1,1438 @@
+------------------------------------------------------------
+revno: 125
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-05-29 1:24:00 +0100
+message:
+	allègement de Freecap : suppression des options que je juge inutiles
+modified :
+	/inc/freecap/freecap.php : suppression des options que *je* trouve inutiles
+	/inc/freecap : suppression des fichiers images et polices que je n'utilise pas dans le script (allège Blogotext un peu)
+}
+------------------------------------------------------------
+revno: 124
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-05-28 23:34:00 +0100
+message:
+	ajout de quelques attributs HTML-5 pour les formulaires : http://www.stuuny.com/blog/?message=88
+modified :
+	/inc/comm : ajout des attributs placehold, required, url, email sur les input qui le méritent
+	/inc/html : ajout des attributs search dans moteru_recherche()
+	/inc/form : ajout des attributs required dans les champs obligatoires dans le formualaire de postage d'un nouvel article.
+}
+------------------------------------------------------------
+revno: 122
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-05-28 23:26:00 +0100
+message:
+	moteur de recherche : unification des moteurs dans le panel et sur la page index du blog
+modified :
+	/index.php : suppression de tous les afficher_form_recherche() devenu non necéssaires.
+	/inc/html : modification de moteur_recherche()
+	/inc/form : suppression de function afficher_form_recherche()
+	/inc/them : ligne 29 : -$GLOBALS['form-recherche'] +moteur_recherche()
+	/admin/index        : -moteur_recherche(); +echo moteur_recherche();
+	/admin/commentaires : -moteur_recherche(); +echo moteur_recherche();
+	/admin/style/style.css : changement des stylespour correspondre au nouveau moteur de recherche (je préfère changer le truc dans l'admi pour éviter de devoir changer le css du site)
+}
+------------------------------------------------------------
+revno: 121
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-05-14 15:22:00 +0100
+message:
+	Page d'installation en un seul formulaire (mdp+id+racine-site)
+modified :
+	/admin/install.php : combinaison des fonctions : d'affichage des form, de validation des form, et des fonctions en JavaScript. (to do : CSS)
+------------------------------------------------------------
+revno: 120
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2011-05-12 22:29:00 +0100
+message:
+	fonctionnalité pour afficher l'ip et la date de la derniere connexion dans le panel (uniquement page d'index), un peu comme GMail.
+modified :
+	/inc/fich : 
+	/inc/html : édition de la fonction footer()
+	/admin/index.php
+------------------------------------------------------------
+revno: 119
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2011-05-11 22:28:00 +0100
+message:
+	ajout de fonction pour écrire fichier config/ip.php
+modified :
+	/inc/fich : ajout fonction "fichier_ip()"
+	/config/ip.php : création du fichier.
+------------------------------------------------------------
+revno: 118
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-05-08 12:43:00 +0100
+message :
+	le moteur de recherche dans le panel admin, page des commentaires recherche désormais dans les commentaires :-)
+modified :
+	/admin/commentaires : ajout d'un test sur le GET['q'] en haut.
+	/admin/ecrire : suppression du moteur de recherche
+	/inc/fich : modification de moteur_recherche() pour qu'il n'envoie la requête non plus sur le fichier index.php mais sur le fichier PHP_SELF.
+------------------------------------------------------------
+revno: 117
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-05-07 19:15:00 +0100
+message:
+	test sur un cookie : s'il est là le thème CSS est le thème mobile (dans /thèmes/xxx/m/).
+	la mise en place se fait sur /index.php
+modified:
+	inc/conf : test du cookie, et modification du lien vers le fichier CSS en conséquances.
+	/index : test sur l'url avec placement d'un cookie
+	/thèmes/defaut/m/style.css : création d'un fichier CSS pour les mobile
+------------------------------------------------------------
+revno: 116
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-05-07 19:15:00 +0100
+message:
+	tous les dossiers sont retrouvés depuis la racine du systèmede fichier (avec /var/www/). Pour rendre plus simple la gestion d'accés aux fichiers depuis les sous-dossier.
+modified:
+	/inc/*
+	/admin/*
+	/inc/conf : ajout d'une variable globale $GLOBALS['BT_ROOT_PATH']
+------------------------------------------------------------
+revno: 115
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2011-05-04 20:12:00 +0100
+message:
+	modification de la redirection anti-spam pour postage commentaire coté internaute
+modified:
+	inc/comm : suppression du test sur présence de "&n=mp" pour ajouter un test sur "$_POST['_envoi_verif'].
+------------------------------------------------------------
+revno: 114
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-04-22 14:38:00 +0100
+message:
+	rajout des id en plus des name dans le HTML des commentaires, pour permettre au label d'être clicable.
+	ajout des ancres des reply à un commentaire dans le panel admin.
+modified:
+	inc/comm : code html du formulaire
+	admin/commentaires : ancre sur le <div> de chaque commentaire
+------------------------------------------------------------
+revno: 113
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2011-04-20 22:50:00 +0100
+message:
+	Une idée m'étant venu de Pluxml : certains fichiers/dossiers doivent être accéssibles en écriture par le CMS. Si c'est pas le cas, on le dit.
+modified:
+	inc/lang/*
+	admin/maintenance : ajout d'un bloc pour avertir des problèmes : dossiers articles non accéssible en écriture, fichier pref ininscriptible…
+------------------------------------------------------------
+revno: 112
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-04-15 21:09:00 +0100
+message:
+	Ajout de la possibilité d'ajouter un champ pour les mots clés META-HTML plutôt que les mots clés automatiques, pour les articles. (suggestion de Geono Bot.
+modified:
+	inc/conf : test dans l'enregistrement du commentaire
+	inc/form : idem
+	inc/lang/*
+	admin/preferences : ajout d'un champ yes/no pour choisir
+	admin/style/ecrire.css
+------------------------------------------------------------
+revno: 111
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-04-15 21:09:00 +0100
+message:
+	Correction d'un bug permettant de poster à une date impossible (31 avril par exemple)
+modified:
+	inc/veri : ajout d'un test sur veri_form_article, dans la validation du jour (test par rapport au nombre de jours dans le mois)
+------------------------------------------------------------
+revno: 110
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-04-12 22:29:00 +0100
+message:
+	Dans les préférences : désactivation des choix pour activer ou non les onglets "commentaires" et "images" (activés par défaut, voir inc/conf.php)
+modified:
+	admin/preferences : masque des affichages décrits ci-dessus
+------------------------------------------------------------
+revno: 109
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-04-12 22:24:00 +0100
+message:
+	Renomage de quelques variables globals (ceux des préférences), avec des noms plus explicites : 
+modified:
+	admin/*
+	inc/*
+	inc/conf : suppression "patch 9.2.0" (plus besoin car le test ne se pose plus désormais)
+------------------------------------------------------------
+revno: 108
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-04-12 21:51:00 +0100
+message:
+	Suppression de quelqes variables globales inutiles
+modified:
+	admin/preferences }
+	admin/ecrire      }
+	admin/maintenance }  Suppression de tout concernant $GLOBALS['activer_apercu'] , $GLOBALS['version_timo'] (devenu 'version')
+	inc/conf          }
+	inc/prefs         }
+	inc/fich          }
+	index.php         }
+------------------------------------------------------------
+revno: 107
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-04-10 19:58:00 +0100
+message:
+	Relecture du code, suppression des transtipages non nescessaires (meilleure conformitée vis à vis des types)
+	ré-écriture de la fonction de recherche
+	correction d'un bug dans comm.php
+modified:
+	admin/*
+	inc/*
+	inc/comm.php : l.78 le init_billet() reçoit le $mode en argument, plutôt qu'un truc fixé à 'public'
+------------------------------------------------------------
+revno: 106
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2011-04-07 16:42:00 +0100
+message:
+	Test du remplissage de l'URL lors de l'installation (test en JS).
+	La fonction fichier_prefs() a été changé aussi, pour éviter à avoir mettre les tous les champs cachés dans le code source de l'installation.
+modified:
+	admin/install : ajout du javascript valider_form_3
+	inc/fich : modification de fichier_user() et fichier_prefs()
+------------------------------------------------------------
+revno: 105
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2011-04-06 11:05:00 +0100
+message:
+	Test de force du mot de passe, et de bon remplissage du formulaire #2 (id+mdp)
+modified:
+	admin/install : ajout du javascript
+------------------------------------------------------------
+revno: 104
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-04-04 15:18:00 +0100
+message:
+	ajout d'un champ "notes" pour chaque billet : des notes, memo, idées qu'on peut ajouter à un billet. Ceux ci ne servent que pour le rédacteur.
+modified:
+	inc/form : dans le afficher_form_billet, elements pour le article_notes + nouvelle fonction form_notes()
+	inc/conf : ajout des variables et balises pour les notes.
+	admin/style/ecrire.css : ajout des styles pour placer le champ des notes à coté de celui du chapô
+------------------------------------------------------------
+revno: 103
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-04-03 23:00:00 +0100
+message:
+	ajout d'une fonction de trie par nom d'auteur d'un commentaire dans le panel d'admin
+modified:
+	admin/commentaires : ajout du 'else' dans le test sur la valeur du filtre
+	inc/fich : création fonction table_auteur(). Attention à cette fonction : suivant le cas, le tableau de retour n'a pas la même forme
+	inc/form : dans fonction afficher_form_filtre() : ajout du cas où on a à faire aux commentaires : on ajout un optpgroup (html) avec les auteurs
+------------------------------------------------------------
+revno: 102
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-03-27 14:11:00 +0100
+message:
+	amélioraton du script de backup.
+modified:
+	admin/maintenance : amélioration, changement du chmod 700 à 755
+	inc/fich : modification de parse_xml() pour se passer de la fonction pref_match. + changement du chmod dans creer_dossier() : 700->755
+------------------------------------------------------------
+revno: 101
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-03-25 00:25:00 +0100
+message:
+	le fichier maintenance peut maintenant faire les images. Reste encore à ajouter le teste d'intégrité SHA1, ainsi que les autres tests de sécurité.
+modified:
+	admin/maintenance : ajouts de la fonction parse_mxl_str ; et du traitement des images en restauration
+------------------------------------------------------------
+revno: 100
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-03-20 00:01:00 +0100
+message:
+	lors du postage d'un article, les boutons des "tags" deviennent des <a> plutôt que <input/>
+modified:
+	admin/ecrire
+	admin/style/style.css
+	inc/form
+------------------------------------------------------------
+revno: 99
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-03-19 20:28:00 +0100
+message:
+	page de maintenance : ajoute du backup des images en BASE64 (reste à mettre la restauration)
+modified:
+	admin/maintenance
+------------------------------------------------------------
+revno: 98
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2011-02-24 16:22:00 +0100
+message:
+	ajout d'un formulaire pour trier les commentaires. (par date, …)
+modified:
+	admin/commentaire
+------------------------------------------------------------
+revno: 97
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2011-02-24 16:22:00 +0100
+message:
+	correction problème quand le commentaire n'avait pas de <bt_status> : désormais, il le crée au moment de valider.
+modified:
+	inc/fich
+------------------------------------------------------------
+revno: 96
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-02-22 23:10:00 +0100
+message:
+	ajout d'un boutons "@" (reply) qui ajoute un "@[pseudo|ancre_comm] : " dans le commentaire (histoire de pouvoir répondre à un commentaire) [dispo pour public et admin]
+modified:
+	admin/commentaire : JS
+	admin/préférences : vocabulaire mis dans fichier de langues
+	admin/style/ecrir : formulaire
+	inc/lang/*
+	inc/comm
+	theme/defaut/post : JS
+	theme/defaut/style.css : formulaire
+------------------------------------------------------------
+revno: 95
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-21 23:55:00 +0100
+message:
+	ajout des boutons "type de modération dans les préférences (liste noire (1) ou liste blanche (0) - entre parenthèses : valeurs de GLOBALS[defaut_comm_status])
+modified:
+	admin/instal : ajout de la créatoin d'une nouvelle variable de préférence
+	admin/préférences : idem
+------------------------------------------------------------
+revno: 94
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-21 23:53:00 +0100
+message:
+	ajout et optimisation du JS pour les boutons de formatages des commentaires (gras, lien, souligné…)
+modified:
+	inc/comm
+	admin/commentaires
+	theme/defaut/*
+------------------------------------------------------------
+revno: 93
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2011-02-20 15:22:00 +0100
+message:
+	révision de tout le code. Plutot que de "print" les petites fonctions de util.php font maintenant du "return".
+	les fonctions de la date dans html.php sont mis à jour
+	le code d'upload des images utilise désormais le code de blogotext, que Fred avait prévu
+	les commentaires sont désormais activables/desactivables et éditables sur le panel.
+modified:
+	inc/*
+	admin/*
+------------------------------------------------------------
+revno: 92
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-02-15 23:11:00 +0100
+message:
+	modération+édition des commentaires possible. Profonde modification de la syntaxe des formulaires… J'espère qu'il n'y a pas de failles de sécurité…
+modified:
+	inc/conf.php : init_post_comment(), quelques modif
+	inc/comm.php : modification des fonctions afficher_form_commentaire() et traiter_form_commentaire() : modif de la structure du formaulaire.
+	admin/commentaires.php : en fonction de la présence ou non de l'id d'article dans l'URL, on affiche ou non le formulaire d'édition. Ajout aussi du javascript en bas.
+------------------------------------------------------------
+revno: 91
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-02-11 01:02:00 +0100
+message:
+	lors de la création d'un nouveau commentaire : ajout d'un nouvel élément : <bt_status>, en vu de la désactivation des commentaires, bientôt implementée
+modified:
+	inc/conf.php : dans init_comment();
+	inc/fich.php
+	admin/install : une nouvelle variable dans le fichiers config/user.php est crée et doit être inscrite dans ledit fichier lors de l'installation.
+------------------------------------------------------------
+revno: 90
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-02-11 00:58:00 +0100
+message:
+	suppression du captcha pour l'admin (il était là, mais caché, maintenant il n'est plus là).
+modified:
+	admin/commentaires.php
+	inc/comm.php : modification des valeurs de captcha + formulaire
+	inc/veri.php : lors de la vérifiaction : si(admin) : ne pas tenir compte du captcha
+	inc/conf.php : dans init_comment() : ajout d'une variable d'entrée pour savoir si le postage à lieu depuis l'admin (à chaque appel de la fonction, j'ai aussi du modifier, par ajout d'une variable.
+------------------------------------------------------------
+revno: 89
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-07 22:27:00 +0100
+message:
+	unification des fichiers commentaires.php et lastcomm.php, et de certaines fonctions de comm.php.
+modified:
+	admin/commentaires.php : test sur la presence d'un ID d'article dans l'URL. if(Y): affiche les comms de l'article; if(N): toutes les comms.
+	admin/last_comm.php : ce fichier est devenu inutile
+------------------------------------------------------------
+revno: 88
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-02-08 22:26:00 +0100
+message:
+	quelques changement dans le fichier logout : je maitrise un peu mieux les sessions en PHP et j'ai viré quelques truc inutiles. 
+modified:
+	admin/logout.php
+	inc/util.php : ajout de la fonction fermer_session()
+------------------------------------------------------------
+revno: 87
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-07 23:52:00 +0100
+message:
+	dans la page de maintenance : lors du backup, demande d'un nombre d'articles à backuper !
+modified:
+	admin/maintainance.php
+	inc/lang/*
+------------------------------------------------------------
+revno: 86
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-07 22:43:00 +0100
+message:
+	création d'une fonction pour le test des sessions, plutôt que de tout écrire dans tous les dossiers de /admin/*
+modified:
+	admin/*
+	inc/util.php : ajout de la fonction check_session()
+------------------------------------------------------------
+revno: 85
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2011-02-07 22:43:00 +0100
+message:
+	Suppression d'une fonction en double, remplacement par son homologue "get_id()" dans les fichiers
+modified:
+	admin/commentaires.php
+	admin/index.php
+	admin/lastcom.php
+	admin/maintenance.php
+	admin/maintenance.php
+	inc/html.php
+	inc/list.php
+	inc/them.php
+	inc/util.php
+------------------------------------------------------------
+revno: 84
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2011-01-27 14:06:00 +0200
+message:
+	Modification (et amélioration) de la fonction de LOG lors de la connexion au panel d'admin.
+modified:
+	admin/auth : modification de la fonction LOG au début.
+------------------------------------------------------------
+revno: 83
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2011-01-01 13:53:00 +0200
+message:
+	correction d'un dans le "encart commentaires"
+modified:
+	inc/comm : la fontion liste_dernier_comm() utilise un nouvel algo, l'autre ne marchait pas lors du passage au nouvel an.
+------------------------------------------------------------
+revno: 82
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-12-17 19:32:00 +0200
+message:
+	Ajout d'un choix du fuseau horraire dans les préférences
+modified:
+	inc/conf : en haut : modification du fuseau horraire, en fonction de la variable choisie par le blogeur.  ((PHP5 >= PHP 5.1 REQUIRED !! ))
+	inc/fich : dans le fichier_prefs() : ajout de la variable "fuseau_horaire"
+	inc/form : fonction "form_fuseau_horaire()"
+	admin/preferences : ajout d'un champ pour choisir son timezone
+	admin/install : lors de l'install, on crée une "GLOBALS['fuseau_horaire']"
+------------------------------------------------------------
+revno: 81
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-12-12 11:59:00 +0200
+message:
+	Suppression des "syntax_version" qui ne servent plus à rien (sinon prendre du temps et ralentir blogotext)
+modified:
+	inc/*
+	admin/*
+------------------------------------------------------------
+revno: 80
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-12-01 20:38:00 +0200
+message:
+	les messages dans le futur apparaissent dans le calendrier… désormais, il ne s'affichent qu'en temps voulu :p
+modified:
+	inc/html : test sur la date et l'id du billet en dessous de "On verifie si il y a un ou des articles du jour"
+------------------------------------------------------------
+revno: 79
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-11-18 20:11:00 +0200
+message:
+	bug dans la regex des URL
+modified:
+	inc/conv : les URL contenaient le "</p>" s'ils se trouvaient en fin de ligne.
+----------------------------------------------------------21--
+revno: 78
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-11-17 22:01:00 +0200
+message:
+	billet programmes apparaissent dans le panel (pas sur le blog) + balise image formatage
+modified:
+	inc/conv : modification de la regex de l'image : remise de l'ancienne, avec juste ((url|alt)), pas de class|title…
+	inc/fich : test dans table_derniers() sur le dossier data_article/article pour afficher les billets futur ou non
+	inc/*** : suppressions de quelques espaces à la fin des fichier, provoquant un bug de session (un espace = caractère envoyé avant les headers…)
+------------------------------------------------------------
+revno: 77
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-11-11 14:34:00 +0200
+message:
+	url clicable automatiquement dans les billets
+modified:
+	inc/conv : modification de la regex de l'url
+------------------------------------------------------------
+revno: 76
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-11-09 20:54:00 +0200
+message:
+	deux petits détails, dont la première m'agassait, et depuis longtemps.
+modified:
+	inc/form : un krsort() sur le tableau dans la fonction filtre() : listage de la liste déroulante du plus récent au plus vieux.
+	admin/lastcom.php : en bas, ajout du nombre total de commentaires sur le blog.
+------------------------------------------------------------
+revno: 75
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-11-07 19:19:00 +0200
+message:
+	rendre les liens clicables aussi pour le postage d'un article
+modified:
+	inc/conv : ajout de la regex pour l'URL dans la boucle de conversion.
+------------------------------------------------------------
+revno: 74
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-11-07 16:42:00 +0200
+message:
+	Système de classement en catégories
+modified:
+	index : ajout du ELSEIF au cas ou y'a recherche par tag + un require_once() sur le fichier /config/tags.php
+	inc/form : ajout de "categories" dans le formulaire de postage d'un billet
+	inc/fich : idem, variable dans les fichiers de préférences pour activer ou non les catégories + fonction de recherche par tag + refonte de la fonction de recherche
+	inc/conf : ajout du nescéssaire pour "categories" dans les variables.
+	inc/them : deux nouvelles balises blogotext : une pour les tags sur le coté et une pour les tags d'un seul article
+	inc/html : deux nouvelles fonctions : pour créer et afficher la liste des tags du blog et pour afficher les tags d'un articles
+	admin/preferences : new input pour activer ou non les catégories
+	admin/install : variable des catagories crées dans le fichier des préférences dés l'installation + création du fichier config/tags.php
+	admin/ecrire : un système en JS qui met les tags sous forme de boutons clicables pour les ajouter.
+	config/tags : création du fichier
+------------------------------------------------------------
+revno: 73
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-11-04 22:02:00 +0200
+message:
+	Dans les préférences, on peut désormais choisir d'afficher tous les articles.
+modified:
+  inc/fich.php // dans table_dernier() : ajout d'un test if=='-1' sur la taille du tableau
+  admin/lastcom.php // la liste de choix du nombre de comms s'éttent avec une varriable "all" pour afficher tous les articles.
+  inc/lang/*.php // ajout de la variable 'pref_all'
+------------------------------------------------------------
+revno: 72
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-11-02 20:02:00 +0200
+message:
+	Ajout d'un espace pour la regex des URL dans la conversion des comentaires (un espace avant l'url disparaissait avant…
+modified:
+  inc/conv.php
+------------------------------------------------------------
+revno: 71
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-10-24 23:45:00 +0200
+message:
+	dans l'encart des derniers comm, si un caractère de 16 bit est coupé, ça fait un bug. C'est corrigé désormais.
+modified:
+  inc/html.php // dans encart_commentaires()
+------------------------------------------------------------
+revno: 70
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-10-24 22:53:00 +0200
+message:
+	Modification de la fonction titre_url() dans inc/conv.php : correction d'un problème lors de "&" ou de "oelig" dans les titres.
+	Création de fonction url_titre() qui transforme le titre des articles en str valides W3C pour inclusion dans une url (esp => %20)
+modified:
+  inc/conv.php // changement titre_url grace à un code donné par Guenhwyvar
+  inc/them.php // modification du url_titre
+------------------------------------------------------------
+revno: 69
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-10-22 22:21:00 +0200
+message:
+	Modification du captcha : utilisation de vrai nombres aléatoires.
+modified:
+  inc/conf.php // modification de la fonction mk_captcha et utilisation des variables de session.
+  inc/them.php // lors de l'appel de la fonction de vérification du captcha : récupération des variables de session au lieu des anciennes variables
+  inc/comm.php // idem : les captcha sons affichés en utilisant les variables de SESSION[].
+  index.php // session_start() tout en haut, évidement.
+------------------------------------------------------------
+revno: 68
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-10-22 20:23:00 +0200
+message:
+	ajout d'un flux rss pour les commentaires pour les derniers commentaires.
+modified:
+  inc/conf.php // nouvelle GLOBALS[rss_comments] : fil rss des commentaires. La variable est modifiés dans init_billet().
+  inc/them.php // dans conversions_theme() : ajout du rss_comments
+  themes/defaut/post.html // ajout, dans le <head> du fil rss pour les commentaires (ajout aussi vers le formulaire commentaires)
+  rss.php // addition d'un test sur un id : si y'a id, alors c'est l'id d'un billet et il affiche les comms correspondant au billet.
+------------------------------------------------------------
+revno: 67
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-10-08 23:43:17 +0200
+message:
+  Modification du preg_grep() pour les commentaires (corrigeant au passage une possible faille XSS) + correction d'un bug qui permetait d'aller infiniment dans le passé avce le callendrier. C'est assez embêtant à cause des moteurs de recherche qui indéxent ces pages vides.
+modified:
+  inc/conf.php // ajout nouvelle variable en haut || ajout d'un $comment['auteur_ss_lien'] dans le init_comment(), ceci est pour le flux rss des commentaires
+
+  inc/html.php // ajout d'un if sur la fonction du calendrier.
+  inc/conv.php // le preg_grep de formatage des comm passe par une boucle for.
+------------------------------------------------------------
+revno: 66
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-10-02 14:33:17 +0200
+message:
+  Optimisation de blogotext (> 50% de gain en performances)
+modified:
+  inc/them.php
+  inc/fich.php
+  inc/html.php
+------------------------------------------------------------
+revno: 65
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 02:32:17 +0200
+message:
+  ajout de divers choses pour le fichier ADMIN/CAPTCHA_TEST
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/fr_LEET.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 64
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 00:32:20 +0200
+message:
+  ajout de divers choses pour le formulaire ADMIN/ALL.PHP
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/fr_LEET.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 63
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 00:31:25 +0200
+message:
+  voir commit 60
+modified:
+  inc/form.php
+------------------------------------------------------------
+revno: 62
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 00:30:36 +0200
+message:
+  modification du css interne pour ajouter des choses nescessaire au fichier ADMIN / ALL.PHP
+modified:
+  admin/style/ecrire.css
+  admin/style/question.gif
+------------------------------------------------------------
+revno: 61
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 00:29:05 +0200
+message:
+  modification des bbcode et suppressions de certains STRIPSLASHES() dans les fichiers inc/comm et inc/conv
+------------------------------------------------------------
+revno: 60
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-09-01 00:27:28 +0200
+message:
+  diverses modif pour *le delay sleep() à la connexion ; *le fichier ALL.PHP qui requiert diverses fonctions dans inc/html et autres ; 
+modified:
+  admin/auth.php
+  admin/install.php
+  inc/comm.php
+  inc/conf.php
+  inc/conv.php
+  inc/fich.php
+  inc/html.php
+------------------------------------------------------------
+revno: 59
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-08-26 00:02:40 +0200
+message:
+  ajout de la fonction input_valider()
+modified:
+  inc/util.php
+------------------------------------------------------------
+revno: 58
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-08-25 23:55:33 +0200
+message:
+  ajout de la fonction form_radio
+modified:
+  inc/util.php
+------------------------------------------------------------
+revno: 57
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-08-18 17:48:10 +0200
+message:
+  ajout d'une fonction pour afficher un délai de connexion le sleep(10). On peut le désactiver dans les préférences. La fonction se trouve dans inc/html et est appelée dans admin/auth
+modified:
+  admin/auth.php
+  admin/preferences.php
+  inc/fich.php
+  inc/html.php
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/fr_LEET.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 56
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-08-17 15:45:32 +0200
+message:
+  -/-
+removed:
+  config/
+added:
+  config/
+  config/index.html
+  config/prefs.php
+  config/user.php
+------------------------------------------------------------
+revno: 55
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-08-17 15:44:04 +0200
+message:
+  -/-
+removed:
+  themes/
+  themes/defaut/
+  themes/defaut/list.html
+  themes/defaut/post.html
+  themes/defaut/star.gif
+  themes/defaut/style.css
+  themes/defaut/top.gif
+added:
+  admin/xauthlog.php
+  themes/
+  themes/defaut/
+  themes/defaut/list.html
+  themes/defaut/post.html
+  themes/defaut/star.gif
+  themes/defaut/style.css
+  themes/defaut/top.gif
+modified:
+  admin/auth.php*
+  admin/image.php*
+  admin/index.php*
+  admin/lastcom.php*
+  admin/logout.php*
+  admin/wiki.php*
+  inc/comm.php
+  inc/conv.php*
+  inc/imgs.php*
+  inc/inc.php*
+  inc/index.php*
+  inc/lang.php*
+  inc/lang/en_EN.php*
+  inc/lang/fr_FR.php*
+  inc/lang/fr_LEET.php*
+  inc/lang/nl_NL.php*
+  inc/list.php*
+  inc/veri.php*
+  inc/wiki.php*
+------------------------------------------------------------
+revno: 54
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-08-17 15:36:52 +0200
+message:
+  ajout d'un systeme pour loguer des informations (ip, navigateur…) quand on accéde au panel.
+modified:
+  admin/auth.php
+------------------------------------------------------------
+revno: 53
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-07-21 17:33:11 +0200
+message:
+  Dans la suite de l'encart des derniers commentaires : désormais ont peut choisir le nombre de comms à afficher. (ajout d'une nouvelle variable dans les preférences ainsi que d'une nouvelle ligne dans les fichiers des langues)
+modified:
+  admin/install.php*
+  admin/preferences.php*
+  inc/fich.php*
+  inc/html.php
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/fr_LEET.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 52
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-20 01:34:22 +0200
+message:
+  Ajout d'une variable (template) pour un encart avec les dernieres comm. (ainsi qu'un pour les ancres sur chaque commentaire)
+modified:
+  themes/defaut/list.html*
+  themes/defaut/post.html*
+------------------------------------------------------------
+revno: 51
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-20 01:33:11 +0200
+message:
+  Ajout du nescessaire pour afficher un ancart avec les derniers commentaires sur tout le blog (avec un template de Blogotext)
+modified:
+  inc/conf.php*
+  inc/html.php*
+  inc/them.php*
+------------------------------------------------------------
+revno: 50
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-20 01:26:42 +0200
+message:
+  Ajout de 2 nouvelles fonctions : get_blogpath_from_blog() pour l'encart des derniers comm ET article_anchor() pour afichier une ancre sur les commentaires dans les articles.
+modified:
+  inc/util.php*
+------------------------------------------------------------
+revno: 49
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-20 01:24:26 +0200
+message:
+  Correction d'un bug d'affichage d'une erreur au cas ou il n'y a aucun commentaire sur tout le blog
+modified:
+  inc/comm.php*
+------------------------------------------------------------
+revno: 48
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 20:56:42 +0200
+message:
+  le fichier DATA a désormais une extension .php au lieu de .txt . De ce fait, le fichier index.php des dossiers est devenu index.html.
+modified:
+  inc/conf.php
+  inc/fich.php*
+------------------------------------------------------------
+revno: 47
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 20:53:08 +0200
+message:
+  changement de la validation de l'URL
+modified:
+  inc/veri.php
+------------------------------------------------------------
+revno: 46
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 14:37:32 +0200
+message:
+  suppression de la version de blogotext dans la balise meta du générateur de la page html
+modified:
+  themes/defaut/list.html
+  themes/defaut/post.html
+------------------------------------------------------------
+revno: 45
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 14:36:28 +0200
+message:
+  ajout de nouveaux champs en cas d'erreur de suppression d'articles
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/fr_LEET.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 44
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 14:30:49 +0200
+message:
+  ajout d'un jeton de validation pour la suppression d'un article
+modified:
+  admin/commentaires.php*
+  admin/ecrire.php*
+  inc/fich.php*
+  inc/form.php*
+------------------------------------------------------------
+revno: 43
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 02:21:30 +0200
+message:
+  -
+added:
+  admin/style/deny.gif
+  inc/index.php
+  inc/lang/fr_LEET.php
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/nl_NL.php
+  inc/veri.php*
+  index.php*
+  rss.php*
+------------------------------------------------------------
+revno: 42
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 02:19:50 +0200
+message:
+  lors de l'expiration d'une session pour supprimer un commentaire, ce commentaire n'est pas supprime. Désormais, il s'affiche une erreur en rouge :)
+modified:
+  admin/auth.php*
+  admin/commentaires.php*
+  admin/ecrire.php*
+  admin/image.php*
+  admin/index.php*
+  admin/install.php*
+  admin/lastcom.php*
+  admin/logout.php*
+  admin/preferences.php*
+  admin/style/ecrire.css
+  admin/wiki.php*
+  inc/comm.php*
+  inc/html.php
+------------------------------------------------------------
+revno: 41
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 00:03:01 +0200
+message:
+  durée de session passe de 15 minutes (900s) à 30 minutes (1800s)
+modified:
+  admin/commentaires.php
+  admin/ecrire.php
+  admin/index.php
+  admin/lastcom.php
+  admin/preferences.php
+------------------------------------------------------------
+revno: 40
+committer: timo <timovneerden@gmail.com>
+timestamp: Sat 2010-07-10 00:00:23 +0200
+message:
+  ajout d'une vérification de session
+modified:
+  admin/auth.php*
+  admin/commentaires.php
+  admin/ecrire.php*
+  admin/image.php*
+  admin/index.php*
+  admin/install.php*
+  admin/lastcom.php
+  admin/logout.php*
+  admin/preferences.php*
+  admin/wiki.php*
+------------------------------------------------------------
+revno: 39
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 19:12:38 +0200
+message:
+  l'email est validé de nouveau par une regex
+modified:
+  inc/veri.php
+------------------------------------------------------------
+revno: 38
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 18:54:58 +0200
+message:
+  les dossiers désormais Articles, Commentaires, Confi  contiendront AUSSI un .htaccess (ajouté à la création de ces derniers
+modified:
+  admin/install.php
+  inc/fich.php
+------------------------------------------------------------
+revno: 37
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 18:15:19 +0200
+message:
+  les dossiers désormais crées contiendront un index.html pour revenir : on a pas le droit de fouiller dans les dossiers internes :-D
+modified:
+  admin/install.php
+  inc/fich.php
+------------------------------------------------------------
+revno: 36
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 01:44:40 +0200
+message:
+  ajour d'un test sur la validité de l'url avec la fonction var_filter()
+modified:
+  inc/veri.php*
+------------------------------------------------------------
+revno: 35
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 01:42:37 +0200
+message:
+  modification de la fonction liste_commentaires, pour prendre en compte les annés entières si le commentaire date de plus d'un an
+modified:
+  inc/comm.php*
+------------------------------------------------------------
+revno: 34
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 01:41:46 +0200
+message:
+  changement du suppression commentaire, de  en 
+modified:
+  admin/commentaires.php*
+  admin/lastcom.php*
+------------------------------------------------------------
+revno: 33
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2010-07-09 01:39:57 +0200
+message:
+  ajout d'un champ pour l'erreur sur URL
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 32
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:15:27 +0200
+message:
+  mise à jour des chmod, aucune importance ici
+modified:
+  admin/auth.php*
+  admin/image.php*
+  admin/index.php*
+  admin/install.php*
+  admin/logout.php*
+  admin/preferences.php*
+  admin/wiki.php*
+  inc/conf.php*
+  inc/conv.php*
+  inc/form.php*
+  inc/html.php*
+  inc/imgs.php*
+  inc/inc.php*
+  inc/lang.php*
+  inc/list.php*
+  inc/them.php*
+  inc/veri.php*
+  inc/wiki.php*
+------------------------------------------------------------
+revno: 31
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:14:09 +0200
+message:
+  ajout d'une class CSS pour 'submit-suppr-comm' correspondant à l'input rouge que l'on voit dans les pages où l'on peut supprimer un commentaire
+modified:
+  admin/style/ecrire.css
+------------------------------------------------------------
+revno: 30
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:12:29 +0200
+message:
+  ajout d'un htmlspecialchars() sur la récupération de l'id du billet
+modified:
+  admin/ecrire.php*
+------------------------------------------------------------
+revno: 29
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:11:13 +0200
+message:
+  la suppression des commentaires passes désormais par des formulaires plutot que par des liens. Modification des fonctions 'afficher_commentaire' et 'supprimer_commentaire' dans inc/comm.php et dans les deux fichiers admin/lastcomm+commentaire.php, modification du //SUPPRIMER
+modified:
+  admin/commentaires.php*
+  admin/lastcom.php*
+  inc/comm.php*
+------------------------------------------------------------
+revno: 28
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:08:06 +0200
+message:
+  changement du création de dossiers de chmod=755 à chmod=700
+modified:
+  inc/fich.php*
+------------------------------------------------------------
+revno: 27
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 18:07:13 +0200
+message:
+  ajout fonction 'input_supprimer_comment()'
+modified:
+  inc/util.php*
+------------------------------------------------------------
+revno: 26
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 04:03:42 +0200
+message:
+  mascage du error_reporting(all)
+modified:
+  admin/commentaires.php
+------------------------------------------------------------
+revno: 25
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 02:42:51 +0200
+message:
+  La génération du captcha se faire via une fonction, ce ne sont plus des variables superglobales. (on économise des ressources calcules, car la fonction n'est désormais éxécutée que quand la solicite, avant l'instruction était libre et était éxécutée à chaque appel du fichier conf.php
+modified:
+  admin/commentaires.php
+  inc/comm.php
+  inc/conf.php
+  inc/them.php
+  inc/veri.php
+------------------------------------------------------------
+revno: 24
+committer: timo <timovneerden@gmail.com>
+timestamp: Thu 2010-07-08 01:00:54 +0200
+message:
+  ajout d'un htmlspecialchars() sur le moteur de recherche.
+modified:
+  inc/form.php
+  inc/html.php
+------------------------------------------------------------
+revno: 23
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-07-07 13:28:10 +0200
+message:
+  à l'installation, blogotext crée le fichier /config. Avant il ne le créait pas mais était déjà là dans l'archive.
+modified:
+  admin/install.php
+------------------------------------------------------------
+revno: 22
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-07-07 01:57:34 +0200
+message:
+  modification du Captcha 2 : juste avant, ça bugait dans le panel…
+modified:
+  inc/conf.php
+------------------------------------------------------------
+revno: 21
+committer: timo <timovneerden@gmail.com>
+timestamp: Wed 2010-07-07 01:36:33 +0200
+message:
+  modification du Captcha
+modified:
+  inc/conf.php
+------------------------------------------------------------
+revno: 20
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-06 23:33:30 +0200
+message:
+  suppression du lien 'modifier' dans la page 'lastcom.php', cela provoquait une erreur
+modified:
+  admin/lastcom.php
+------------------------------------------------------------
+revno: 19
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-06 23:09:11 +0200
+message:
+  ajout d'un htmlspecialchar()
+modified:
+  inc/comm.php
+------------------------------------------------------------
+revno: 18
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2010-07-06 22:57:40 +0200
+message:
+  amélioration de la fonction liste_commentaire
+modified:
+  inc/comm.php
+  inc/conf.php
+------------------------------------------------------------
+revno: 17
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2010-07-05 02:08:01 +0200
+message:
+  -
+modified:
+  inc/conf.php
+  index.php
+  rss.php*
+------------------------------------------------------------
+revno: 16
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2010-07-05 01:35:30 +0200
+message:
+  le dossier ADMIN est mis dans une redirection
+modified:
+  index.php*
+------------------------------------------------------------
+revno: 15
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2010-07-05 00:38:57 +0200
+message:
+  remplacement du <? par <?php , apparement ça posait problème dans certains environnements PHP
+modified:
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/nl_NL.php
+------------------------------------------------------------
+revno: 14
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2010-07-05 00:31:59 +0200
+message:
+  remplacement du <? par <?php , apparement ça posait problème dans certains environnements PHP
+modified:
+  inc/wiki/ecrire.css*
+------------------------------------------------------------
+revno: 13
+committer: timo <timovneerden@gmail.com>
+timestamp: Mon 2010-07-05 00:24:58 +0200
+message:
+  modification du script des images pour qu'il fournisse les dimension de l'image
+modified:
+  admin/image.php
+------------------------------------------------------------
+revno: 12
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-07-04 18:35:23 +0200
+message:
+  Révision totale
+modified:
+  admin/auth.php*
+  admin/commentaires.php*
+  admin/ecrire.php*
+  admin/image.php*
+  admin/index.php*
+  admin/install.php*
+  admin/lastcom.php*
+  admin/logout.php*
+  admin/preferences.php*
+  admin/wiki.php*
+  inc/conv.php*
+  inc/fich.php*
+  inc/form.php*
+  inc/html.php*
+  inc/imgs.php*
+  inc/inc.php*
+  inc/lang.php*
+  inc/list.php*
+  inc/them.php*
+  inc/util.php*
+  inc/veri.php*
+  inc/wiki.php*
+------------------------------------------------------------
+revno: 11
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-07-04 18:33:18 +0200
+message:
+  changement du captcha
+modified:
+  inc/conf.php*
+------------------------------------------------------------
+revno: 10
+committer: timo <timovneerden@gmail.com>
+timestamp: Sun 2010-07-04 18:32:04 +0200
+message:
+  changement de la fonction liste_commentaires()
+modified:
+  inc/comm.php*
+------------------------------------------------------------
+revno: 9
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 10:01:40 +0200
+message:
+  Blogotext 9 (02 juillet 2010)
+modified:
+  admin/image.php
+  admin/lastcom.php
+  inc/conf.php
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/nl_NL.php
+  inc/wiki/ecrire.css*
+------------------------------------------------------------
+revno: 8
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 10:00:48 +0200
+message:
+  Blogotext 8 (01 juillet 2010)
+modified:
+  admin/lastcom.php
+  inc/comm.php
+  inc/conf.php
+  inc/conv.php
+  inc/fich.php
+  inc/them.php
+  inc/veri.php
+  themes/defaut/post.html
+------------------------------------------------------------
+revno: 7
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 10:00:04 +0200
+message:
+  Blogotext 6 (30 juin 2010)
+added:
+  inc/lang/
+  inc/lang/en_EN.php
+  inc/lang/fr_FR.php
+  inc/lang/nl_NL.php
+  inc/wiki/
+  inc/wiki.php
+  inc/wiki/ecrire.css
+modified:
+  admin/install.php
+  inc/comm.php
+  inc/conf.php
+  inc/conv.php
+  inc/lang.php
+  inc/veri.php
+  index.php
+  themes/defaut/list.html
+  themes/defaut/post.html
+------------------------------------------------------------
+revno: 6
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:58:46 +0200
+message:
+  Blogotext 5 (29 juin 2010)
+modified:
+  admin/preferences.php
+  inc/comm.php
+  inc/fich.php
+  inc/lang.php
+------------------------------------------------------------
+revno: 5
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:57:35 +0200
+message:
+  Blogotext 4 (27 juin 2010)
+modified:
+  admin/install.php
+------------------------------------------------------------
+revno: 4
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:56:46 +0200
+message:
+  Blogotext 3 (27 juin 2010)
+modified:
+  admin/auth.php*
+  admin/commentaires.php*
+  admin/ecrire.php*
+  admin/image.php*
+  admin/index.php*
+  admin/install.php*
+  admin/lastcom.php*
+  admin/logout.php*
+  admin/preferences.php*
+  admin/wiki.php*
+  inc/conv.php
+------------------------------------------------------------
+revno: 3
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:55:09 +0200
+message:
+  Blogotext 2 (25 juin 2010) /!\ cette version buggue : impossible de poster un message /!\
+modified:
+  inc/conv.php
+  inc/lang.php
+------------------------------------------------------------
+revno: 2
+author: Timo Van Neerden <timovneerden@gmail.com>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:53:42 +0200
+message:
+  Blogotext 1 (23 juin 2010)
+added:
+  admin/image.php
+  admin/lastcom.php
+modified:
+  admin/auth.php
+  admin/commentaires.php
+  admin/ecrire.php
+  admin/index.php
+  admin/install.php
+  admin/logout.php
+  admin/preferences.php
+  admin/style/accept.gif*
+  admin/style/application_go.gif*
+  admin/style/bgfoot.gif*
+  admin/style/bgform.gif*
+  admin/style/bgnav.gif*
+  admin/style/bgnav.png*
+  admin/style/bgtop.gif*
+  admin/style/bin.gif*
+  admin/style/book_open.gif*
+  admin/style/bullet_picture.gif*
+  admin/style/bullet_wrench.gif*
+  admin/style/calendar.gif*
+  admin/style/clock.gif*
+  admin/style/cog.gif*
+  admin/style/comment.gif*
+  admin/style/comments.gif*
+  admin/style/date.gif*
+  admin/style/ecrire.css*
+  admin/style/email.gif*
+  admin/style/email_open.gif*
+  admin/style/image.gif*
+  admin/style/image_add.gif*
+  admin/style/images.gif*
+  admin/style/info.gif*
+  admin/style/loading.gif*
+  admin/style/lock.gif*
+  admin/style/lock_edit.gif*
+  admin/style/logo.jpg*
+  admin/style/magnifier.gif*
+  admin/style/off.gif*
+  admin/style/on.gif*
+  admin/style/ond.gif*
+  admin/style/ong.gif*
+  admin/style/overlays.gif*
+  admin/style/page_copy.gif*
+  admin/style/page_edit.gif*
+  admin/style/pencil.gif*
+  admin/style/picture.gif*
+  admin/style/question.gif*
+  admin/style/report_magnify.gif*
+  admin/style/trombone.gif*
+  admin/style/user.gif*
+  admin/style/user_comment.gif*
+  admin/style/zoom.gif*
+  inc/comm.php*
+  inc/conf.php*
+  inc/conv.php*
+  inc/fich.php*
+  inc/form.php*
+  inc/html.php*
+  inc/imgs.php*
+  inc/inc.php*
+  inc/lang.php*
+  inc/list.php*
+  inc/them.php*
+  inc/util.php*
+  inc/veri.php*
+  index.php*
+  rss.php*
+  themes/defaut/list.html*
+  themes/defaut/post.html*
+  themes/defaut/star.gif*
+  themes/defaut/style.css*
+  themes/defaut/top.gif*
+------------------------------------------------------------
+revno: 1
+author: Frederic Nassar <unknown>
+committer: Emilien Klein <emilien@klein.st>
+branch nick: blogotext
+timestamp: Sat 2010-07-03 09:47:33 +0200
+message:
+  Blogotext 0 (20 novembre 2006)
+added:
+  admin/
+  admin/auth.php
+  admin/commentaires.php
+  admin/ecrire.php
+  admin/index.php
+  admin/install.php
+  admin/logout.php
+  admin/preferences.php
+  admin/wiki.php
+  config/
+  inc/
+  inc/comm.php
+  inc/conf.php
+  inc/conv.php
+  inc/fich.php
+  inc/form.php
+  inc/html.php
+  inc/imgs.php
+  inc/inc.php
+  inc/lang.php
+  inc/list.php
+  inc/them.php
+  inc/util.php
+  inc/veri.php
+  index.php
+  rss.php
+  themes/
+  themes/defaut/
+  themes/defaut/list.html
+  themes/defaut/post.html
+  themes/defaut/star.gif
+  themes/defaut/style.css
+  themes/defaut/top.gif
+

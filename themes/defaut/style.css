@@ -8,6 +8,7 @@ html, body{
 	font-size: 12px;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	background: #ddd;
+	word-wrap: break-word;
 }
 
 p {
@@ -24,6 +25,12 @@ a {
 
 a:visited {
 	color: #7FB2E5;
+}
+
+@media only screen and (min-device-width: 480px) {
+	#mobilelink {
+		display: none;
+	}
 }
 
 /* LAYOUT
@@ -49,15 +56,13 @@ a:visited {
 
 #page {
 	width: 900px;
-	margin-left: auto;
-	margin-right: auto;
+	margin: 25px auto 0;
 	background: #fff;
-	margin-top: 25px;
 	padding: 20px;
 	border: 1px solid #ccc;
 }
 
-#main {
+#contenu {
 	display: block;
 	width: 600px;
 	padding: 0 15px 0 15px;
@@ -79,13 +84,6 @@ a:visited {
 
 #post {
 	margin: 0 100px 0 100px;
-}
-
-.chapo {
-	background: #fefebd;
-	font-weight: bold;
-	padding: 5px;
-	border: 1px solid #ffde00;
 }
 
 h1 {
@@ -112,6 +110,12 @@ h3 {
 	font-size: 20px;
 }
 
+.chapo {
+	background: #fefebd;
+	font-weight: bold;
+	padding: 5px;
+	border: 1px solid #ffde00;
+}
 
 /* COMMENT BLOCS
 -------------------------------------------------------- */
@@ -148,14 +152,7 @@ textarea.commentaire {
 	width: 654px; /* 654 + 2(*2) padding + 2 border = 660px */
 	height: 200px;
 }
-/*
-#postcom input, #postcom textarea {
-	border: 1px solid #999;
-	padding: 2px;
-	font-size: 14px;
-	margin-top: 4px;
-}
-*/
+
 .formatbut input, .infos input {
 	display: inline;
 	min-width: 22px;
@@ -239,3 +236,4 @@ textarea.commentaire {
 	text-align: center;
 	color: #999;
 }
+

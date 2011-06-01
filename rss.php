@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 header('Content-Type: text/html; charset=UTF-8');
@@ -33,13 +36,13 @@ echo '<channel>'."\n";
 if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 		$article_id = htmlspecialchars($_GET['id']);
 		$date_billet = decode_id($article_id);
-		echo '<title>Fil des commentaires sur "'.parse_xml($GLOBALS['dossier_articles']."/".get_path($article_id), 'bt_title').'" - '.$GLOBALS['nom_du_site'].'</title>'."\n";
+		echo '<title>Fil des commentaires sur "'.parse_xml($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']."/".get_path($article_id), 'bt_title').'" - '.$GLOBALS['nom_du_site'].'</title>'."\n";
 		echo '<link>'.$GLOBALS['racine'].$date_billet['annee'].'/'.$date_billet['mois'].'/'.$date_billet['jour'].'/'.$date_billet['heure'].'/'.$date_billet['minutes'].'/'.$date_billet['secondes'].'</link>'."\n"; 
 		echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
 		echo '<language>fr</language>'."\n"; 
 		echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
 
-		$liste = liste_commentaires($GLOBALS['dossier_commentaires'], $article_id);
+		$liste = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '1');
 	if ($liste != '') {
 		rsort($liste);
 		foreach ($liste as $file => $comment) {
@@ -76,13 +79,13 @@ else {
 		echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
 		echo '<language>fr</language>'."\n"; 
 		echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
-$liste = table_derniers($GLOBALS['dossier_articles'], '15', '1');
+$liste = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '15', '1', 'admin');
 foreach ($liste as $id => $article) {
 	$extension = substr($article, -3);
 		if ($extension == $GLOBALS['ext_data']) {
 			$id = substr($article, 0, 14);
 			$billet = init_billet('public', $id);
-				$dossier= $GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
+				$dossier= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
 				$fichier = $dossier.$article;
 				$jour_abbr = date("D", mktime(0, 0, 0, $billet['mois'], $billet['jour'] , $billet['annee']));
 				$mois_abbr = date("M", mktime(0, 0, 0, $billet['mois'], $billet['jour'], $billet['annee']));

@@ -1,19 +1,23 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
-# Copyright (c) 2006      Frederic Nassar.
-#               2010-2011 Timo Van Neerden
-# All rights reserved.
+# http://lehollandaisvolant.net/blogotext/
+#
+# 2006      Frederic Nassar.
+# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+#
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 // RETOURNE UN TABLEAU SELON RECHERCHE
-function table_recherche($depart, $recherche, $statut='') {
+function table_recherche($depart, $recherche, $statut, $mode) {
 	if (strlen(trim($recherche))) {
 		$table_matchs = array();
 
-		$articles = table_derniers($depart, '', $statut);
+		$articles = table_derniers($depart, '', $statut, $mode);
 		foreach ($articles as $id) {
 			$dec = decode_id($id);
 			$dossier = $depart.'/'.$dec['annee'].'/'.$dec['mois'].'/';
@@ -31,9 +35,8 @@ function table_recherche($depart, $recherche, $statut='') {
 // RETOURNE UN TABLEAU SELON AUTEUR DE COMMENTAIRE
 // IF NO AUTHOR SPECIFIED : $array[comment_id] => author
 // IF AUTHOR SPECIFIED    : $array[i] => comment_id
-function table_auteur($depart, $name='', $statut='') {
-	$mode = ($depart == $GLOBALS['dossier_data_commentaires']) ? 'admin' : 'public';
-	$comms = table_derniers($depart, '', $statut);
+function table_auteur($depart, $name, $statut, $mode) {
+	$comms = table_derniers($depart, '', $statut, $mode);
 	$author_list = array();
 	if($comms != "") {
 		foreach ($comms as $id => $com) {
@@ -52,10 +55,10 @@ function table_auteur($depart, $name='', $statut='') {
 
 
 // RETOURNE UN TABLEAU SELON TAG
-function table_tags($depart, $txt, $statut='') {
+function table_tags($depart, $txt, $statut, $mode) {
 	$searched = htmlspecialchars($txt);
 	$table_matchs = array();
-	$articles = table_derniers($depart, '', $statut);
+	$articles = table_derniers($depart, '', $statut, $mode);
 	if (!empty($searched)) {
 		foreach ($articles as $id) {
 			$date = decode_id($id);
@@ -76,14 +79,16 @@ function table_tags($depart, $txt, $statut='') {
 }
 
 function list_all_tags() {
-	$depart = $GLOBALS['dossier_data_articles'];
-	$articles = table_derniers($depart, '', '');
+	$depart = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
+	$articles = table_derniers($depart, '', '', 'public');
 	$tags = '';
-	foreach ($articles as $id) {
-		$date = decode_id($id);
-		$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-		$article_tags = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
-		$tags .= $article_tags.',';
+	if (!empty($articles)) {
+		foreach ($articles as $id) {
+			$date = decode_id($id);
+			$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
+			$article_tags = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
+			$tags .= $article_tags.',';
+		}
 	}
 	return $tags;
 }
@@ -132,7 +137,7 @@ function table_date($depart, $annee, $mois, $jour='', $statut='') {
 }
 
 // RETOURNE UN TABLEAU DE TOUS LES ARTICLES
-function table_derniers($dossier, $limite='', $statut='') {
+function table_derniers($dossier, $limite, $statut, $mode) {
 	$contenu = array();
 
 	// listage des dossiers des annees.
@@ -160,7 +165,7 @@ function table_derniers($dossier, $limite='', $statut='') {
 				}
 	}	}	}
 
-// listage des fichiers dans chaque dossiers des mois
+	// listage des fichiers dans chaque dossiers des mois
 	if (isset($dossier_mois)) {
 		$i= 0;
 		foreach ($dossier_mois as $path) {
@@ -168,10 +173,10 @@ function table_derniers($dossier, $limite='', $statut='') {
 				while ( FALSE !== ($fichiers = readdir($ouverture)) ) {
 					// On verifie Extension
 					$chemin= $path.'/'.$fichiers;
-					if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
+					if (preg_match('#^\d{14}'.'.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
 
-						if ($dossier == $GLOBALS['dossier_data_articles']) { // on affiche les billets programmés (dans le panel par ex)
-							if ( isset($statut) and $statut != '' ) {
+						if ($mode == 'admin') {
+							if ( $statut != '' ) {
 								if (parse_xml($chemin, $GLOBALS['data_syntax']['article_status']) === $statut) {
 									$contenu[$i] = $fichiers;
 									$i++;
@@ -180,15 +185,15 @@ function table_derniers($dossier, $limite='', $statut='') {
 								$contenu[$i] = $fichiers;
 								$i++;
 							}
-						} else { // on affiche pas les billets programes (sur acceuil par exmeple)
+						} elseif ($mode == 'public' or $mode == '') {
 							if ($fichiers <= date('YmdHis')) {
-								if  ( isset($statut) and $statut != '' ) {
+								if ( $statut != '' ) {
 									if (parse_xml($chemin, $GLOBALS['data_syntax']['article_status']) === $statut) {
-										$contenu[$i]=$fichiers;
+										$contenu[$i] = $fichiers;
 										$i++;
 									}
 								} else {
-									$contenu[$i]=$fichiers;
+									$contenu[$i] = $fichiers;
 									$i++;
 								}
 							}
@@ -201,7 +206,7 @@ function table_derniers($dossier, $limite='', $statut='') {
 		if (isset($contenu)) {
 			rsort($contenu);
 
-			if ( (isset($limite)) and ($limite!='') and ($limite != '-1') ) {
+			if ( ($limite != '') and ($limite != '-1') ) {
 				$retour = array_slice($contenu, '0', $limite);
 			} else {
 					$retour= $contenu;
@@ -214,7 +219,7 @@ function table_derniers($dossier, $limite='', $statut='') {
 
 function traiter_form_billet($billet) {
 	if (isset($_POST['enregistrer'])) {
-		if (fichier_data($GLOBALS['dossier_data_articles'], $billet) !== FALSE) {
+		if (fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $billet) !== FALSE) {
 			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&msg=confirm_article_ajout');
 		} else {
 			erreur('Ecriture impossible');
@@ -223,15 +228,15 @@ function traiter_form_billet($billet) {
 	} elseif (isset($_POST['supprimer'])) {
 		if (isset($_POST['security_coin_article']) and htmlspecialchars($_POST['security_coin_article']) == md5($_POST['article_id'].$_SESSION['time_supprimer_article']) and $_SESSION['time_supprimer_article'] >= (time() - 300) ) {
 
-			if (unlink($GLOBALS['dossier_data_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id']]))) {
+			if (unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id']]))) {
 				redirection('index.php?msg=confirm_article_suppr');
 			} else {
 				redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr_impos');
 				exit;
 			}
-			$dossier_annee_mois= $GLOBALS['dossier_data_articles'].'/'.$annee.'/'.$mois.'/';
+			$dossier_annee_mois = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/'.$mois.'/';
 			rmdir($dossier_annee_mois);
-			$dossier_annee= $GLOBALS['dossier_data_articles'].'/'.$annee.'/';
+			$dossier_annee= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/';
 			rmdir($dossier_annee);
 		} else {
 			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr');
@@ -306,23 +311,25 @@ function creer_dossier($dossier) {
 }
 
 function parcourir_dossier($dossier, $statut='') {
-	if ($ouverture = opendir($dossier) ) {
-		while (FALSE !== ($fichiers = readdir($ouverture))) {
-			if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
-				if ( (isset($statut)) and ($statut != '') ) {
-					if (parse_xml($dossier.$fichiers, $GLOBALS['data_syntax']['article_status']) === $statut) {
+	if (is_dir($dossier)) {
+		if ($ouverture = opendir($dossier) ) {
+			while (FALSE !== ($fichiers = readdir($ouverture))) {
+				if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#',$fichiers)) {
+					if ( (isset($statut)) and ($statut != '') ) {
+						if (parse_xml($dossier.$fichiers, $GLOBALS['data_syntax']['article_status']) === $statut) {
+							$contenu[] = $fichiers;
+						}
+					}
+					else {
 						$contenu[] = $fichiers;
 					}
 				}
-				else {
-					$contenu[] = $fichiers;
-				}
 			}
-		}
-		closedir($ouverture);
-		if (isset($contenu)) {
-			sort($contenu);
-			return $contenu;
+			closedir($ouverture);
+			if (isset($contenu)) {
+				sort($contenu);
+				return $contenu;
+			}
 		}
 	} else {
 		$erreur = $GLOBALS['lang']['note_no_article'];
@@ -352,44 +359,43 @@ function fichier_user() {
 }
 
 function fichier_tags($new_tags, $reset) {
-/* new tags */
-		$new_tags_array = explode(',' , $new_tags);
-		$nb = sizeof($new_tags_array);
-		for ($i = 0 ; $i < $nb ; $i ++) {
-			$new_tags_array[$i] = trim($new_tags_array[$i]);
-		}
-/* old tags */
-		if (isset($GLOBALS['tags']) and ($reset == '0')) {
-			$old_tags = $GLOBALS['tags'];
-			$old_tags_array = explode(',' , $old_tags);
-			$nb2 = sizeof($old_tags_array);
-		} else {
-			$old_tags_array[] = '';
-			$nb2 = 1;
-		}
+	/* new tags */
+	$new_tags_array = explode(',' , $new_tags);
+	$nb = sizeof($new_tags_array);
+	for ($i = 0 ; $i < $nb ; $i ++) {
+		$new_tags_array[$i] = trim($new_tags_array[$i]);
+	}
+	/* old tags */
+	if (isset($GLOBALS['tags']) and ($reset == '0')) {
+		$old_tags = $GLOBALS['tags'];
+		$old_tags_array = explode(',' , $old_tags);
+		$nb2 = sizeof($old_tags_array);
+	} else {
+		$old_tags_array[] = '';
+		$nb2 = 1;
+	}
 
 	$all_tags = array_unique(array_merge($new_tags_array, $old_tags_array));
 	sort($all_tags);
-		$inline_tags = implode(',' , $all_tags);
-		$inline_tags = trim($inline_tags, ',');
-		$tags='';
-		$tags .= "<?php\n";
-		$tags .= "\$GLOBALS['tags'] = '".$inline_tags."';\n";
-		$tags .= "?>";
+	$inline_tags = implode(',' , $all_tags);
+	$inline_tags = trim($inline_tags, ',');
+	$tags='';
+	$tags .= "<?php\n";
+	$tags .= "\$GLOBALS['tags'] = '".$inline_tags."';\n";
+	$tags .= "?>";
 
-		$fichier_tags = '../config/tags.php';
-		$new_file_tags=fopen($fichier_tags,'wb+');
-		if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$tags) === FALSE)) {
-			return FALSE;
-		} else {
-			fclose($new_file_tags);
-			return TRUE ;
-		}
+	$fichier_tags = '../config/tags.php';
+	$new_file_tags=fopen($fichier_tags,'wb+');
+	if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$tags) === FALSE)) {
+		return FALSE;
+	} else {
+		fclose($new_file_tags);
+		return TRUE ;
+	}
 }
 
 function fichier_prefs() {
 	$prefs='';
-
 	if(!empty($_POST['_verif_envoi'])) {
 		$auteur = clean_txt($_POST['auteur']);
 		$email = clean_txt($_POST['email']);
@@ -400,8 +406,6 @@ function fichier_prefs() {
 		$max_comm_encart = $_POST['nb_maxi_comm'];
 		$max_bill_admin = $_POST['nb_list'];
 		$max_comm_admin = $_POST['nb_list_com'];
-//		$onglet_commentaires = $_POST['onglet_commentaires'];
-//		$onglet_images = $_POST['onglet_images'];
 		$format_date = $_POST['format_date'];
 		$format_heure = $_POST['format_heure'];
 		$fuseau_horaire = $_POST['fuseau_horaire'];
@@ -421,8 +425,6 @@ function fichier_prefs() {
 		$max_comm_encart = '5';
 		$max_bill_admin = '25';
 		$max_comm_admin = '50';
-//		$onglet_commentaires = 'on';
-//		$onglet_images = 'on';
 		$format_date = '0';
 		$format_heure = '0';
 		$fuseau_horaire = 'UTC';
@@ -434,37 +436,35 @@ function fichier_prefs() {
 		$automatic_keywords = '1';
 	}
 
-		$prefs .= "<?php\n";
-		$prefs .= "\$GLOBALS['auteur'] = '".$auteur."';\n";	
-		$prefs .= "\$GLOBALS['email'] = '".$email."';\n";
-		$prefs .= "\$GLOBALS['nom_du_site'] = '".$nomsite."';\n";
-		$prefs .= "\$GLOBALS['description'] = '".$description."';\n";
-		$prefs .= "\$GLOBALS['racine'] = '".$racine."';\n";
-		$prefs .= "\$GLOBALS['max_bill_acceuil'] = '".$max_bill_acceuil."';\n";
-		$prefs .= "\$GLOBALS['max_bill_admin'] = '".$max_bill_admin."';\n";
-		$prefs .= "\$GLOBALS['max_comm_encart'] = '".$max_comm_encart."';\n";
-		$prefs .= "\$GLOBALS['max_comm_admin'] = '".$max_comm_admin."';\n";
-//		$prefs .= "\$GLOBALS['onglet_commentaires'] = '".$onglet_commentaires."';\n";
-//		$prefs .= "\$GLOBALS['onglet_images'] = '".$onglet_images."';\n";
-		$prefs .= "\$GLOBALS['format_date'] = '".$format_date."';\n";
-		$prefs .= "\$GLOBALS['format_heure'] = '".$format_heure."';\n";
-		$prefs .= "\$GLOBALS['fuseau_horaire'] = '".$fuseau_horaire."';\n";
-		$prefs .= "\$GLOBALS['connexion_captcha']= '".$connexion_captcha."';\n";
-		$prefs .= "\$GLOBALS['activer_categories']= '".$activer_categories."';\n";
-		$prefs .= "\$GLOBALS['theme_choisi']= '".$theme_choisi."';\n";
-		$prefs .= "\$GLOBALS['global_com_rule']= '".$global_com_rule."';\n";
-		$prefs .= "\$GLOBALS['comm_defaut_status']= '".$comm_defaut_status."';\n";
-		$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
+	$prefs .= "<?php\n";
+	$prefs .= "\$GLOBALS['auteur'] = '".$auteur."';\n";	
+	$prefs .= "\$GLOBALS['email'] = '".$email."';\n";
+	$prefs .= "\$GLOBALS['nom_du_site'] = '".$nomsite."';\n";
+	$prefs .= "\$GLOBALS['description'] = '".$description."';\n";
+	$prefs .= "\$GLOBALS['racine'] = '".$racine."';\n";
+	$prefs .= "\$GLOBALS['max_bill_acceuil'] = '".$max_bill_acceuil."';\n";
+	$prefs .= "\$GLOBALS['max_bill_admin'] = '".$max_bill_admin."';\n";
+	$prefs .= "\$GLOBALS['max_comm_encart'] = '".$max_comm_encart."';\n";
+	$prefs .= "\$GLOBALS['max_comm_admin'] = '".$max_comm_admin."';\n";
+	$prefs .= "\$GLOBALS['format_date'] = '".$format_date."';\n";
+	$prefs .= "\$GLOBALS['format_heure'] = '".$format_heure."';\n";
+	$prefs .= "\$GLOBALS['fuseau_horaire'] = '".$fuseau_horaire."';\n";
+	$prefs .= "\$GLOBALS['connexion_captcha']= '".$connexion_captcha."';\n";
+	$prefs .= "\$GLOBALS['activer_categories']= '".$activer_categories."';\n";
+	$prefs .= "\$GLOBALS['theme_choisi']= '".$theme_choisi."';\n";
+	$prefs .= "\$GLOBALS['global_com_rule']= '".$global_com_rule."';\n";
+	$prefs .= "\$GLOBALS['comm_defaut_status']= '".$comm_defaut_status."';\n";
+	$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
 
-		$prefs .= "?>";
-		$fichier_prefs = '../config/prefs.php';
-		$new_file_pref=fopen($fichier_prefs,'wb+');
-		if (fwrite($new_file_pref,$prefs) === FALSE) {
-			return FALSE;
-		} else {
-			fclose($new_file_pref);
-			return TRUE;
-		}
+	$prefs .= "?>";
+	$fichier_prefs = '../config/prefs.php';
+	$new_file_pref = fopen($fichier_prefs,'wb+');
+	if (fwrite($new_file_pref,$prefs) === FALSE) {
+		return FALSE;
+	} else {
+		fclose($new_file_pref);
+		return TRUE;
+	}
 }
 
 function fichier_index($dossier) {
@@ -478,7 +478,7 @@ function fichier_index($dossier) {
 	$content .= "\t".'</body>'."\n";
 	$content .= '</html>';
 	$index_html = $dossier.'/index.html';
-	$dest_file=fopen($index_html,'wb+');
+	$dest_file = fopen($index_html,'wb+');
 	if (fwrite($dest_file,$content) === FALSE) {
 		return FALSE;
 	} else {
@@ -494,7 +494,24 @@ function fichier_htaccess($dossier) {
 	$content .= 'Deny from all'."\n";
 	$content .= '</Files>'."\n";
 	$htaccess = $dossier.'/.htaccess';
-	$dest_file=fopen($htaccess,'wb+');
+	$dest_file = fopen($htaccess,'wb+');
+	if (fwrite($dest_file,$content) === FALSE) {
+		return FALSE;
+	} else {
+		fclose($dest_file);
+		return TRUE;
+	}
+}
+
+function fichier_ip() {
+	$new_ip = $_SERVER['REMOTE_ADDR'];
+	$new_time = date('YmdHis');
+	$content .= "<?php\n";
+	$content .= "\$GLOBALS['old_ip'] = '".$new_ip."';\n";	
+	$content .= "\$GLOBALS['old_time'] = '".$new_time."';\n";	
+	$content .= "?>";
+	$fichier = '../config/ip.php';
+	$dest_file = fopen($fichier,'wb+');
 	if (fwrite($dest_file,$content) === FALSE) {
 		return FALSE;
 	} else {

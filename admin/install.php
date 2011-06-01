@@ -1,13 +1,17 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 //error_reporting(E_ALL);
 if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')) and (file_exists('../config/tags.php')) ) {
 	header('Location: auth.php');
@@ -101,59 +105,46 @@ function afficher_form_2($erreurs = '') {
 	echo form_text('identifiant', '', $GLOBALS['lang']['install_id']);
 	echo form_password('mdp', '', $GLOBALS['lang']['install_mdp']);
 	echo form_password('mdp_rep', '', $GLOBALS['lang']['install_remdp']);
+	echo form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
+	echo hidden_input('verif_envoi_3', '1');
+	echo hidden_input('comm_defaut_status', '1');
+
 	echo hidden_input('langue', $_GET['l']);
 	echo hidden_input('verif_envoi_2', '1');
 	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
 	echo '</form>' ;
 }
 
-function afficher_form_3($erreurs = '') {
-	afficher_top('Install');
-	echo '<div id="axe">'."\n";
-	echo '<div id="pageauth">'."\n";
-	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
-	afficher_titre ($GLOBALS['lang']['install'], 'step', '1');
-	erreurs($erreurs);
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" onsubmit="return verifForm3(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
-	echo form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
-	echo hidden_input('verif_envoi_3', '1');
-	echo hidden_input('comm_defaut_status', '1');
-	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
-	echo '</form>' ;
-}
 
 function traiter_install_2() {
 	$config_dir = '../config';
 	if ( !is_dir($config_dir)) {
 		creer_dossier($config_dir);
 	}
-		fichier_user();
-		fichier_index($config_dir, '1');
-		fichier_htaccess($config_dir);
-}
+	fichier_user();
+	fichier_index($config_dir, '1');
+	fichier_htaccess($config_dir);
 
-function traiter_install_3() {
 	fichier_prefs();
 	fichier_tags($_POST['tags'], '0');
-	creer_dossier($GLOBALS['dossier_data_articles']);
-	creer_dossier($GLOBALS['dossier_data_commentaires']);
-		$first_post= array (
-			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['article_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),
-			$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
-			$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_keywords'] => '',
-			$GLOBALS['data_syntax']['article_status'] => '1',
-		$GLOBALS['data_syntax']['article_allow_comments'] => '1'
-		);
-	fichier_data($GLOBALS['dossier_data_articles'], $first_post);
-
-	fichier_index($GLOBALS['dossier_data_articles'], '1');
-	fichier_htaccess($GLOBALS['dossier_data_articles']);
-	fichier_index($GLOBALS['dossier_data_commentaires'], '1');
-	fichier_htaccess($GLOBALS['dossier_data_commentaires']);
+	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
+	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+	$first_post= array (
+		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+		$GLOBALS['data_syntax']['article_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),
+		$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
+		$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
+		$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
+		$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
+		$GLOBALS['data_syntax']['article_keywords'] => '',
+		$GLOBALS['data_syntax']['article_status'] => '1',
+	$GLOBALS['data_syntax']['article_allow_comments'] => '1'
+	);
+	fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $first_post);
+	fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '1');
+	fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
+	fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '1');
+	fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
 }
 
 function valid_install_1() {
@@ -175,11 +166,7 @@ function valid_install_2() {
 	if ( ($_POST['mdp']) !== ($_POST['mdp_rep']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp_diff'] ;
 	}
-	return $erreurs;
-}
 
-function valid_install_3() {
-	$erreurs = array();
 	if ( !strlen(trim($_POST['racine'])) or !preg_match('/^http:\/\/[a-zA-Z0-9_.]/', $_POST['racine']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine'];
 	} elseif (!preg_match('/^http:\/\//', $_POST['racine'])) {
@@ -207,7 +194,11 @@ function verifForm2(form) {
 	var mdp1Ok = false;
 	var mdp2Ok = false;
 	var mdpOk = false;
+	var url = false;
+	var regexend = /[a-zA-Z0-9]\/$/;
+	var regexbeg = /^http:\/{2}/;
 	var msg = "";
+
 
 	if (form.identifiant.value.length < 1) {
 		surligne(form.identifiant, true);
@@ -225,7 +216,7 @@ function verifForm2(form) {
 		mdp1Ok = true;
 	}
 
-	if (form.mdp_rep.value != form.mdp.value) {
+	if (form.mdp_rep.value != form.mdp.value || !form.mdp_rep.value.length) {
 		surligne(form.mdp_rep, true);
 		msg = msg + "<li>'.$GLOBALS['lang']['err_prefs_mdp_diff'].'</li>\n";
 	} else {
@@ -236,32 +227,6 @@ function verifForm2(form) {
 	if (mdp1Ok && mdp2Ok) {
 		mdpOk = true;
 	}
-
-	if(identifiantOk && mdpOk) {
-		var regexw = /[a-z]/;
-		var regexW = /[A-Z]/;
-		var regexd = /[0-9]/;
-		var regexc = /[^a-zA-Z0-9]/;
-		if (!regexw.test(form.mdp.value) || !regexW.test(form.mdp.value) || !regexd.test(form.mdp.value) || !regexc.test(form.mdp.value)) {
-			return window.confirm(\''.$GLOBALS['lang']['err_prefs_mdp_weak'].'\');
-		} else {
-			return true;
-		}
-	} else {
-		msg = "<strong>'.$GLOBALS['lang']['erreurs'].'</strong> :<ul>\n" + msg + "</ul>\n";
-		window.document.getElementById("erreurs_js").innerHTML = msg;
-		return false;
-	}
-}
-</script>';
-
-} elseif (!empty($_GET['s']) and $_GET['s'] == 3) {
-echo '
-function verifForm3(form) {
-	var url = false;
-	var regexend = /[a-zA-Z0-9]\/$/;
-	var regexbeg = /^http:\/{2}/;
-	var msg = "";
 
 	if (!regexend.test(form.racine.value)) {
 		surligne(form.racine, true);
@@ -276,13 +241,23 @@ function verifForm3(form) {
 		}
 	}
 
-	if(url) {
-		return true;
+
+	if(identifiantOk && mdpOk && url) {
+		var regexw = /[a-z]/;
+		var regexW = /[A-Z]/;
+		var regexd = /[0-9]/;
+		var regexc = /[^a-zA-Z0-9]/;
+		if (!regexw.test(form.mdp.value) || !regexW.test(form.mdp.value) || !regexd.test(form.mdp.value) || !regexc.test(form.mdp.value)) {
+			return window.confirm(\''.$GLOBALS['lang']['err_prefs_mdp_weak'].'\');
+		} else {
+			return true;
+		}
 	} else {
-		msg = "<ul>\n" + msg + "</ul>\n";
+		msg = "<strong>'.$GLOBALS['lang']['erreurs'].'</strong> :<ul>\n" + msg + "</ul>\n";
 		window.document.getElementById("erreurs_js").innerHTML = msg;
 		return false;
 	}
+
 }</script>';
 
 }

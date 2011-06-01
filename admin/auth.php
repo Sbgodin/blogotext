@@ -1,12 +1,17 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
-# Copyright (c) 2006      Frederic Nassar.
-#               2010-2011 Timo Van Neerden
-# All rights reserved.
+# http://lehollandaisvolant.net/blogotext/
+#
+# 2006      Frederic Nassar.
+# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+#
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 //error_reporting(E_ALL);
 if ( !file_exists('../config/user.php') or !file_exists('../config/prefs.php') or !file_exists('../config/tags.php') ) {
 	header('Location: install.php');
@@ -65,20 +70,13 @@ js_reload_captcha();
 echo '<div id="pageauth">'."\n";
 afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
 
-if (isset($_POST['_verif_envoi'])) {
-	if ($erreurs_form = valider_form()) {
-		afficher_form_login($erreurs_form);
-	} else {
-		$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']);
-	}
+if (isset($_POST['_verif_envoi']) and valider_form()) {
+	$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']);
 } else {
 	afficher_form_login();
 }
 
-function afficher_form_login($erreur = '') {
-	if ($erreur) {
-		erreur($erreur);
-	}
+function afficher_form_login() {
 	echo	'<form method="post" action="'.$_SERVER['PHP_SELF'].'" onsubmit="return decompte()">'."\n";
 	echo	'<div id="auth">'."\n";
 	echo	'<p><label for="nom_utilisateur">'.$GLOBALS['lang']['label_identifiant'].'</label>'."\n";
@@ -101,22 +99,28 @@ function afficher_form_login($erreur = '') {
 function valider_form() {
 	$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
 	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
-	if ( ($mot_de_passe_essai !=  $mot_de_passe_ok) or ($_POST['nom_utilisateur'] != $GLOBALS['identifiant'])) { // after "or": avoids "$a.$bc" to be equal to "$ab.$c"
-		$erreur = $GLOBALS['lang']['err_connexion'];
-		return $erreur;
+	if ($mot_de_passe_essai == $mot_de_passe_ok and $_POST['nom_utilisateur'] == $GLOBALS['identifiant']) { // after "or": avoids "$a.$bc" to be equal to "$ab.$c"
+		$passwd_is_ok = 1;
+		$captcha_is_ok = 1; // temporaire : changé ci-dessous
 	}
 	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) {
 		if ((empty($_SESSION['freecap_word_hash'])) or (empty($_POST['word'])) or ($_SESSION['hash_func'](strtolower($_POST['word'])) != $_SESSION['freecap_word_hash']) ) {
-			$erreur = $GLOBALS['lang']['err_connexion'];
-			return $erreur;
-			$word_ok = "no";
+			$captcha_is_ok = 0;
 		}
-		if($_SESSION['hash_func'](strtolower($_POST['word']))==$_SESSION['freecap_word_hash']) {
+		if ($_SESSION['hash_func'](strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
 			// reset freeCap session vars
 			$_SESSION['freecap_attempts'] = 0;
 			$_SESSION['freecap_word_hash'] = false;
+			$captcha_is_ok = 1;
 		}
 	}
+
+	if ($passwd_is_ok == 1 and $captcha_is_ok == 1) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+
 }
 
 footer();

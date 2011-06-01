@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 // gzip compression
 
@@ -17,7 +20,7 @@ function initOutputFilter() {
 initOutputFilter();
 
 //$begin = microtime(TRUE);
-//error_reporting(-1);
+error_reporting(-1);
 
 session_start() ;
 if (isset($_POST['auteur'])) {
@@ -51,29 +54,37 @@ require_once 'inc/util.php';
 require_once 'inc/veri.php';
 
 
-$depart=$GLOBALS['dossier_articles'];
+$depart = $GLOBALS['dossier_articles'];
+
+if ( isset($_GET['m'])) {
+	if (isset($_COOKIE['mobile_theme']) and $_COOKIE['mobile_theme'] == 1) {
+		setcookie('mobile_theme', '0', time() + 32000000, null, null, false, true);
+		header('Location: '.$_SERVER['PHP_SELF']);
+	} else {
+		setcookie('mobile_theme', '1', time() + 32000000, null, null, false, true);
+		header('Location: '.$_SERVER['PHP_SELF']);
+	}
+}
 
 if ( isset($_SERVER['QUERY_STRING']) and (url_article($_SERVER['QUERY_STRING']) === TRUE) ) {
-		$article_id= $_SERVER['QUERY_STRING'] ;
+		$article_id = $_SERVER['QUERY_STRING'] ;
 		$tab = explode('/',$article_id);
 			$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
-			$fichier_data= $depart.'/'.$tab['0'].'/'.$tab['1'].'/'.$id.'.'.$GLOBALS['ext_data'] ;
+			$fichier_data = $depart.'/'.$tab['0'].'/'.$tab['1'].'/'.$id.'.'.$GLOBALS['ext_data'] ;
 		if (file_exists($fichier_data)) {
-			afficher_form_recherche();
+			
 			afficher_calendrier($depart, $tab['1'], $tab['0'], $tab['2']);
 			afficher_article($id);
 		}
 } elseif (isset($_GET['q'])) {
-				afficher_form_recherche($_GET['q']);
 				afficher_calendrier($depart, date('m'), date('Y'));
-				$tableau=table_recherche($depart, $_GET['q'], '1');
+				$tableau = table_recherche($depart, $_GET['q'], '1', 'public');
 				afficher_index($tableau);
 } elseif (isset($_GET['tag'])) {
-				afficher_form_recherche();
 				afficher_calendrier($depart, date('m'), date('Y'));
-				$tableau=table_tags($depart, $_GET['tag'], '1');
+				$tableau = table_tags($depart, $_GET['tag'], '1', 'public');
 				afficher_index($tableau);
-} elseif (isset($_SERVER['QUERY_STRING'])  and (url_date($_SERVER['QUERY_STRING']) === TRUE) ) {
+} elseif (isset($_SERVER['QUERY_STRING']) and (url_date($_SERVER['QUERY_STRING']) === TRUE) ) {
 				$tab = explode('/', ($_SERVER['QUERY_STRING']));
 				if ( preg_match('/\d{4}/',($tab['0'])) ) {
 					$annee = $tab['0'];
@@ -90,14 +101,12 @@ if ( isset($_SERVER['QUERY_STRING']) and (url_article($_SERVER['QUERY_STRING']) 
 				} else {
 					$jour = '';
 				}
-			afficher_form_recherche();
 			afficher_calendrier($depart, $mois, $annee, $jour);
 			$tableau = table_date($depart, $annee, $mois, $jour, '1');
 			afficher_index($tableau);
-} elseif (!isset($_SERVER['QUERY_STRING']) or ($_SERVER['QUERY_STRING'] == '') ) {
-	afficher_form_recherche();
+} else {
 	afficher_calendrier($depart, date('m'), date('Y'));
-	$tableau = table_derniers($depart, $GLOBALS['max_bill_acceuil'], '1');
+	$tableau = table_derniers($depart, $GLOBALS['max_bill_acceuil'], '1', 'public');
 	afficher_index($tableau);
 }
 

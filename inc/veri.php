@@ -1,69 +1,72 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 function url_article($url) {
-if ( (preg_match('/\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($url))) ) {
-	return TRUE;
-} else {
-	return FALSE;
-}
+	if ( (preg_match('/\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($url))) ) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 }
 
 function url_date($url) {
-if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/',($url)))   ) {
-	return TRUE;
-} else {
-	return FALSE;
-}
+	if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/',($url))) ) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 }
 
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode) {
-		$erreurs = array();
-		if (isset($_GET['post_id'])) {
-			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']])))  {
-					$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
-			}
-		}
-
-		if (!isset($_GET['post_id'])) {
-			if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']]))) {
+	$erreurs = array();
+	if (isset($_GET['post_id'])) {
+		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']])))  {
 				$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
-			}
-			if ($commentaire[$GLOBALS['data_syntax']['comment_author']] == $GLOBALS['auteur']) {
-				$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
-			}
 		}
+	}
 
-		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email']])) ) {
-			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
+	if (!isset($_GET['post_id'])) {
+		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']]))) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 		}
-		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content']])) or $commentaire[$GLOBALS['data_syntax']['comment_content']] == "<p></p>") {
-			$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
+		if ($commentaire[$GLOBALS['data_syntax']['comment_author']] == $GLOBALS['auteur']) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
 		}
-		if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id']]))
-			or !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id']]) ) {
-			$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
-		}
+	}
 
-		if (trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']]) != "") {
-			if (!preg_match('#^(https?://[\w.-]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']])) ) {
-				$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
-			}
+	if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email']])) ) {
+		$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
+	}
+	if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content']])) or $commentaire[$GLOBALS['data_syntax']['comment_content']] == "<p></p>") {
+		$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
+	}
+	if ( (!preg_match('/\d{14}/',$commentaire[$GLOBALS['data_syntax']['comment_article_id']]))
+		or !is_numeric($commentaire[$GLOBALS['data_syntax']['comment_article_id']]) ) {
+		$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
+	}
+
+	if (trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']]) != "") {
+		if (!preg_match('#^(https?://[\w.-]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire[$GLOBALS['data_syntax']['comment_webpage']])) ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
 		}
+	}
 	if ($mode != 'admin') {
 		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha)) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
 		}
 	}
-    return $erreurs;
+	return $erreurs;
 }
 
 function valider_form_billet($billet) {

@@ -1,11 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
-# Copyright (c) 2006      Frederic Nassar.
-#               2010-2011 Timo Van Neerden
-# All rights reserved.
+# http://lehollandaisvolant.net/blogotext/
+#
+# 2006      Frederic Nassar.
+# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+#
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 if (isset($GLOBALS['fuseau_horaire'])) {
@@ -14,15 +18,14 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 	date_default_timezone_set('UTC');
 }
 
+// init blogotext's root folder
+$GLOBALS['BT_ROOT_PATH'] = substr(dirname(__FILE__).'/', 0, -4);
+
 // PHP VERSION
-// If Blogotext is hosted by {free.fr}, change this into '4'
 $GLOBALS['version_PHP'] = '5';
 
 // BLOGOTEXT VERSION (do not change)
-$GLOBALS['version']= '26';
-
-// DOSSIER ADMIN
-$GLOBALS['dossier_admin']= 'admin';
+$GLOBALS['version']= '28';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -33,19 +36,17 @@ $GLOBALS['date_premier_message_blog'] = '199701';
 $GLOBALS['salt']= '123456';
 
 // FOLDERS
-$GLOBALS['dossier_data_articles']= '../articles';
-$GLOBALS['dossier_articles']= 'articles';
-$GLOBALS['dossier_data_commentaires']= '../commentaires';
-$GLOBALS['dossier_commentaires']= 'commentaires';
+$GLOBALS['dossier_admin']= 'admin';
+$GLOBALS['dossier_articles'] = 'articles';
+$GLOBALS['dossier_commentaires'] = 'commentaires';
 $GLOBALS['dossier_backup']= 'bt_backup';
-$GLOBALS['dossier_data_backup']= '../bt_backup';
-$GLOBALS['dossier_images']= '../img/';
+$GLOBALS['dossier_images']= 'img';
 $GLOBALS['dossier_themes'] = 'themes';
 
 // MISC BONUS PREFS
-$GLOBALS['connexion_delai'] = '0'; // login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;
-$GLOBALS['onglet_commentaires'] = 'on'; // show panel link "comments" ('on'= show ; '' = hide)
-$GLOBALS['onglet_images'] = 'on'; // show panel link "images" ('on'= show ; '' = hide)
+$GLOBALS['connexion_delai'] = '0';		// login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;
+$GLOBALS['onglet_commentaires'] = 'on';// show panel link "comments" ('on'= show ; '' = hide)
+$GLOBALS['onglet_images'] = 'on';		// show panel link "images" ('on'= show ; '' = hide)
 
 // CAPTCHA
 function mk_captcha() {
@@ -62,10 +63,14 @@ if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialch
 
 // THEMES
 if ( isset($GLOBALS['theme_choisi']) ) {
-$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/style.css';
-$GLOBALS['theme_article'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
-$GLOBALS['theme_liste'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
-$GLOBALS['rss'] = $GLOBALS['racine'].'rss.php';
+	if (isset($_COOKIE['mobile_theme']) and $_COOKIE['mobile_theme'] == '1') {
+		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/m';
+	} else {
+		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'];
+	}
+	$GLOBALS['theme_article'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
+	$GLOBALS['theme_liste'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
+	$GLOBALS['rss'] = $GLOBALS['racine'].'rss.php';
 }
 
 // TEMPLATE VARS
@@ -81,19 +86,19 @@ $GLOBALS['balises']= array(
 	'racine_du_site' => array('{racine_du_site}'),
 	'rss' => array('{rss}'),
 	'rss_comments' => '{rss_comments}',
-// Blog
+	// Blog
 	'blog_nom' => array('{nom_du_blog}', '{blog_nom}', '{blog_name}'),
 	'blog_description' => array('{blog_description}', '{description}'),
 	'blog_auteur' => array('{blog_auteur}', '{blog_author}'),
 	'blog_email' => array('{blog_email}'),
-// Formulaires
+	// Formulaires
 	'form_recherche' => array('{recherche}', '{search}'),
 	'form_calendrier' => array('{calendrier}', '{calendar}'),
 	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
-// Encarts
+	// Encarts
 	'commentaires_encart' => array('{commentaires_encart}'),
 	'categories_encart' => array('{categories_encart}'),
-// Article
+	// Article
 	'article_titre' => array('{article_titre}', '{article_title}'),
 	'article_titre_url' => array('{article_titre_url}', '{article_title_url}'),
 	'article_chapo' => array('{article_chapo}', '{article_abstract}'),
@@ -104,7 +109,7 @@ $GLOBALS['balises']= array(
 	'article_lien' => array('{article_lien}', '{article_link}'),
 	'article_tags' => array('{article_tags}'),
 	'nb_commentaires' => array('{nombre_commentaires}', '{comments_number}'),
-// Commentaire
+	// Commentaire
 	'commentaire_auteur' => array('{commentaire_auteur}', '{comment_author}'),
 	'commentaire_contenu' => array('{commentaire_contenu}', '{comment_content}'),
 	'commentaire_heure' => array('{commentaire_heure}', '{comment_time}'),
@@ -142,14 +147,15 @@ $GLOBALS['data_syntax'] = array(
 
 // POST SYNTAX
 function init_billet($mode, $id) {
-	$dec = decode_id($id);
-	if ($mode == 'public') {
-		$art_directory = $GLOBALS['dossier_articles'];
-		$com_directory = $GLOBALS['dossier_commentaires'];
-	} elseif ($mode == 'admin') {
-		$art_directory = $GLOBALS['dossier_data_articles'];
-		$com_directory = $GLOBALS['dossier_data_commentaires'];
+	if ($mode == 'admin') {
+		$statut_com = '';
+	} else {
+		$statut_com = '1';
 	}
+	$dec = decode_id($id);
+	$art_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
+	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
+
 	$file = $art_directory.'/'.get_path($id);
 	$billet['version'] = parse_xml($file, 'bt_version');
 	$billet['id'] = $id;
@@ -170,7 +176,7 @@ function init_billet($mode, $id) {
 	$billet['secondes'] = $dec['secondes'];
 	$GLOBALS['rss_comments'] = $GLOBALS['racine'].'rss.php?id='.$billet['id'];
 	$billet['lien'] = $_SERVER['PHP_SELF'].'?'.$dec['annee'].'/'.$dec['mois'].'/'.$dec['jour'].'/'.$dec['heure'].'/'.$dec['minutes'].'/'.$dec['secondes'].'-'.titre_url($billet['titre']);
-	$billet['nb_comments'] = count(liste_commentaires($com_directory, $id));
+	$billet['nb_comments'] = count(liste_commentaires($com_directory, $id, $statut_com));
 	$billet['allow_comments'] = parse_xml($file, $GLOBALS['data_syntax']['article_allow_comments']);
 	return $billet;
 }
@@ -178,11 +184,8 @@ function init_billet($mode, $id) {
 // COMMENT SYNTAX
 function init_comment($mode, $id) {
 	$dec = decode_id($id);
-	if ($mode == 'public') {
-		$com_directory = $GLOBALS['dossier_commentaires'];
-	} elseif ($mode == 'admin') {
-		$com_directory = $GLOBALS['dossier_data_commentaires'];
-	}
+	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
+
 	$file = $com_directory.'/'.get_path($id);
 	$comment['id'] = $id;
 	$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id']);
@@ -210,29 +213,26 @@ function init_comment($mode, $id) {
 }
 
 // POST ARTICLE
-function init_post_article($id='') {
-	$billet = array();
-	if (isset($_POST['_verif_envoi'])) {
+function init_post_article($id) {
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		$keywords = htmlspecialchars(stripslashes(protect_markup($_POST['mots_cles'])));
 	} else {
 		$keywords = extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']);
 	}
-		$billet= array (
-			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['article_id'] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
-			$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
-			$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
-			$GLOBALS['data_syntax']['article_notes'] => htmlspecialchars(stripslashes(protect_markup($_POST['notes']))),
-			$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup($_POST['contenu'])),
-			$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup($_POST['contenu'])),
-			$GLOBALS['data_syntax']['article_keywords'] => $keywords,
-			$GLOBALS['data_syntax']['article_categories'] => traiter_tags($_POST['categories']),
-			$GLOBALS['data_syntax']['article_status'] => $_POST['statut'],
-			$GLOBALS['data_syntax']['article_allow_comments'] => $_POST['allowcomment']
-		);
-	}
-	return $billet;
+	$comment = array (
+		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+		$GLOBALS['data_syntax']['article_id'] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
+		$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
+		$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
+		$GLOBALS['data_syntax']['article_notes'] => htmlspecialchars(stripslashes(protect_markup($_POST['notes']))),
+		$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup($_POST['contenu'])),
+		$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup($_POST['contenu'])),
+		$GLOBALS['data_syntax']['article_keywords'] => $keywords,
+		$GLOBALS['data_syntax']['article_categories'] => traiter_tags($_POST['categories']),
+		$GLOBALS['data_syntax']['article_status'] => $_POST['statut'],
+		$GLOBALS['data_syntax']['article_allow_comments'] => $_POST['allowcomment']
+	);
+	return $comment;
 }
 
 
@@ -262,6 +262,5 @@ function init_post_comment($id, $mode='') {
 	}
 return $comment;
 }
-
 
 ?>

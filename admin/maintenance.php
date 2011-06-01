@@ -1,13 +1,17 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 error_reporting(-1);
 require_once '../inc/inc.php';
 
@@ -87,7 +91,7 @@ function file2base64($source) {
 
 
 function creer_fich_xml() {
-	$dossier_backup = $GLOBALS['dossier_data_backup'];
+	$dossier_backup = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_backup'];
 	if ( !is_dir($dossier_backup) ) {
 		if (creer_dossier($dossier_backup) === FALSE) {
 			echo $GLOBALS['lang']['err_file_write'];
@@ -103,7 +107,7 @@ function creer_fich_xml() {
 	} else {
 		$limite = '';
 	}
-	$data = creer_data_xml(table_derniers($GLOBALS['dossier_data_articles'], $limite));
+	$data = creer_data_xml(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $limite, '', 'admin'));
 	if (fwrite($new_file, $data) === FALSE) {
 		echo $GLOBALS['lang']['err_file_write'];
 		return FALSE;
@@ -114,8 +118,10 @@ function creer_fich_xml() {
 			echo '<fieldset class="pref">';
 			echo legend($GLOBALS['lang']['bak_succes_save'], 'legend-tic');
 			echo '<p>'.$GLOBALS['lang']['bak_youcannowsave'].'</p>'."\n";
-			echo '<p style="text-align: center;"><a href="'.$path.'">'.$fichier.'</a></p>'."\n";
+			echo '<p style="text-align: center;">';
 			echo hidden_input('filetodelete',$path);
+			echo '<a href="../'.$GLOBALS['dossier_backup'].'/'.$fichier.'">'.$fichier.'</a></p>'."\n";
+
 			echo '</fieldset>'."\n";
 			echo '<fieldset class="pref">';
 			echo legend('&nbsp;', 'legend-question');
@@ -140,7 +146,7 @@ function creer_data_xml($tableau) {
 			$data .= '<bt_backup_article>'."\n";
 			$data .= $article['xml'];
 			$data .= '</bt_backup_article>'."\n";
-			$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article['id']);
+			$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article['id'], '1');
 			if (!empty($commentaires)) {
 				foreach ($commentaires as $id => $content) {
 					$comment = xml_comment(get_id($content));
@@ -163,25 +169,36 @@ function creer_data_xml($tableau) {
 		$data .= '</bt_backup_tags>'."\n";
 	}
 		// restaurer aussi les images sous forme de base64 ?
-	if (!empty($_POST['restore_imgs']) and ($_POST['restore_imgs'] == 1) and is_dir($GLOBALS['dossier_images'])) {
-		$dir_imgs = opendir($GLOBALS['dossier_images']);
+	if (!empty($_POST['restore_imgs']) and ($_POST['restore_imgs'] == 1) and is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'])) {
+		$dir_imgs = opendir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
 		$data .= '<bt_backup_imgs>'."\n";
-		$nb_img = 0;
-		if (is_numeric($_POST['combien_images']) and $_POST['combien_images'] >= 0) {
-			$nb_max_img = $_POST['combien_images'];
-		} else {
-			$nb_max_img = 1000;
-		}
-		while (FALSE !== ($img = readdir($dir_imgs)) and $nb_img < $nb_max_img) {
+
+		$list_images = array();
+		$i = 0;
+		while (FALSE !== ($img = readdir($dir_imgs))) {
 			if (preg_match('#^blog#', $img)) {
-				$data .= '<bt_backup_img>'."\n";
-					$data .= '<bt_backup_img_name>'.$img.'</bt_backup_img_name>'."\n";
-					$data .= '<bt_backup_img_base64>'."\n".file2base64($GLOBALS['dossier_images'].$img).'</bt_backup_img_base64>'."\n";
-					$data .= '<bt_backup_img_hash>'.sha1_file($GLOBALS['dossier_images'].$img).'</bt_backup_img_hash>'."\n";
-				$data .= '</bt_backup_img>'."\n";
-				$nb_img++;
+				$list_images[$i] = $img;
+				$i++;
 			}
 		}
+		rsort($list_images);
+
+		if (is_numeric($_POST['combien_images']) and $_POST['combien_images'] >= 0) {
+			$nb_max_img = min($_POST['combien_images'], sizeof($list_images), 1000);
+		} else {
+			$nb_max_img = min(1000, sizeof($list_images));
+		}
+
+		for ($i = 0; $i < $nb_max_img ; $i++) {
+			$data .= '<bt_backup_img>'."\n";
+				$data .= '<bt_backup_img_name>'.$list_images[$i].'</bt_backup_img_name>'."\n";
+				$data .= '<bt_backup_img_base64>'."\n".file2base64($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$list_images[$i]).'</bt_backup_img_base64>'."\n";
+				$data .= '<bt_backup_img_hash>'.sha1_file($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$list_images[$i]).'</bt_backup_img_hash>'."\n";
+			$data .= '</bt_backup_img>'."\n";
+
+
+		}
+
 		$data .= '</bt_backup_imgs>'."\n";
 	}
 	$data .= "\n".'</bt_backup_database>';
@@ -189,7 +206,7 @@ function creer_data_xml($tableau) {
 }
 
 function xml_billet($id) {
-	$art_directory = $GLOBALS['dossier_data_articles'];
+	$art_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
 	$file = $art_directory.'/'.get_path($id);
 	$billet['id'] = $id;
 	$billet['xml'] = file_get_contents($file);
@@ -198,7 +215,7 @@ function xml_billet($id) {
 }
 
 function xml_comment($id) {
-	$com_directory = $GLOBALS['dossier_data_commentaires'];
+	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
 	$file = $com_directory.'/'.get_path($id);
 	$comment['id'] = $id;
 	$comment['xml'] = file_get_contents($file);
@@ -297,29 +314,29 @@ function clean_taglist($do) {
 function is_file_error() {
 	$erreurs = array();
 
-	if (!is_dir($GLOBALS['dossier_images'])) {
+	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'])) {
 		$erreurs[] = $GLOBALS['lang']['prob_no_img_folder'];
-	} elseif (!is_readable($GLOBALS['dossier_images']) or !is_writable($GLOBALS['dossier_images'])) {
-		$erreurs[] = $GLOBALS['lang']['prob_img_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['dossier_images']).')';
+	} elseif (!is_readable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']) or !is_writable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'])) {
+		$erreurs[] = $GLOBALS['lang']['prob_img_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']).')';
 	}
-	if (!is_dir($GLOBALS['dossier_data_articles'])) {
+	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'])) {
 		$erreurs[] = $GLOBALS['lang']['prob_no_art_folder'];
-	} elseif (!is_readable($GLOBALS['dossier_data_articles']) or !is_writable($GLOBALS['dossier_data_articles'])) {
-		$erreurs[] = $GLOBALS['lang']['prob_art_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['dossier_data_articles']).')';
+	} elseif (!is_readable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']) or !is_writable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'])) {
+		$erreurs[] = $GLOBALS['lang']['prob_art_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']).')';
 	}
-	if (!is_dir($GLOBALS['dossier_data_commentaires'])) {
+	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'])) {
 		$erreurs[] = $GLOBALS['lang']['prob_no_com_folder'];
-	} elseif (!is_readable($GLOBALS['dossier_data_commentaires']) or !is_writable($GLOBALS['dossier_data_commentaires'])) {
-		$erreurs[] = $GLOBALS['lang']['prob_com_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['dossier_data_commentaires']).')';
+	} elseif (!is_readable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']) or !is_writable($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'])) {
+		$erreurs[] = $GLOBALS['lang']['prob_com_folder_chmod'].' (chmod : '.get_literal_chmod($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']).')';
 	}
-	if (!is_writable('../'.'config/prefs.php')) {
-		$erreurs[] = $GLOBALS['lang']['prob_pref_file_chmod'].' (chmod : '.get_literal_chmod('../'.'config/prefs.php').')';
+	if (!is_writable('../config/prefs.php')) {
+		$erreurs[] = $GLOBALS['lang']['prob_pref_file_chmod'].' (chmod : '.get_literal_chmod('../config/prefs.php').')';
 	}
-	if (!is_writable('../'.'config/user.php')) {
-		$erreurs[] = $GLOBALS['lang']['prob_user_file_chmod'].' (chmod : '.get_literal_chmod('../'.'config/user.php').')';
+	if (!is_writable('../config/user.php')) {
+		$erreurs[] = $GLOBALS['lang']['prob_user_file_chmod'].' (chmod : '.get_literal_chmod('../config/user.php').')';
 	}
-	if (!is_writable('../'.'config/tags.php')) {
-		$erreurs[] = $GLOBALS['lang']['prob_tags_file_chmod'].' (chmod : '.get_literal_chmod('../'.'config/tags.php').')';
+	if (!is_writable('../config/tags.php')) {
+		$erreurs[] = $GLOBALS['lang']['prob_tags_file_chmod'].' (chmod : '.get_literal_chmod('../config/tags.php').')';
 	}
 
 	return $erreurs;
@@ -455,8 +472,8 @@ elseif ($_GET['do'] == 'backup' ) {
 							$img_base64 = parse_xml_str($images[$img], 'bt_backup_img_base64');
 							$img_name = parse_xml_str($images[$img], 'bt_backup_img_name');
 							$img_hash = parse_xml_str($images[$img], 'bt_backup_img_hash');
-							if (base642file($img_base64, $GLOBALS['dossier_images'].$img_name, $img_hash) === TRUE) {
-								echo '<li>'.'<span style="color: green;">'.$GLOBALS['lang']['succes'].'</span> : <a href="'.$GLOBALS['dossier_images'].$img_name.'">'.$img_name.'</a></li>'."\n";
+							if (base642file($img_base64, $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$img_name, $img_hash) === TRUE) {
+								echo '<li>'.'<span style="color: green;">'.$GLOBALS['lang']['succes'].'</span> : <a href="../'.$GLOBALS['dossier_images'].'/'.$img_name.'">'.$img_name.'</a></li>'."\n";
 							} else {
 								echo '<li>'.'<span style="color: red; font-weight:bold;">'.$GLOBALS['lang']['echec'].'</span> : '.$img_name. '(SHA1 : '.$img_hash.')</li>'."\n";
 							}
@@ -486,7 +503,7 @@ elseif ($_GET['do'] == 'backup' ) {
 						$msg_content = preg_replace('#(.*)<bt_backup_article>(.+)</bt_backup_article>(.*)#is', "$2", $items[$msg]);
 						echo '<li class="bloc_article" style="margin: 2px auto;">';
 						echo '<div style="border: gray dashed 1px;">';
-						enregistrer_donnees($GLOBALS['dossier_data_articles'], $msg_content, 'article');
+						enregistrer_donnees($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $msg_content, 'article');
 						echo '</div>'."\n";
 						// pour chaque article : traitement des commentaires
 						if (preg_match("#<bt_backup_comment>#",$items[$msg])) {
@@ -496,7 +513,7 @@ elseif ($_GET['do'] == 'backup' ) {
 							for ($com = 1; $com < $nb_comms; $com++) {
 								$comms[$com] = preg_replace('#</bt_backup_comment>#', '', $comms[$com]);
 								echo '<li class="comment" style="border: silver dashed 1px; margin: 1px;">';
-								enregistrer_donnees($GLOBALS['dossier_data_commentaires'], $comms[$com], 'commentaire');
+								enregistrer_donnees($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comms[$com], 'commentaire');
 								echo '</li>'."\n";
 							}
 							echo '</ul>'."\n";

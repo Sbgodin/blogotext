@@ -1,13 +1,17 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
+
 error_reporting(-1);
 require_once '../inc/inc.php';
 
@@ -21,12 +25,12 @@ $article_title='';
 // if article ID is given in query string
 if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 	$param_makeup['menu_theme'] = 'for_article';
-	$article_id= $_GET['post_id'];
-	$loc_data= $GLOBALS['dossier_data_articles'].'/'.get_path($article_id);
+	$article_id = $_GET['post_id'];
+	$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
 	if ( (file_exists($loc_data)) AND (preg_match('/\d{4}/',$article_id)) ) {
-		$post= init_billet('admin', $article_id);
+		$post = init_billet('admin', $article_id);
 		$article_title = $post['titre'];
-		$commentaires = liste_commentaires($GLOBALS['dossier_data_commentaires'], $article_id);
+		$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '');
 		$param_makeup['show_links'] = '0';
 	} else {
 		echo $GLOBALS['lang']['note_no_article'];
@@ -41,20 +45,22 @@ else {
 		if ( preg_match('/\d{4}/',($_GET['filtre'])) ) {
 			$annee = substr($_GET['filtre'], 0, 4);
 			$mois = substr($_GET['filtre'], 4, 2);
-			$dossier = $GLOBALS['dossier_data_commentaires'].'/'.$annee.'/'.$mois;
-			$commentaires = table_date($GLOBALS['dossier_data_commentaires'], $annee, $mois);
+			$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.$annee.'/'.$mois;
+			$commentaires = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $annee, $mois);
 		} elseif ($_GET['filtre'] == 'draft') {
-			$commentaires = table_derniers($GLOBALS['dossier_data_commentaires'], '', '0');
+			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '0', 'admin');
 		} elseif ($_GET['filtre'] == 'pub') {
-			$commentaires = table_derniers($GLOBALS['dossier_data_commentaires'], '', '1');
+			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '1', 'admin');
 		} else {
-			$commentaires = table_auteur($GLOBALS['dossier_data_commentaires'], htmlspecialchars($_GET['filtre']));
+			$commentaires = table_auteur($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], htmlspecialchars($_GET['filtre']), '', 'admin' );
 
 		}
+	} elseif (isset($_GET['q'])) {
+		$commentaires = table_recherche($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $_GET['q'], '', 'admin');
 	} else { // no filter, so list'em all
-		$commentaires = table_derniers($GLOBALS['dossier_data_commentaires'], $GLOBALS['max_comm_admin']);
+		$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $GLOBALS['max_comm_admin'], '', 'admin');
 	}
-	$nb_total_comms = count(table_derniers($GLOBALS['dossier_data_commentaires']));
+	$nb_total_comms = count(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '', 'admin'), '0');
 	$post['nb_comments'] = sizeof($commentaires);
 	$param_makeup['show_links'] = '1';
 }
@@ -71,7 +77,7 @@ function afficher_commentaire($comment, $with_link) {
 
 		echo '<p class="lien_article_de_com">';
 		if ($with_link == 1) {
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['article_id'].'">'.parse_xml($GLOBALS['dossier_data_articles']."/".get_path($comment['article_id']), 'bt_title').'</a>';
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['article_id'].'">'.parse_xml($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title').'</a>';
 		}
 		if ($comment['status'] == '1') {
 			echo '<img src="style/accept.gif" title="'.$GLOBALS['lang']['comment_is_visible'].'"/>';
@@ -116,7 +122,7 @@ if (isset($_POST['_verif_envoi'])) {
 	$erreurs_form = valider_form_commentaire($comment,0 ,0 , 'admin');
 }
 if (empty($erreurs_form)) {
-	traiter_form_commentaire($GLOBALS['dossier_data_commentaires'], $comment);
+	traiter_form_commentaire($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comment);
 }
 
 // DEBUT PAGE
@@ -124,7 +130,7 @@ afficher_top($GLOBALS['lang']['titre_commentaires'].' | '.$article_title);
 afficher_msg();
 afficher_msg_error();
 echo '<div id="top">'."\n";
-moteur_recherche();
+echo moteur_recherche();
 
 echo '<ul id="nav">'."\n";
 afficher_menu('commentaires.php');
@@ -151,9 +157,9 @@ echo '<div id="page">'."\n";
 
 // Affichage formulaire filtrage commentaires
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre($GLOBALS['dossier_data_commentaires'], $_GET['filtre']);
+	afficher_form_filtre('commentaires', $_GET['filtre'], 'admin');
 } else {
-	afficher_form_filtre($GLOBALS['dossier_data_commentaires']);
+	afficher_form_filtre('commentaires', '', 'admin');
 }
 
 

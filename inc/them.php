@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 function conversions_theme($texte, $billet='', $commentaire='') {
@@ -23,7 +26,7 @@ function conversions_theme($texte, $billet='', $commentaire='') {
 	if (isset($GLOBALS['email'])) { $texte = str_replace($GLOBALS['balises']['blog_email'], $GLOBALS['email'], $texte) ; }
 
 // Formulaires
-	if (isset($GLOBALS['form_recherche'])) { $texte = str_replace($GLOBALS['balises']['form_recherche'], $GLOBALS['form_recherche'], $texte) ; }
+	if (isset($GLOBALS['balises']['form_recherche'])) { $texte = str_replace($GLOBALS['balises']['form_recherche'], moteur_recherche(), $texte) ; }
 	if (isset($GLOBALS['calendrier']) and preg_match('#'.$GLOBALS['balises']['form_calendrier'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_calendrier'], $GLOBALS['calendrier'], $texte) ;}
 	if (isset($GLOBALS['form_commentaire']) and preg_match('#'.$GLOBALS['balises']['form_commentaire'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['form_commentaire'], $texte) ; }
 	if (isset($GLOBALS['formulaire_commentaire']) and preg_match('#'.$GLOBALS['balises']['form_commentaire'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['formulaire_commentaire'], $texte);}
@@ -145,13 +148,13 @@ function afficher_article($id) {
 	if (empty($erreurs_form)) {
 		afficher_form_commentaire($id, 'public');
 		if (isset($_POST['enregistrer'])) {
-			fichier_data($GLOBALS['dossier_commentaires'], $comment);
+			fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comment);
 		}
 	} else {
 		afficher_form_commentaire($id, 'public', $erreurs_form);
 	}
 	// COMMENT INIT
-	if ($liste_commentaires = liste_commentaires($GLOBALS['dossier_commentaires'], $id)) {
+	if ($liste_commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $id, '1')) {
 		foreach ($liste_commentaires as $nb => $comment) {
 			$commentaire[$nb] = init_comment('public', get_id($comment));
 		}

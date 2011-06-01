@@ -1,12 +1,15 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
+# http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
 # 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
 /* ##############################################################################################
@@ -116,9 +119,9 @@ $lang_fr = array(
 // Commentaire
 'aucun'								=> 'aucun',
 'comment_ajout'					=> 'Ajouter un commentaire',
-'comment_nom'						=> 'Pseudo :',
-'comment_email'					=> 'E-mail (ne sera pas publié) :',
-'comment_webpage'					=> 'Site web (facultatif) :',
+'comment_nom'						=> 'Pseudo',
+'comment_email'					=> 'E-mail (ne sera pas publié)',
+'comment_webpage'					=> 'Site web (facultatif)',
 'comment_contenu'					=> '',
 'comment_captcha'					=> 'Combien font ',
 'comment_not_allowed'			=> 'Les commentaires sont fermés pour cette article',
@@ -351,5 +354,7 @@ $lang_fr = array(
 '8'									=> 'huit',
 '9'									=> 'neuf',
 
+'derniere_connexion_le'			=> 'Dernière connexion depuis',
+'cet_ordi'							=> 'cet ordinateur',
 );
 ?>

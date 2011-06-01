@@ -1,14 +1,18 @@
 <?php
 # *** LICENSE ***
 # This file is part of BlogoText.
-# Copyright (c) 2006      Frederic Nassar.
-#               2010-2011 Timo Van Neerden
-# All rights reserved.
+# http://lehollandaisvolant.net/blogotext/
+#
+# 2006      Frederic Nassar.
+# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+#
 # BlogoText is free software, you can redistribute it under the terms of the
-# Creative Commons Attribution-NonCommercial-NoDerivs 2.0 France Licence
+# Creative Commons Attribution-NonCommercial 2.0 France Licence
+#
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-function liste_commentaires($dossier, $article_id) {
+function liste_commentaires($dossier, $article_id, $statut) {
 	$date = decode_id($article_id);
 	$liste = array();
 	$year = date('Y');
@@ -30,8 +34,14 @@ function liste_commentaires($dossier, $article_id) {
 						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
 							$path = $dossier.'/'.get_path_no_ext($comm);
 					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id']) == $article_id ) {
-						  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_status']) != '0' ) {
-							 		$retour[] = $comm;
+
+								if ( $statut != '') {
+									$actual_statut = parse_xml($path, $GLOBALS['data_syntax']['comment_status']);
+							  		if ($actual_statut == $statut or empty($actual_statut)) { // test empty is for old comments that haven't a $statut
+								 		$retour[] = $comm;
+									}
+								} else {
+								 		$retour[] = $comm;
 								}
 							}
 						}
@@ -107,11 +117,8 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 
 			}		
 		} else {
-			if (isset($_GET['n'])) {
-					$arguments = htmlspecialchars(stripslashes($_SERVER['QUERY_STRING']));
-					$ntab = explode('&',$arguments);
-					$page = $ntab['0'];
-					header('Location: '.'index.php?'.$page.'#top'); // redirection anti repostage;
+			if (isset($_POST['_verif_envoi'])) {
+					header('Location: '.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#top'); // redirection anti repostage;
 				}
 			if (isset($_COOKIE['auteur_c'])) {
 				$auteur_c = htmlspecialchars(stripslashes(clean_txt($_COOKIE['auteur_c'])));
@@ -142,14 +149,9 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 				if ( isset($mode) and $mode == 'admin' and isset($actual_comment) ) {
 					$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire-'.$actual_comment['id'].'" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" style="display:none;">'."\n";
 					}
-				elseif (isset($_GET['n'])) {
-					$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" >'."\n";
-				} else {
-					$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&amp;n=mp#erreurs" >'."\n";
-				}
+			$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" >'."\n";
 			$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="field">'."\n";
-//			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="commentaire">'.$GLOBALS['lang']['comment_contenu'].'</label>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<textarea class="commentaire" name="commentaire" id="commentaire" cols="50" rows="10">'.$defaut['commentaire'].'</textarea>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<textarea class="commentaire" name="commentaire" required="" placeholder="'.$GLOBALS['lang']['label_commentaire'].'" id="commentaire" cols="50" rows="10">'.$defaut['commentaire'].'</textarea>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t".'</fieldset>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="formatbut">'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<input title="'.$GLOBALS['lang']['bouton-gras'].'" type="button" value="B" onclick="insertTag(\'[b]\',\'[/b]\',this);" />'."\n";
@@ -161,12 +163,12 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 			$GLOBALS['form_commentaire'] .= "\t".'</fieldset><!--end formatbut-->'."\n";
 
 			$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="infos">'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="auteur">'.$GLOBALS['lang']['comment_nom'].'</label>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" name="auteur" id="auteur" value="'.$defaut['auteur'].'" size="25" /><br/>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="email">'.$GLOBALS['lang']['comment_email'].'</label>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" name="email" id="email" value="'.$defaut['email'].'" size="25" /><br/>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="webpage">'.$GLOBALS['lang']['comment_webpage'].'</label>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" name="webpage" id="webpage" value="'.$defaut['webpage'].'" size="25" /><br/>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="auteur">'.$GLOBALS['lang']['comment_nom'].' :</label>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" name="auteur" placeholder="'.$GLOBALS['lang']['comment_nom'].'" required="" id="auteur" value="'.$defaut['auteur'].'" size="25" /><br/>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="email">'.$GLOBALS['lang']['comment_email'].' :</label>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="email" name="email" placeholder="'.$GLOBALS['lang']['comment_email'].'"required="" id="email" value="'.$defaut['email'].'" size="25" /><br/>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="webpage">'.$GLOBALS['lang']['comment_webpage'].' :</label>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="url" name="webpage" placeholder="'.$GLOBALS['lang']['comment_webpage'].'" id="webpage" value="'.$defaut['webpage'].'" size="25" /><br/>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="hidden" name="_verif_envoi" value="1" />'."\n";
 
 			if (isset($mode) and $mode == 'admin') { // admin
@@ -184,8 +186,8 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 				}
 				$GLOBALS['form_commentaire'] .= "\t".'</fieldset><!--end buttons-->'."\n";
 			} else { // not admin
-				$GLOBALS['form_commentaire'] .= "\t\t".'<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].': <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?</label>'."\n";
-				$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" id="captcha" name="captcha" value="" size="25" /><br/>'."\n";
+				$GLOBALS['form_commentaire'] .= "\t\t".'<label for="captcha">'.$GLOBALS['lang']['comment_captcha'].' <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?</label>'."\n";
+				$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" id="captcha" name="captcha" required="" value="" size="25" /><br/>'."\n";
 				$GLOBALS['form_commentaire'] .= "\t".'</fieldset><!--end info-->'."\n";
 				$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="buttons">'."\n";
 				$GLOBALS['form_commentaire'] .= "\t\t".'<p id="wiki" ><a href="inc/wiki.php" onclick="ouvre(\'inc/wiki.php\');return false">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
@@ -225,7 +227,7 @@ function traiter_form_commentaire($dossier, $commentaire) {
 		if ( htmlspecialchars($_POST['security_coin']) == md5($_POST['comm_id'].$_SESSION['some_time']) ) {
 			$commentaire = htmlspecialchars($_POST['comm_id']);
 			$article = (!empty($_GET['post_id'])) ? 'post_id='.htmlspecialchars($_GET['post_id']).'&' : '';
-			$comment_file= $GLOBALS['dossier_data_commentaires'].'/'.get_path($commentaire);
+			$comment_file = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.get_path($commentaire);
 			if (unlink($comment_file)) {
 				redirection($_SERVER['PHP_SELF'].'?'.$article.'msg=confirm_comment_suppr');
 			} else {
@@ -237,7 +239,7 @@ function traiter_form_commentaire($dossier, $commentaire) {
 		if ( htmlspecialchars($_POST['security_coin']) == md5($_POST['comm_id'].$_SESSION['some_time']) ) {
 			$commentaire = htmlspecialchars($_POST['comm_id']);
 			$article = (!empty($_GET['post_id'])) ? 'post_id='.htmlspecialchars($_GET['post_id']).'&' : '';
-			$comment_file= $GLOBALS['dossier_data_commentaires'].'/'.get_path($commentaire);
+			$comment_file = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.get_path($commentaire);
 			if (validate_comment($comment_file, $_POST['activer_comm_choix'])) {
 				redirection($_SERVER['PHP_SELF'].'?'.$article.'msg=confirm_comment_valid');
 			} else {
