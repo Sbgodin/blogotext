@@ -12,9 +12,21 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-//error_reporting(E_ALL);
+//error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
+
 if ( !file_exists('../config/user.php') or !file_exists('../config/prefs.php') or !file_exists('../config/tags.php') ) {
 	header('Location: install.php');
+}
+
+require_once '../inc/inc.php';
+
+if (check_session() === TRUE) { // return to index if session is already open.
+	header('Location: index.php');
+} elseif(!isset($_POST['_verif_envoi'])) { // else destroy session cookies ("elseif" used instead of "else" to avoid "header already send" with line 65)
+	if (ini_get("session.use_cookies")) {
+		setcookie(session_name(), '', time() - 42000);
+	}
 }
 
 // LOG
@@ -27,56 +39,38 @@ if (isset($_POST['nom_utilisateur'])) {
    if (isset($_SERVER['HTTP_CLIENT_IP'])) { $ip .= '_'.$_SERVER['HTTP_CLIENT_IP']; }
 
 	$browser = $_SERVER['HTTP_USER_AGENT'];	// navigateur
-	$origine = $_SERVER['HTTP_REFERER'];		// url d'origine
+	$origine = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'none';		// url d'origine
 	$curent_time = date('r');						// heure selon RFC 2822
 	$timestamp = date('U');							// timestamp : nombre de secondes ecoulees depuis le 01/01/70.
 
 	$nom = $_POST['nom_utilisateur'];			// nom de login tente.
 
-fputs($dest, "DATE : $curent_time (TIMESTAMP: $timestamp ) \n\t\t IP: $ip \n\t\t LOGIN: $nom \n\t\t ORIGINE: $origine \n\t\t BROWSER: $browser\n ---------------------------------------------------\n");
-fclose($dest);
+	fputs($dest, "DATE : $curent_time (TIMESTAMP: $timestamp ) \n\t\t IP: $ip \n\t\t LOGIN: $nom \n\t\t ORIGINE: $origine \n\t\t BROWSER: $browser\n ---------------------------------------------------\n");
+	fclose($dest);
 }
-
 // end log
-require_once '../inc/inc.php';
-session_start() ;
-
-if (isset($_POST['_verif_envoi'])) {
-	
-	if ((!isset($GLOBALS['connexion_delai']) or $GLOBALS['connexion_delai'] != '0')) {
-		usleep(10000000);
-	}
-	else {
-		usleep(100000); // sleep during 100,000µs == 100ms to avoid bruteforce
-	}
-	session_regenerate_id();
-	header('Location: index.php');
-}
 
 $ip = $_SERVER["REMOTE_ADDR"];
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip .= '_'.$_SERVER['HTTP_X_FORWARDED_FOR']; }
-if (isset($_SERVER['HTTP_CLIENT_IP'])) { $ip .= '_'.$_SERVER['HTTP_CLIENT_IP']; }
-
 $_SESSION['antivol'] = md5($_SERVER['HTTP_USER_AGENT'].$ip);
 $_SESSION['timestamp'] = time();
 
-require_once '../inc/inc.php';
-
-afficher_top('Identification');
-echo '<div id="axe">'."\n";
-decompte_sleep();
-js_reload_captcha();
-
-echo '<div id="pageauth">'."\n";
-afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
-
-if (isset($_POST['_verif_envoi']) and valider_form()) {
+if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // On entre...
 	$_SESSION['nom_utilisateur'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']);
-} else {
-	afficher_form_login();
-}
+	if ((!isset($GLOBALS['connexion_delai']) or $GLOBALS['connexion_delai'] != 0)) {
+		usleep(10000000);
+	} else {
+		usleep(100000); // 100ms to avoid bruteforce without anoying users
+	}
+	header('Location: index.php');
+} else { // On sort et affiche la page d'auth
+	afficher_top('Identification');
+	echo '<div id="axe">'."\n";
+	decompte_sleep();
+	js_reload_captcha();
 
-function afficher_form_login() {
+	echo '<div id="pageauth">'."\n";
+	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
+
 	echo	'<form method="post" action="'.$_SERVER['PHP_SELF'].'" onsubmit="return decompte()">'."\n";
 	echo	'<div id="auth">'."\n";
 	echo	'<p><label for="nom_utilisateur">'.$GLOBALS['lang']['label_identifiant'].'</label>'."\n";
@@ -89,30 +83,33 @@ function afficher_form_login() {
 		echo	'<input type="text" id="word" name="word" value="" /></p>'."\n";
 		echo	'<p><a href="#" onclick="this.blur();new_freecap();return false;" title="'.$GLOBALS['lang']['label_changer_captcha'].'"><img src="../inc/freecap/freecap.php" id="freecap"></a></p>'."\n";
 	}
-		echo	'<input class="inpauth" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />';
-		echo	'<input type="hidden" name="_verif_envoi" value="1" />';
-		echo	'</div>'."\n";
-		echo	'</form>';
+	echo	'<input class="inpauth" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />';
+	echo	'<input type="hidden" name="_verif_envoi" value="1" />';
+	echo	'</div>'."\n";
+	echo	'</form>';
 }
-
 
 function valider_form() {
 	$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
 	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
-	if ($mot_de_passe_essai == $mot_de_passe_ok and $_POST['nom_utilisateur'] == $GLOBALS['identifiant']) { // after "or": avoids "$a.$bc" to be equal to "$ab.$c"
+	if ($mot_de_passe_essai == $mot_de_passe_ok and $_POST['nom_utilisateur'] == $GLOBALS['identifiant']) { // this test avoids "string a + string bc" to be equal to "string ab + string c"
 		$passwd_is_ok = 1;
-		$captcha_is_ok = 1; // temporaire : changé ci-dessous
+	} else {
+		$passwd_is_ok = 0;
 	}
-	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) {
-		if ((empty($_SESSION['freecap_word_hash'])) or (empty($_POST['word'])) or ($_SESSION['hash_func'](strtolower($_POST['word'])) != $_SESSION['freecap_word_hash']) ) {
+	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) { // si captcha activé
+		if (!(empty($_SESSION['freecap_word_hash'])) and (!empty($_POST['word'])) and ($_SESSION['hash_func'](strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) ) {
+			$captcha_is_ok = 1;
+		} else {
 			$captcha_is_ok = 0;
 		}
 		if ($_SESSION['hash_func'](strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
 			// reset freeCap session vars
 			$_SESSION['freecap_attempts'] = 0;
-			$_SESSION['freecap_word_hash'] = false;
-			$captcha_is_ok = 1;
+			$_SESSION['freecap_word_hash'] = FALSE;
 		}
+	} else { // si captcha pas activé
+		$captcha_is_ok = 1;
 	}
 
 	if ($passwd_is_ok == 1 and $captcha_is_ok == 1) {
@@ -120,7 +117,6 @@ function valider_form() {
 	} else {
 		return FALSE;
 	}
-
 }
 
 footer();

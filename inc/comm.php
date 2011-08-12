@@ -28,16 +28,15 @@ function liste_commentaires($dossier, $article_id, $statut) {
 		for ($j = $mois_deb; $j <= $mois_fin ; $j++) {
 			$j = nombre_formate($j);
 			if (is_dir($dossier.'/'.$i.'/'.$j)) {
-				$liste = (parcourir_dossier($dossier.'/'.$i.'/'.$j.'/'));
-				if ($liste != "") {
+				$liste = parcourir_dossier($dossier.'/'.$i.'/'.$j.'/');
+				if ($liste != '') {
 					foreach ($liste as $comm) {
-						if (preg_match('#'.$GLOBALS['ext_data'].'$#',$comm)) {
+						if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#', $comm)) {
 							$path = $dossier.'/'.get_path_no_ext($comm);
 					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id']) == $article_id ) {
-
 								if ( $statut != '') {
 									$actual_statut = parse_xml($path, $GLOBALS['data_syntax']['comment_status']);
-							  		if ($actual_statut == $statut or empty($actual_statut)) { // test empty is for old comments that haven't a $statut
+							  		if ($actual_statut == $statut or $actual_statut == '' ) { // test empty is for old comments that haven't a $statut
 								 		$retour[] = $comm;
 									}
 								} else {
@@ -149,6 +148,10 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 				if ( isset($mode) and $mode == 'admin' and isset($actual_comment) ) {
 					$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire-'.$actual_comment['id'].'" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" style="display:none;">'."\n";
 					}
+			$label_email = ($GLOBALS['require_email'] == 1) ? $GLOBALS['lang']['comment_email_required'] : $GLOBALS['lang']['comment_email']; 
+			$required = ($GLOBALS['require_email'] == 1) ? 'required="" ' : ''; 
+
+
 			$GLOBALS['form_commentaire'] .= "\n".'<form id="form-commentaire" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" >'."\n";
 			$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="field">'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<textarea class="commentaire" name="commentaire" required="" placeholder="'.$GLOBALS['lang']['label_commentaire'].'" id="commentaire" cols="50" rows="10">'.$defaut['commentaire'].'</textarea>'."\n";
@@ -165,8 +168,8 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 			$GLOBALS['form_commentaire'] .= "\t".'<fieldset class="infos">'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="auteur">'.$GLOBALS['lang']['comment_nom'].' :</label>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="text" name="auteur" placeholder="'.$GLOBALS['lang']['comment_nom'].'" required="" id="auteur" value="'.$defaut['auteur'].'" size="25" /><br/>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="email">'.$GLOBALS['lang']['comment_email'].' :</label>'."\n";
-			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="email" name="email" placeholder="'.$GLOBALS['lang']['comment_email'].'"required="" id="email" value="'.$defaut['email'].'" size="25" /><br/>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="email">'.$label_email.' :</label>'."\n";
+			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="email" name="email" placeholder="'.$label_email.'"id="email" '.$required.'value="'.$defaut['email'].'" size="25" /><br/>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<label for="webpage">'.$GLOBALS['lang']['comment_webpage'].' :</label>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="url" name="webpage" placeholder="'.$GLOBALS['lang']['comment_webpage'].'" id="webpage" value="'.$defaut['webpage'].'" size="25" /><br/>'."\n";
 			$GLOBALS['form_commentaire'] .= "\t\t".'<input type="hidden" name="_verif_envoi" value="1" />'."\n";
@@ -248,6 +251,5 @@ function traiter_form_commentaire($dossier, $commentaire) {
 		}
 	}
 }
-
 
 ?>

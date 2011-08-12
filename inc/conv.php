@@ -155,13 +155,14 @@ function date_formate($id) {
 		$jour_l = jour_en_lettres($date['jour'], $date['mois'], $date['annee']);
 		$mois_l = mois_en_lettres($date['mois']);
 			$format = array (
-				'0' => $date['jour'].'/'.$date['mois'].'/'.$date['annee'],				// 14/01/1983
-				'1' => $date['mois'].'/'.$date['jour'].'/'.$date['annee'],				// 01/14/1983
-				'2' => $date['jour'].' '.$mois_l.' '.$date['annee'],						// 14 janvier 1983
-				'3' => $jour_l.' '.$date['jour'].' '.$mois_l.' '.$date['annee'],		// vendredi 14 janvier 1983
-				'4' => $mois_l.' '.$date['jour'].', '.$date['annee'],						// janvier 14, 1983
-				'5' => $jour_l.', '.$mois_l.' '.$date['jour'].', '.$date['annee'],	// vendredi, janvier 14, 1983
-				'6' => $date['annee'].'-'.$date['mois'].'-'.$date['jour'],				// 1983-01-14
+				'0' => $date['jour'].'/'.$date['mois'].'/'.$date['annee'],                                                        // 14/01/1983
+				'1' => $date['mois'].'/'.$date['jour'].'/'.$date['annee'],                                                        // 01/14/1983
+				'2' => $date['jour'].' '.$mois_l.' '.$date['annee'],                                                              // 14 janvier 1983
+				'3' => $jour_l.' '.$date['jour'].' '.$mois_l.' '.$date['annee'],                                                  // vendredi 14 janvier 1983
+				'4' => $mois_l.' '.$date['jour'].', '.$date['annee'],                                                             // janvier 14, 1983
+				'5' => $jour_l.', '.$mois_l.' '.$date['jour'].', '.$date['annee'],                                                // vendredi, janvier 14, 1983
+				'6' => $date['annee'].'-'.$date['mois'].'-'.$date['jour'],                                                        // 1983-01-14
+//				'7' => mktime($date['heure'], $date['minutes'], $date['secondes'], $date['mois'], $date['jour'], $date['annee']), // (timestamp)
 			);
 
 	$retour = $format[$GLOBALS['format_date']];

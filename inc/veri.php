@@ -45,8 +45,10 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 		}
 	}
 
-	if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email']])) ) {
-		$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
+	if (!empty($commentaire[$GLOBALS['data_syntax']['comment_email']]) or $GLOBALS['require_email'] == 1) {
+		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire[$GLOBALS['data_syntax']['comment_email']])) ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
+		}
 	}
 	if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_content']])) or $commentaire[$GLOBALS['data_syntax']['comment_content']] == "<p></p>") {
 		$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
@@ -107,8 +109,13 @@ function valider_form_preferences() {
 	if (!strlen(trim($_POST['auteur']))) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_auteur'];
 	}
-	if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($_POST['email']))) {
-		$erreurs[] = $GLOBALS['lang']['err_prefs_email'] ;
+	if ($GLOBALS['require_email'] == 1) { 
+		if (!preg_match('#^[\w.+~\'*-]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($_POST['email']))) {
+			$erreurs[] = $GLOBALS['lang']['err_prefs_email'] ;
+		}
+	}
+	if (!preg_match('#\/$#', $_POST['racine'])) {
+		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_slash'];
 	}
 	if (!strlen(trim($_POST['identifiant']))) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_identifiant'];

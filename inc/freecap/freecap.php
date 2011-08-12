@@ -1,4 +1,4 @@
-<?
+<?php
 /************************************************************\
 *
 *		freeCap v1.4.1 Copyright 2005 Howard Yeend
@@ -326,14 +326,11 @@ for ($i = 0; $i <= $width; $i += $x_chunk) {
 }
 myImageBlur($im);
 
-//////////////////////////////////////////////////////
-////// Try to avoid 'free p*rn' style CAPTCHA re-use
-//////////////////////////////////////////////////////
 
-ImageFilledRectangle($im2,0,0,$width,$height,$bg2);
+ImageFilledRectangle($im2, 0, 0, $width, $height, $bg2);
 
-ImageCopyMerge($im2,$im,0,0,0,0,$width,$height,80);
-ImageCopy($im,$im2,0,0,0,0,$width,$height);
+ImageCopyMerge($im2, $im, 0, 0, 0, 0, $width, $height, 80);
+ImageCopy($im, $im2, 0, 0, 0, 0, $width, $height);
 
 
 //////////////////////////////////////////////////////
@@ -348,8 +345,8 @@ ImageDestroy($temp_im);
 $c_fade_pct = 50;
 
 // captcha over bg:
-ImageCopyMerge($im3,$im,0,0,0,0,$width,$height,100);
-ImageCopy($im,$im3,0,0,0,0,$width,$height);
+ImageCopyMerge($im3, $im, 0, 0, 0, 0, $width, $height, 100);
+ImageCopy($im, $im3, 0, 0, 0, 0, $width, $height);
 
 //////////////////////////////////////////////////////
 ////// Write tags, remove variables and output!
@@ -359,17 +356,11 @@ ImageCopy($im,$im3,0,0,0,0,$width,$height);
 $tag_str = "freeCap - puremango.co.uk";
 
 $tag_width = strlen($tag_str)*6;
+
 // write tag
 ImageString($im, 2, $width-$tag_width, $height-13, $tag_str, $tag_col);
 
-unset($word);
-unset($use_dict);
-unset($dict_location);
-unset($max_word_length);
-unset($bg_images);
-unset($bg_fade_pct);
-unset($max_attempts);
-unset($font_locations);
+unset($word, $use_dict, $dict_location, $max_word_length, $bg_images, $bg_fade_pct, $max_attempts, $font_locations);
 
 sendImage($im);
 

@@ -88,7 +88,7 @@ a:visited {
 
 h1 {
 	letter-spacing: -1px;
-	font-weight: 30px;
+	font-size: 30px;
 }
 
 h3 {
@@ -149,7 +149,7 @@ h3 {
 }
 
 textarea.commentaire {
-	width: 654px; /* 654 + 2(*2) padding + 2 border = 660px */
+	width: 490px;
 	height: 200px;
 }
 

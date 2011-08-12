@@ -12,15 +12,91 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-error_reporting(-1);
-/// formulaires GENERAUX //////////
+//error_reporting(-1);
 
-function lien_nav($url, $id, $label, $active) {
-	echo "\t".'<li><a href="'.$url.'" id="'.$id.'" ';
-	if ($active == $url) {
-	echo 'class="current"';
-	}
-	echo '>'.$label.'</a></li>'."\n";
+/// formulaires GENERIQUES //////////
+
+function form_select($id, $choix, $defaut, $label) {
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<select id="'.$id.'" name="'.$id.'">'."\n";
+		foreach ($choix as $valeur => $mot) {
+		$form .= '<option value="'.$valeur.'"';
+			if ($defaut == $valeur) {
+				$form .= ' selected="selected"';
+			}
+		$form .= '>'.$mot.'</option>'."\n";
+		}
+	$form .= '</select>';
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function form_text($id, $defaut, $label) {
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<input type="text" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" />'."\n";
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function form_password($id, $defaut, $label) {
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" />'."\n";
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function form_check($id, $defaut, $label) {
+	$checked = ($defaut == 'on') ? 'checked="checked" ' : "";
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<input type="checkbox" id="'.$id.'" name="'.$id.'" '.$checked.'/>'."\n";
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function form_radio($name, $id, $value, $label, $checked='') {
+	$coche = ($checked === TRUE) ? 'checked="checked"' : '';
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" '.$coche.' />'."\n";
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function textarea($id, $defaut, $label, $cols, $rows) {
+	$form = '<p>'."\n";
+	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
+	$form .= '<textarea id="'.$id.'" name="'.$id.'" cols="'.$cols.'" rows="'.$rows.'">'.$defaut.'</textarea>'."\n";
+	$form .= '</p>'."\n";
+	return $form;
+}
+
+function input_supprimer() {
+	$form = '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
+	return $form;
+}
+
+function input_enregistrer() {
+	$form = '<input class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
+	return $form;
+}
+
+function input_valider() {
+	$form = '<input class="submit" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
+	return $form;
+}
+
+function input_upload() {
+	$form = '<input class="submit" type="submit" name="upload" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
+	return $form;
+}
+
+function hidden_input($nom, $valeur) {
+	$form = '<input type="hidden" class="nodisplay" name="'.$nom.'" value="'.$valeur.'" />'."\n";
+	return $form;
 }
 
 /// formulaires PREFERENCES //////////
@@ -47,13 +123,14 @@ function form_format_date($defaut) {
 	$jour_l = jour_en_lettres(date('d'), date('m'), date('Y'));
 	$mois_l = mois_en_lettres(date('m'));
 		$formats = array (
-			'0' => date('d').'/'.date('m').'/'.date('Y'),							// 14/01/1983
-			'1' => date('m').'/'.date('d').'/'.date('Y'),							// 14/01/1983
-			'2' => date('d').' '.$mois_l.' '.date('Y'),								// 14 janvier 1983
-			'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),				// vendredi 14 janvier 1983
-			'4' => $mois_l.' '.date('d').', '.date('Y'),								// janvier 14, 1983
-			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),			// vendredi, janvier 14, 1983
-			'6' => date('Y').'-'.date('m').'-'.date('d')								// 1983-01-14
+			'0' => date('d').'/'.date('m').'/'.date('Y'),                     // 05/07/2011
+			'1' => date('m').'/'.date('d').'/'.date('Y'),                     // 07/05/2011
+			'2' => date('d').' '.$mois_l.' '.date('Y'),                       // 05 juillet 2011
+			'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),           // mardi 05 juillet 2011
+			'4' => $mois_l.' '.date('d').', '.date('Y'),                      // juillet 05, 2011
+			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),         // mardi, juillet 05, 2011
+			'6' => date('Y').'-'.date('m').'-'.date('d'),                     // 2011-07-05
+//			'7' => time()                                                     // 1309862306 (timestamp)
 		);
 	$form = '<p>';
 	$form .= '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>'."\n";
@@ -72,7 +149,7 @@ function form_format_date($defaut) {
 
 function form_fuseau_horaire($defaut) {
 	if ($GLOBALS['version_PHP'] >= '5') {
-		$liste_fuseau = DateTimeZone::listIdentifiers();
+		$liste_fuseau = timezone_identifiers_list();
 		$form = '<p>';
 		$form .= '<label>'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
 		$form .= '<select name="fuseau_horaire">' ;
@@ -316,13 +393,13 @@ function afficher_form_billet($article='', $erreurs= '') {
 	}
 	echo '<div id="form">'."\n";
 		label('titre', $GLOBALS['lang']['label_titre']);
-		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required=""/>'."\n" ;
+		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" />'."\n" ;
 	echo '<div id="chapo_note">'."\n".'<div id="blocchapo">';
 		label('chapo', $GLOBALS['lang']['label_chapo']);
-		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="">'.$chapodefaut.'</textarea>'."\n" ;
+		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_chapo'].'" >'.$chapodefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n".'<div id="blocnote">'."\n";
 		label('notes', 'Notes');
-		echo '<textarea id="notes" name="notes" rows="5" cols="25">'.$notesdefaut.'</textarea>'."\n" ;
+		echo '<textarea id="notes" name="notes" rows="5" cols="25" placeholder="Notes" >'.$notesdefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n".'<br style="clear:both;"/>'."\n".'</div>'."\n";
 
 	if ($GLOBALS['activer_categories'] == '1') {
@@ -334,10 +411,10 @@ function afficher_form_billet($article='', $erreurs= '') {
 
 	echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
 	label('contenu', $GLOBALS['lang']['label_contenu']);
-	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="">'.$contenudefaut.'</textarea>'."\n" ;
+	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'" >'.$contenudefaut.'</textarea>'."\n" ;
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		label('mots_cles', $GLOBALS['lang']['label_motscles']);
-		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" /></div>'."\n";
+		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" placeholder="'.$GLOBALS['lang']['label_motscles'].'" /></div>'."\n";
 	}
 	if (!$article) {
 		echo '<div id="date">'."\n";
@@ -467,21 +544,6 @@ function form_allow_comment($etat) {
 	echo form_select('allowcomment', $choix, $etat, $GLOBALS['lang']['label_allowcomment']);
 	echo '</div>'."\n";
 }
-/*
-function form_titre($titreaffiche) {
-		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titreaffiche.'" />'."\n" ;
-}
-*/
-/*
-function form_chapo($chapoaffiche) {
-	echo '<textarea id="chapo" name="chapo" rows="5" cols="60">'.$chapoaffiche.'</textarea>'."\n" ;
-}
-*/
-/*
-function form_notes($notesaffiche) {
-	echo '<textarea id="notes" name="notes" rows="5" cols="25">'.$notesaffiche.'</textarea>'."\n" ;
-}
-*/
 
 function form_categories($categoriesaffiche) {
 	if (!empty($GLOBALS['tags'])) {
@@ -516,16 +578,8 @@ function form_categories($categoriesaffiche) {
 
 		echo '</p>'."\n";
 	}
-	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" />'."\n";
+	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" placeholder="'.$GLOBALS['lang']['label_categories'].'"/>'."\n";
 }
-/*
-function form_contenu($contenuaffiche) {
-	echo '<textarea id="contenu" name="contenu" rows="20" cols="60">'.$contenuaffiche.'</textarea>'."\n" ;
-}
-*/
-/*
-function form_motscles($motsclesaffiche) {
-	echo '<input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesaffiche.'" />'."\n" ;
-}
-*/
+
+
 ?>

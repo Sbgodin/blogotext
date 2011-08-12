@@ -167,6 +167,21 @@ img {
 
 /* LISTE IMAGES */
 
+.image_popup img {
+	display: none;
+}
+
+.image_popup:hover img {
+	top: 25px ; right: 25px;
+	display: block;
+	position: fixed;
+	max-width: 50%;
+	max-height: 70%;
+	border: 3px silver outset;
+	background: url(transparent_bg.png) silver repeat;
+	box-shadow: 5px 5px 10px gray;
+}
+
 #images {
 	width: 100%;
 	margin-top: 15px;
@@ -200,7 +215,6 @@ img {
 	bottom: 0;
 	border: none;
 	margin: 0;
-
 }
 
 /* COMMENTAIRES */
@@ -382,6 +396,7 @@ p.activer_yesno label {
 .legend-user { background: url("user.gif") no-repeat 5px; }
 .legend-image { background: url("image.gif") no-repeat 5px; }
 .legend-cross { background: url("off.gif") no-repeat 5px; }
+.legend-images { background: url("images.gif") no-repeat 5px; }
 .legend-backup { background: url("save.gif") no-repeat 5px; }
 .legend-config { background: url("bullet_wrench.gif") no-repeat 5px; }
 .legend-picture { background: url("picture.gif") no-repeat 5px; }
@@ -771,8 +786,8 @@ input.inline {
 	width: 100%;
 	text-align: center;
 	color: #666;
-	padding-top: 10px;
-	padding-bottom: 6px;
+	padding: 10px 0 6px;
+
 	margin: 0;
 	font-size: 10px;
 }

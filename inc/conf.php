@@ -9,7 +9,7 @@
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
 #
-# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
+# Also, any distributors of non-official releases MUST warn the final user of it, by any visible way BEFORE the download.
 # *** LICENSE ***
 
 if (isset($GLOBALS['fuseau_horaire'])) {
@@ -18,14 +18,11 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 	date_default_timezone_set('UTC');
 }
 
-// init blogotext's root folder
-$GLOBALS['BT_ROOT_PATH'] = substr(dirname(__FILE__).'/', 0, -4);
-
-// PHP VERSION
+// PHP VERSION OF THE SERVER (if you encounter problems, try set it to '4')
 $GLOBALS['version_PHP'] = '5';
 
-// BLOGOTEXT VERSION (do not change)
-$GLOBALS['version']= '28';
+// BLOGOTEXT VERSION (do not change it)
+$GLOBALS['version']= '29';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -35,7 +32,7 @@ $GLOBALS['ext_data']= 'php';
 $GLOBALS['date_premier_message_blog'] = '199701';
 $GLOBALS['salt']= '123456';
 
-// FOLDERS
+// FOLDERS (change this only if you know what you are doing...)
 $GLOBALS['dossier_admin']= 'admin';
 $GLOBALS['dossier_articles'] = 'articles';
 $GLOBALS['dossier_commentaires'] = 'commentaires';
@@ -44,9 +41,10 @@ $GLOBALS['dossier_images']= 'img';
 $GLOBALS['dossier_themes'] = 'themes';
 
 // MISC BONUS PREFS
-$GLOBALS['connexion_delai'] = '0';		// login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;
-$GLOBALS['onglet_commentaires'] = 'on';// show panel link "comments" ('on'= show ; '' = hide)
-$GLOBALS['onglet_images'] = 'on';		// show panel link "images" ('on'= show ; '' = hide)
+$GLOBALS['connexion_delai'] = 0;       // login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;          (recommended : '0')
+$GLOBALS['onglet_commentaires'] = 1;   // show panel link "comments" ('on'= show ; '' = hide) ;             (recommended : '1')
+$GLOBALS['onglet_images'] = 1;         // show panel link "images" ('on'= show ; '' = hide) ;               (recommended : '1')
+$GLOBALS['session_admin_time'] = 1800; // time in seconds until admin session expires (1800s = 30min)       (recommended : '1800')
 
 // CAPTCHA
 function mk_captcha() {
@@ -68,8 +66,10 @@ if ( isset($GLOBALS['theme_choisi']) ) {
 	} else {
 		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'];
 	}
-	$GLOBALS['theme_article'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
-	$GLOBALS['theme_liste'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
+//	$GLOBALS['theme_article'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
+//	$GLOBALS['theme_liste'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
+	$GLOBALS['theme_article'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
+	$GLOBALS['theme_liste'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
 	$GLOBALS['rss'] = $GLOBALS['racine'].'rss.php';
 }
 
@@ -80,24 +80,24 @@ $GLOBALS['boucles'] = array(
 );
 
 $GLOBALS['balises']= array(
-	'charset' => array('{charset}'),
-	'version' => array('{version}'),
-	'style' => array('{style}'),
-	'racine_du_site' => array('{racine_du_site}'),
-	'rss' => array('{rss}'),
+	'charset' => '{charset}',
+	'version' => '{version}',
+	'style' => '{style}',
+	'racine_du_site' => '{racine_du_site}',
+	'rss' => '{rss}',
 	'rss_comments' => '{rss_comments}',
 	// Blog
 	'blog_nom' => array('{nom_du_blog}', '{blog_nom}', '{blog_name}'),
 	'blog_description' => array('{blog_description}', '{description}'),
 	'blog_auteur' => array('{blog_auteur}', '{blog_author}'),
-	'blog_email' => array('{blog_email}'),
+	'blog_email' => '{blog_email}',
 	// Formulaires
 	'form_recherche' => array('{recherche}', '{search}'),
 	'form_calendrier' => array('{calendrier}', '{calendar}'),
 	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
 	// Encarts
-	'commentaires_encart' => array('{commentaires_encart}'),
-	'categories_encart' => array('{categories_encart}'),
+	'commentaires_encart' => '{commentaires_encart}',
+	'categories_encart' => '{categories_encart}',
 	// Article
 	'article_titre' => array('{article_titre}', '{article_title}'),
 	'article_titre_url' => array('{article_titre_url}', '{article_title_url}'),
@@ -107,7 +107,7 @@ $GLOBALS['balises']= array(
 	'article_date' => array('{article_date}', '{article_date}'),
 	'article_motscles' => array('{article_motscles}', '{article_keywords}'),
 	'article_lien' => array('{article_lien}', '{article_link}'),
-	'article_tags' => array('{article_tags}'),
+	'article_tags' => '{article_tags}',
 	'nb_commentaires' => array('{nombre_commentaires}', '{comments_number}'),
 	// Commentaire
 	'commentaire_auteur' => array('{commentaire_auteur}', '{comment_author}'),
@@ -157,7 +157,7 @@ function init_billet($mode, $id) {
 	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
 
 	$file = $art_directory.'/'.get_path($id);
-	$billet['version'] = parse_xml($file, 'bt_version');
+	$billet['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version']);
 	$billet['id'] = $id;
 	$billet['statut'] = parse_xml($file, $GLOBALS['data_syntax']['article_status']);
 	$billet['titre'] = parse_xml($file, $GLOBALS['data_syntax']['article_title']);
@@ -238,7 +238,7 @@ function init_post_article($id) {
 
 // POST COMMENT
 function init_post_comment($id, $mode='') {
-	$comment= array();
+	$comment = array();
 	$edit_msg = '';
 	if ( (isset($id)) and (isset($_POST['_verif_envoi'])) ) {
 		if ( (isset($mode) and $mode == 'admin') and (isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes') ) {
@@ -248,7 +248,7 @@ function init_post_comment($id, $mode='') {
 			$status = $GLOBALS['comm_defaut_status'];
 			$comment_id = date('Y').date('m').date('d').date('H').date('i').date('s');
 		}
-		$comment=array (
+		$comment = array (
 			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
 			$GLOBALS['data_syntax']['comment_id'] => $comment_id,
 			$GLOBALS['data_syntax']['comment_article_id'] => $id,
@@ -258,9 +258,9 @@ function init_post_comment($id, $mode='') {
 			$GLOBALS['data_syntax']['comment_email'] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
 			$GLOBALS['data_syntax']['comment_webpage'] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
 			$GLOBALS['data_syntax']['comment_status'] => $status,
-			);
+		);
 	}
-return $comment;
+	return $comment;
 }
 
 ?>

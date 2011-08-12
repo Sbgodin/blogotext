@@ -12,6 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 ?>
 

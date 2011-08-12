@@ -12,10 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-//error_reporting(E_ALL);
+//error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
+operate_session();
 
 if (isset($_POST['_verif_envoi'])) {
 	if ($erreurs_form = valider_form_preferences()) {
@@ -46,7 +47,7 @@ function afficher_form($erreurs= '') {
 	echo '<form id="preferences" method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
 		$field_user = '<fieldset class="pref">';
 		$field_user .= legend($GLOBALS['lang']['prefs_legend_utilisateur'], 'legend-user');
-		$field_user .= form_text('auteur', $GLOBALS['auteur'], $GLOBALS['lang']['pref_auteur']);
+		$field_user .= form_text('auteur', empty($GLOBALS['auteur']) ? $GLOBALS['identifiant'] : $GLOBALS['auteur'], $GLOBALS['lang']['pref_auteur']);
 		$field_user .= form_text('email', $GLOBALS['email'], $GLOBALS['lang']['pref_email']);
 		$field_user .= form_text('nomsite', $GLOBALS['nom_du_site'], $GLOBALS['lang']['pref_nom_site']);
 		$field_user .= form_text('racine', $GLOBALS['racine'], $GLOBALS['lang']['pref_racine']);
@@ -56,12 +57,9 @@ function afficher_form($erreurs= '') {
 
 		$field_apparence = '<fieldset class="pref">';
 		$field_apparence .= legend($GLOBALS['lang']['prefs_legend_apparence'], 'legend-apparence');
-		$choix_nb_articles= array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25');
-		$field_apparence .= form_select('nb_maxi', $choix_nb_articles, $GLOBALS['max_bill_acceuil'],$GLOBALS['lang']['pref_nb_maxi']);
-		$choix_nb_com= array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'15', '20'=>'20');
-		$field_apparence .= form_select('nb_maxi_comm', $choix_nb_com, $GLOBALS['max_comm_encart'],$GLOBALS['lang']['pref_nb_maxi_comm']);
-		$themes = liste_themes($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes']);
-		$field_apparence .= form_select('theme', $themes, $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
+		$field_apparence .= form_select('nb_maxi', array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25'), $GLOBALS['max_bill_acceuil'],$GLOBALS['lang']['pref_nb_maxi']);
+		$field_apparence .= form_select('nb_maxi_comm', array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'15', '20'=>'20'), $GLOBALS['max_comm_encart'],$GLOBALS['lang']['pref_nb_maxi_comm']);
+		$field_apparence .= form_select('theme', liste_themes($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes']), $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
 		$field_apparence .= '</fieldset>';
 	echo $field_apparence;
 
@@ -74,8 +72,7 @@ function afficher_form($erreurs= '') {
 		$field_securite .= select_yes_no('connexion_captcha', $GLOBALS['connexion_captcha'], $GLOBALS['lang']['pref_connexion_captcha'] );
 		$field_securite .= '</p>'."\n";
 		$field_securite .= '<p>'."\n";
-		$nbss = array('1' => $GLOBALS['lang']['pref_comm_black_list'], '0' => $GLOBALS['lang']['pref_comm_white_list']);
-		$field_securite .= form_select('comm_defaut_status', $nbss, $GLOBALS['comm_defaut_status'],$GLOBALS['lang']['pref_comm_BoW_list']);
+		$field_securite .= form_select('comm_defaut_status', array('1' => $GLOBALS['lang']['pref_comm_black_list'], '0' => $GLOBALS['lang']['pref_comm_white_list']), $GLOBALS['comm_defaut_status'],$GLOBALS['lang']['pref_comm_BoW_list']);
 		$field_securite .= '</p>'."\n";
 		$field_securite .= '</fieldset>';
 	echo $field_securite;
@@ -103,6 +100,9 @@ function afficher_form($erreurs= '') {
 		$field_config .= '</p>'."\n";
 		$field_config .= '<p>'."\n";
 		$field_config .= select_yes_no('global_comments', $GLOBALS['global_com_rule'], $GLOBALS['lang']['pref_allow_global_coms']);
+		$field_config .= '</p>'."\n";
+		$field_config .= '<p>'."\n";
+		$field_config .= select_yes_no('require_email', $GLOBALS['require_email'], $GLOBALS['lang']['pref_force_email']);
 		$field_config .= '</p>'."\n";
 		$field_config .= '</fieldset>';
 	echo $field_config;

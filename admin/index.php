@@ -17,25 +17,23 @@ if ( !file_exists('../config/user.php') || !file_exists('../config/prefs.php') )
 	header('Location: install.php');
 }
 
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
+operate_session();
 
 if (isset($_GET['q'])) {
 	$tableau = table_recherche($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $_GET['q'], '', 'admin');
-	if (count($tableau) == '1') {
-		redirection('ecrire.php?post_id='.get_id($tableau['0']));
-	}
 } elseif ( (isset($_GET['filtre'])) and ($_GET['filtre'] !== '') and (!isset($_GET['msg'])) ) {
-	if ( preg_match('/\d{4}/',($_GET['filtre'])) ) {
+	if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
 		$annee = substr($_GET['filtre'], 0, 4);
 		$mois = substr($_GET['filtre'], 4, 2);
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/'.$mois;
-	$tableau = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $annee, $mois);
+		$tableau = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $annee, $mois);
 	} elseif ($_GET['filtre'] == 'draft') {
-		$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '', '0', 'admin');
+		$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '-1', '0', 'admin');
 	} elseif ($_GET['filtre'] == 'pub') {
-		$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '', '1', 'admin');
+		$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '-1', '1', 'admin');
 	}
 } else {
   	$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $GLOBALS['max_bill_admin'], '', 'admin');

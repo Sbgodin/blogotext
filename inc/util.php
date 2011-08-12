@@ -25,114 +25,9 @@ function clean_txt($text) {
 return $return;
 }
 
-/// menu haut panneau admin /////////
-
-function afficher_menu($active) {
-	lien_nav('index.php', 'lien-liste', $GLOBALS['lang']['mesarticles'], $active);
-	if ($GLOBALS['onglet_commentaires'] == 'on') {
-		lien_nav('commentaires.php', 'lien-lscom', $GLOBALS['lang']['titre_commentaires'], $active);
-	}
-	lien_nav('ecrire.php', 'lien-nouveau', $GLOBALS['lang']['nouveau'], $active);
-	lien_nav('preferences.php', 'lien-preferences', $GLOBALS['lang']['preferences'], $active);
-	lien_nav($GLOBALS['racine'], 'lien-site', $GLOBALS['lang']['lien_blog'], $active);
-	if ($GLOBALS['onglet_images'] == 'on') {
-		lien_nav('image.php', 'lien-image', $GLOBALS['lang']['nouvelle_image'], $active);
-	}
-	lien_nav('logout.php', 'lien-deconnexion', $GLOBALS['lang']['deconnexion'], $active);
-}
-
-/// formulaires GENERIQUES //////////
-
-function form_select($id, $choix, $defaut, $label) {
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<select id="'.$id.'" name="'.$id.'">'."\n";
-		foreach ($choix as $valeur => $mot) {
-		$form .= '<option value="'.$valeur.'"';
-			if ($defaut == $valeur) {
-				$form .= ' selected="selected"';
-			}
-		$form .= '>'.$mot.'</option>'."\n";
-		}
-	$form .= '</select>';
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-function form_text($id, $defaut, $label) {
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="text" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-function form_check($id, $defaut, $label) {
-	$checked = ($defaut == 'on') ? 'checked="checked" ' : "";
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="checkbox" id="'.$id.'" name="'.$id.'" '.$checked.'/>'."\n";
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-function form_radio($name, $id, $value, $label, $checked='') {
-	$coche = ($checked === TRUE) ? 'checked="checked"' : '';
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="radio" name="'.$name.'" value="'.$value.'" id="'.$id.'" '.$coche.' />'."\n";
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-function form_password($id, $defaut, $label) {
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="25" value="'.$defaut.'" />'."\n";
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-
-function textarea($id, $defaut, $label, $cols, $rows) {
-	$form = '<p>'."\n";
-	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<textarea id="'.$id.'" name="'.$id.'" cols="'.$cols.'" rows="'.$rows.'">'.$defaut.'</textarea>'."\n";
-	$form .= '</p>'."\n";
-	return $form;
-}
-
-function input_supprimer() {
-	$form = '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
-	return $form;
-}
-
-function input_enregistrer() {
-	$form = '<input class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
-	return $form;
-}
-
-function input_valider() {
-	$form = '<input class="submit" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
-	return $form;
-}
-
-function input_upload() {
-	$form = '<input class="submit" type="submit" name="upload" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
-	return $form;
-}
-
-function hidden_input($nom, $valeur) {
-	$form = '<input type="hidden" class="nodisplay" name="'.$nom.'" value="'.$valeur.'" />'."\n";
-	return $form;
-}
-
 /// DECODAGES //////////
 
-function get_ext($file) {
-	$retour= substr($file, -3, 3);
-	return $retour;
-}
+// function get_ext($file) REPLACED WITH "pathinfo($file, PATHINFO_EXTENSION);"
 
 function get_id($file) {
 	$retour= substr($file, 0, 14);
@@ -140,7 +35,7 @@ function get_id($file) {
 }
 
 function decode_id($id) {
-	$retour=array(
+	$retour = array(
 		'annee' => substr($id, 0, 4),
 		'mois' => substr($id, 4, 2),
 		'jour' => substr($id, 6, 2),
@@ -152,7 +47,7 @@ function decode_id($id) {
 }
 
 function url($niveau) {
-	if ($dec=explode('/', $_SERVER['QUERY_STRING'])) {
+	if ($dec = explode('/', $_SERVER['QUERY_STRING'])) {
 		return $dec[$niveau];
 	}
 }
@@ -203,40 +98,34 @@ function traiter_tags($tags) {
 
 function check_session() {
 	session_start();
-    $ip = $_SERVER["REMOTE_ADDR"];
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip .= '_'.$_SERVER['HTTP_X_FORWARDED_FOR']; }
-    if (isset($_SERVER['HTTP_CLIENT_IP'])) { $ip .= '_'.$_SERVER['HTTP_CLIENT_IP']; }
+	$ip = $_SERVER["REMOTE_ADDR"];
 
 	if ((!isset($_SESSION['nom_utilisateur']))
 		or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp'])
 		or (!isset($_SESSION['antivol']))
 		or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip))
 		or (!isset($_SESSION['timestamp']))
-		or ($_SESSION['timestamp'] < time()-1800)) {
-			fermer_session();
-			exit;
-		}
-	$_SESSION['timestamp'] = time();
+		or ($_SESSION['timestamp'] < time()-$GLOBALS['session_admin_time'])) { // session older than 30min
+			return FALSE;
+	} else {
+		return TRUE;
+	}
+}
+
+function operate_session() {
+	if (check_session() === FALSE) {
+		fermer_session();
+	} else {
+		$_SESSION['timestamp'] = time();
+	}
 }
 
 function fermer_session() {
 	unset($_SESSION['nom_utilisateur'],$_SESSION['antivol'],$_SESSION['timestamp']);
+	$_SESSION = array();
 	session_destroy();
-	if (ini_get("session.use_cookies")) {
-		$params = session_get_cookie_params();
-		if ($GLOBALS['version_PHP'] >= '5') {
-			setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);	// PHP >=5
-		} else {
-			setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"]);								// PHP < 5
-		}
-	}
-	header('Location: auth.php');
+	redirection('auth.php'); // cookies are destroyed in auth.php
 	exit();
-// see here for some other tips : http://sebsauvage.net/wiki/doku.php?id=php:session
-/*
-	- is the 'session_destroy()' here above really needed ?
-
-*/
 }
 
 function diacritique($texte, $majuscules, $espaces) {
@@ -253,6 +142,14 @@ function diacritique($texte, $majuscules, $espaces) {
 	if ($espaces == '0')
 		$texte = preg_replace('#[ ]+#', '-', $texte); // les espaces deviennent des tirets.
 	return $texte;
+}
+
+function rel2abs($article) { // convertit les URL relatives en absolues
+	$article = str_replace(' src="/', ' src="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
+	$article = str_replace(' href="/', ' href="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
+	$base = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+	$article = preg_replace('/(src|href)=\"(?!http)/i','src="'.$base.'/',$article);
+	return $article;
 }
 
 ?>

@@ -13,9 +13,11 @@
 # *** LICENSE ***
 
 //error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
+operate_session();
+
 $erreurs = array();
 $uploaded_image = '';
 
@@ -23,7 +25,7 @@ if (isset($_POST['_verif_envoi'])) {
 	$erreurs = valider_form_image();
 	if (empty($erreurs)) {
 		$image = traiter_form_image();
-		if($image === FALSE) {
+		if ($image === FALSE) {
 			erreur('Envoi impossible');
 		} else {
 			confirmation($GLOBALS['lang']['confirm_image_ajout']);

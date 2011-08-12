@@ -22,7 +22,6 @@ require_once 'html.php' ;
 require_once 'comm.php';
 require_once 'form.php';
 require_once 'fich.php';
-require_once 'list.php';
 require_once 'conv.php';
 require_once 'veri.php';
 require_once 'util.php';

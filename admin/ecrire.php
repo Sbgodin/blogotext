@@ -13,9 +13,10 @@
 # *** LICENSE ***
 
 //error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
+operate_session();
 
 // RECUP MAJ
 $post='';

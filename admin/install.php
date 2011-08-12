@@ -17,6 +17,8 @@ if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')
 	header('Location: auth.php');
 	exit;
 }
+$GLOBALS['BT_ROOT_PATH'] = '../';
+
 require_once '../inc/conf.php';
 require_once '../inc/lang.php';
 require_once '../inc/html.php';
@@ -52,7 +54,7 @@ if ($step == '1') {
 			redirection('install.php?s=2&l='.$_POST['langue']);
 		}
 	} else {
-	afficher_form_1();
+		afficher_form_1();
 	}
 } elseif ($step == '2') {
 	// ID + MOT DE PASSE
@@ -61,22 +63,10 @@ if ($step == '1') {
 				afficher_form_2($err_2);
 		} else {
 			traiter_install_2();
-			redirection('install.php?s=3&l='.$_GET['l']);
-		}
-	} else {
-	afficher_form_2();
-	}
-} elseif ($step == '3') {
-		// ID + MOT DE PASSE
-		if (isset($_POST['verif_envoi_3'])) {
-		if ($err_3 = valid_install_3()) {
-				afficher_form_3($err_3);
-		} else {
-			traiter_install_3();
 			redirection('auth.php');
 		}
 	} else {
-	afficher_form_3();
+		afficher_form_2();
 	}
 }
 
@@ -167,9 +157,9 @@ function valid_install_2() {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp_diff'] ;
 	}
 
-	if ( !strlen(trim($_POST['racine'])) or !preg_match('/^http:\/\/[a-zA-Z0-9_.]/', $_POST['racine']) ) {
+	if ( !strlen(trim($_POST['racine'])) or !preg_match('/^http:\/\/[a-zA-Z0-9_.-]/', $_POST['racine']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine'];
-	} elseif (!preg_match('/^http:\/\//', $_POST['racine'])) {
+	} elseif (!preg_match('/^https?:\/\//', $_POST['racine'])) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_http'];
 	} elseif (!preg_match('/\/$/', $_POST['racine'])) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_slash'];
@@ -196,7 +186,7 @@ function verifForm2(form) {
 	var mdpOk = false;
 	var url = false;
 	var regexend = /[a-zA-Z0-9]\/$/;
-	var regexbeg = /^http:\/{2}/;
+	var regexbeg = /^https?:\/{2}/;
 	var msg = "";
 
 

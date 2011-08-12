@@ -12,10 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-error_reporting(-1);
+//error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
+operate_session();
 
 if (isset($_POST['supprimer_fichier_source']) and ($_POST['supprimer_fichier_source'] == '1' )) {
 	$file = htmlspecialchars($_POST['filetodelete']);
@@ -243,7 +244,7 @@ function enregistrer_donnees($dossier, $donnes, $type_fich) {
 		$error_syntaxe = '0';
 		$balise_bt = array('bt_version', 'bt_id', 'bt_article_id', 'bt_content', 'bt_author', 'bt_email');
 		for ($i = 0; $i < 6; $i++) {
-			if (!preg_match('#(.*)<'.$balise_bt[$i].'>(.+)</'.$balise_bt[$i].'>(.*)#is',$donnes)) {
+			if (!preg_match('#(.*)<'.$balise_bt[$i].'>(.*)</'.$balise_bt[$i].'>(.*)#is',$donnes)) {
 				$error_syntaxe = '1';
 			}
 		}

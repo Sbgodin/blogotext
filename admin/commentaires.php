@@ -12,11 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-error_reporting(-1);
+//error_reporting(-1);
+$GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 
-check_session();
-
+operate_session();
 
 // RECUP MAJ
 $article_id='';
@@ -27,7 +27,7 @@ if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 	$param_makeup['menu_theme'] = 'for_article';
 	$article_id = $_GET['post_id'];
 	$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
-	if ( (file_exists($loc_data)) AND (preg_match('/\d{4}/',$article_id)) ) {
+	if ( (file_exists($loc_data)) and (preg_match('/\d{14}/',$article_id)) ) {
 		$post = init_billet('admin', $article_id);
 		$article_title = $post['titre'];
 		$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '');
@@ -37,20 +37,20 @@ if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 		exit;
 	}
 }
-// else, no query string and it lists all comments
+// else, no ID 
 else {
 		$param_makeup['menu_theme'] = 'for_comms';
-	// if filter
+	// if filter for date
 	if ( isset($_GET['filtre']) and $_GET['filtre'] !== '' ) {
-		if ( preg_match('/\d{4}/',($_GET['filtre'])) ) {
+		if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
 			$annee = substr($_GET['filtre'], 0, 4);
 			$mois = substr($_GET['filtre'], 4, 2);
 			$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.$annee.'/'.$mois;
 			$commentaires = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $annee, $mois);
 		} elseif ($_GET['filtre'] == 'draft') {
-			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '0', 'admin');
+			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '0', 'admin');
 		} elseif ($_GET['filtre'] == 'pub') {
-			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '1', 'admin');
+			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '1', 'admin');
 		} else {
 			$commentaires = table_auteur($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], htmlspecialchars($_GET['filtre']), '', 'admin' );
 
@@ -60,7 +60,7 @@ else {
 	} else { // no filter, so list'em all
 		$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $GLOBALS['max_comm_admin'], '', 'admin');
 	}
-	$nb_total_comms = count(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '', '', 'admin'), '0');
+	$nb_total_comms = count(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '', 'admin'));
 	$post['nb_comments'] = sizeof($commentaires);
 	$param_makeup['show_links'] = '1';
 }
@@ -161,7 +161,6 @@ if (isset($_GET['filtre'])) {
 } else {
 	afficher_form_filtre('commentaires', '', 'admin');
 }
-
 
 // COMMENTAIRES
 if ($post['nb_comments'] > 0) {

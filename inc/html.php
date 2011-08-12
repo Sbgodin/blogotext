@@ -12,6 +12,30 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+
+/// menu haut panneau admin /////////
+function lien_nav($url, $id, $label, $active) {
+	echo "\t".'<li><a href="'.$url.'" id="'.$id.'" ';
+	if ($active == $url) {
+	echo 'class="current"';
+	}
+	echo '>'.$label.'</a></li>'."\n";
+}
+
+function afficher_menu($active) {
+	lien_nav('index.php', 'lien-liste', $GLOBALS['lang']['mesarticles'], $active);
+	if ($GLOBALS['onglet_commentaires'] == 1) {
+		lien_nav('commentaires.php', 'lien-lscom', $GLOBALS['lang']['titre_commentaires'], $active);
+	}
+	lien_nav('ecrire.php', 'lien-nouveau', $GLOBALS['lang']['nouveau'], $active);
+	lien_nav('preferences.php', 'lien-preferences', $GLOBALS['lang']['preferences'], $active);
+	lien_nav($GLOBALS['racine'], 'lien-site', $GLOBALS['lang']['lien_blog'], $active);
+	if ($GLOBALS['onglet_images'] == 1) {
+		lien_nav('image.php', 'lien-image', $GLOBALS['lang']['nouvelle_image'], $active);
+	}
+	lien_nav('logout.php', 'lien-deconnexion', $GLOBALS['lang']['deconnexion'], $active);
+}
+
 function confirmation($message) {
 	echo '<div class="confirmation">'.$message.'</div>'."\n";
 }

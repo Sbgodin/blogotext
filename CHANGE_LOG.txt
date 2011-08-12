@@ -1,3 +1,185 @@
+2011-08-13 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 147
+
+	*: ajout d'un bout de JS dans /theme/defaut/post.html pour augmenter la taille du formaulaire. (#anciens_navigateus). Ajout global prévu prochainement. (la mise à jour en ligne est désormais critique à mettre en ligne)
+
+	* /themes/defaut/post.html
+
+2011-08-09 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 146
+
+	*: Blogotext ne marchait pas sur Wamp (PHP sous Windows) car la fonction responsable de créer le GLOBALS[BT_ROOT_PATH] (/inc/conf.php) créait un chemin de type UNIX (/var/www…) alors que Windows travail avec C:\lamp\www. Dans les pages /index et /rss, la variable BT_ROOT_PATH est mise vide, et dans tous les fichiers de /admin/, cette variable est mise à "../"
+
+	* /inc/conf : suppresion de $GLOBALS['BT_ROOT_PATH']
+	* /*.php : ajout de $GLOBALS['BT_ROOT_PATH'] = '';
+	* /admin/*.php : ajout de $GLOBALS['BT_ROOT_PATH'] = '../'; sur tous les ficheirs.
+
+2011-08-09 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 145
+
+	*: remplacement de la fonction "get_ext" par la fonction interne de PHP : pathinfo()
+
+	* /inc/util : suppresion de la fonction.
+	* /inc/fich : remplacement de l'appel de get_ext()
+	* /inc/imgs : idem
+
+2011-08-09 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 144
+
+	*: amélioration de la liste : prévisualisation, lien…
+
+	* /inc/imgs : création d'une fonction de listage des images.
+	* /inc/lang/* :
+	* /admin/style/index.css : ajout pour le popup de prévisualisation
+
+2011-08-08 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 143
+
+	*: ajoute une liste des images uplodées dans le panel
+
+	* /inc/imgs : suppression de l'ancienne fonction "liste_images()" et ajout d'un T_ELSE dans la focntion "afficher_form_images()", lorsqu'aucune image n'est postée, on liste les anciennes.
+
+2011-08-08 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 142
+
+	*: Vu que l'email n'est plus obligatoire, il faut changer le "(.+)" en "(.*)" dans le fichier de backup, renvoyait une erreur sinon…
+
+	* /admin/maintenance : ligne 246.
+
+2011-08-08 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 141
+
+	*: ajout d'une variable $GLOBALS['session_admin_time'], pour la durée d'inactivité du panel avant déconnexion
+
+	* /inc/conf : déclaration de la variable en haut
+	* /inc/util : utilisation de la variable dans la fonction check_session()
+
+2011-08-07 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 140
+
+	*: optimisation de la fonction "table_dernier"
+
+	* /inc/fich : table_dernier() utilise désormais la fonction "parcourrir_dossier()".
+					: parcourrir_dossier() retourne un tableau vide au lieu de déclarrer une erreur dans le vide si aucun fichier ne se trouve dans le dossier.
+
+2011-08-06 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 139
+
+	*: suppression fichier "list.php" (les deux fonctions qui s'y trouvaient ont étés copiées dans "fich.php").
+	*: (??) correction d'un bug souvent rapporté du "le filtre dans le panel admin renvoie 0 articles".
+
+	* /inc/fich  :lignes 120, 178, 189, changement du "===" en "==" :la valeur retournée par parse_xml() peut varier entre "1" et "'1'" (la différence est perçue par le "===" et non par "==").
+
+2011-07-31 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 138
+
+	*: lors de la déconnection : un "header already sent" sur certains serveurs.
+
+	* /inc/util  :ligne 140, changement de "header()" en "redirection()" ; suppression de la destruction des cookies (déplacé dnas "auth.php")
+	* /admin/auth : au début, destruction des cookies si on arrive de "logout.php".
+
+2011-07-31 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 137
+
+	*: Page prefs : test sur le nom de l'auteur : s'il est vide, alors on utilise le nom de Login.
+
+	* /inc/prefs
+	* /inc/veri : si l'email n'est pas obligatoire, alors il n'est pas requis dans la page des préférences ; ajout test sur URL : slash à la fin est obligatoire
+	* /inc/fich : à l'installation, la création d'un fichier prefs fabrique une email (vu qu'elle est requise ensuite) : "mail@site.com".
+
+2011-07-31 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 136
+
+	*: À l'installation : le test sur "http://" est maintenant sur "https?://"
+
+	* /admin/install
+
+2011-07-13 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 135
+
+	*: Correction d'un bug dans les commentaires : bizarement, un commentaires avec le statut "0" s'affichait tout de même.
+
+	* /inc/comm : ligne 40, changement du test "empty()" en test "== '0'" (empty est TRUE pour une variable vide, mais aussi pour une variable == 0.)
+
+2011-07-11 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 134
+
+	*: Merci à Sebsauvage pour le flux rss complet : il faut évidement transformer les liens relatifs en absoluts…
+
+	* /rss : ajout de la fonction "rel2abs"
+	* /inc/util : function rel2abs()
+
+2011-07-11 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 133
+
+	*: le choix Chapo ou Article_complet pour le RSS est supprimé dans les préférences : le choix se fait sur un $_GET donné dans l'url du flux RSS.
+	*: j'ai ajouté cependant un choix pour obliger ou non le visiteur du site à fournir son email pour commenter.
+
+	* /inc/fich : mise à jour de la fonction fichier_prefs()
+	* /admin/preferences : suppression (rss_content) ajout (force_email) d'une variable dans le formulaire
+	* /inc/lang/* : ajout des variables de langue pour cette nouvelle fonction
+	* /inc/conf : suppression de la variable GLOBAL['require_com_email'], vu qu'elle est maintenant dans le fichier des préférences.
+	* /inc/comm /inc/conv : "require_com_email" => "require_email"
+
+2011-07-09 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 132
+
+	*: ajout d'un choix dans la page des préférences : contenu du flux RSS : chapo OU article complet
+
+	* /inc/fich : mise à jour de la fonction fichier_prefs()
+	* /admin/preferences : ajout d'une variable dans le formulaire
+	* /inc/lang/* : ajout des variables de langue pour cette nouvelle fonction
+	* /inc/conf : suppression de la variable GLOBAL['rss_content'], vu qu'elle est maintenant dans le fichier des préférences.
+
+2011-07-09 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 131
+
+	*: possibilité de choisir un flux RSS avec les articles complets ou bien les résumés du "chapô"…
+
+	* /inc/conf.php : ajout d'une variable (à mettre dans le fichier config, choix dans panel !!!!!!!)
+	* /rss.php : test sur $GLOBALS['rss_content'] + ajout des CDATA sur les chapô et du flux RSS des commentaires.
+
+2011-07-07 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 130
+
+	*: retouches très mineures sur free_cap. Je dois encore modifier totalement le code…
+
+	* /inc/freecap/freecap.php : personalisation du code
+
+2011-07-05 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 129
+
+	*: Si affichage de /admin/auth.php lorsqu'un session est déjà ouvert : redirection sur /index.php.
+
+	* /admin/auth : ajout du test sur check_session()
+	* /inc/util : ajout de la focntion operate_session() qui remplace désormais la fonction check_session() ; check_session() est maintenant booleenne, pour pouvoir faire un test dans auth.php
+
+2011-07-05 Timo Van Neerden <timovneerden@gmail.com>
+	* REV : 128
+
+	*: pour envoyer un commentaire : l'email est désormais facultatif (pour ceux qui ne veulent pas en donner un). Mais si on en donne un, il doit être conforme
+
+	* /inc/comm : suppression du "required" en HTML5 dans le <input> du mail
+	* /inc/veri : traitement de  la conformité de l'email uniquement si le visiteur en spécifie un
+	* /inc/lang/ : maj des fichier linguistiques
+	* /inc/conf : il y'a tout de même un moyen de forcer l'obligation de l'email
+
+------------------------------------------------------------
+revno: 127
+committer: timo <timovneerden@gmail.com>
+timestamp: Tue 2011-07-05 12:46:00 +0100
+message:
+	Correction d'un bug dans la page d'installation
+modified :
+	/admin/install : suppression du 'step3' lors de l'installation (depuis que j'ai tout mis step2 et step3 sur la même page)
+------------------------------------------------------------
+revno: 126
+committer: timo <timovneerden@gmail.com>
+timestamp: Fri 2011-06-24 16:38:00 +0100
+message:
+	correction d'un bug dans les RSS (les billets programmés étaient affichés dans le flux…)
+modified :
+	/rss.php : ligne 82 : -admin +public
 ------------------------------------------------------------
 revno: 125
 committer: timo <timovneerden@gmail.com>
@@ -7,7 +189,6 @@ message:
 modified :
 	/inc/freecap/freecap.php : suppression des options que *je* trouve inutiles
 	/inc/freecap : suppression des fichiers images et polices que je n'utilise pas dans le script (allège Blogotext un peu)
-}
 ------------------------------------------------------------
 revno: 124
 committer: timo <timovneerden@gmail.com>
@@ -18,7 +199,6 @@ modified :
 	/inc/comm : ajout des attributs placehold, required, url, email sur les input qui le méritent
 	/inc/html : ajout des attributs search dans moteru_recherche()
 	/inc/form : ajout des attributs required dans les champs obligatoires dans le formualaire de postage d'un nouvel article.
-}
 ------------------------------------------------------------
 revno: 122
 committer: timo <timovneerden@gmail.com>
@@ -33,7 +213,6 @@ modified :
 	/admin/index        : -moteur_recherche(); +echo moteur_recherche();
 	/admin/commentaires : -moteur_recherche(); +echo moteur_recherche();
 	/admin/style/style.css : changement des stylespour correspondre au nouveau moteur de recherche (je préfère changer le truc dans l'admi pour éviter de devoir changer le css du site)
-}
 ------------------------------------------------------------
 revno: 121
 committer: timo <timovneerden@gmail.com>

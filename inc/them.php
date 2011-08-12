@@ -119,7 +119,6 @@ function parse_theme($fichier, $balise) {
 }
 
 // AFFICHAGE INDEX.PHP
-
 function afficher_index($tableau) {
 	if ($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste') and
 		($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut')) and
