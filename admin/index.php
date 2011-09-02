@@ -25,11 +25,12 @@ operate_session();
 if (isset($_GET['q'])) {
 	$tableau = table_recherche($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $_GET['q'], '', 'admin');
 } elseif ( (isset($_GET['filtre'])) and ($_GET['filtre'] !== '') and (!isset($_GET['msg'])) ) {
-	if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
+	if ( preg_match('#\d{6}(\d{2})?#',($_GET['filtre'])) ) {
 		$annee = substr($_GET['filtre'], 0, 4);
 		$mois = substr($_GET['filtre'], 4, 2);
+		$jour = substr($_GET['filtre'], 6, 2);
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/'.$mois;
-		$tableau = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $annee, $mois);
+		$tableau = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $annee, $mois, $jour, -1);
 	} elseif ($_GET['filtre'] == 'draft') {
 		$tableau = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '-1', '0', 'admin');
 	} elseif ($_GET['filtre'] == 'pub') {

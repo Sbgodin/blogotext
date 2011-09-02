@@ -45,8 +45,9 @@ else {
 		if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
 			$annee = substr($_GET['filtre'], 0, 4);
 			$mois = substr($_GET['filtre'], 4, 2);
+			$jour = substr($_GET['filtre'], 6, 2);
 			$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.$annee.'/'.$mois;
-			$commentaires = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $annee, $mois);
+			$commentaires = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $annee, $mois, $jour, -1);
 		} elseif ($_GET['filtre'] == 'draft') {
 			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '0', 'admin');
 		} elseif ($_GET['filtre'] == 'pub') {
@@ -89,14 +90,14 @@ function afficher_commentaire($comment, $with_link) {
 		echo '<p class="date">'.date_formate($comment['id']).', '.heure_formate($comment['id']).'</p>'."\n";
 		echo $comment['contenu'];
 
-		echo "\n".'<form method="post" id="update-comm-'.$comment['id'].'" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" >'."\n";
+		echo "\n".'<form method="post" class="update-form" id="update-comm-'.$comment['id'].'" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" >'."\n";
 				$time = time();
 				$_SESSION['some_time'] = $time;
 				echo "\t\t".hidden_input('comm_id', $comment['id']);
 				echo "\t\t".hidden_input('security_coin', md5($comment['id'].$time));
 				echo "\t\t".hidden_input('activer_comm_choix', $comment['status']);
 				$text_bouton = ($comment['status'] == 1) ? $GLOBALS['lang']['desactiver'] : $GLOBALS['lang']['activer'];
-				echo "\t\t".'<input class="submit-suppr" type="submit" name="supprimer_comm" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\')" />'."\n";
+				echo "\t\t".'<input class="submit submit-suppr" type="submit" name="supprimer_comm" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\')" />'."\n";
 				echo "\t\t".'<input class="submit" type="submit" name="activer_comm" value="'.$text_bouton.'" />'."\n";
 
 				if (isset($_GET['post_id'])) {
@@ -187,8 +188,11 @@ function unfold(button) {
 		elem2hide.style.display = \'none\';
 	}
 }
+';
+	echo js_resize(0);
 
-function reply(code) {
+
+echo 'function reply(code) {
 	var field = document.getElementById(\'form-commentaire\').getElementsByTagName(\'textarea\')[0];
 	field.focus();
 	if (field.value !== \'\') {
@@ -200,7 +204,7 @@ function reply(code) {
 }
 
 function insertTag(startTag, endTag, tag, tagType) {
-	var field = tag.parentNode.parentNode.getElementsByTagName(\'fieldset\')[0].getElementsByTagName(\'textarea\')[0];
+	var field = tag.parentNode.parentNode.getElementsByTagName(\'textarea\')[0];
 	var scroll = field.scrollTop;
 	field.focus();
 

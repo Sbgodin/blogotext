@@ -22,7 +22,7 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 $GLOBALS['version_PHP'] = '5';
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version']= '29';
+$GLOBALS['version']= '30';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -44,7 +44,7 @@ $GLOBALS['dossier_themes'] = 'themes';
 $GLOBALS['connexion_delai'] = 0;       // login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;          (recommended : '0')
 $GLOBALS['onglet_commentaires'] = 1;   // show panel link "comments" ('on'= show ; '' = hide) ;             (recommended : '1')
 $GLOBALS['onglet_images'] = 1;         // show panel link "images" ('on'= show ; '' = hide) ;               (recommended : '1')
-$GLOBALS['session_admin_time'] = 1800; // time in seconds until admin session expires (1800s = 30min)       (recommended : '1800')
+$GLOBALS['session_admin_time'] = 7200; // time in seconds until admin session expires (1800s = 30min)       (recommended : '1800')
 
 // CAPTCHA
 function mk_captcha() {
@@ -93,8 +93,8 @@ $GLOBALS['balises']= array(
 	'blog_email' => '{blog_email}',
 	// Formulaires
 	'form_recherche' => array('{recherche}', '{search}'),
-	'form_calendrier' => array('{calendrier}', '{calendar}'),
-	'form_commentaire' => array('{formulaire_commentaire}', '{form_comment}'),
+	'form_calendrier' => '{calendrier}',
+	'form_commentaire' => '{formulaire_commentaire}',
 	// Encarts
 	'commentaires_encart' => '{commentaires_encart}',
 	'categories_encart' => '{categories_encart}',
@@ -244,6 +244,9 @@ function init_post_comment($id, $mode='') {
 		if ( (isset($mode) and $mode == 'admin') and (isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes') ) {
 			$status = $_POST['status'];
 			$comment_id = $_POST['comment_id'];
+		} elseif (isset($mode) and $mode == 'admin' and !isset($_POST['is_it_edit'])) {
+			$status = '1';
+			$comment_id = date('Y').date('m').date('d').date('H').date('i').date('s');
 		} else {
 			$status = $GLOBALS['comm_defaut_status'];
 			$comment_id = date('Y').date('m').date('d').date('H').date('i').date('s');

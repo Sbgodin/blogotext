@@ -111,4 +111,3 @@ if ( isset($_SERVER['QUERY_STRING']) and (url_article($_SERVER['QUERY_STRING']) 
 // echo round(($end - $begin),6).' seconds';
 
 ?>
-

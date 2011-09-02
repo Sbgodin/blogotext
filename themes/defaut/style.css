@@ -149,19 +149,26 @@ h3 {
 }
 
 textarea.commentaire {
-	width: 490px;
+	width: 555px;
 	height: 200px;
+}
+.infos input, textarea.commentaire {
+	border: 1px solid gray;
 }
 
 .formatbut input, .infos input {
 	display: inline;
-	min-width: 22px;
+	min-width: 26px;
+}
+
+.formatbut .pm {
+	float: right;
 }
 
 .formatbut input[value="B"] { font-weight: bold; }
 .formatbut input[value="I"] { font-style: italic; }
 .formatbut input[value="U"] { text-decoration: underline; }
-.formatbut input[value=" S "] { text-decoration: line-through; }
+.formatbut input[value="S"] { text-decoration: line-through; }
 
 #form-commentaire fieldset {
 	border: none;
@@ -172,7 +179,10 @@ textarea.commentaire {
 #form-commentaire .infos {
 	text-align:right;
 	width: 430px;
-	margin: 0 auto;
+	margin: 10px auto;
+}
+#form-commentaire fieldset.infos input {
+	margin-top: 2px;
 }
 
 #form-commentaire .buttons {

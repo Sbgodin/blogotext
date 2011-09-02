@@ -19,20 +19,20 @@ require_once '../inc/inc.php';
 operate_session();
 
 // RECUP MAJ
-$post='';
-$article_id='';
+$post = '';
+$article_id = '';
 if (isset($_SERVER['QUERY_STRING'])) {
-		if (isset($_GET['post_id'])) {
-			$article_id = htmlspecialchars($_GET['post_id']);
-			$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
-			if ( file_exists($loc_data) and preg_match('/\d{4}/',$article_id) ) {
-				$post = init_billet('admin', $article_id);
-				$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '');
-			} else {
-				echo $GLOBALS['lang']['note_no_article'];
-				exit;
-			}
+	if (isset($_GET['post_id'])) {
+		$article_id = htmlspecialchars($_GET['post_id']);
+		$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
+		if ( file_exists($loc_data) and preg_match('/\d{4}/',$article_id) ) {
+			$post = init_billet('admin', $article_id);
+			$commentaires = liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $article_id, '');
+		} else {
+			echo $GLOBALS['lang']['note_no_article'];
+			exit;
 		}
+	}
 }
 
 // INIT POST BILLET
@@ -74,11 +74,11 @@ echo '</div>'."\n";
 // SUBNAV
 if ($article_id != '') {
 	echo '<div id="subnav">'."\n";
-	back_list();
-echo '<ul id="mode">'."\n";
-	echo "\t".'<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>'."\n";
-	echo "\t".'<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>'."\n";
-echo '</ul>'."\n";
+	echo '<a id="backlist" href="index.php">'.$GLOBALS['lang']['retour_liste'].'</a>';
+	echo '<ul id="mode">'."\n";
+		echo "\t".'<li id="lien-edit">'.$GLOBALS['lang']['ecrire'].'</li>'."\n";
+		echo "\t".'<li id="lien-comments"><a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['nb_comments'])).'</a></li>'."\n";
+	echo '</ul>'."\n";
 	echo '</div>'."\n";
 }
  	
@@ -90,5 +90,6 @@ if ($article_id != '') {
 	apercu($post);
 }
 afficher_form_billet($post, $erreurs_form);
+echo js_resize(1);
 footer();
 ?>

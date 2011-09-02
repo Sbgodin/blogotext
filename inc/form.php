@@ -12,21 +12,17 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-//error_reporting(-1);
-
 /// formulaires GENERIQUES //////////
 
 function form_select($id, $choix, $defaut, $label) {
 	$form = '<p>'."\n";
 	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
 	$form .= '<select id="'.$id.'" name="'.$id.'">'."\n";
-		foreach ($choix as $valeur => $mot) {
+	foreach ($choix as $valeur => $mot) {
 		$form .= '<option value="'.$valeur.'"';
-			if ($defaut == $valeur) {
-				$form .= ' selected="selected"';
-			}
+		$form .= ($defaut == $valeur) ? ' selected="selected"' : '';
 		$form .= '>'.$mot.'</option>'."\n";
-		}
+	}
 	$form .= '</select>';
 	$form .= '</p>'."\n";
 	return $form;
@@ -75,7 +71,7 @@ function textarea($id, $defaut, $label, $cols, $rows) {
 }
 
 function input_supprimer() {
-	$form = '<input class="submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
+	$form = '<input class="submit submit-suppr" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
 	return $form;
 }
 
@@ -110,9 +106,7 @@ function select_yes_no($name, $defaut, $label) {
 	$form .= '<select name="'.$name.'">'."\n" ;
 	foreach ($choix as $option => $label) {
 		$form .= '<option value="'.htmlentities($option).'"';
-		if ($option == $defaut) {
-			$form .= ' selected="selected"';
-		}
+		$form .= ($option == $defaut) ? ' selected="selected"' : '';
 		$form .= '>' . htmlentities($label) . '</option>';
 	}
 	$form .= '</select>'."\n";
@@ -122,16 +116,15 @@ function select_yes_no($name, $defaut, $label) {
 function form_format_date($defaut) {
 	$jour_l = jour_en_lettres(date('d'), date('m'), date('Y'));
 	$mois_l = mois_en_lettres(date('m'));
-		$formats = array (
-			'0' => date('d').'/'.date('m').'/'.date('Y'),                     // 05/07/2011
-			'1' => date('m').'/'.date('d').'/'.date('Y'),                     // 07/05/2011
-			'2' => date('d').' '.$mois_l.' '.date('Y'),                       // 05 juillet 2011
-			'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),           // mardi 05 juillet 2011
-			'4' => $mois_l.' '.date('d').', '.date('Y'),                      // juillet 05, 2011
-			'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),         // mardi, juillet 05, 2011
-			'6' => date('Y').'-'.date('m').'-'.date('d'),                     // 2011-07-05
-//			'7' => time()                                                     // 1309862306 (timestamp)
-		);
+	$formats = array (
+		'0' => date('d').'/'.date('m').'/'.date('Y'),                     // 05/07/2011
+		'1' => date('m').'/'.date('d').'/'.date('Y'),                     // 07/05/2011
+		'2' => date('d').' '.$mois_l.' '.date('Y'),                       // 05 juillet 2011
+		'3' => $jour_l.' '.date('d').' '.$mois_l.' '.date('Y'),           // mardi 05 juillet 2011
+		'4' => $mois_l.' '.date('d').', '.date('Y'),                      // juillet 05, 2011
+		'5' => $jour_l.', '.$mois_l.' '.date('d').', '.date('Y'),         // mardi, juillet 05, 2011
+		'6' => date('Y').'-'.date('m').'-'.date('d'),                     // 2011-07-05
+	);
 	$form = '<p>';
 	$form .= '<label>'.$GLOBALS['lang']['pref_format_date'].'</label>'."\n";
 	$form .= '<select name="format_date">' ;
@@ -155,9 +148,7 @@ function form_fuseau_horaire($defaut) {
 		$form .= '<select name="fuseau_horaire">' ;
 		foreach ($liste_fuseau as $option) {
 			$form .= '<option value="'.htmlentities($option).'"';
-			if ($defaut == $option) {
-				$form .= ' selected="selected"';
-			}
+			$form .= ($defaut == $option) ? ' selected="selected"' : '';
 			$form .= '>' . htmlentities($option) . '</option>'."\n";
 		}
 		$form .= '</select> '."\n";
@@ -252,50 +243,27 @@ function filtre($type, $filtre, $mode) {
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
 	}
 
-	if ( $ouverture = opendir($dossier) ) { 
-		while ( false !== ($file = readdir($ouverture)) ) {
-			if (preg_match('/\d{4}/', $file) ){
-				$annees[]=$file;
-			}
-		}
-		closedir($ouverture);
+	$tableau = table_derniers($dossier, '-1', '', $mode);
+	foreach ($tableau as $file ) $tableau_mois[substr($file, 0, 6)] = mois_en_lettres(nombre_formate(substr($file, 4, 2))).' '.substr($file, 0, 4); // array[201005] => "May 2010", uzw
+	if (isset($tableau_mois)) {
+		$dossier_mois = array_unique($tableau_mois);
 	}
-	if (isset($annees)) {
-		foreach ($annees as $id => $dossier_annee) {
-			$chemin = $dossier.'/'.$dossier_annee.'/';
-			if ( $ouverture = opendir($chemin) ) { 
-				while ( false !== ($file_mois = readdir($ouverture)) ) {
-					if (is_dir($chemin.$file_mois)) {
-						if ($fichiers = opendir($chemin.$file_mois)) {
-							while ($files = readdir($fichiers)) {
-								if ( (preg_match('/\d{2}/', $file_mois)) and ((substr($files, -3, 3)) == $GLOBALS['ext_data']) ){
-									$dossier_mois[$dossier_annee.$file_mois] = mois_en_lettres($file_mois).' '.$dossier_annee;	
-								}
-							}
-						}
-					}
-				}
-				closedir($ouverture);
-			}
-		}
-	}
-
 	echo '<label>'.$GLOBALS['lang']['label_afficher'].'</label>';
 	echo "\n".'<select name="filtre">'."\n" ;
-	echo '<option value="">'.$GLOBALS['lang']['label_derniers'].'</option>'."\n";
+	if ($type == 'articles') {
+		echo '<option value="">'.$GLOBALS['lang']['label_article_derniers'].'</option>'."\n";
+	} elseif ($type == 'commentaires') {
+		echo '<option value="">'.$GLOBALS['lang']['label_comment_derniers'].'</option>'."\n";
+	}
 
 	/// BROUILLONS
 	echo '<option value="draft"';
-	if ($filtre == 'draft') {
-		echo ' selected="selected"';
-	}
+	echo ($filtre == 'draft') ? ' selected="selected"' : '';
 	echo '>'.$GLOBALS['lang']['label_brouillons'].'</option>'."\n";
 
 	/// PUBLIES
 	echo '<option value="pub"';
-	if ($filtre == 'pub') {
-		echo ' selected="selected"';
-	}
+	echo ($filtre == 'pub') ? ' selected="selected"' : '';
 	echo '>'.$GLOBALS['lang']['label_publies'].'</option>'."\n";
 
 	/// PAR DATE
@@ -303,11 +271,9 @@ function filtre($type, $filtre, $mode) {
 		krsort($dossier_mois);
 
 		echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">';
-		foreach ($dossier_mois as $option => $label) {
-			echo '<option value="' . htmlentities($option) . '"';
-			if ($filtre == $option) {
-				echo ' selected="selected"';
-			}
+		foreach ($dossier_mois as $mois => $label) {
+			echo '<option value="' . htmlentities($mois) . '"';
+			echo ($filtre == $mois) ? ' selected="selected"' : '';
 			echo '>' . htmlentities($label) . '</option>'."\n";
 		}
 		echo '</optgroup>';
@@ -320,68 +286,61 @@ function filtre($type, $filtre, $mode) {
 		arsort($author_list);
 		foreach ($author_list as $nom => $nb) {
 			echo '<option value="'.$nom.'"';
-			if ($filtre == $nom)
-				echo ' selected="selected"';
-			echo '>'.($nom.' ('.$nb.')').'</option>'."\n";
+			echo ($filtre == $nom) ? ' selected="selected"' : '';
+			echo '>'.$nom.' ('.$nb.')'.'</option>'."\n";
 		}
 		echo '</optgroup>';
 	}
 	echo '</select> '."\n\n";
 	echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
-	
-}
-
-function back_list() {
-	echo '<a id="backlist" href="index.php">'.$GLOBALS['lang']['retour_liste'].'</a>';
 }
 
 /// formulaires BILLET //////////
-
-function afficher_form_billet($article='', $erreurs= '') {
+function afficher_form_billet($article, $erreurs) {
 // Valeurs par defaut
 	if (isset($_POST['_verif_envoi'])) {
-			$defaut_jour = $_POST['jour'];
-			$defaut_mois = $_POST['mois'];
-			$defaut_annee = $_POST['annee'];
-			$defaut_heure = $_POST['heure'];
-			$defaut_minutes = $_POST['minutes'];
-			$defaut_secondes = $_POST['secondes'];
-			$titredefaut = stripslashes($_POST['titre']);
-			$chapodefaut = stripslashes($_POST['chapo']);
-			$notesdefaut = stripslashes($_POST['notes']);
-			if ($GLOBALS['activer_categories'] == '1') {
-				$categoriesdefaut = stripslashes($_POST['categories']);
-			}
-			$contenudefaut = stripslashes($_POST['contenu']);
-			if ($GLOBALS['automatic_keywords'] == '0') {
-				$motsclesdefaut = stripslashes($_POST['mots_cles']);
-			}
-			$statutdefaut = $_POST['statut'];
-			$allowcommentdefaut = $_POST['allowcomment'];
+		$defaut_jour = $_POST['jour'];
+		$defaut_mois = $_POST['mois'];
+		$defaut_annee = $_POST['annee'];
+		$defaut_heure = $_POST['heure'];
+		$defaut_minutes = $_POST['minutes'];
+		$defaut_secondes = $_POST['secondes'];
+		$titredefaut = stripslashes($_POST['titre']);
+		$chapodefaut = stripslashes($_POST['chapo']);
+		$notesdefaut = stripslashes($_POST['notes']);
+		if ($GLOBALS['activer_categories'] == '1') {
+			$categoriesdefaut = stripslashes($_POST['categories']);
+		}
+		$contenudefaut = stripslashes($_POST['contenu']);
+		if ($GLOBALS['automatic_keywords'] == '0') {
+			$motsclesdefaut = stripslashes($_POST['mots_cles']);
+		}
+		$statutdefaut = $_POST['statut'];
+		$allowcommentdefaut = $_POST['allowcomment'];
 	} elseif ($article != '') {
-			$titredefaut = $article['titre'];
-			$chapodefaut = $article['chapo'];
-			$notesdefaut = (isset($article['notes'])) ? $article['notes'] : '';
-			$categoriesdefaut = (isset($article['categories'])) ? $article['categories'] : '';
-			$contenudefaut = $article['contenu_wiki'];
-			$motsclesdefaut = $article['mots_cles'];
-			$statutdefaut = $article['statut'];
-			$allowcommentdefaut = $article['allow_comments'];
+		$titredefaut = $article['titre'];
+		$chapodefaut = $article['chapo'];
+		$notesdefaut = (isset($article['notes'])) ? $article['notes'] : '';
+		$categoriesdefaut = (isset($article['categories'])) ? $article['categories'] : '';
+		$contenudefaut = $article['contenu_wiki'];
+		$motsclesdefaut = $article['mots_cles'];
+		$statutdefaut = $article['statut'];
+		$allowcommentdefaut = $article['allow_comments'];
 	} else {
-			$defaut_jour = date('d');
-			$defaut_mois = date('m');
-			$defaut_annee = date('Y');
-			$defaut_heure = date('H');
-			$defaut_minutes = date('i');
-			$defaut_secondes = date('s');
-			$chapodefaut = '';
-			$contenudefaut = '';
-			$motsclesdefaut = '';
-			$categoriesdefaut = '';
-			$titredefaut = '';
-			$notesdefaut = '';
-			$statutdefaut = '1';
-			$allowcommentdefaut = '1';
+		$defaut_jour = date('d');
+		$defaut_mois = date('m');
+		$defaut_annee = date('Y');
+		$defaut_heure = date('H');
+		$defaut_minutes = date('i');
+		$defaut_secondes = date('s');
+		$chapodefaut = '';
+		$contenudefaut = '';
+		$motsclesdefaut = '';
+		$categoriesdefaut = '';
+		$titredefaut = '';
+		$notesdefaut = '';
+		$statutdefaut = '1';
+		$allowcommentdefaut = '1';
 	}
 	if ($erreurs) {
 		erreurs($erreurs);
@@ -392,46 +351,49 @@ function afficher_form_billet($article='', $erreurs= '') {
 		echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	}
 	echo '<div id="form">'."\n";
-		label('titre', $GLOBALS['lang']['label_titre']);
+		echo label('titre', $GLOBALS['lang']['label_titre']);
 		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" />'."\n" ;
-	echo '<div id="chapo_note">'."\n".'<div id="blocchapo">';
-		label('chapo', $GLOBALS['lang']['label_chapo']);
-		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_chapo'].'" >'.$chapodefaut.'</textarea>'."\n" ;
-	echo '</div>'."\n".'<div id="blocnote">'."\n";
-		label('notes', 'Notes');
+	echo '<div id="chapo_note">'."\n";
+	echo '<div id="blocnote">'."\n";
+		echo label('notes', 'Notes');
 		echo '<textarea id="notes" name="notes" rows="5" cols="25" placeholder="Notes" >'.$notesdefaut.'</textarea>'."\n" ;
-	echo '</div>'."\n".'<br style="clear:both;"/>'."\n".'</div>'."\n";
+	echo '</div>'."\n";
+	echo '<div id="blocchapo">'."\n";
+		echo label('chapo', $GLOBALS['lang']['label_chapo']);
+		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_chapo'].'" >'.$chapodefaut.'</textarea>'."\n" ;
+	echo '</div>'."\n";
+	echo '<br style="clear:both;"/>'."\n".'</div>'."\n";
 
 	if ($GLOBALS['activer_categories'] == '1') {
-		label('categories', $GLOBALS['lang']['label_categories']);
+		echo label('categories', $GLOBALS['lang']['label_categories']);
 		form_categories($categoriesdefaut) ;
 	} else {
 		echo hidden_input('categories', '');
 	}
-
-	echo '<p id="wiki" ><a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
-	label('contenu', $GLOBALS['lang']['label_contenu']);
+	echo '<p id="wiki" ><a href="#" onclick="resize(\'contenu\', 40); return false;">plus</a> / <a href="#" onclick="resize(\'contenu\', -40); return false;">moins</a> - <a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
+	echo label('contenu', $GLOBALS['lang']['label_contenu']);
 	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'" >'.$contenudefaut.'</textarea>'."\n" ;
 	if ($GLOBALS['automatic_keywords'] == '0') {
-		label('mots_cles', $GLOBALS['lang']['label_motscles']);
+		echo label('mots_cles', $GLOBALS['lang']['label_motscles']);
 		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" placeholder="'.$GLOBALS['lang']['label_motscles'].'" /></div>'."\n";
 	}
 	if (!$article) {
 		echo '<div id="date">'."\n";
-			echo '<div id="formdate">';
-				form_annee($defaut_annee) ;
-				form_mois($defaut_mois) ;
-				form_jour($defaut_jour) ;
-			echo '</div>';
-			echo '<div id="formheure">';
+			echo '<p id="formdate">';
+				form_annee($defaut_annee);
+				form_mois($defaut_mois);
+				form_jour($defaut_jour);
+			echo '</p>'."\n";
+			echo '<p id="formheure">';
 				form_heure($defaut_heure, $defaut_minutes, $defaut_secondes) ;
-			echo '</div>';
+			echo '</p>'."\n";
 		echo '</div>'."\n";
-	} else {
-		echo '<div id="date">';
-			echo '<p id="formdate">'.date_formate($article['id']).'</p>';
-			echo '<p id="formheure">'.heure_formate($article['id']).'</p>';
-		echo '</div>';
+	}
+	else {
+		echo '<div id="date">'."\n";
+			echo '<p id="formdate">'.date_formate($article['id']).'</p>'."\n";
+			echo '<p id="formheure">'.heure_formate($article['id']).'</p>'."\n";
+		echo '</div>'."\n";
 		echo hidden_input('annee', $article['annee']);
 		echo hidden_input('mois', $article['mois']);
 		echo hidden_input('jour', $article['jour']);
@@ -443,6 +405,7 @@ function afficher_form_billet($article='', $erreurs= '') {
 		form_statut($statutdefaut);
 		form_allow_comment($allowcommentdefaut);
 	echo '</div>'."\n";
+
 	echo '<div id="bt">';
 		echo input_enregistrer();
 		if ($article) {
@@ -463,17 +426,15 @@ function afficher_form_billet($article='', $erreurs= '') {
 
 function form_jour($jour_affiche) {
 	$jours = array(
-		"01" => '1', "02" => '2', "03" => '3', "04" => '4', "05" => '5', "06" => '6', "07" => '7', "08" => '8',
-		"09" => '9', "10" => '10', "11" => '11', "12" => '12', "13" => '13', "14" => '14', "15" => '15', "16" => '16',
+		"01" => '1',  "02" => '2',  "03" => '3',  "04" => '4',  "05" => '5',  "06" => '6',  "07" => '7',  "08" => '8',
+		"09" => '9',  "10" => '10', "11" => '11', "12" => '12', "13" => '13', "14" => '14', "15" => '15', "16" => '16',
 		"17" => '17', "18" => '18', "19" => '19', "20" => '20', "21" => '21', "22" => '22', "23" => '23', "24" => '24',
 		"25" => '25', "26" => '26', "27" => '27', "28" => '28', "29" => '29', "30" => '30', "31" => '31'
 	);
 	echo '<select name="jour">'."\n";
 	foreach ($jours as $option => $label) {
 		echo '<option value="' . htmlentities($option) . '"';
-		if ($jour_affiche == $option) {
-			echo ' selected="selected"';
-		}
+		echo ($jour_affiche == $option) ? ' selected="selected"' : '';
 		echo '>' . htmlentities($label) . '</option>'."\n";
 	}
 	echo '</select>'."\n\n";
@@ -490,33 +451,29 @@ function form_mois($mois_affiche) {
 	);
 	echo '<select name="mois">'."\n" ;
 	foreach ($mois as $option => $label) {
-		echo '<option value="' . htmlentities($option) . '"';
-		if ($mois_affiche == $option) {
-			echo ' selected="selected"';
-		}
-	echo '>'.$label.'</option>'."\n";
+		echo '<option value="'.htmlentities($option).'"';
+		echo ($mois_affiche == $option) ? ' selected="selected"' : '';
+		echo '>'.$label.'</option>'."\n";
 	}
 	echo '</select>'."\n\n";
 }
 
 function form_annee($annee_affiche) {
 	$annees = array();
-	for ($annee = date('Y') -3, $annee_max = date('Y') +4; $annee < $annee_max; $annee++) {
+	for ($annee = date('Y') -3, $annee_max = date('Y') +3; $annee <= $annee_max; $annee++) {
 		$annees[$annee] = $annee;
 	}
 	echo '<select name="annee">'."\n" ;
 	foreach ($annees as $option => $label) {
-		echo '<option value="' . htmlentities($option) . '"';
-		if ($annee_affiche == $option) {
-			echo ' selected="selected"';
-		}
-		echo '>' . htmlentities($label) . '</option>'."\n";
+		echo '<option value="'.htmlentities($option).'"';
+		echo ($annee_affiche == $option) ? ' selected="selected"' : '';
+		echo '>'.htmlentities($label).'</option>'."\n";
 	}
 	echo '</select>'."\n\n";
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-	echo '<input name="heure" type="text" size="2" maxlength="2" value="'.($heureaffiche /*- 7*/).'" required="" /> :';
+	echo '<input name="heure" type="text" size="2" maxlength="2" value="'.$heureaffiche.'" required="" /> :';
 	echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" required="" /> :' ;
 	echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" required="" />' ;
 }

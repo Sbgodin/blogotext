@@ -119,6 +119,7 @@ function traiter_install_2() {
 	fichier_tags($_POST['tags'], '0');
 	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
 	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
 	$first_post= array (
 		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
 		$GLOBALS['data_syntax']['article_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),

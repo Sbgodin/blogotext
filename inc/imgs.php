@@ -14,7 +14,9 @@
 
 function traiter_form_image() {
 	$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'];
-	if (!is_dir($dossier)) creer_dossier($dossier);
+	if (!is_dir($dossier)) {
+		if (FALSE === creer_dossier($dossier)) die($GLOBALS['lang']['err_file_write']);
+	}
 	$image = basename($_FILES['fichier']['name']);
 	$ext = pathinfo($image, PATHINFO_EXTENSION);
 	if (!empty($_POST['nom_entree'])) {
@@ -77,11 +79,8 @@ function afficher_form_image($erreurs='', $image= '') {
 		echo '</p>'."\n";
 		echo '</fieldset>';
 	} else { // affichage d'une liste de toutes les images
-
-
 		echo '<fieldset class="pref">'."\n";
 		echo legend($GLOBALS['lang']['img_old'], 'legend-images');
-
 		$contenu = liste_images();
 		$nb_images = sizeof($contenu);
 		if ($nb_images <= 1) {
@@ -97,20 +96,18 @@ function afficher_form_image($erreurs='', $image= '') {
 			$date_formate = (preg_match('#\d{6}#', $date)) ? substr($date, 4,2).'/'.substr($date, 2,2).'/'.substr($date, 0,2) : '';
 			$lien = $GLOBALS['racine'].$GLOBALS['dossier_images'].'/'.$image;
 			$ligne_html = '<a href="#" onclick="popup(\''.$image.'\','.$width.','.$height.',\''.$name.'\'); return false;">code</a> - '.$date_formate.' : ';
-			$ligne_html .= '<a href="'.$lien.'" class="image_popup">'.$image.'<img src="'.$lien.'" alt="image" style="width:'.$width.'px; height:'.$height.'px"/></a>';
+			$ligne_html .= '<a href="'.$lien.'" class="image_popup">'.$image.'<span style="width:'.$width.'px; height:'.$height.'px; background: url('.$lien.') top left;">&nbsp;</span></a>';
 			if ($date == date('ymd')) {
 				$ligne_html = '<b>'.$ligne_html.'</b>';
 			}
 			echo '<li>'.$ligne_html.'</li>'."\n";
 		}
 		echo '</ul>'."\n";
-
 		// javascript
 		echo '<script type="text/javascript">
 					function popup(image,width,height,alternate) {
 						var code = \'<img src="'.$GLOBALS['racine'].$GLOBALS['dossier_images'].'/\'+image+\'"'.' style=\"width:\'+width+\'px; height:\'+height+\'px;" alt="\'+alternate+\'"/>\';
 						prompt(\'Code d\\\'intégration :\', code);
-						
 						return false;
 					}
 				</script>';
@@ -159,8 +156,11 @@ function resize_img($filename, $destination) {
 }
 
 function liste_images() {
-	$contenu = array();
 	$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'];
+	if (!is_dir($dossier)) {
+		if (FALSE === creer_dossier($dossier)) die($GLOBALS['lang']['err_file_write']);
+	}
+	$contenu = array();
 	if ($ouverture = opendir($dossier)) {
 		while (FALSE !== ($fichier = readdir($ouverture))) {
 			if (!is_dir($dossier.'/'.$fichier.'/')) {

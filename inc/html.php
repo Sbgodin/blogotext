@@ -15,10 +15,8 @@
 
 /// menu haut panneau admin /////////
 function lien_nav($url, $id, $label, $active) {
-	echo "\t".'<li><a href="'.$url.'" id="'.$id.'" ';
-	if ($active == $url) {
-	echo 'class="current"';
-	}
+	echo "\t".'<li><a href="'.$url.'" id="'.$id.'"';
+	echo ($active == $url) ? ' class="current"' : '';
 	echo '>'.$label.'</a></li>'."\n";
 }
 
@@ -48,7 +46,7 @@ function legend($legend, $class='') {
 }
 
 function label($for, $txt) {
-	echo "\n".'<label for="'.$for.'">'.$txt.'</label>'."\n"; 
+	return '<label for="'.$for.'">'.$txt.'</label>'."\n"; 
 }
 
 function info($message) {
@@ -93,9 +91,9 @@ function afficher_msg_error() {
 function moteur_recherche() {
 	$requete='';
 	if (isset($_GET['q'])) {
-		$requete= htmlspecialchars(stripslashes($_GET['q']));
+		$requete = htmlspecialchars(stripslashes($_GET['q']));
 	}
-	$return  = '<form action="'.$_SERVER['PHP_SELF'].'" method="get" id="search">'."\n";
+	$return = '<form action="'.$_SERVER['PHP_SELF'].'" method="get" id="search">'."\n";
 	$return .= '<input id="q" name="q" type="search" size="25" value="'.$requete.'" />'."\n";
 	$return .= '<input id="input-rechercher" type="submit" value="'.$GLOBALS['lang']['rechercher'].'" />'."\n";
 	$return .= '</form>'."\n\n";
@@ -108,19 +106,20 @@ function afficher_top($titre) {
 	} else {
 		$lang_id = 'fr';
 	}
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
-	echo '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
-	echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
-	echo '<head>'."\n";
-	echo '<meta http-equiv="content-type" content="text/html; charset='.$GLOBALS['charset'].'" />'."\n";
-	echo '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
-	echo '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
-	echo '<script type="text/javascript">'."\n";
-	echo "\tfunction ouvre(fichier) {"."\n";
-	echo "\tff=window.open(fichier,\"popup\", \"width=380, height=460, scrollbars=1, resizable=1\") }"."\n";
-	echo '</script>'."\n";
-	echo '</head>'."\n\n";
-	echo '<body>'."\n\n";
+	$txt = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\n" ;
+	$txt .= '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
+	$txt .= '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$lang_id.'">'."\n";
+	$txt .= '<head>'."\n";
+	$txt .= '<meta http-equiv="content-type" content="text/html; charset='.$GLOBALS['charset'].'" />'."\n";
+	$txt .= '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
+	$txt .= '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
+	$txt .= '<script type="text/javascript">'."\n";
+	$txt .= "\t".'function ouvre(fichier) {'."\n";
+	$txt .= "\t".'ff=window.open(fichier,"popup", "width=380, height=460, scrollbars=1, resizable=1") }'."\n";
+	$txt .= '</script>'."\n";
+	$txt .= '</head>'."\n";
+	$txt .= '<body>'."\n\n";
+	echo $txt;
 }
 
 function afficher_titre($titre, $id, $niveau) {
@@ -313,27 +312,47 @@ function decompte_sleep() {
 			window.document.getElementById("decompte").innerHTML = chrono;
 			setTimeout(decompte,1000);
 		}
-	}
+	}function resize(id, dht) {
+	var elem = document.getElementById(id);
+	var ht = elem.offsetHeight;
+	size = Number(ht)+Number(dht);
+	elem.style.height = size+"px";
+	return false;
+}
+
 </script>
 ';
 	}
 }
 
-function js_reload_captcha() {
-	echo '
-<script language="javascript">
-function new_freecap() {
-	// loads new freeCap image
-	if(document.getElementById) {
-		thesrc = document.getElementById("freecap").src;
-		thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);
-		document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);
-	} else {
-		alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");
+function js_reload_captcha($a) {
+	$sc = 'function new_freecap() {'."\n";
+	$sc .= "\t".'if(document.getElementById) {'."\n";
+	$sc .= "\t\t".'thesrc = document.getElementById("freecap").src;'."\n";
+	$sc .= "\t\t".'thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);'."\n";
+	$sc .= "\t\t".'document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);'."\n";
+	$sc .= "\t".'} else {'."\n";
+	$sc .= "\t\t".'alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");'."\n";
+	$sc .= "\t".'}'."\n";
+	$sc .= '}'."\n";
+	if ($a == 1) {
+		$sc = '<script type="text/javascript">'."\n".$sc.'</script>'."\n";
 	}
-}
-</script>';
+	return $sc;
 }
 
+function js_resize($a) {
+	$sc = 'function resize(id, dht) {'."\n";
+	$sc .= "\t".'var elem = document.getElementById(id);'."\n";
+	$sc .= "\t".'var ht = elem.offsetHeight;'."\n";
+	$sc .= "\t".'size = Number(ht)+Number(dht);'."\n";
+	$sc .= "\t".'elem.style.height = size+"px";'."\n";
+	$sc .= "\t".'return false;'."\n";
+	$sc .= '}'."\n";
+	if ($a == 1) {
+		$sc = '<script type="text/javascript">'."\n".$sc.'</script>'."\n";
+	}
+	return $sc;
+}
 
 ?>

@@ -10,7 +10,7 @@ This file is part of BlogoText.
  BlogoText is free software, you can redistribute it under the terms of the
  Creative Commons Attribution-NonCommercial 2.0 France Licence.
 
- ( http://creativecommons.org/licenses/by-nc-nd/2.0/deed.fr )
+ ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
 
  BlogoText is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY.

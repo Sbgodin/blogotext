@@ -37,7 +37,7 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 	$article_id = htmlspecialchars($_GET['id']);
 	$date_billet = decode_id($article_id);
 	echo '<title>Fil des commentaires sur "'.parse_xml($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']."/".get_path($article_id), 'bt_title').'" - '.$GLOBALS['nom_du_site'].'</title>'."\n";
-	echo '<link>'.$GLOBALS['racine'].$date_billet['annee'].'/'.$date_billet['mois'].'/'.$date_billet['jour'].'/'.$date_billet['heure'].'/'.$date_billet['minutes'].'/'.$date_billet['secondes'].'</link>'."\n"; 
+	echo '<link>'.$GLOBALS['racine'].'index.php?'.$date_billet['annee'].'/'.$date_billet['mois'].'/'.$date_billet['jour'].'/'.$date_billet['heure'].'/'.$date_billet['minutes'].'/'.$date_billet['secondes'].'</link>'."\n"; 
 	echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
 	echo '<language>fr</language>'."\n"; 
 	echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";

@@ -104,8 +104,9 @@ function formatage_wiki($texte) {
 
 function formatage_commentaires($texte) {
 	$texte = " ".$texte;
-	$tofindc= array(
+	$tofindc = array(
 		'#\[quote\](.+?)\[/quote\]#s',									// citation
+		'#\[code\](.+?)\[/code\]#s',										// citation
 		'# »#',																	// close quote
 		'#« #', 																	// open quote
 		'# !#',																	// !
@@ -117,8 +118,9 @@ function formatage_commentaires($texte) {
 		'`\[s\](.*?)\[/s\]`s',												// strike
 		'`\[u\](.*?)\[/u\]`s',												// souligne
 	);
-	$toreplacec= array(
-		'<q>$1</q>',															// citation
+	$toreplacec = array(
+		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
+		'<code>$1</code>',													// code
 		'&nbsp;»',																// close quote
 		'«&nbsp;',																// open quote
 		'&nbsp;!',																// !
@@ -186,13 +188,13 @@ function heure_formate($id) {
 function jour_en_lettres($jour, $mois, $annee) {
 	$date = date('w', mktime(0, 0, 0, $mois, $jour, $annee));
 	switch($date) {
-		case '0': $nom = $GLOBALS['lang']['dimanche'];	break;
-		case '1': $nom = $GLOBALS['lang']['lundi'];		break;
-		case '2': $nom = $GLOBALS['lang']['mardi'];		break;
-		case '3': $nom = $GLOBALS['lang']['mercredi'];	break;
-		case '4': $nom = $GLOBALS['lang']['jeudi'];		break;
-		case '5': $nom = $GLOBALS['lang']['vendredi'];	break;
-		case '6': $nom = $GLOBALS['lang']['samedi'];		break;
+		case '0': $nom = $GLOBALS['lang']['dimanche']; break;
+		case '1': $nom = $GLOBALS['lang']['lundi']; break;
+		case '2': $nom = $GLOBALS['lang']['mardi']; break;
+		case '3': $nom = $GLOBALS['lang']['mercredi']; break;
+		case '4': $nom = $GLOBALS['lang']['jeudi']; break;
+		case '5': $nom = $GLOBALS['lang']['vendredi']; break;
+		case '6': $nom = $GLOBALS['lang']['samedi']; break;
 		default: $nom = "(?jour?)"; break;
 	}
 	return $nom;
@@ -200,18 +202,18 @@ function jour_en_lettres($jour, $mois, $annee) {
 
 function mois_en_lettres($numero) {
 	switch($numero) {
-		case '1': $nom = $GLOBALS['lang']['janvier'];	break;
-		case '2': $nom = $GLOBALS['lang']['fevrier'];	break;
-		case '3': $nom = $GLOBALS['lang']['mars'];		break;
-		case '4': $nom = $GLOBALS['lang']['avril'];		break;
-		case '5': $nom = $GLOBALS['lang']['mai'];			break;
-		case '6': $nom = $GLOBALS['lang']['juin'];		break;
-		case '7': $nom = $GLOBALS['lang']['juillet'];	break;
-		case '8': $nom = $GLOBALS['lang']['aout'];		break;
-		case '9': $nom = $GLOBALS['lang']['septembre'];	break;
-		case '10': $nom = $GLOBALS['lang']['octobre'];	break;
-		case '11': $nom = $GLOBALS['lang']['novembre'];	break;
-		case '12': $nom = $GLOBALS['lang']['decembre'];	break;
+		case '01': $nom = $GLOBALS['lang']['janvier']; break;
+		case '02': $nom = $GLOBALS['lang']['fevrier']; break;
+		case '03': $nom = $GLOBALS['lang']['mars']; break;
+		case '04': $nom = $GLOBALS['lang']['avril']; break;
+		case '05': $nom = $GLOBALS['lang']['mai']; break;
+		case '06': $nom = $GLOBALS['lang']['juin']; break;
+		case '07': $nom = $GLOBALS['lang']['juillet']; break;
+		case '08': $nom = $GLOBALS['lang']['aout']; break;
+		case '09': $nom = $GLOBALS['lang']['septembre']; break;
+		case '10': $nom = $GLOBALS['lang']['octobre']; break;
+		case '11': $nom = $GLOBALS['lang']['novembre']; break;
+		case '12': $nom = $GLOBALS['lang']['decembre']; break;
 		default: $nom = "(?mois?)"; break;
 	}
 	return $nom;

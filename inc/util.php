@@ -105,7 +105,7 @@ function check_session() {
 		or (!isset($_SESSION['antivol']))
 		or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip))
 		or (!isset($_SESSION['timestamp']))
-		or ($_SESSION['timestamp'] < time()-$GLOBALS['session_admin_time'])) { // session older than 30min
+		or ($_SESSION['timestamp'] < time()-$GLOBALS['session_admin_time'])) {
 			return FALSE;
 	} else {
 		return TRUE;

@@ -66,7 +66,6 @@ if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // On entre...
 	afficher_top('Identification');
 	echo '<div id="axe">'."\n";
 	decompte_sleep();
-	js_reload_captcha();
 
 	echo '<div id="pageauth">'."\n";
 	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
@@ -79,6 +78,7 @@ if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // On entre...
 	echo	'<input type="password" id="mot_de_passe" name="mot_de_passe" value="" /></p>'."\n";
 
 	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) {
+		echo js_reload_captcha(1);
 		echo	'<p><label for="word">'.$GLOBALS['lang']['label_word_captcha'].'</label>';
 		echo	'<input type="text" id="word" name="word" value="" /></p>'."\n";
 		echo	'<p><a href="#" onclick="this.blur();new_freecap();return false;" title="'.$GLOBALS['lang']['label_changer_captcha'].'"><img src="../inc/freecap/freecap.php" id="freecap"></a></p>'."\n";
@@ -98,12 +98,12 @@ function valider_form() {
 		$passwd_is_ok = 0;
 	}
 	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) { // si captcha activé
-		if (!(empty($_SESSION['freecap_word_hash'])) and (!empty($_POST['word'])) and ($_SESSION['hash_func'](strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) ) {
+		if (!(empty($_SESSION['freecap_word_hash'])) and (!empty($_POST['word'])) and (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) ) {
 			$captcha_is_ok = 1;
 		} else {
 			$captcha_is_ok = 0;
 		}
-		if ($_SESSION['hash_func'](strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
+		if (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
 			// reset freeCap session vars
 			$_SESSION['freecap_attempts'] = 0;
 			$_SESSION['freecap_word_hash'] = FALSE;

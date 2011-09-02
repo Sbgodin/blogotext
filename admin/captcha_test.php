@@ -34,10 +34,8 @@ echo '</div>';
 
 echo '<div id="axe">'."\n";
 echo '<div id="page">'."\n";
-if(!empty($_SESSION['freecap_word_hash']) && !empty($_POST['word']))
-{
-	if($_SESSION['hash_func'](strtolower($_POST['word']))==$_SESSION['freecap_word_hash'])
-	{
+if (!empty($_SESSION['freecap_word_hash']) and !empty($_POST['word'])) {
+	if (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
 		$_SESSION['freecap_attempts'] = 0;
 		$_SESSION['freecap_word_hash'] = false;
 		$word_ok = "yes";
@@ -45,32 +43,15 @@ if(!empty($_SESSION['freecap_word_hash']) && !empty($_POST['word']))
 		$word_ok = "no";
 	}
 } else {
-	$word_ok = false;
+	$word_ok = FALSE;
 }
-echo '<script type="text/javascript">
-<!--
-function new_freecap()
-{
-	if(document.getElementById)
-	{
-		thesrc = document.getElementById("freecap").src;
-		thesrc = thesrc.substring(0,thesrc.lastIndexOf(".")+4);
-		document.getElementById("freecap").src = thesrc+"?"+Math.round(Math.random()*100000);
-	} else {
-		alert("Sorry, cannot autoreload freeCap image\nSubmit the form and a new freeCap will be loaded");
-	}
-}
-//-->
-</script>';
-
+echo js_reload_captcha(1);
 echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'."\n";
 echo '<fieldset class="pref">';
 echo legend('Captcha', 'legend-config');
 echo '<p>';
-if($word_ok!==false)
-{
-	if($word_ok=="yes")
-	{
+if ($word_ok !== FALSE) {
+	if ($word_ok == "yes") {
 		echo '<b style="color: green;">you got the word correct, rock on.</b>';
 	} else {
 		echo '<b style="color: red;">sorry, that\'s not the right word, try again.</b>';

@@ -94,15 +94,12 @@ function list_all_tags() {
 }
 
 // RETOURNE UN TABLEAU SELON DATE
-function table_date($depart, $annee, $mois, $jour='', $statut='') {
-	$liste = array();
+function table_date($depart, $annee, $mois, $jour, $statut) {
 	$dossier = $depart.'/'.$annee.'/'.$mois.'/';
-	if ($jour == '') {
-		$files = parcourir_dossier($dossier);
-
-
-		$files_statut = array();
-		foreach ($files as $file) { 
+	$files = parcourir_dossier($dossier);
+	$contenu = array();
+	if ($statut != -1) {
+		foreach ($files as $file) {
 			if (get_id($file) <= date('YmdHis')) {
 				if (parse_xml($dossier.$file, $GLOBALS['data_syntax']['article_status']) == $statut) {
 					$contenu[] = $file;
@@ -110,24 +107,18 @@ function table_date($depart, $annee, $mois, $jour='', $statut='') {
 			}
 		}
 	} else {
-		if ( is_dir($dossier) and $ouverture = opendir($dossier) ) { 
-			$contenu = array();
-			while ($fichiers = readdir($ouverture)) {
-				$jour_fichier = substr($fichiers, 6, 2);
-				if ( is_file($dossier.$fichiers) and ($jour == $jour_fichier) ) {
-					if  ( $statut != '' and parse_xml($dossier.$fichiers, $GLOBALS['data_syntax']['article_status']) == $statut) {
-						$contenu[] = $fichiers;
-					} else {
-						$contenu[] = $fichiers;
-					}
-				}
-			}
-			closedir($ouverture);
-		}
+		$contenu = $files;
 	}
-	if (isset($contenu)) {
-		natcasesort($contenu);
-		$liste = array_reverse($contenu);
+	if ($jour != '') { // jours, donc selection des messages
+		foreach ($contenu as $id) {
+			if (substr($id, 6, 2) == $jour) $contenu_j[] = $id;
+		}
+	} else {
+		$contenu_j = $contenu;
+	}
+	if (isset($contenu_j)) {
+		natcasesort($contenu_j);
+		$liste = array_reverse($contenu_j); // faster than rsort()
 		return $liste;
 	}
 }
@@ -136,7 +127,6 @@ function table_date($depart, $annee, $mois, $jour='', $statut='') {
 // RETOURNE UN TABLEAU DE TOUS LES ARTICLES
 function table_derniers($dossier, $limite, $statut, $mode) {
 	$contenu = array();
-
 	// listage des dossiers des annees.
 	if ( $ouverture = opendir($dossier)) {
 		while ( false !== ($file = readdir($ouverture)) ) {
@@ -145,7 +135,6 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 		}	}
 		closedir($ouverture);
 	}
-
 	// listage des dossiers des mois dans chaque dossier des annees
 	if (isset($annees)) {
 		foreach ($annees as $id => $dossier_annee) {
@@ -159,7 +148,6 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 					}
 				}
 	}	}	}
-
 	// listage des fichiers dans chaque dossiers des mois
 	if (isset($dossiers_mois)) {
 		$i= 0;
@@ -215,10 +203,6 @@ function traiter_form_billet($billet) {
 				redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr_impos');
 				exit;
 			}
-			$dossier_annee_mois = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/'.$mois.'/';
-			rmdir($dossier_annee_mois);
-			$dossier_annee= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$annee.'/';
-			rmdir($dossier_annee);
 		} else {
 			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr');
 			exit;
@@ -252,7 +236,7 @@ function fichier_data($dossier, $billet) {
 	foreach ($billet as $markup => $content) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
 	}
-	if (!empty($billet['bt_categories'])) {
+	if (!empty($billet['bt_categories']) and $billet['bt_status'] == 1) {
 		fichier_tags($billet['bt_categories'], '0');
 	}
 	if ( !is_dir($dossier) ) {
@@ -286,6 +270,8 @@ function creer_dossier($dossier) {
 		} else {
 			return TRUE;
 		}
+	} else {
+		return TRUE;
 	}
 }
 
@@ -572,7 +558,7 @@ function afficher_liste_articles($tableau) {
 			echo '<a class="'.$class.'" href="ecrire.php?post_id='.$article['id'].'" title="'.$article['chapo'].'">'.$article['titre'].'</a>';
 	 		echo '</td>'."\n";
  			// DATE
- 			echo '<td>'.date_formate($article['id']).'</td>'; 
+ 			echo '<td><a class="black" href="index.php?filtre='.substr($article['id'],0,8).'">'.date_formate($article['id']).'</a></td>'; 
  			echo '<td>'.heure_formate($article['id']).'</td>'."\n";
  			// NOMBRE COMMENTS
  			if ($nb_comments = count(liste_commentaires($dossier, $article['id'], ''))) {

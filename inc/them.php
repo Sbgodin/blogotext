@@ -27,9 +27,8 @@ function conversions_theme($texte, $billet='', $commentaire='') {
 
 // Formulaires
 	if (isset($GLOBALS['balises']['form_recherche'])) { $texte = str_replace($GLOBALS['balises']['form_recherche'], moteur_recherche(), $texte) ; }
-	if (isset($GLOBALS['calendrier']) and preg_match('#'.$GLOBALS['balises']['form_calendrier'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_calendrier'], $GLOBALS['calendrier'], $texte) ;}
-	if (isset($GLOBALS['form_commentaire']) and preg_match('#'.$GLOBALS['balises']['form_commentaire'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['form_commentaire'], $texte) ; }
-	if (isset($GLOBALS['formulaire_commentaire']) and preg_match('#'.$GLOBALS['balises']['form_commentaire'][0].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['formulaire_commentaire'], $texte);}
+	if (isset($GLOBALS['calendrier']) and preg_match('#'.$GLOBALS['balises']['form_calendrier'].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_calendrier'], $GLOBALS['calendrier'], $texte) ;}
+	if (isset($GLOBALS['form_commentaire']) and preg_match('#'.$GLOBALS['balises']['form_commentaire'].'#', $texte)) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['form_commentaire'], $texte) ; }
 		else { $texte = str_replace($GLOBALS['balises']['form_commentaire'], '', $texte);}
 	if (isset($GLOBALS['rss'])) { $texte = str_replace($GLOBALS['balises']['rss'], $GLOBALS['rss'], $texte) ; }
 		else { $texte = str_replace($GLOBALS['balises']['rss'], '', $texte); }

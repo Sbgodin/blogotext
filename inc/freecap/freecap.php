@@ -1,27 +1,4 @@
 <?php
-/************************************************************\
-*
-*		freeCap v1.4.1 Copyright 2005 Howard Yeend
-*		www.puremango.co.uk
-*
-*    This file is part of freeCap.
-*
-*    freeCap is free software; you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation; either version 2 of the License, or
-*    (at your option) any later version.
-*
-*    freeCap is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with freeCap; if not, write to the Free Software
-*    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-*
-\************************************************************/
 # *** LICENSE ***
 # This file is part of BlogoText.
 # http://lehollandaisvolant.net/blogotext/
@@ -35,50 +12,22 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+//error_reporting(-1);
 session_start();
 
-//////////////////////////////////////////////////////
-////// User Defined Vars:
-//////////////////////////////////////////////////////
-
-// functions to call for random number generation
-// mt_rand produces 'better' random numbers
-// but if your server doesn't support it, it's fine to use rand instead
-$rand_func = "mt_rand";
-
-// possible values: "sha1", "md5", "crc32"
-$_SESSION['hash_func'] = "sha1";
-
-// 0 = generate pseudo-random string
-// 1 = use dictionary
+// 0 = generate pseudo-random string // 1 = use dictionary
 $use_dict = 1;
-$dict_location = "./.ht_freecap_words_rand";
-
-
+$dict_location = ".ht_freecap_words_rand";
 
 // maximum times a user can refresh the image
 $max_attempts = 1000;
 
 // list of fonts to use
 // the GDFontGenerator @ http://www.philiplb.de is excellent for convering ttf to GD
-$font_locations = array("./.ht_freecap_font1.gdf");
-
-
-// how faded should the bg be? (100=totally gone, 0=bright as the day), only change the "70"
-$bg_fade_pct = 70+$rand_func(-2,2);
-
-$font_widths = array();
-for ($i = 0 ; $i < sizeof($font_locations) ; $i++) {
-	$handle = fopen($font_locations[$i],"r");
-	$c_wid = fread($handle,12);
-	$font_widths[$i] = ord($c_wid[8])+ord($c_wid[9])+ord($c_wid[10])+ord($c_wid[11]);
-	fclose($handle);
-}
+$font_locations = "./.ht_freecap_font1.gdf";
 
 // used to calculate image width, for non-dictionary word generation
-// you shouldn't need to use words > 6 chars in length really.
-$max_word_length = 6;
-$width = ($max_word_length*(array_sum($font_widths)/sizeof($font_widths))+75);
+$width = 280;
 $height = 90;
 
 $im = ImageCreate($width, $height);
@@ -98,9 +47,6 @@ if (empty($_SESSION['freecap_attempts'])) {
 		$bg = ImageColorAllocate($im,255,255,255);
 		ImageColorTransparent($im,$bg);
 		$red = ImageColorAllocate($im, 255, 0, 0);
-		// depending on how rude you want to be :-)
-		//ImageString($im,5,0,20,"bugger off you spamming bastards!",$red);
-		//ImageString($im,5,15,20,"service no longer available",$red);
 		ImageString($im,5,15,20,"Max attemps reached",$red);
 		sendImage($im);
 	}
@@ -109,32 +55,33 @@ if (empty($_SESSION['freecap_attempts'])) {
 //////////////////////////////////////////////////////
 ////// Functions:
 //////////////////////////////////////////////////////
+function open_font($font) {
+	$handle = fopen($font, "r");
+	$c_wid = fread($handle, 12);
+	fclose($handle);
+	$font_widths = ord($c_wid[8])+ord($c_wid[9])+ord($c_wid[10])+ord($c_wid[11]);
+	return $font_widths;
+}
+
 function make_seed() {
     list($usec, $sec) = explode(' ', microtime());
     return (float) $sec + ((float) $usec * 100000);
 }
 
 function rand_color() {
-	global $rand_func;
-	return $rand_func(60,170);
+	return mt_rand(60,170);
 }
 
 function myImageBlur($im) {
-	// w00t. my very own blur function
-	// in GD2, there's a gaussian blur function. bunch of bloody show-offs... :-)
 	$width = imagesx($im);
 	$height = imagesy($im);
-
 	$temp_im = ImageCreateTrueColor($width,$height);
 	$bg = ImageColorAllocate($temp_im,150,150,150);
-
 	// preserves transparency if in orig image
 	ImageColorTransparent($temp_im,$bg);
-
 	// fill bg
 	ImageFill($temp_im,0,0,$bg);
 	$distance = 1;
-
 	// blur by merging with itself at different x/y offsets:
 	ImageCopyMerge($temp_im, $im, 0, 0, 0, $distance, $width, $height-$distance, 70);
 	ImageCopyMerge($im, $temp_im, 0, 0, $distance, 0, $width-$distance, $height, 70);
@@ -142,7 +89,6 @@ function myImageBlur($im) {
 	ImageCopyMerge($im, $temp_im, $distance, 0, 0, 0, $width, $height, 70);
 	// remove temp image
 	ImageDestroy($temp_im);
-
 	return $im;
 }
 
@@ -169,51 +115,39 @@ function sendImage($pic) {
 if ($use_dict == 1) {
 	// load dictionary and choose random word
 	$words = @file($dict_location);
-	$word = strtolower($words[$rand_func(0,sizeof($words)-1)]);
+	$word = strtolower($words[mt_rand(0,sizeof($words)-1)]);
 	// cut off line endings/other possible odd chars
 	$word = preg_replace("#[^a-z]#","",$word);
 	// might be large file so forget it now (frees memory)
 	$words = "";
 	unset($words);
 } else {
-	// based on code originally by breakzero at hotmail dot com
-	// (http://uk.php.net/manual/en/function.rand.php)
-	// generate pseudo-random string
-
 	$consonants = 'bcdghklmnpqrsvwxyz';
 	$vowels = 'aeuo';
 	$word = "";
-
-	$wordlen = $rand_func(5,$max_word_length);
-
-	for ($i=0; $i < $wordlen; $i++) {
-		// don't allow to start with 'vowel'
-		if ($rand_func(0,4) >= 2 and $i != 0) {
-			$word .= $vowels{$rand_func(0,strlen($vowels)-1)};
+	for ($i = 0; $i < 6; $i++) { // 6 ltr in wrd
+		if (mt_rand(0,4) >= 2) { // and $i != 0) { //-> disallow word begin with vowel
+			$word .= $vowels{mt_rand(0,strlen($vowels)-1)};
 		} else {
-			$word .= $consonants{$rand_func(0,strlen($consonants)-1)};
+			$word .= $consonants{mt_rand(0,strlen($consonants)-1)};
 		}
 	}
 }
 
 // save hash of word for comparison
-$_SESSION['freecap_word_hash'] = $_SESSION['hash_func']($word);
+$_SESSION['freecap_word_hash'] = sha1($word);
 
 //////////////////////////////////////////////////////
 ////// Fill BGs and Allocate Colours:
 //////////////////////////////////////////////////////
 
 $tag_col = ImageColorAllocate($im,10,10,10);
-
 $debug = ImageColorAllocate($im, 255, 0, 0);
 $debug2 = ImageColorAllocate($im2, 255, 0, 0);
-
 $bg = ImageColorAllocate($im, 254, 254, 254);
 $bg2 = ImageColorAllocate($im2, 254, 254, 254);
-
 ImageColorTransparent($im,$bg);
 ImageColorTransparent($im2,$bg2);
-
 // fill backgrounds
 ImageFill($im,0,0,$bg);
 ImageFill($im2,0,0,$bg2);
@@ -231,24 +165,23 @@ ImageFill($im3,0,0,$bg3);
 ImageSetThickness($temp_bg,4);
 
 for ($i=0 ; $i<strlen($word)+1 ; $i++) {
-	$text_r = $rand_func(100,150);
-	$text_g = $rand_func(100,150);
-	$text_b = $rand_func(100,150);
+	$text_r = mt_rand(100,150);
+	$text_g = mt_rand(100,150);
+	$text_b = mt_rand(100,150);
 	$text_colour3 = ImageColorAllocate($temp_bg, $text_r, $text_g, $text_b);
 	$points = array();
-	for ($j = 1; $j < $rand_func(5,10); $j++) {
-		$points[] = $rand_func(1*(20*($i+1)),1*(50*($i+1)));
-		$points[] = $rand_func(30,$height+30);
+	for ($j = 1; $j < mt_rand(5,10); $j++) {
+		$points[] = mt_rand(1*(20*($i+1)),1*(50*($i+1)));
+		$points[] = mt_rand(30,$height+30);
 	}
 	ImagePolygon($temp_bg,$points,intval(sizeof($points)/2),$text_colour3);
 }
 
-
-$morph_chunk = $rand_func(1,5);
+$morph_chunk = mt_rand(1,5);
 $morph_y = 0;
 for ($x = 0; $x < $width; $x += $morph_chunk) {
-	$morph_chunk = $rand_func(1,5);
-	$morph_y += $rand_func(-1,1);
+	$morph_chunk = mt_rand(1,5);
+	$morph_y += mt_rand(-1,1);
 	ImageCopy($im3, $temp_bg, $x, 0, $x+30, 30+$morph_y, $morph_chunk, $height*2);
 }
 
@@ -256,8 +189,8 @@ ImageCopy($temp_bg, $im3, 0, 0, 0, 0, $width, $height);
 
 $morph_x = 0;
 for ($y = 0; $y <= $height; $y += $morph_chunk) {
-	$morph_chunk = $rand_func(1,5);
-	$morph_x += $rand_func(-1,1);
+	$morph_chunk = mt_rand(1,5);
+	$morph_x += mt_rand(-1,1);
 	ImageCopy($im3, $temp_bg, $morph_x, $y, 0, $y, $width, $morph_chunk);
 }
 
@@ -268,20 +201,20 @@ myImageBlur($im3);
 ////// Write Word
 //////////////////////////////////////////////////////
 
-$word_start_x = $rand_func(5,32);
+$word_start_x = mt_rand(5,32);
 $word_start_y = 15;
 
-// write each char in different font
+// write each char in different color
+$font = ImageLoadFont($font_locations);
+$font_width = open_font($font_locations);
 for ($i=0 ; $i<strlen($word) ; $i++) {
 	$text_r = rand_color();
 	$text_g = rand_color();
 	$text_b = rand_color();
 	$text_colour2 = ImageColorAllocate($im2, $text_r, $text_g, $text_b);
-	$j = $rand_func(0,sizeof($font_locations)-1);
-	$font = ImageLoadFont($font_locations[$j]);
-	ImageString($im2, $font, $word_start_x+($font_widths[$j]*$i), $word_start_y, $word{$i}, $text_colour2);
+	ImageString($im2, $font, $word_start_x+($font_width*$i), $word_start_y, $word{$i}, $text_colour2);
 }
-$font_pixelwidth = $font_widths[$j];
+$font_pixelwidth = $font_width;
 
 
 //////////////////////////////////////////////////////
@@ -296,42 +229,35 @@ $y_pos = 0;
 for ($i = $word_start_x; $i < $word_pix_size; $i += $font_pixelwidth) {
 	$prev_y = $y_pos;
 	do {
-		$y_pos = $rand_func(-5,5);
+		$y_pos = mt_rand(-5,5);
 	} while ($y_pos < $prev_y+2 and $y_pos > $prev_y-2);
 	ImageCopy($im, $im2, $i, $y_pos, $i, 0, $font_pixelwidth, $height);
 }
 
 ImageFilledRectangle($im2,0,0,$width,$height,$bg2);
 
-$y_chunk = 1;
-$morph_factor = 1;
 $morph_x = 0;
 for ($j=0; $j < strlen($word); $j++) {
 	$y_pos = 0;
-	for ($i = 0; $i <= $height; $i += $y_chunk) {
+	for ($i = 0; $i <= $height; $i += 1) {
 		$orig_x = $word_start_x+($j*$font_pixelwidth);
-		$morph_x += $rand_func(-$morph_factor,$morph_factor);
-		ImageCopyMerge($im2, $im, $orig_x+$morph_x, $i+$y_pos, $orig_x, $i, $font_pixelwidth, $y_chunk, 100);
+		$morph_x += mt_rand(-1,1);
+		ImageCopyMerge($im2, $im, $orig_x+$morph_x, $i+$y_pos, $orig_x, $i, $font_pixelwidth, 1, 100);
 	}
 }
-
 
 ImageFilledRectangle($im,0,0,$width,$height,$bg);
 // now do the same on the y-axis
 $y_pos = 0;
 $x_chunk = 1;
 for ($i = 0; $i <= $width; $i += $x_chunk) {
-	$y_pos += $rand_func(-1,1);
+	$y_pos += mt_rand(-1,1);
 	ImageCopy($im, $im2, $i, $y_pos, $i, 0, $x_chunk, $height);
 }
 myImageBlur($im);
-
-
 ImageFilledRectangle($im2, 0, 0, $width, $height, $bg2);
-
 ImageCopyMerge($im2, $im, 0, 0, 0, 0, $width, $height, 80);
 ImageCopy($im, $im2, 0, 0, 0, 0, $width, $height);
-
 
 //////////////////////////////////////////////////////
 ////// Merge with obfuscated background
@@ -340,7 +266,7 @@ ImageCopy($im, $im2, 0, 0, 0, 0, $width, $height);
 $temp_im = ImageCreateTrueColor($width,$height);
 $white = ImageColorAllocate($temp_im,255,255,255);
 ImageFill($temp_im,0,0,$white);
-ImageCopyMerge($im3,$temp_im,0,0,0,0,$width,$height,$bg_fade_pct);
+ImageCopyMerge($im3,$temp_im,0,0,0,0,$width,$height,70);
 ImageDestroy($temp_im);
 $c_fade_pct = 50;
 
@@ -348,19 +274,7 @@ $c_fade_pct = 50;
 ImageCopyMerge($im3, $im, 0, 0, 0, 0, $width, $height, 100);
 ImageCopy($im, $im3, 0, 0, 0, 0, $width, $height);
 
-//////////////////////////////////////////////////////
-////// Write tags, remove variables and output!
-//////////////////////////////////////////////////////
-
-// feel free to remove/change
-$tag_str = "freeCap - puremango.co.uk";
-
-$tag_width = strlen($tag_str)*6;
-
-// write tag
-ImageString($im, 2, $width-$tag_width, $height-13, $tag_str, $tag_col);
-
-unset($word, $use_dict, $dict_location, $max_word_length, $bg_images, $bg_fade_pct, $max_attempts, $font_locations);
+unset($word, $use_dict, $dict_location, $bg_images, $max_attempts);
 
 sendImage($im);
 

@@ -367,7 +367,7 @@ if (empty($_GET['do'])) {
 		echo legend($GLOBALS['lang']['maint_chk_update'], 'legend-tic');
 		if (@file_get_contents('http://lehollandaisvolant.net/blogotext/version.php')) {
 			$last_version = trim(file_get_contents('http://lehollandaisvolant.net/blogotext/version.php'));
-			if ($GLOBALS['version'] == $last_version) {
+			if ($GLOBALS['version'] >= $last_version) {
 				echo '<p>'.$GLOBALS['lang']['maint_update_youisgood'].'</p>';
 			} else {
 				echo '<p>'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')</p>';
