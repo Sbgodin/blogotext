@@ -108,11 +108,11 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 					$commentaire = '';
 				}
 				$defaut = array(
-					'auteur' => $actual_comment['auteur'],
-					'email' => $actual_comment['email'],
-					'webpage' => $actual_comment['webpage'],
-					'commentaire' => $actual_comment['contenu_wiki'],
-					'status' => $actual_comment['status'],
+					'auteur' => protect($actual_comment['auteur']),
+					'email' => protect($actual_comment['email']),
+					'webpage' => protect($actual_comment['webpage']),
+					'commentaire' => protect($actual_comment['contenu_wiki']),
+					'status' => protect($actual_comment['status']),
 					);
 
 			}		

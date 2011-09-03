@@ -22,7 +22,7 @@ if (isset($GLOBALS['fuseau_horaire'])) {
 $GLOBALS['version_PHP'] = '5';
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version']= '30';
+$GLOBALS['version']= '31';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
