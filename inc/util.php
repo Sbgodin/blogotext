@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -30,7 +30,7 @@ return $return;
 // function get_ext($file) REPLACED WITH "pathinfo($file, PATHINFO_EXTENSION);"
 
 function get_id($file) {
-	$retour= substr($file, 0, 14);
+	$retour = substr($file, 0, 14);
 	return $retour;
 }
 
@@ -52,12 +52,6 @@ function url($niveau) {
 	}
 }
 
-function get_path_no_ext($id) {
-	$dec = decode_id($id);
-	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id;
-	return $retour;
-}
-
 function get_path($id) {
 	$dec = decode_id($id);
 	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id.'.'.$GLOBALS['ext_data'];
@@ -70,12 +64,8 @@ function get_blogpath($id) {
 	return $path;
 }
 
-function ww_hach_sha($text) {
-	if ($GLOBALS['version_PHP'] >= '5') {
-		$out = hash("sha512", $text);		// PHP 5
-	} else {
-		$out = sha1($text).md5($text);	// PHP 4
-	}
+function ww_hach_sha($text, $salt) {
+	$out = hash("sha512", $text.$salt);		// PHP 5
 	return $out;
 }
 
@@ -98,7 +88,7 @@ function traiter_tags($tags) {
 
 function check_session() {
 	session_start();
-	$ip = $_SERVER["REMOTE_ADDR"];
+	$ip = htmlspecialchars($_SERVER["REMOTE_ADDR"]);
 
 	if ((!isset($_SESSION['nom_utilisateur']))
 		or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp'])
@@ -138,7 +128,7 @@ function diacritique($texte, $majuscules, $espaces) {
 	$texte = preg_replace('#(\t|\n|\r)#', ' ' , $texte); // retours à la ligne => espaces
 	$texte = preg_replace('#&([a-z]{2})lig;#i', '$1', $texte); // EX : œ => oe ; æ => ae 
 	$texte = preg_replace('#&[\w\#]*;#U', '', $texte); // les autres (&quote; par exemple) sont virés
-	$texte = preg_replace('#[^\w -]#U', '', $texte); // on ne garde que chiffres, lettres _ et - et espaces.
+	$texte = preg_replace('#[^\w -]#U', '', $texte); // on ne garde que chiffres, lettres _, -, et espaces.
 	if ($espaces == '0')
 		$texte = preg_replace('#[ ]+#', '-', $texte); // les espaces deviennent des tirets.
 	return $texte;

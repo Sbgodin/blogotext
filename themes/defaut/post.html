@@ -7,7 +7,7 @@
 	<meta name="robots" content="all" />
 	<meta name="author" content="{blog_auteur}" />
 	<meta name="description" content="{blog_description}" />
-	<meta name="keywords" content="{description}" />
+	<meta name="keywords" content="{article_motscles}" />
 	<link type="text/css" rel="stylesheet" href="{style}/style.css" />
 	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles Résumés" href="{rss}" />
 	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles Complets" href="{rss}?full" />
@@ -15,7 +15,7 @@
 <script type="text/javascript">
 /* Tag script found at : http://www.siteduzero.com/tutoriel-3-34703-insertion-de-balises-dans-une-zone-de-texte.html */
 function insertTag(startTag, endTag, tag, tagType) {
-	var field = tag.parentNode.parentNode.getElementsByTagName('fieldset')[0].getElementsByTagName('textarea')[0];
+	var field = document.getElementById(tag);
 	var scroll = field.scrollTop;
 	field.focus();
 
@@ -73,7 +73,7 @@ function resize(id, dht) {
 <div id="contenu">
 
 	<div class="news">
-		<h2 title="{article_chapo}">{article_titre}</h2>
+		<h2 title="{article_chapo}" class="{article_tags_plain}">{article_titre}</h2>
 		<h3 class="date">{article_date} à {article_heure}</h3>
 		<p class="chapo">{article_chapo}</p>
 		<div class="contenu">
@@ -84,12 +84,12 @@ function resize(id, dht) {
 
 	<h2>{nombre_commentaires}</h2>
 
-	{BOUCLE_commentaire}
+	{BOUCLE_commentaires}
 	<div class="comment">
 		<h3>{commentaire_ancre}-{commentaire_auteur} - {commentaire_date} à {commentaire_heure}  </h3>
 		{commentaire_contenu}
 	</div>
-	{/BOUCLE_commentaire}
+	{/BOUCLE_commentaires}
 
 	<p><a href="{rss_comments}">Flux RSS des commentaires de cet article</a></p>
 	<div id="postcom">

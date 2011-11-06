@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -22,15 +22,17 @@ initOutputFilter();
 //$begin = microtime(TRUE);
 error_reporting(-1);
 
-session_start() ;
-if (isset($_POST['auteur'])) {
-	setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true);
-}
-if (isset($_POST['email'])) {
-	setcookie('email_c', $_POST['email'], time() + 365*24*3600, null, null, false, true);
-}
-if (isset($_POST['webpage'])) {
-	setcookie('webpage_c', $_POST['webpage'], time() + 365*24*3600, null, null, false, true);
+session_start();
+if (isset($_POST['allowcookie'])) {
+	if (isset($_POST['auteur'])) {  setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true); }
+	if (isset($_POST['email'])) {   setcookie('email_c', $_POST['email'], time() + 365*24*3600, null, null, false, true); }
+	if (isset($_POST['webpage'])) { setcookie('webpage_c', $_POST['webpage'], time() + 365*24*3600, null, null, false, true); }
+	setcookie('cookie_c', 1, time() + 365*24*3600, null, null, false, true);
+} elseif (isset($_POST['auteur'])) { //and !isset(POST[allowcookie])
+	setcookie('auteur_c', '', time(), null, null, false, true);
+	setcookie('email_c', '', time(), null, null, false, true);
+	setcookie('webpage_c', '', time(), null, null, false, true);
+	setcookie('cookie_c', '', time(), null, null, false, true);
 }
 
 if ( !file_exists('config/user.php') or !file_exists('config/prefs.php') ) {
@@ -51,6 +53,7 @@ require_once 'inc/comm.php';
 require_once 'inc/conv.php';
 require_once 'inc/util.php';
 require_once 'inc/veri.php';
+require_once 'inc/jasc.php';
 
 $GLOBALS['BT_ROOT_PATH'] = '';
 $depart = $GLOBALS['dossier_articles'];
@@ -64,24 +67,22 @@ if ( isset($_GET['m'])) {
 	header('Location: '.$_SERVER['PHP_SELF']);
 }
 
-if ( isset($_SERVER['QUERY_STRING']) and (url_article($_SERVER['QUERY_STRING']) === TRUE) ) {
+if ( isset($_SERVER['QUERY_STRING']) and preg_match('/\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($_SERVER['QUERY_STRING'])) ) {
 	$article_id = $_SERVER['QUERY_STRING'] ;
 	$tab = explode('/',$article_id);
 	$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
-	$fichier_data = $depart.'/'.$tab['0'].'/'.$tab['1'].'/'.$id.'.'.$GLOBALS['ext_data'] ;
-	if (file_exists($fichier_data)) {
-		afficher_calendrier($depart, $tab['1'], $tab['0'], $tab['2']);
-		afficher_article($id);
-	}
+	$fichier_data = $depart.'/'.$tab['0'].'/'.$tab['1'].'/'.$id.'.'.$GLOBALS['ext_data'];
+	afficher_calendrier($depart, $tab['1'], $tab['0'], $tab['2']);
+	afficher_article($id);
 } elseif (isset($_GET['q'])) {
 	afficher_calendrier($depart, date('m'), date('Y'));
-	$tableau = table_recherche($depart, $_GET['q'], '1', 'public');
+	$tableau = table_recherche($depart, htmlspecialchars($_GET['q']), '1', 'public');
 	afficher_index($tableau);
 } elseif (isset($_GET['tag'])) {
 	afficher_calendrier($depart, date('m'), date('Y'));
 	$tableau = table_tags($depart, $_GET['tag'], '1', 'public');
 	afficher_index($tableau);
-} elseif (isset($_SERVER['QUERY_STRING']) and (url_date($_SERVER['QUERY_STRING']) === TRUE) ) {
+} elseif (isset($_SERVER['QUERY_STRING']) and ( (preg_match('/\d{4}\/\d{2}(\/\d{2})?/',($_SERVER['QUERY_STRING']))) ) ) {
 	$tab = explode('/', ($_SERVER['QUERY_STRING']));
 	if ( preg_match('/\d{4}/',($tab['0'])) ) {
 		$annee = $tab['0'];

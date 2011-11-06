@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -141,7 +141,7 @@ function form_format_date($defaut) {
 }
 
 function form_fuseau_horaire($defaut) {
-	if ($GLOBALS['version_PHP'] >= '5') {
+	if ($GLOBALS['etes_vous_chez_freefr'] == 1) {
 		$liste_fuseau = timezone_identifiers_list();
 		$form = '<p>';
 		$form .= '<label>'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
@@ -154,17 +154,15 @@ function form_fuseau_horaire($defaut) {
 		$form .= '</select> '."\n";
 		$form .= '</p>'."\n";
 		return $form;
-	} else {
-		return '';
 	}
 }
 
 function form_format_heure($defaut) {
 	$formats = array (
-		'0' => date('H').':'.date('i').':'.date('s'),							// 23:56:04
-		'1' => date('H').':'.date('i'),												// 23:56
-		'2' => date('h').':'.date('i').':'.date('s').' '.date('A'),			// 11:56:04 PM
-		'3' => date('h').':'.date('i').' '.date('A')								// 11:56 PM
+		'0' => date('H\:i\:s'),		// 23:56:04
+		'1' => date('H\:i'),			// 23:56
+		'2' => date('h\:i\:s A'),		// 11:56:04 PM
+		'3' => date('h\:i A'),			// 11:56 PM
 	);
 	$form = '<p>';
 	$form .= '<label>'.$GLOBALS['lang']['pref_format_heure'].'</label>';
@@ -244,7 +242,7 @@ function filtre($type, $filtre, $mode) {
 	}
 
 	$tableau = table_derniers($dossier, '-1', '', $mode);
-	foreach ($tableau as $file ) $tableau_mois[substr($file, 0, 6)] = mois_en_lettres(nombre_formate(substr($file, 4, 2))).' '.substr($file, 0, 4); // array[201005] => "May 2010", uzw
+	foreach ($tableau as $file ) $tableau_mois[substr($file, 0, 6)] = mois_en_lettres(str_pad(substr($file, 4, 2), 2, "0", STR_PAD_LEFT)).' '.substr($file, 0, 4); // array[201005] => "May 2010", uzw
 	if (isset($tableau_mois)) {
 		$dossier_mois = array_unique($tableau_mois);
 	}
@@ -285,9 +283,11 @@ function filtre($type, $filtre, $mode) {
 		$author_list = array_count_values($author_list);
 		arsort($author_list);
 		foreach ($author_list as $nom => $nb) {
-			echo '<option value="'.$nom.'"';
-			echo ($filtre == $nom) ? ' selected="selected"' : '';
-			echo '>'.$nom.' ('.$nb.')'.'</option>'."\n";
+			if ($nom != '') {
+				echo '<option value="'.$nom.'"';
+				echo ($filtre == $nom) ? ' selected="selected"' : '';
+				echo '>'.$nom.' ('.$nb.')'.'</option>'."\n";
+			}
 		}
 		echo '</optgroup>';
 	}
@@ -297,27 +297,13 @@ function filtre($type, $filtre, $mode) {
 
 /// formulaires BILLET //////////
 function afficher_form_billet($article, $erreurs) {
-// Valeurs par defaut
-	if (isset($_POST['_verif_envoi'])) {
-		$defaut_jour = $_POST['jour'];
-		$defaut_mois = $_POST['mois'];
-		$defaut_annee = $_POST['annee'];
-		$defaut_heure = $_POST['heure'];
-		$defaut_minutes = $_POST['minutes'];
-		$defaut_secondes = $_POST['secondes'];
-		$titredefaut = stripslashes($_POST['titre']);
-		$chapodefaut = stripslashes($_POST['chapo']);
-		$notesdefaut = stripslashes($_POST['notes']);
-		if ($GLOBALS['activer_categories'] == '1') {
-			$categoriesdefaut = stripslashes($_POST['categories']);
-		}
-		$contenudefaut = stripslashes($_POST['contenu']);
-		if ($GLOBALS['automatic_keywords'] == '0') {
-			$motsclesdefaut = stripslashes($_POST['mots_cles']);
-		}
-		$statutdefaut = $_POST['statut'];
-		$allowcommentdefaut = $_POST['allowcomment'];
-	} elseif ($article != '') {
+	if ($article != '') {
+		$defaut_jour = $article['jour'];
+		$defaut_mois = $article['mois'];
+		$defaut_annee = $article['annee'];
+		$defaut_heure = $article['heure'];
+		$defaut_minutes = $article['minutes'];
+		$defaut_secondes = $article['secondes'];
 		$titredefaut = $article['titre'];
 		$chapodefaut = $article['chapo'];
 		$notesdefaut = (isset($article['notes'])) ? $article['notes'] : '';
@@ -352,15 +338,15 @@ function afficher_form_billet($article, $erreurs) {
 	}
 	echo '<div id="form">'."\n";
 		echo label('titre', $GLOBALS['lang']['label_titre']);
-		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" />'."\n" ;
+		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" tabindex="30"/>'."\n" ;
 	echo '<div id="chapo_note">'."\n";
 	echo '<div id="blocnote">'."\n";
 		echo label('notes', 'Notes');
-		echo '<textarea id="notes" name="notes" rows="5" cols="25" placeholder="Notes" >'.$notesdefaut.'</textarea>'."\n" ;
+		echo '<textarea id="notes" name="notes" rows="5" cols="25" placeholder="Notes" tabindex="40">'.$notesdefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n";
 	echo '<div id="blocchapo">'."\n";
 		echo label('chapo', $GLOBALS['lang']['label_chapo']);
-		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_chapo'].'" >'.$chapodefaut.'</textarea>'."\n" ;
+		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_chapo'].'" tabindex="35">'.$chapodefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n";
 	echo '<br style="clear:both;"/>'."\n".'</div>'."\n";
 
@@ -370,29 +356,44 @@ function afficher_form_billet($article, $erreurs) {
 	} else {
 		echo hidden_input('categories', '');
 	}
-	echo '<p id="wiki" ><a href="#" onclick="resize(\'contenu\', 40); return false;">plus</a> / <a href="#" onclick="resize(\'contenu\', -40); return false;">moins</a> - <a href="javascript:ouvre(\'wiki.php\')">'.$GLOBALS['lang']['label_wiki'].'</a></p>'."\n";
 	echo label('contenu', $GLOBALS['lang']['label_contenu']);
-	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'" >'.$contenudefaut.'</textarea>'."\n" ;
+
+	echo '<p style="margin-bottom:4px;" >';
+	echo "\t".'<input class="pm" type="button" value="−" onclick="resize(\'contenu\', -40); return false;" />'."\n";
+	echo "\t".'<input class="pm" type="button" value="+" onclick="resize(\'contenu\', 40); return false;" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-gras'].'" type="button" value="B" onclick="insertTag(\'[b]\',\'[/b]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-ital'].'" type="button" value="I" onclick="insertTag(\'[i]\',\'[/i]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-soul'].'" type="button" value="U" onclick="insertTag(\'[u]\',\'[/u]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-barr'].'" type="button" value="S" onclick="insertTag(\'[s]\',\'[/s]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-lien'].'" type="button" value="'.$GLOBALS['lang']['wiki_lien'].'" onclick="insertTag(\'[\',\'|http://]\',\'contenu\');"/>'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-cita'].'" type="button" value="'.$GLOBALS['lang']['wiki_quote'].'" onclick="insertTag(\'[quote]\',\'[/quote]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-imag'].'" type="button" value="'.$GLOBALS['lang']['wiki_image'].'" onclick="insertTag(\'((http://|\',\'))\',\'contenu\');" />'."\n";
+
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-code'].'" type="button" value="Code" onclick="insertTag(\'[code]\',\'[/code]\',\'contenu\');" />'."\n";
+	echo '</p>';
+
+	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'"  tabindex="55">'.htmlspecialchars($contenudefaut).'</textarea>'."\n" ;
+
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		echo label('mots_cles', $GLOBALS['lang']['label_motscles']);
-		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" placeholder="'.$GLOBALS['lang']['label_motscles'].'" /></div>'."\n";
+		echo '<div><input id="mots_cles" name="mots_cles" type="text" size="50" value="'.$motsclesdefaut.'" placeholder="'.$GLOBALS['lang']['label_motscles'].'" tabindex="60"/></div>'."\n";
 	}
-	if (!$article) {
+	if ($statutdefaut == 0 or !$article) {
 		echo '<div id="date">'."\n";
-			echo '<p id="formdate">';
-				form_annee($defaut_annee);
-				form_mois($defaut_mois);
-				form_jour($defaut_jour);
-			echo '</p>'."\n";
-			echo '<p id="formheure">';
-				form_heure($defaut_heure, $defaut_minutes, $defaut_secondes) ;
-			echo '</p>'."\n";
+		echo '<p id="formdate">';
+		form_annee($defaut_annee);
+		form_mois($defaut_mois);
+		form_jour($defaut_jour);
+		echo '</p>'."\n";
+		echo '<p id="formheure">';
+		form_heure($defaut_heure, $defaut_minutes, $defaut_secondes) ;
+		echo '</p>'."\n";
 		echo '</div>'."\n";
 	}
 	else {
 		echo '<div id="date">'."\n";
-			echo '<p id="formdate">'.date_formate($article['id']).'</p>'."\n";
-			echo '<p id="formheure">'.heure_formate($article['id']).'</p>'."\n";
+		echo '<p id="formdate">'.date_formate($article['id']).'</p>'."\n";
+		echo '<p id="formheure">'.heure_formate($article['id']).'</p>'."\n";
 		echo '</div>'."\n";
 		echo hidden_input('annee', $article['annee']);
 		echo hidden_input('mois', $article['mois']);
@@ -407,7 +408,7 @@ function afficher_form_billet($article, $erreurs) {
 	echo '</div>'."\n";
 
 	echo '<div id="bt">';
-		echo input_enregistrer();
+		echo '<input class="submit" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" tabindex="65" />'."\n";
 		if ($article) {
 			echo input_supprimer();
 			$time = time();
@@ -433,9 +434,9 @@ function form_jour($jour_affiche) {
 	);
 	echo '<select name="jour">'."\n";
 	foreach ($jours as $option => $label) {
-		echo '<option value="' . htmlentities($option) . '"';
+		echo '<option value="'.htmlentities($option).'"';
 		echo ($jour_affiche == $option) ? ' selected="selected"' : '';
-		echo '>' . htmlentities($label) . '</option>'."\n";
+		echo '>'.htmlentities($label).'</option>'."\n";
 	}
 	echo '</select>'."\n\n";
 }
@@ -515,7 +516,7 @@ function form_categories($categoriesaffiche) {
 		$script .='		button.value = \'Afficher la liste des tags\';'."\n";
 		$script .='	}'."\n";
 		$script .='}'."\n";
-		$script .='function insertTag(inputId, tag) {'."\n";
+		$script .='function insertCatTag(inputId, tag) {'."\n";
 		$script .='	var field = document.getElementById(inputId);'."\n";
 		$script .='	if (field.value !== \'\') {'."\n";
 		$script .='		field.value += \', \';'."\n";
@@ -530,13 +531,11 @@ function form_categories($categoriesaffiche) {
 		$nb = sizeof($tags);
 		for ($i = 0 ; $i < $nb ; $i++) {
 			$tags[$i] = trim($tags[$i]);
-			echo "\t".'<a class="tags" id="tag'.$i.'" onclick="insertTag(\'categories\', \''.$tags[$i].'\');">'.$tags[$i]."</a>\n";
+			echo "\t".'<a class="tags" id="tag'.$i.'" onclick="insertCatTag(\'categories\', \''.$tags[$i].'\');">'.$tags[$i]."</a>\n";
 		}
-
 		echo '</p>'."\n";
 	}
-	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" placeholder="'.$GLOBALS['lang']['label_categories'].'"/>'."\n";
+	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" placeholder="'.$GLOBALS['lang']['label_categories'].'" tabindex="45" />'."\n";
 }
-
 
 ?>

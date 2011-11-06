@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -36,7 +36,6 @@ echo '<div id="axe">'."\n";
 echo '<div id="page">'."\n";
 if (!empty($_SESSION['freecap_word_hash']) and !empty($_POST['word'])) {
 	if (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
-		$_SESSION['freecap_attempts'] = 0;
 		$_SESSION['freecap_word_hash'] = false;
 		$word_ok = "yes";
 	} else {
@@ -59,7 +58,7 @@ if ($word_ok !== FALSE) {
 }
 echo '</p>';
 echo '<p><img src="../inc/freecap/freecap.php" id="freecap" alt="freecap"/></p>'."\n";
-echo '<p>If you can\'t read the word, <a href="#" onclick="this.blur();new_freecap();return false;">click here to change image</a></p>'."\n";
+echo '<p>If you can\'t read the word, <a href="#" onclick="new_freecap();return false;">click here to change image</a></p>'."\n";
 echo '<p>word above:<input type="text" name="word" /></p>'."\n";
 echo input_valider();
 echo '</fieldset>';

@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -23,7 +23,7 @@ function table_recherche($depart, $recherche, $statut, $mode) {
 			$article_content = parse_xml($dossier.$id, 'bt_content');
 			//	La ligne suivant évite de rechercher les balises (par ex, dans le "href" d'un <a></a>).
 			$article_content = preg_replace('#</?.*>#Ui', '', $article_content);
-			if (strpos(strtolower($article_content), strtolower(htmlspecialchars($recherche))) !== FALSE ) {
+			if (strpos(strtolower($article_content), strtolower($recherche)) !== FALSE ) {
 				$table_matchs[]= $id;
 			}
 		}
@@ -139,8 +139,8 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 	if (isset($annees)) {
 		foreach ($annees as $id => $dossier_annee) {
 			$chemin = $dossier.'/'.$dossier_annee.'/';
-			for ($mois = 01 ; $mois <= 12 ; $mois++) {
-				$mois = (strlen($mois) == 1) ? $mois = '0'.$mois : $mois;
+			for ($mois = 1 ; $mois <= 12 ; $mois++) {
+				$mois = str_pad($mois, 2, "0", STR_PAD_LEFT);
 				$file_mois = $chemin.$mois;
 				if (is_dir($chemin.$mois) ) { 
 					if (preg_match('#'.$chemin.'\d{2}'.'#', $file_mois) ) {
@@ -150,7 +150,6 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 	}	}	}
 	// listage des fichiers dans chaque dossiers des mois
 	if (isset($dossiers_mois)) {
-		$i= 0;
 		foreach ($dossiers_mois as $path) {
 			$contenu = array_merge(parcourir_dossier($path), $contenu);
 		}
@@ -173,9 +172,7 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 		foreach ($contenu_statut as $file) {
 			if (get_id($file) <= date('YmdHis')) {
 				$contenu_mode[] = $file;
-			}
-		}
-	}
+	}	}	}
 	if ($limite != '-1' ) {
 		$retour = array_slice($contenu_mode, 0, $limite);
 	} else {
@@ -189,14 +186,19 @@ function table_derniers($dossier, $limite, $statut, $mode) {
 function traiter_form_billet($billet) {
 	if (isset($_POST['enregistrer'])) {
 		if (fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $billet) !== FALSE) {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&msg=confirm_article_ajout');
+			$id = $billet[$GLOBALS['data_syntax']['article_id']];
+			if (isset($_POST['article_id']) and ($billet[$GLOBALS['data_syntax']['article_id']] != $_POST['article_id'] )) {
+				unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($_POST['article_id']));
+				$id = $billet[$GLOBALS['data_syntax']['article_id']];
+			}
+			redirection($_SERVER['PHP_SELF'].'?post_id='.$id.'&msg=confirm_article_ajout');
 		} else {
 			erreur('Ecriture impossible');
 			exit;
 		}
-	} elseif (isset($_POST['supprimer'])) {
+	}
+	elseif (isset($_POST['supprimer'])) {
 		if (isset($_POST['security_coin_article']) and htmlspecialchars($_POST['security_coin_article']) == md5($_POST['article_id'].$_SESSION['time_supprimer_article']) and $_SESSION['time_supprimer_article'] >= (time() - 300) ) {
-
 			if (unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id']]))) {
 				redirection('index.php?msg=confirm_article_suppr');
 			} else {
@@ -211,8 +213,7 @@ function traiter_form_billet($billet) {
 }
 
 function validate_comment($id_file, $choix) {
-	if ($choix == '0') $new_choix = '1';
-	elseif ($choix == '1') $new_choix = '0';
+	if ($choix == '0' or $choix == '1') $new_choix = abs($choix-1);
 	else $new_choix = $GLOBALS['comm_defaut_status'];
 	if (preg_match('#<bt_status>.*</bt_status>#', file_get_contents($id_file))) {
 		$content = preg_replace('#<bt_status>.*</bt_status>#', '<bt_status>'.$new_choix.'</bt_status>', file_get_contents($id_file));
@@ -229,9 +230,9 @@ function validate_comment($id_file, $choix) {
 }
 
 function fichier_data($dossier, $billet) {
-	$article_data = '<?php die("If you were looking for the answer to life, the universe and everything... It is not here..."); ?>';
+	$article_data = '<?php die("If you were looking for the answer to life, the universe and everything... It is not here."); ?>';
 	$article_data .= "\n";
-	$date= decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
+	$date = decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
 
 	foreach ($billet as $markup => $content) {
 		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
@@ -274,7 +275,7 @@ function creer_dossier($dossier) {
 		return TRUE;
 	}
 }
-
+/*
 function parcourir_dossier($dossier) {
 	$contenu = array();
 	if (is_dir($dossier)) {
@@ -290,9 +291,24 @@ function parcourir_dossier($dossier) {
 	sort($contenu);
 	return $contenu;
 }
+*/
+function parcourir_dossier($dossier) {
+	$contenu = array();
+	if (is_dir($dossier)) {
+		$listage = scandir($dossier);	
+		foreach ($listage as $fichier) {
+			if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#', $fichier)) {
+				$contenu[] = $fichier;
+			}
+		}
+	}
+	sort($contenu);
+	return $contenu;
+}
 
 function fichier_user() {
-		$user='';
+	$fichier_user = '../config/user.php';
+	$user='';
 	if (strlen(trim($_POST['mdp'])) == 0) {
 		$new_mdp = $GLOBALS['mdp']; 
 	} else {
@@ -303,8 +319,7 @@ function fichier_user() {
 	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
 	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
 	$user .= "?>";
-	$fichier_user = '../config/user.php';
-	$new_file_user=fopen($fichier_user,'wb+');
+	$new_file_user = fopen($fichier_user,'wb+');
 	if (fwrite($new_file_user,$user) === FALSE) {
 		return FALSE;
 	} else {
@@ -314,6 +329,7 @@ function fichier_user() {
 }
 
 function fichier_tags($new_tags, $reset) {
+	$fichier_tags = '../config/tags.php';
 	/* new tags */
 	$new_tags_array = explode(',' , $new_tags);
 	$new_tags_array = array_map("trim", $new_tags_array);
@@ -326,7 +342,6 @@ function fichier_tags($new_tags, $reset) {
 		$old_tags_array[] = '';
 		$nb2 = 1;
 	}
-
 	$all_tags = array_unique(array_merge($new_tags_array, $old_tags_array));
 	sort($all_tags);
 	$inline_tags = implode(',' , $all_tags);
@@ -334,8 +349,6 @@ function fichier_tags($new_tags, $reset) {
 	$tags = "<?php\n";
 	$tags .= "\$GLOBALS['tags'] = '".$inline_tags."';\n";
 	$tags .= "?>";
-
-	$fichier_tags = '../config/tags.php';
 	$new_file_tags = fopen($fichier_tags,'wb+');
 	if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$tags) === FALSE)) {
 		return FALSE;
@@ -346,6 +359,7 @@ function fichier_tags($new_tags, $reset) {
 }
 
 function fichier_prefs() {
+	$fichier_prefs = '../config/prefs.php';
 	if(!empty($_POST['_verif_envoi'])) {
 		$auteur = clean_txt($_POST['auteur']);
 		$email = clean_txt($_POST['email']);
@@ -409,7 +423,6 @@ function fichier_prefs() {
 	$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
 	$prefs .= "\$GLOBALS['require_email']= '".$require_email."';\n";
 	$prefs .= "?>";
-	$fichier_prefs = '../config/prefs.php';
 	$new_file_pref = fopen($fichier_prefs,'wb+');
 	if (fwrite($new_file_pref,$prefs) === FALSE) {
 		return FALSE;
@@ -454,7 +467,7 @@ function fichier_htaccess($dossier) {
 }
 
 function fichier_ip() {
-	$new_ip = $_SERVER['REMOTE_ADDR'];
+	$new_ip = htmlspecialchars($_SERVER['REMOTE_ADDR']);
 	$new_time = date('YmdHis');
 	$content = "<?php\n";
 	$content .= "\$GLOBALS['old_ip'] = '".$new_ip."';\n";	
@@ -525,70 +538,6 @@ function liste_articles($liste, $template_liste) {
 			$liste_articles = conversions_theme_article($template_liste, $billet);
 			echo $liste_articles;
 		}
-	}
-}
-
-function afficher_liste_articles($tableau) {
-	$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
-	if (!empty($tableau)) {
-		$i = 0;
-		echo '<table id="billets">'."\n";
-		echo '<tr>';
-			// LEGENDE DES COLONNES
-			echo '<th>'.$GLOBALS['lang']['label_titre'].'</th>'."\n";
-			echo '<th>'.$GLOBALS['lang']['label_date'].'</th>'."\n";
-			echo '<th>'.$GLOBALS['lang']['label_time'].'</th>'."\n";
-			echo '<th>&nbsp;</th>'."\n";
-			echo '<th>&nbsp;</th>'."\n";
-		echo '</tr>';
-		foreach ($tableau as $fichier) {
-			// INIT BILLET
-			$article = init_billet('admin', get_id($fichier));
-			// ICONE SELON STATUT
-			if ($article['statut'] === '1') {
-				$class='on';
-			} else {
-				$class='off';
-			}
-			// ALTERNANCE COULEUR DE FOND
-			$alt = ($i % 2 == 0) ? '<tr class="c">'."\n" : '<tr>'."\n";
-			echo $alt;
-			// TITRE
-			echo '<td class="titre">';
-			echo '<a class="'.$class.'" href="ecrire.php?post_id='.$article['id'].'" title="'.$article['chapo'].'">'.$article['titre'].'</a>';
-	 		echo '</td>'."\n";
- 			// DATE
- 			echo '<td><a class="black" href="index.php?filtre='.substr($article['id'],0,8).'">'.date_formate($article['id']).'</a></td>'; 
- 			echo '<td>'.heure_formate($article['id']).'</td>'."\n";
- 			// NOMBRE COMMENTS
- 			if ($nb_comments = count(liste_commentaires($dossier, $article['id'], ''))) {
- 				if ($nb_comments == '1') {
- 					$texte = $GLOBALS['lang']['label_commentaire'];
- 				} else {
-	 				$texte = $GLOBALS['lang']['label_commentaires'];
- 				}
-	 			echo '<td class="nb-commentaires"><a href="commentaires.php?post_id='.$article['id'].'">'.$nb_comments.' '.$texte.'</a></td>'."\n";
- 			} else {
-	 			echo '<td class="nb-commentaires">&nbsp;</td>'."\n";
- 			}
- 			if ( $article['statut'] == '1') {
-	 			echo '<td class="lien"><a href="'.get_blogpath($article['id']).'">'.$GLOBALS['lang']['lien_article'].'</a></td>';
- 			} else {
-		 		echo '<td>&nbsp;</td>';
- 			}
-			echo '</tr>'."\n";
-			$i++;
-		}
-		$nb_articles = count($tableau);
-	   if ($nb_articles == 1) {
-	 		$text_nb = $GLOBALS['lang']['label_article'];
-	 	} else {
-			$text_nb = $GLOBALS['lang']['label_articles'];
-	 	}
-		echo '<tr><th id="nbart" colspan="5">'.$nb_articles.' '.$text_nb.' '.$GLOBALS['lang']['sur'].' '.count(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], -1, '', 'admin')).'</th></tr>'."\n";
-		echo '</table>'."\n\n";
-	} else {
-		info($GLOBALS['lang']['note_no_article']);
 	}
 }
 

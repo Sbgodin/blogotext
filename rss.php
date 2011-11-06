@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -49,14 +49,12 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 			$id = substr($comment, 0, 14);
 			$comment = init_comment('public', $id);
 			$date_article = decode_id($id);
-			$jour_abbr = date("D", mktime(0, 0, 0, $date_article['mois'], $date_article['jour'], $date_article['annee']));
-			$mois_abbr = date("M", mktime(0, 0, 0, $date_article['mois'], $date_article['jour'], $date_article['annee']));
 			$lien = $date_billet['annee'].'/'.$date_billet['mois'].'/'.$date_billet['jour'].'/'.$date_billet['heure'].'/'.$date_billet['minutes'].'/'.$date_billet['secondes'].'#'.article_anchor($comment['id']);
 			echo '<item>'."\n";
 				echo '<title>'.$comment['auteur'].'</title>'."\n";
 				echo '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
 				echo '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
-				echo '<pubDate>'.$jour_abbr.', '.$comment['jour'].' '.$mois_abbr.' '.$comment['annee'].' '.$comment['heure'].':'.$comment['minutes'].':'.$comment['secondes'].' +0000</pubDate>'."\n";
+				echo '<pubDate>'.date('r', mktime($comment['heure'], $comment['minutes'], $comment['secondes'], $comment['mois'], $comment['jour'], $comment['annee'])).'</pubDate>'."\n";
 				echo '<description><![CDATA['.($comment['contenu']).']]></description>'."\n";
 			echo '</item>'."\n";
 		}
@@ -65,7 +63,7 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 			echo '<title>'.$GLOBALS['lang']['note_no_comment'].'</title>'."\n";
 			echo '<guid>'.$GLOBALS['racine'].'index.php</guid>'."\n";
 			echo '<link>'.$GLOBALS['racine'].'index.php</link>'."\n";
-			echo '<pubDate>'.date('D').', '.date('d').' '.date('m').' '.date('Y').' '.date('h').':'.date('i').':'.date('s').' +0000</pubDate>'."\n";
+			echo '<pubDate>'.date('r').'</pubDate>'."\n";
 			echo '<description>'.$GLOBALS['lang']['no_comments'].'</description>'."\n";
 		echo '</item>'."\n";
 
@@ -87,14 +85,12 @@ else {
 			$billet = init_billet('public', $id);
 			$dossier= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
 			$fichier = $dossier.$article;
-			$jour_abbr = date("D", mktime(0, 0, 0, $billet['mois'], $billet['jour'] , $billet['annee']));
-			$mois_abbr = date("M", mktime(0, 0, 0, $billet['mois'], $billet['jour'], $billet['annee']));
 			$lien = $billet['annee'].'/'.$billet['mois'].'/'.$billet['jour'].'/'.$billet['heure'].'/'.$billet['minutes'].'/'.$billet['secondes'].'-'.titre_url($billet['titre']);
 			echo '<item>'."\n";
 				echo '<title>'.$billet['titre'].'</title>'."\n";
 				echo '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
 				echo '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
-				echo '<pubDate>'.$jour_abbr.', '.$billet['jour'].' '.$mois_abbr.' '.$billet['annee'].' '.$billet['heure'].':'.$billet['minutes'].':'.$billet['secondes'].' +0000</pubDate>'."\n";
+				echo '<pubDate>'.date('r', mktime($billet['heure'], $billet['minutes'], $billet['secondes'], $billet['mois'], $billet['jour'], $billet['annee'])).'</pubDate>'."\n";
 				echo '<description><![CDATA['.nl2br($billet['chapo']).']]></description>'."\n";
 				if (isset($_GET['full'])) {
 					echo '<content:encoded><![CDATA['.rel2abs($billet['contenu']).']]></content:encoded>'."\n";

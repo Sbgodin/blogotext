@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -15,12 +15,8 @@
 //error_reporting(-1);
 session_start();
 
-// 0 = generate pseudo-random string // 1 = use dictionary
-$use_dict = 1;
+$use_dict = 1; // 0 = generate pseudo-random string // 1 = use dictionary
 $dict_location = ".ht_freecap_words_rand";
-
-// maximum times a user can refresh the image
-$max_attempts = 1000;
 
 // list of fonts to use
 // the GDFontGenerator @ http://www.philiplb.de is excellent for convering ttf to GD
@@ -33,24 +29,6 @@ $height = 90;
 $im = ImageCreate($width, $height);
 $im2 = ImageCreate($width, $height);
 
-
-
-//////////////////////////////////////////////////////
-////// Avoid Brute Force Attacks:
-//////////////////////////////////////////////////////
-if (empty($_SESSION['freecap_attempts'])) {
-	$_SESSION['freecap_attempts'] = 1;
-} else {
-	$_SESSION['freecap_attempts']++;
-	if ($_SESSION['freecap_attempts'] > $max_attempts) {
-		$_SESSION['freecap_word_hash'] = false;
-		$bg = ImageColorAllocate($im,255,255,255);
-		ImageColorTransparent($im,$bg);
-		$red = ImageColorAllocate($im, 255, 0, 0);
-		ImageString($im,5,15,20,"Max attemps reached",$red);
-		sendImage($im);
-	}
-}
 
 //////////////////////////////////////////////////////
 ////// Functions:
@@ -274,7 +252,7 @@ $c_fade_pct = 50;
 ImageCopyMerge($im3, $im, 0, 0, 0, 0, $width, $height, 100);
 ImageCopy($im, $im3, 0, 0, 0, 0, $width, $height);
 
-unset($word, $use_dict, $dict_location, $bg_images, $max_attempts);
+unset($word, $use_dict, $dict_location, $bg_images);
 
 sendImage($im);
 

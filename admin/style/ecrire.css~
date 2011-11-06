@@ -364,7 +364,7 @@ q, blockquote {
 	font-style: italic;
 }
 
-.pm {
+.formatbut .pm {
 	float: right;
 }
 
@@ -719,7 +719,11 @@ input.inline {
 }
 
 #billets .c {
-	background: #edf3fe;
+	background: #EBF2FE;
+}
+
+#billets tr:hover {
+	background: #f0f0f0;
 }
 
 #billets .on, #billets .off {

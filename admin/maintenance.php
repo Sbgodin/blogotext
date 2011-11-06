@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -45,7 +45,14 @@ echo '</div>';
 echo '<div id="axe">'."\n";
 echo '<div id="page">'."\n";
 
+//echo ini_get('pcre.backtrack_limit');
+//echo ini_get('pcre.recursion_limit');
 
+ini_set('pcre.backtrack_limit', 500000);
+ini_set('pcre.recursion_limit', 100000);
+
+//echo ini_get('pcre.backtrack_limit');
+//echo ini_get('pcre.recursion_limit');
 /* #################################################################### MAKE BACKUP FILE ####################################### */
 // structure of output file : documentation at http://lehollandaisvolant.net/blogotext/backupdoc.php (in french)
 
@@ -99,7 +106,7 @@ function creer_fich_xml() {
 		}
 		else { fichier_index($dossier_backup); }
 	}
-	$fichier = 'backup-'.date('Y').date('m').date('d').'-'.substr(md5(rand(100,999)),3,5).'.xml';
+	$fichier = 'backup-'.date('Ymd').'-'.substr(md5(rand(100,999)),3,5).'.xml';
 	$path = $dossier_backup.'/'.$fichier;
 	$new_file = fopen($path,'wb+');
 
@@ -245,7 +252,7 @@ function enregistrer_donnees($dossier, $donnes, $type_fich) {
 		$balise_bt = array('bt_version', 'bt_id', 'bt_article_id', 'bt_content', 'bt_author', 'bt_email');
 		for ($i = 0; $i < 6; $i++) {
 			if (!preg_match('#(.*)<'.$balise_bt[$i].'>(.*)</'.$balise_bt[$i].'>(.*)#is',$donnes)) {
-				$error_syntaxe = '1';
+				$error_syntaxe = '-COM:manque_balises['.$balise_bt[$i].']-'.preg_last_error();
 			}
 		}
 		$date = ' '.date_formate($bt_id);
@@ -256,10 +263,10 @@ function enregistrer_donnees($dossier, $donnes, $type_fich) {
 	// traitement article
 	} elseif ($type_fich == 'article') {
 		$error_syntaxe = '0';
-		$balise_bt = array('bt_version', 'bt_id', 'bt_title', 'bt_abstract', 'bt_content', 'bt_wiki_content', 'bt_keywords', 'bt_status', 'bt_allow_comments');
-		for ($i = 0; $i < 9; $i++) {
+		$balise_bt = array('bt_id', 'bt_title', 'bt_abstract', 'bt_content', 'bt_wiki_content', 'bt_status', 'bt_allow_comments');
+		for ($i = 0; $i < 7; $i++) {
 			if (!preg_match('#(.*)<'.$balise_bt[$i].'>(.*)</'.$balise_bt[$i].'>(.*)#is',$donnes)) {
-				$error_syntaxe = '1';
+				$error_syntaxe = '-ART:manque_balises['.$balise_bt[$i].']-'.preg_last_error();
 			}
 		}
 		$date = ' '.date_formate($bt_id);
@@ -268,7 +275,7 @@ function enregistrer_donnees($dossier, $donnes, $type_fich) {
 		echo $name.$date.' : <b>'.$titre.'</b>';
 	}
 	if ($error_syntaxe != '0') {
-		echo '<span style="color: red; float:right; font-weight:bold;">'.$GLOBALS['lang']['echec'].'</span>';
+		echo '<span style="color: red; float:right; font-weight:bold;">'.$GLOBALS['lang']['echec'].'-'.$error_syntaxe.'</span>';
 		return FALSE;
 	} else {
 		$new_file_data = fopen($fichier_data,'wb+');

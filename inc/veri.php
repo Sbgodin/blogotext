@@ -4,29 +4,13 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
 #
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
-
-function url_article($url) {
-	if ( (preg_match('/\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($url))) ) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
-}
-
-function url_date($url) {
-	if ( (preg_match('/\d{4}\/\d{2}\/\d{2}/',($url))) || (preg_match('/\d{4}\/\d{2}/',($url))) ) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
-}
 
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode) {
 	$erreurs = array();
@@ -35,12 +19,11 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 				$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 		}
 	}
-
 	if (!isset($_GET['post_id'])) {
 		if (!strlen(trim($commentaire[$GLOBALS['data_syntax']['comment_author']]))) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 		}
-		if ($commentaire[$GLOBALS['data_syntax']['comment_author']] == $GLOBALS['auteur']) {
+		if ($commentaire[$GLOBALS['data_syntax']['comment_author']] == $GLOBALS['auteur'] and empty($_SESSION['nom_utilisateur'])) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
 		}
 	}
@@ -114,13 +97,13 @@ function valider_form_preferences() {
 			$erreurs[] = $GLOBALS['lang']['err_prefs_email'] ;
 		}
 	}
-	if (!preg_match('#\/$#', $_POST['racine'])) {
+	if (!preg_match('#^(https?://).*/$#', $_POST['racine'])) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_slash'];
 	}
 	if (!strlen(trim($_POST['identifiant']))) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_identifiant'];
 	}
-	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['ancien-mdp'])) ) {
+	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	}
 	if ( (strlen(trim($_POST['mdp']))) and (ww_hach_sha($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {

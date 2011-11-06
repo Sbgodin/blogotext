@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <timovneerden@gmail.com>
+# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -27,6 +27,7 @@ require_once '../inc/conv.php';
 require_once '../inc/fich.php';
 require_once '../inc/veri.php';
 require_once '../inc/util.php';
+require_once '../inc/jasc.php';
 
 if (isset($_GET['l'])) {
 	$lang = $_GET['l'];
@@ -98,7 +99,6 @@ function afficher_form_2($erreurs = '') {
 	echo form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
 	echo hidden_input('verif_envoi_3', '1');
 	echo hidden_input('comm_defaut_status', '1');
-
 	echo hidden_input('langue', $_GET['l']);
 	echo hidden_input('verif_envoi_2', '1');
 	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
@@ -108,34 +108,58 @@ function afficher_form_2($erreurs = '') {
 
 function traiter_install_2() {
 	$config_dir = '../config';
-	if ( !is_dir($config_dir)) {
-		creer_dossier($config_dir);
-	}
+	if (!is_dir($config_dir)) creer_dossier($config_dir);
 	fichier_user();
 	fichier_index($config_dir, '1');
 	fichier_htaccess($config_dir);
 
-	fichier_prefs();
-	fichier_tags($_POST['tags'], '0');
-	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
-	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
-	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
-	$first_post= array (
-		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-		$GLOBALS['data_syntax']['article_id'] => date('Y').date('m').date('d').date('H').date('i').date('s'),
-		$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
-		$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
-		$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
-		$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
-		$GLOBALS['data_syntax']['article_keywords'] => '',
-		$GLOBALS['data_syntax']['article_status'] => '1',
-	$GLOBALS['data_syntax']['article_allow_comments'] => '1'
-	);
-	fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $first_post);
-	fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '1');
-	fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
-	fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '1');
-	fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+	if (!is_file($config_dir.'/prefs.php')) fichier_prefs();
+	if (!is_file($config_dir.'/tags.php')) fichier_tags($_POST['tags'], '0');
+
+	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'])) {
+		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
+		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
+		$first_post = array (
+			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+			$GLOBALS['data_syntax']['article_id'] => date('YmdHis'),
+			$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
+			$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
+			$GLOBALS['data_syntax']['article_keywords'] => '',
+			$GLOBALS['data_syntax']['article_status'] => '1',
+		$GLOBALS['data_syntax']['article_allow_comments'] => '1'
+		);
+		$readme_post = array (
+			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
+			$GLOBALS['data_syntax']['article_id'] => date('YmdHis')+2,
+			$GLOBALS['data_syntax']['article_title'] => 'README / LISEZ-MOI',
+			$GLOBALS['data_syntax']['article_abstract'] => 'Instructions / Instructions',
+			$GLOBALS['data_syntax']['article_content'] => '
+This are some instructions for the safety of your blog.<br/>
+In order to protect your personnal blog against attacks, Blogotext allows you to <b>rename the "admin" folder</b>. Using the FTP connection to your web-hosting, you should really rename the "admin" folder un whatever you want. <b>It\'s not forced, but it will increase heavilly the strength of Blogotext against attacks</b>.<br/>
+Please, after you renamed the folder (if you do), remember the new name because that will now be the folder you have to go to in order to access the admin panel of Blogotext.
+<br/>
+****************************************************************************<br/>
+<br/>
+Ceci sont quelques conseils pour la sécurité de votre blog.<br/>
+Afin de protéger votre blog contre d\'éventuelles attaques, Blogotext vous permet de <b>renommer le dossier « admin »</b>. En utilisant la connexion FTP à votre espace d\'hébergement, vous devriez renommer le dossier « admin » en un autre nom, celui qui vous voudrez. <b>Ceci n\'est pas obligatoire mais cela améliorrerait drastiquement la sécurité de votre blog contre les attaques.</b><br/>
+S\'il vous plait, veuillez retenir le nouveau nom que vous donnez au dossier, car c\'est ce nom qu\'il faudra utiliser comme dossier admin pour accéder au panel.
+
+',
+			$GLOBALS['data_syntax']['article_wiki_content'] => 'Once readed, you may delete this post / Une fois que vous avez lu ceci, vous pouvez supprimer l\'article',
+			$GLOBALS['data_syntax']['article_keywords'] => '',
+			$GLOBALS['data_syntax']['article_status'] => '0',
+		$GLOBALS['data_syntax']['article_allow_comments'] => '0'
+		);
+		fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $first_post); // billet "Mon premier article"
+		fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $readme_post); // billet "read me" avec les instructions
+		fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '1');
+		fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
+		fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '1');
+		fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+	}
 }
 
 function valid_install_1() {
@@ -158,7 +182,7 @@ function valid_install_2() {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp_diff'] ;
 	}
 
-	if ( !strlen(trim($_POST['racine'])) or !preg_match('/^http:\/\/[a-zA-Z0-9_.-]/', $_POST['racine']) ) {
+	if ( !strlen(trim($_POST['racine'])) or !preg_match('#^https?://[a-zA-Z0-9_/.-]*/$#', $_POST['racine']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine'];
 	} elseif (!preg_match('/^https?:\/\//', $_POST['racine'])) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_racine_http'];
@@ -231,8 +255,6 @@ function verifForm2(form) {
 			url = true;
 		}
 	}
-
-
 	if(identifiantOk && mdpOk && url) {
 		var regexw = /[a-z]/;
 		var regexW = /[A-Z]/;
