@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -109,4 +109,40 @@ function insertTag(startTag, endTag, tag) {
 	return $sc;
 }
 
-?>
+function js_image_form_stuff($a) {
+
+	$sc = '
+function popup(image,width,height,alternate) {
+	var code = \'<img src="'.$GLOBALS['racine'].$GLOBALS['dossier_images'].'/\'+image+\'"'.' style=\"width:\'+width+\'px; height:\'+height+\'px;" alt="\'+alternate+\'"/>\';
+	prompt(\'Code d\\\'intégration :\', code);
+	return false;
+}
+
+
+function get_ratio(img) {
+	var elmt = document.getElementById(img);
+
+	var RealH = parseInt(document.getElementById("span"+img).style.height);
+	var RealW = parseInt(document.getElementById("span"+img).style.width);
+	var ComputedW = parseInt(getComputedStyle(elmt, null).width);
+	var ComputedH = parseInt(getComputedStyle(elmt, null).height);
+
+	var ratio_x = ComputedW/RealW;
+	var ratio_y = ComputedH/RealH;
+	var ratio = parseInt(100*Math.min(ratio_x, ratio_y));
+	document.getElementById("percent"+img).innerHTML = ratio+"% of full size ("+RealW+"×"+RealH+")";
+	// Fuck Yeah !! It works !!!
+}
+
+function ask_sure() {
+	return window.confirm(\''.$GLOBALS['lang']['question_suppr_image'].'\')
+}';
+
+	if ($a == 1) {
+		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	}
+	return $sc;
+
+}
+
+

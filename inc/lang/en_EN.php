@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -64,6 +64,8 @@ $lang_en = array(
 'bouton-cita'						=> 'Insert a quotation',
 'bouton-imag'						=> 'Insert an image',
 'bouton-code'						=> 'Insert preformated code',
+'bouton-droite'					=> 'Right',
+'bouton-center'					=> 'Center',
 // Modes
 'ecrire'								=> 'Edit article',
 'apercu'								=> 'Preview',
@@ -106,7 +108,8 @@ $lang_en = array(
 'comment_webpage'					=> 'web site (optional)',
 'comment_captcha'					=> 'Anti-spam',
 'comment_captcha_uselnumbers'	=> 'Use numbers!!',
-'comment_cookie'					=> 'Remember these informations with a cookie? (don\'t check if you\'re using a ',
+'comment_cookie'					=> 'Remember these informations with a cookie? (don\'t check if you\'re using a public computer)',
+'comment_subscribe'				=> 'Send you an email when new comments are posted?',
 'comment_not_allowed'			=> 'Comments are closed for this article',
 'no_comments'						=> 'No comments have been posted yet',
 'comment_is_visible'				=> 'Comment is visible',
@@ -115,7 +118,7 @@ $lang_en = array(
 // Titles - liens
 'lien_article'						=> 'View article',
 'lien_blog'							=> 'View blog',
-'go_to_pref'						=> 'Change the title in Blogotext\'s settings',
+'go_to_pref'						=> 'Change the title in the settings',
 // Mois
 'janvier'							=> 'January',
 'fevrier'							=> 'February',
@@ -192,8 +195,9 @@ $lang_en = array(
 'prob_pref_file_chmod'			=> 'The prefs file is not writable',
 'prob_tags_file_chmod'			=> 'The tags file is not writable',
 // Questions
-'question_suppr_article'		=> 'Are you sure you want to delete this article ?',
-'question_suppr_comment'		=> 'Are you sure you want to delete this comment ?',
+'question_suppr_article'		=> 'Are you sure you want to delete this article?',
+'question_suppr_image'			=> 'Are you sure you want to delete this image?',
+'question_suppr_comment'		=> 'Are you sure you want to delete this comment?',
 // Confirmations
 'confirm_article_suppr'			=> 'Your article has been deleted',
 'confirm_article_ajout'			=> 'Your article has been saved',

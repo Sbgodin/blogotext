@@ -37,6 +37,8 @@ if (isset($_GET['l'])) {
 		$GLOBALS['lang'] = $lang_en;
 	} elseif ($lang == $lang_nl['id']) {
 		$GLOBALS['lang'] = $lang_nl;
+	} elseif ($lang == $lang_de['id']) {
+		$GLOBALS['lang'] = $lang_de;
 	}
 }
 
@@ -114,7 +116,7 @@ function traiter_install_2() {
 	fichier_htaccess($config_dir);
 
 	if (!is_file($config_dir.'/prefs.php')) fichier_prefs();
-	if (!is_file($config_dir.'/tags.php')) fichier_tags($_POST['tags'], '0');
+	if (!is_file($config_dir.'/tags.php')) fichier_tags($_POST['tags'], '');
 
 	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'])) {
 		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
@@ -137,15 +139,15 @@ function traiter_install_2() {
 			$GLOBALS['data_syntax']['article_title'] => 'README / LISEZ-MOI',
 			$GLOBALS['data_syntax']['article_abstract'] => 'Instructions / Instructions',
 			$GLOBALS['data_syntax']['article_content'] => '
-This are some instructions for the safety of your blog.<br/>
-In order to protect your personnal blog against attacks, Blogotext allows you to <b>rename the "admin" folder</b>. Using the FTP connection to your web-hosting, you should really rename the "admin" folder un whatever you want. <b>It\'s not forced, but it will increase heavilly the strength of Blogotext against attacks</b>.<br/>
+These are some instructions for the safety of your blog.<br/>
+In order to protect your personal blog against attacks, Blogotext allows you to <b>rename the "admin" folder</b>. Using the FTP connection to your web-hosting, you should really rename the "admin" folder to whatever you want. <b>It\'s not forced, but it will increase heavily the strength of Blogotext against attacks</b>.<br/>
 Please, after you renamed the folder (if you do), remember the new name because that will now be the folder you have to go to in order to access the admin panel of Blogotext.
 <br/>
 ****************************************************************************<br/>
 <br/>
-Ceci sont quelques conseils pour la sécurité de votre blog.<br/>
-Afin de protéger votre blog contre d\'éventuelles attaques, Blogotext vous permet de <b>renommer le dossier « admin »</b>. En utilisant la connexion FTP à votre espace d\'hébergement, vous devriez renommer le dossier « admin » en un autre nom, celui qui vous voudrez. <b>Ceci n\'est pas obligatoire mais cela améliorrerait drastiquement la sécurité de votre blog contre les attaques.</b><br/>
-S\'il vous plait, veuillez retenir le nouveau nom que vous donnez au dossier, car c\'est ce nom qu\'il faudra utiliser comme dossier admin pour accéder au panel.
+Voici quelques conseils pour la sécurité de votre blog.<br/>
+Afin de protéger votre blog contre d\'éventuelles attaques, Blogotext vous permet de <b>renommer le dossier « admin »</b>. En utilisant la connexion FTP à votre espace d\'hébergement, vous devriez renommer le dossier « admin » en un autre nom que vous voudrez. <b>Ceci n\'est pas obligatoire mais cela améliorera de manière drastique la sécurité de votre blog contre les attaques.</b><br/>
+S\'il vous plaît, veuillez retenir le nouveau nom que vous donnez au dossier, car c\'est ce nom qu\'il faudra utiliser comme dossier admin pour accéder au panel.
 
 ',
 			$GLOBALS['data_syntax']['article_wiki_content'] => 'Once readed, you may delete this post / Une fois que vous avez lu ceci, vous pouvez supprimer l\'article',

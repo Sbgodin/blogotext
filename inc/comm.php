@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -12,7 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-function liste_commentaires($dossier, $article_id, $statut) { // retourne un ARRAY
+function liste_commentaires($dossier, $article_id, $statut) { // returns an ARRAY
 	// the use of table_dernier() here is not recommended : it would heavilly affect Blogotext's speed.
 	$date = decode_id($article_id);
 	$year = date('Y');
@@ -37,7 +37,7 @@ function liste_commentaires($dossier, $article_id, $statut) { // retourne un ARR
 					  		if (parse_xml($path, $GLOBALS['data_syntax']['comment_article_id']) == $article_id ) {
 								if ( $statut != '') {
 									$actual_statut = parse_xml($path, $GLOBALS['data_syntax']['comment_status']);
-							  		if ($actual_statut == $statut or $actual_statut == '' ) { // test 'or' for old comments w/o $statut (BT v < 24)
+							  		if ($actual_statut == $statut or $actual_statut == '' ) { // test 'or' for old comments w/o $statut (BT version < 24)
 								 		$retour[] = $comm;
 									}
 								} else {
@@ -75,6 +75,7 @@ function protect($text) {
 	return $return;
 }
 
+/* generate the comment form, with params from the admin-side and the visiter-side */
 function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='') {
 	$GLOBALS['form_commentaire'] = '';
 	if (isset($_POST['_verif_envoi']) and !empty($erreurs)) {
@@ -99,22 +100,24 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 				);
 		} else {
 			$actual_comment = init_comment($mode, $comm_id);
+/* WTF is that here ?? 
 			if (!empty($actual_comment['contenu_wiki'])) {
 				$commentaire = $actual_comment['contenu_wiki'];
 			} else {
 				$commentaire = '';
 			}
+*/
 			$defaut = array(
 				'auteur' => protect($actual_comment['auteur']),
 				'email' => protect($actual_comment['email']),
 				'webpage' => protect($actual_comment['webpage']),
-				'commentaire' => protect($actual_comment['contenu_wiki']),
+				'commentaire' => htmlspecialchars($actual_comment['contenu_wiki']),
 				'status' => protect($actual_comment['status']),
 				);
 
 		}
 
-	} elseif (isset($_POST['previsualiser'])) {
+	} elseif (isset($_POST['previsualiser'])) { // parses the comment, but does not save it in a file
 			$defaut = array(
 				'auteur' => protect($_POST['auteur']),
 				'email' => protect($_POST['email']),
@@ -126,8 +129,9 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 			$comm['email'] = protect($_POST['email']);
 			$comm['auteur'] = protect($_POST['auteur']);
 			$comm['webpage'] = protect($_POST['webpage']);
-			$comm['anchor'] = '<a href="#'.article_anchor($comm['id']).'" id="'.article_anchor($comm['id']).'">#</a>';
+			$comm['anchor'] = article_anchor($comm['id']);
 			$comm['auteur_lien'] = ($comm['webpage'] != '') ? '<a href="'.$comm['webpage'].'" class="webpage">'.$comm['auteur'].'</a>' : $comm['auteur'];
+			$comm['lienreply'] = '<a href="#form-commentaire" onclick="reply(\'[b]@['.$comm['auteur'].'|#'.$comm['anchor'].'] :[/b] \'); ">@</a>';
 
 			$GLOBALS['form_commentaire'] .= '<div id="erreurs"><ul><li>Prévisualisation&nbsp;:</ul></li></div>'."\n";
 			$GLOBALS['form_commentaire'] .= '<div id="previsualisation">'."\n";
@@ -158,7 +162,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 	$required = ($GLOBALS['require_email'] == 1) ? 'required=""' : '';
 	$rand = ($mode == 'admin') ? substr(md5(rand(1000,9999)),0,5) : '';
 	$cookie_checked = (isset($_COOKIE['cookie_c']) and $_COOKIE['cookie_c'] == 1) ? ' checked="checked"' : '';
-
+	$subscribe_checked = (isset($_COOKIE['subscribe_c']) and $_COOKIE['subscribe_c'] == 1) ? ' checked="checked"' : '';
 
 	// begin of < form > , with some additional stuff on comment "edit".
 	if ($mode == 'admin' and isset($actual_comment)) { // edit
@@ -197,7 +201,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 	$form_common .= "\t\t".label('auteur', $GLOBALS['lang']['comment_nom'].' :');
 	$form_common .= "\t\t".'<input type="text" name="auteur" placeholder="'.$GLOBALS['lang']['comment_nom'].'" required="" id="auteur" value="'.$defaut['auteur'].'" size="25"  tabindex="12"/><br/>'."\n";
 	$form_common .= "\t\t".label('email', $label_email.' :');
-	$form_common .= "\t\t".'<input type="email" name="email" placeholder="'.$label_email.' "id="email" '.$required.' value="'.$defaut['email'].'" size="25"  tabindex="14"/><br/>'."\n";
+	$form_common .= "\t\t".'<input type="email" name="email" placeholder="'.$label_email.' " id="email" '.$required.' value="'.$defaut['email'].'" size="25"  tabindex="14"/><br/>'."\n";
 	$form_common .= "\t\t".label('webpage', $GLOBALS['lang']['comment_webpage'].' :');
 	$form_common .= "\t\t".'<input type="url" name="webpage" placeholder="'.$GLOBALS['lang']['comment_webpage'].'" id="webpage" value="'.$defaut['webpage'].'" size="25"  tabindex="16"/><br/>'."\n";
 	$form_common .= ($mode != 'admin') ? "\t\t".label('captcha', $GLOBALS['lang']['comment_captcha'].' <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?') : '';
@@ -206,7 +210,8 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 	$form_common .= "\t".'</fieldset><!--end info-->'."\n";
 	if ($mode != 'admin') {
 		$form_common .= "\t".'<fieldset class="cookie"><!--begin cookie asking -->'."\n";
-		$form_common .= "\t\t".'<input class="check" type="checkbox" id="allowcookie" name="allowcookie"'.$cookie_checked.' tabindex="24" />'.label('allowcookie', $GLOBALS['lang']['comment_cookie'])."\n";
+		$form_common .= "\t\t".'<input class="check" type="checkbox" id="allowcookie" name="allowcookie"'.$cookie_checked.' tabindex="24" />'.label('allowcookie', $GLOBALS['lang']['comment_cookie']).'<br/>'."\n";
+		$form_common .= "\t\t".'<input class="check" type="checkbox" id="subscribe" name="subscribe"'.$subscribe_checked.' tabindex="25" />'.label('subscribe', $GLOBALS['lang']['comment_subscribe'])."\n";
 		$form_common .= "\t".'</fieldset><!--end cookie asking-->'."\n";
 	}
 	$form_common .= "\t".'<fieldset class="buttons">'."\n";
@@ -248,8 +253,11 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 	}
 }
 
-// ceci est traité coté Admin seulement :
+// ceci est traité coté Admin seulement car c'est appellé lors de l'édition ou la suppression d'un commentaire:
 function traiter_form_commentaire($dossier, $commentaire) {
+	$msg_param_to_trim = (isset($_GET['msg']))	? '&msg='.$_GET['msg'] : '';
+	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
+
 	$post_id = (isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id'])) ? 'post_id='.$commentaire[$GLOBALS['data_syntax']['comment_article_id']].'&' : '';
 	if (isset($_POST['enregistrer']) or isset($_POST['activer_comm'])) {
 		if (isset($_POST['activer_comm'])) {
@@ -259,11 +267,13 @@ function traiter_form_commentaire($dossier, $commentaire) {
 		}
 		if (fichier_data($dossier, $commentaire) !== FALSE) {
 			if (isset($_POST['editer'])) {
-				redirection($_SERVER['PHP_SELF'].'?'.$post_id.'msg=confirm_comment_edit');
+				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_edit');
 			} elseif (isset($_POST['activer_comm'])) {
-				redirection($_SERVER['PHP_SELF'].'?'.$post_id.'msg=confirm_comment_valid');
+				send_emails($commentaire[$GLOBALS['data_syntax']['comment_id']]); // send emails (comment activated)
+				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_valid');
 			} elseif (isset($_POST['enregistrer'])) {
-				redirection($_SERVER['PHP_SELF'].'?'.$post_id.'msg=confirm_comment_ajout');
+				send_emails($commentaire[$GLOBALS['data_syntax']['comment_id']]); // send emails (new comment posted by the admin)
+				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_ajout');
 			}
 		} else {
 			erreur('Ecriture impossible');
@@ -273,9 +283,9 @@ function traiter_form_commentaire($dossier, $commentaire) {
 	elseif (isset($_POST['supprimer_comm'])) {
 		if ( htmlspecialchars($_POST['security_coin']) == md5($_POST['comment_id'].$_SESSION['some_time']) ) {
 			if (unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.get_path(htmlspecialchars($_POST['comment_id'])))) {
-				redirection($_SERVER['PHP_SELF'].'?'.$post_id.'msg=confirm_comment_suppr');
+				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_suppr');
 			} else {
-				redirection($_SERVER['PHP_SELF'].'?'.$post_id.'errmsg=error_comment_suppr_impos');
+				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=error_comment_suppr_impos');
 			}
 		}
 	}

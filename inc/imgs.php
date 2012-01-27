@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -54,7 +54,7 @@ function afficher_form_image($erreurs='', $image= '') {
 	if ($erreurs) {
 		erreurs($erreurs);
 	}
-	echo '<form id="preferences" enctype="multipart/form-data" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">'."\n";
+	echo '<form id="preferences" enctype="multipart/form-data" method="post" action="'.$_SERVER['PHP_SELF']/*.'?'.$_SERVER['QUERY_STRING']*/.'">'."\n";
 	echo '<fieldset class="pref" >'."\n";
 	echo legend($GLOBALS['lang']['label_image_ajout'], 'legend-addimage');
 	echo '<p>'."\n";
@@ -74,7 +74,7 @@ function afficher_form_image($erreurs='', $image= '') {
 		echo $GLOBALS['lang']['nouvelle_image'].' <a href="'.$image['racine'].$image['dossie'].$image['nomfic'].$image['extens'].'">'.$image['nomdnn'].'</a> '.$GLOBALS['lang']['img_upload_succes'];
 		echo '</p>'."\n";
 		echo '<p>'."\n";
-		echo '<input style="width:100%;" type="text" value=\'<img src="'.$image['racine'].$image['dossie'].$image['nomfic'].$image['extens'].'" alt="'.$image['nomdnn'].'" style="width:'.$image['iwidth'].'px; height:'.$image['height'].'px;" />\' />';
+		echo '<input style="width:100%;" type="text" value=\'<img src="'.$image['racine'].$image['dossie'].$image['nomfic'].$image['extens'].'" alt="'.$image['nomdnn'].'" width="'.$image['iwidth'].'" height="'.$image['height'].'" style="max-width:100%;height:auto;" />\' />';
 		echo '<center><img src="'.$image['racine'].$image['dossie'].$image['nomfic'].$image['extens'].'"  alt="'.$image['nomdnn'].'"style="max-width: 400px; border:1px dotted gray;" /></center>';
 		echo '</p>'."\n";
 		echo '</fieldset>';
@@ -88,15 +88,20 @@ function afficher_form_image($erreurs='', $image= '') {
 		} else {
 			$im = $GLOBALS['lang']['images']; // imageS
 		}
-		echo '<p>'.$nb_images.' '.$im.'&nbsp;:</p>'."\n".'<ul>';
+		echo '<p>'.$nb_images.' '.$im.'&nbsp;:</p>'."\n";
+		echo '<ul>'."\n";
 		foreach ($contenu as $image) {
-			list($width, $height) = getimagesize($GLOBALS['racine'].$GLOBALS['dossier_images'].'/'.$image);
+			list($width, $height) = getimagesize($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$image);
 			$date = substr($image, 5,6);
 			$name = substr($image, 12, strlen($image)-12-4);
 			$date_formate = (preg_match('#\d{6}#', $date)) ? substr($date, 4,2).'/'.substr($date, 2,2).'/'.substr($date, 0,2) : '';
-			$lien = $GLOBALS['racine'].$GLOBALS['dossier_images'].'/'.$image;
-			$ligne_html = '<a href="#" onclick="popup(\''.$image.'\','.$width.','.$height.',\''.$name.'\'); return false;">code</a> - '.$date_formate.' : ';
-			$ligne_html .= '<a href="'.$lien.'" class="image_popup">'.$image.'<span style="width:'.$width.'px; height:'.$height.'px; background: url('.$lien.') top left;">&nbsp;</span></a>';
+			$lien = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$image;
+			$ligne_html  = '<a href="'.$_SERVER['PHP_SELF'].'?image='.$image.'&amp;uid='.sha1(session_id()).'" onclick="return ask_sure()" >'.$GLOBALS['lang']['supprimer'].'</a> - ';
+
+			$id = substr(md5($image), 0,5);
+
+			$ligne_html .= '<a href="#" onclick="popup(\''.$image.'\','.$width.','.$height.',\''.$name.'\'); return false;">code</a> - '.$date_formate.' : ';
+			$ligne_html .= '<a href="'.$lien.'" class="image_popup" onmouseover="get_ratio(\''.$id.'\')">'.$image.'<span class="im" style=""><img style="height: auto;max-width:100%;" src="'.$lien.'" id="'.$id.'"/><span id="percent'.$id.'" class="res"></span><span id="span'.$id.'" style="width:'.$width.'px; height:'.$height.'px; display:none;"></span></a>';
 			if ($date == date('ymd')) {
 				$ligne_html = '<b>'.$ligne_html.'</b>';
 			}
@@ -104,13 +109,7 @@ function afficher_form_image($erreurs='', $image= '') {
 		}
 		echo '</ul>'."\n";
 		// javascript
-		echo '<script type="text/javascript">
-					function popup(image,width,height,alternate) {
-						var code = \'<img src="'.$GLOBALS['racine'].$GLOBALS['dossier_images'].'/\'+image+\'"'.' style=\"width:\'+width+\'px; height:\'+height+\'px;" alt="\'+alternate+\'"/>\';
-						prompt(\'Code d\\\'intégration :\', code);
-						return false;
-					}
-				</script>';
+		echo js_image_form_stuff(1); // see in /inc/jasc.php
 	}
 	echo '</form>'."\n";
 }

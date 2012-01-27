@@ -12,6 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+$begin = microtime(TRUE);
 //error_reporting(-1);
 $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
@@ -121,7 +122,7 @@ function creer_fich_xml() {
 		return FALSE;
 	} else {
 		fclose($new_file);
-		chmod($path, 0644);
+		chmod($path, 0666);
 		echo '<form method="post" action="maintenance.php?do=backup" id="preferences"><div>'."\n";
 			echo '<fieldset class="pref">';
 			echo legend($GLOBALS['lang']['bak_succes_save'], 'legend-tic');
@@ -569,6 +570,6 @@ elseif ($_GET['do'] == 'clntags') {
 }
 
 
-footer();
+footer('', $begin);
 
 ?>

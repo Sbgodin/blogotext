@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -56,12 +56,18 @@ function formatage_wiki($texte) {
 		'`\[([^[]+)\|([^[]+)\]`',												// a href
 		'`\[(https?://)([^[]+)\]`',											// url
 		'`\(\(([^ ]*?)\|(.*?)\)\)`',											// img src alt
+		'`\[img\](.*?)\[/img\]`s',												// [img]
 		'`\[b\](.*?)\[/b\]`s',													// strong
 		'`\[i\](.*?)\[/i\]`s',													// italic
 		'`\[s\](.*?)\[/s\]`s',													// strike
 		'`\[u\](.*?)\[/u\]`s',													// souligne
 		'`%%`',																		// br
 		'`\[quote\](.*?)\[/quote\]`s',										// citation
+		'`\[quote\](.*?)\[/quote\]`s',										// citation
+		'`\[left\](.*?)\[/left\]`s',											// aligner à gauche
+		'`\[center\](.*?)\[/center\]`s',										// aligner au centre
+		'`\[right\](.*?)\[/right\]`s',										// aligner à droite
+		'`\[justify\](.*?)\[/justify\]`s',									// justifier
 		'` »`',																		// close quote
 		'`« `', 																		// open quote
 		'` !`',																		// !
@@ -76,12 +82,18 @@ function formatage_wiki($texte) {
 		'<a href="$2">$1</a>',													// a href
 		'<a href="$1$2">$2</a>',												// url
 		'<img src="$1" alt="$2" />',											// img
+		'<img src="$1" />',														// img
 		'<span style="font-weight: bold;">$1</span>',					// strong
 		'<span style="font-style: italic;">$1</span>',					// italic
 		'<span style="text-decoration: line-through;">$1</span>',	// barre
 		'<span style="text-decoration: underline;">$1</span>',		// souligne
 		'<br />',																	// br
 		'<q>$1</q>',																// citation
+		'<q>$1</q>',																// citation
+		'<div style="text-align:left;">$1</div>',							// aligner à gauche
+		'<div style="text-align:center;">$1</div>',						// aligner au centre
+		'<div style="text-align:right;">$1</div>',						// aligner à droite
+		'<div style="text-align:justify;">$1</div>',						// justifier
 		'&nbsp;»',
 		'«&nbsp;',
 		'&nbsp;!',
@@ -89,14 +101,32 @@ function formatage_wiki($texte) {
 		'',																			// vide
 	);
 
-	$texte_formate = preg_replace($tofind, $toreplace, $texte);
-	$texte_formate = preg_replace_callback('#\[code\](.*?)\[/code\]#s', 'echapcode', $texte_formate);
+	// un array des balises [code] avant qu’ils ne soient modifiées par le preg_replace($tofind, $toreplace, $texte);
+	// il met en mémoire le contenu des balises [code] tels quelles
+	$nb_balises_code_avant = preg_match_all('#\[code\](.*?)\[/code\]#s', $texte, $balises_code, PREG_SET_ORDER);
 
-	return (stripslashes($texte_formate));
+	// formate
+	$texte_formate = preg_replace($tofind, $toreplace, $texte);
+
+	// remplace les balises [codes] modifiées par la balise code non formatée et précédement mises en mémoire.
+	// ceci permet de formater l’ensemble du message, sauf les balises [code], 
+	if ($nb_balises_code_avant) {
+		$nb_balises_code_apres = preg_match_all('#\[code\](.*?)\[/code\]#s', $texte_formate, $balises_code_apres, PREG_SET_ORDER);
+		foreach ($balises_code as $i => $code) {
+			$texte_formate = str_replace($balises_code_apres[$i][0], '<pre>'.htmlspecialchars($balises_code[$i][1]).'</pre>', $texte_formate);
+			
+		}
+	}
+
+	$texte_formate = stripslashes($texte_formate);
+//	$texte_formate = str_replace(array("\\"), array("&#92;"), $texte_formate); // 2/5/12 : plus nécessaire avec SQL.
+	return $texte_formate;
 }
+
 
 function formatage_commentaires($texte) {
 	$texte = " ".$texte;
+	$texte = str_replace(array("\\"), array("&#92;"), $texte);
 	$tofindc = array(
 		'#\[quote\](.+?)\[/quote\]#s',									// citation
 		'#\[code\](.+?)\[/code\]#s',										// code
@@ -104,6 +134,7 @@ function formatage_commentaires($texte) {
 		'#« #', 																	// open quote
 		'# !#',																	// !
 		'# :#',																	// :
+		'# ;#',																	// ;
 		'`(\s)((https?|ftps?)://(www\.)?\S*)(\s)?`i',				// Regex URL
 		'`\[([^[]+)\|([^[]+)\]`',											// a href
 		'`\[b\](.*?)\[/b\]`s',												// strong
@@ -114,10 +145,11 @@ function formatage_commentaires($texte) {
 	$toreplacec = array(
 		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
 		'<code>$1</code>',													// code
-		'&nbsp;»',																// close quote
-		'«&nbsp;',																// open quote
-		'&nbsp;!',																// !
+		'&thinsp;»',															// close quote
+		'«&thinsp;',															// open quote
+		'&thinsp;!',															// !
 		'&nbsp;:',																// :
+		'&thinsp;;',															// ;
 		'$1<a href="$2">$2</a>$5',											// url
 		'<a href="$2">$1</a>',												// a href
 		'<span style="font-weight: bold;">$1</span>',				// strong

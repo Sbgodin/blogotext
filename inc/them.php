@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -47,6 +47,7 @@ function conversions_theme_commentaire($texte, $commentaire) {
 		if (isset($commentaire['email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['email'], $texte); }
 		if (isset($commentaire['auteur'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $commentaire['auteur_lien'], $texte); }
 		if (isset($commentaire['webpage'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['webpage'], $texte); }
+		if (isset($commentaire['lienreply'])) {$texte = str_replace($GLOBALS['balises']['commentaire_reply'], $commentaire['lienreply'], $texte); }
 		if (isset($commentaire['anchor'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_anchor'], $commentaire['anchor'], $texte); }
 	}
 	 return $texte;
@@ -115,7 +116,6 @@ function parse_theme($fichier, $balise) {
 	}
 }
 
-// AFFICHAGE INDEX.PHP
 function afficher_index($tableau) {
 	if ($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'debut') and
 		($template_liste = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['articles'], 'liste')) and
@@ -130,17 +130,18 @@ function afficher_index($tableau) {
 	}
 }
 
+// only used by the main page of the blog
 function afficher_article($id) {
 	$file_id = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($id);
-	if ((file_exists($file_id) and parse_xml($file_id, $GLOBALS['data_syntax']['comment_status']) != 0 ) or !empty($_SESSION['nom_utilisateur'])) {
+	if ((file_exists($file_id) and parse_xml($file_id, $GLOBALS['data_syntax']['article_status']) != 0 ) or !empty($_SESSION['nom_utilisateur'])) {
 		// POST INIT
 		$billet = init_billet('public', $id);
 
 		// TRAITEMENT
 		$erreurs_form = array();
-		if (isset($_POST['_verif_envoi'])) {
+		if (isset($_POST['_verif_envoi']) and (parse_xml($file_id, $GLOBALS['data_syntax']['article_allow_comments']) == '1' )) {
 			// COMMENT POST INIT
-			$comment = init_post_comment($id);
+			$comment = init_post_comment($id, 'public');
 			if (isset($_POST['enregistrer'])) {
 				$erreurs_form = valider_form_commentaire($comment, $_POST['captcha'], ($_SESSION['captx']+$_SESSION['capty']), 'public');
 			}
@@ -148,13 +149,16 @@ function afficher_article($id) {
 		if (empty($erreurs_form)) {
 			afficher_form_commentaire($id, 'public');
 			if (isset($_POST['enregistrer'])) {
-				fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comment);
+				$done = fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comment);
+				if ($done == TRUE and $GLOBALS['comm_defaut_status'] == 1) { // if file saved and comment published...
+					send_emails($comment[$GLOBALS['data_syntax']['article_id']]); // ...send emails to people who are subscriben to "email on new comment"
+				}
 			}
 		} else {
 			afficher_form_commentaire($id, 'public', $erreurs_form);
 		}
 		// COMMENT INIT
-		if (!empty($billet['nb_comments'])) {//vérifie si l'article a au moins un comm.     //liste_commentaires($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $id, '1')) {
+		if (!empty($billet['nb_comments'])) {
 			foreach ($billet['nb_comments'] as $uid => $com) {
 				$commentaire[$uid] = init_comment('public', get_id($com));
 			}

@@ -25,7 +25,7 @@ This file is part of BlogoText.
 === Some icons used in panel ==============
 Icon "save.gif" based upon the work by 
  François Vogelweight, with his Bisigi
- Gnome thems.
+ Gnome themes.
  ( http://creativecommons.org/licenses/by-nc/2.0/deed.fr )
 
  http://www.bisigi-project.org/
@@ -33,12 +33,10 @@ Icon "save.gif" based upon the work by
 
 ===========================================
 
-
 === Captcha script ========================
 Blogotext includes the Freecap captcha script by Howard Yeend
 
- Freecap is used in Blogotext with special accord of its author
- since GNU-GPLv2 is not compatible with Blogotext's CC-BY licence.
+ Freecap is used in Blogotext with special accord of its author.
 
  http://www.puremango.co.uk
 

@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -37,7 +37,7 @@ $lang_fr = array(
 'valider'	 						=> 'Valider',
 'envoyer' 							=> 'Envoyer',
 'preview'							=> 'Prévisualiser',
-'editer' 							=> 'Editer',
+'editer' 							=> 'Éditer',
 'activer'	 						=> 'Activer',
 'desactiver'	 					=> 'Désactiver',
 'mesarticles' 						=> 'Mes articles',
@@ -60,10 +60,12 @@ $lang_fr = array(
 'bouton-ital'	 					=> 'Mettre en Italique la sélection',
 'bouton-soul'						=> 'Souligner la sélection',
 'bouton-barr'						=> 'Barrer la sélection',
-'bouton-lien'						=> 'Insérrer un lien',
+'bouton-lien'						=> 'Insérer un lien',
 'bouton-cita'						=> 'Insérer une citation',
 'bouton-imag'						=> 'Insérer une image',
 'bouton-code'						=> 'Insérer du code formaté',
+'bouton-droite'					=> 'Aligner à droite',
+'bouton-center'					=> 'Centrer',
 // Modes
 'ecrire'								=> 'Modifier l\'article',
 'apercu'								=> 'Aperçu',
@@ -106,7 +108,8 @@ $lang_fr = array(
 'comment_webpage'					=> 'Site web (facultatif)',
 'comment_captcha'					=> 'Combien font ',
 'comment_captcha_usenumbers'	=> 'En chiffres!!',
-'comment_cookie'					=> 'Retenir ces informations avec un cookie&nbsp;? (Laissez décoché sur un ordinateur public)',
+'comment_cookie'					=> 'Retenir ces informations avec un cookie&thinsp;? (Laissez décoché sur un ordinateur public)',
+'comment_subscribe'				=> 'Recevoir des notifications de nouveaux commentaires par email&thinsp;?',
 'comment_not_allowed'			=> 'Les commentaires sont fermés pour cet article',
 'no_comments'						=> 'Il n\'y a aucun commentaire pour le moment.',
 'comment_is_visible'				=> 'Le commentaire est visible',
@@ -118,17 +121,17 @@ $lang_fr = array(
 'go_to_pref'						=> 'Allez dans les préférences pour changer le titre',
 // Mois
 'janvier'							=> 'janvier',
-'fevrier'							=> 'fevrier',
+'fevrier'							=> 'février',
 'mars'								=> 'mars',
 'avril'								=> 'avril',
 'mai'									=> 'mai',
 'juin'								=> 'juin',
 'juillet'							=> 'juillet',
-'aout'								=> 'aout',
+'aout'								=> 'août',
 'septembre'							=> 'septembre',
 'octobre'							=> 'octobre',
 'novembre'							=> 'novembre',
-'decembre'							=> 'decembre',
+'decembre'							=> 'décembre',
 // Jours
 'lu'									=> 'Lu',
 'ma'									=> 'Ma',
@@ -193,6 +196,7 @@ $lang_fr = array(
 'prob_tags_file_chmod'			=> 'Le fichier des « tags.php » n\'est pas accessible en écriture',
 // Questions
 'question_suppr_article'		=> 'Êtes-vous sûr de vouloir supprimer cet article ?',
+'question_suppr_image'			=> 'Êtes-vous sûr de vouloir supprimer cette image ?',
 'question_suppr_comment'		=> 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
 // Confirmations
 'confirm_article_suppr'			=> 'L\'article a été supprimé',
@@ -262,7 +266,7 @@ $lang_fr = array(
 'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
 'pref_all'							=> 'Tout',
 'pref_go_to_mainteance'			=> 'Accéder à la page de maintenance.',
-'legend_what_doyouwant'			=> 'Backup des messages - Que voulez vous faire ?',
+'legend_what_doyouwant'			=> 'Backup des messages - Que voulez-vous faire ?',
 // Notes
 'note_no_article'					=> 'Aucun article trouvé',
 'note_no_comment'					=> 'Aucun commentaire',
@@ -282,18 +286,18 @@ $lang_fr = array(
 'file_format_error'				=> 'Mauvais format de fichier.',
 // page backup
 'bak_succes_save'					=> 'Sauvegarde réussie',
-'bak_youcannowsave'				=> 'Le fichier xml contenant tous les messages et leurs commentaires a été créé avec succès.<br/> Vous pouvez maintenant l\'enregistrer en faisant un clic droit puis «&nbsp;enregistrer la cible sous&nbsp;»&nbsp;:',
-'bak_delete_source'				=> 'Voulez vous supprimer le fichier de sauvegarde de votre hébergement ?',
+'bak_youcannowsave'				=> 'Le fichier xml contenant tous les messages et leurs commentaires a été créé avec succès.<br/> Vous pouvez maintenant l\'enregistrer en faisant un clic droit puis «&thinsp;enregistrer la cible sous&thinsp;»&thinsp;:',
+'bak_delete_source'				=> 'Voulez-vous supprimer le fichier de sauvegarde de votre hébergement ?',
 'bak_save2xml'						=> 'Créer un fichier de sauvegarde',
 'bak_restorefromxml'				=> 'Restaurer une sauvegarde',
 'bak_nothing'						=> 'Rien',
 'bak_choosefile'					=> 'Choisir un fichier',
 'bak_restor_done'					=> 'Restauration effectuée',
-'bak_combien_articles'			=> 'Combien d\'articles voulez vous sauvegarder (les xx plus récents seront sauvegardés) ?',
+'bak_combien_articles'			=> 'Combien d\'articles voulez-vous sauvegarder (les xx plus récents seront sauvegardés) ?',
 'bak_number_articles'			=> 'Nombre d\'articles',
 'bak_restor_done_mesage'		=> 'Vos messages et les commentaires ont été uploadés. Voyez ci dessous s\'il y a des erreurs.<br/>Par ailleurs, le fichier uploadé n\'est pas conservé sur le serveur.',
 'bak_tags_too'						=> 'Sauvegarder aussi le fichier des tags ?',
-'bak_combien_images'				=> 'Combien d\'images voulez vous inclure dans le fichier de sauvegarde ?',
+'bak_combien_images'				=> 'Combien d\'images voulez-vous inclure dans le fichier de sauvegarde ?',
 'bak_tags_legend'					=> 'Tags',
 'bak_imgs_legend'					=> 'Images',
 'bak_imgs_too'						=> 'Sauvegarder aussi les images ?',
@@ -311,7 +315,7 @@ $lang_fr = array(
 'maint_update_go_dl_it'			=> 'Vous pouvez la télécharger à l\'adresse :',
 
 'succes'								=> 'Succès',
-'echec'								=> 'échec',
+'echec'								=> 'Échec',
 
 // Chiffres 0 à 9 pour captcha
 '0'									=> 'zéro',

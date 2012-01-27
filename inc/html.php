@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -122,7 +122,7 @@ function afficher_titre($titre, $id, $niveau) {
 	echo '<h'.$niveau.' id="'.$id.'">'.$titre.'</h'.$niveau.'>'."\n";
 }
 
-function footer($index='') {
+function footer($index='', $begin_time='') {
 	if ($index != '') {
 		$file = '../config/ip.php';
 		if (file_exists($file) and is_readable($file)) {
@@ -140,9 +140,17 @@ function footer($index='') {
 	} else {
 		$msg = '';
 	}
+	if ($begin_time != ''){
+		$end = microtime(TRUE);
+		$dt = round(($end - $begin_time),6);
+		$msg2 = ' - rendered in '.$dt.' seconds';
+	} else {
+		$msg2 = '';
+	}
+
 	echo '</div>'."\n";
 	echo '</div>'."\n";
-	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg.'</p>'."\n";
+	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg2.$msg.'</p>'."\n";
 	echo '</body>'."\n";
 	echo '</html>'."\n";
 }
@@ -251,8 +259,8 @@ function encart_commentaires() {
 				$comment['contenu_abbr'] = substr($comment['contenu_abbr'], 0, 60);
 				$comment['contenu_abbr'] .= '…';
 			}
-			$comment['article_lien'] = get_blogpath($comment['article_id']).'#'.article_anchor($comment['id']);
-			$listeLastComments .= '<li title="'.date_formate($comment['id']).'"><b>'.$comment['auteur'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['article_titre'].'</b><br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
+			$comment['article_lien'] = get_blogpath($comment['article_id'], 1).'#'.article_anchor($comment['id']);
+			$listeLastComments .= '<li title="'.date_formate($comment['id']).'"><b>'.$comment['auteur'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['article_titre'].'</b><br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>'."\n";
 		}
 		$listeLastComments .= '</ul>';
 		return $listeLastComments;
@@ -264,6 +272,7 @@ function encart_commentaires() {
 function encart_categories() {
 	if (!empty($GLOBALS['tags']) and ($GLOBALS['activer_categories'] == '1')) {
 		$liste = explode(',' , $GLOBALS['tags']);
+//		$liste = array_map("base64_decode", $liste);
 		$uliste = '<ul>'."\n";
 		foreach($liste as $tag) {
 			$tagurl = urlencode(trim($tag));
@@ -344,9 +353,9 @@ function afficher_liste_articles($tableau) {
 			echo '<td class="nb-commentaires"><a href="commentaires.php?post_id='.$article['id'].'">'.$texte.'</a></td>'."\n";
 			// STATUT
 			if ( $article['statut'] == '1') {
-				echo '<td class="lien"><a href="'.get_blogpath($article['id']).'">'.$GLOBALS['lang']['lien_article'].'</a></td>';
+				echo '<td class="lien"><a href="'.get_blogpath($article['id'], 1).'">'.$GLOBALS['lang']['lien_article'].'</a></td>';
 			} else {
-				echo '<td class="lien"><a href="'.get_blogpath($article['id']).'">'.$GLOBALS['lang']['preview'].'</a></td>';
+				echo '<td class="lien"><a href="'.get_blogpath($article['id'], 1).'">'.$GLOBALS['lang']['preview'].'</a></td>';
 			}
 			echo '</tr>'."\n";
 			$i++;

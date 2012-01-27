@@ -39,6 +39,7 @@ legend {
 
 a {
 	color: #45A6FF;
+	text-decoration: none;
 }
 
 a:hover {
@@ -165,7 +166,7 @@ img {
 /* AIDE WIKI */
 
 #wikipage {
-	width: 100%
+	width: 100%;
 	background: #fff;
 }
 
@@ -180,20 +181,32 @@ img {
 
 /* LISTE IMAGES */
 
-.image_popup span {
+.image_popup span.im {
 	display: none;
 }
 
-.image_popup:hover span {
+.image_popup:hover span.im {
 	top: 25px ; right: 25px;
 	display: block;
 	position: fixed;
-	max-width: 50%;
+	padding:0;
+	max-width: 40%;
 	max-height: 70%;
-	border: 3px silver outset;
-	box-shadow: 5px 5px 10px gray;
+	box-shadow: 5px 5px 10px black;
+	background: url(transparent_bg.png) repeat;
 }
 
+.image_popup:hover span.res {
+	background: black;
+	color: white;
+	padding: 5px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-weight: bold;
+	box-shadow: -2px 2px 2px lime;
+	border-radius: 0 0 0 4px;
+}
 #images {
 	width: 100%;
 	margin-top: 15px;

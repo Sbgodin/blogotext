@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -66,37 +66,71 @@ if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 			echo '<pubDate>'.date('r').'</pubDate>'."\n";
 			echo '<description>'.$GLOBALS['lang']['no_comments'].'</description>'."\n";
 		echo '</item>'."\n";
-
 	}
 }
 
 /* sinon, fil rss sur les articles */
 else {
-	echo '<title>'.$GLOBALS['nom_du_site'].'</title>'."\n";
-	echo '<link>'.$GLOBALS['racine'].'</link>'."\n"; 
-	echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
-	echo '<language>fr</language>'."\n"; 
-	echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
-	$liste = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '15', '1', 'public');
-	foreach ($liste as $id => $article) {
-		$extension = substr($article, -3);
-		if ($extension == $GLOBALS['ext_data']) {
-			$id = substr($article, 0, 14);
-			$billet = init_billet('public', $id);
-			$dossier= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
-			$fichier = $dossier.$article;
-			$lien = $billet['annee'].'/'.$billet['mois'].'/'.$billet['jour'].'/'.$billet['heure'].'/'.$billet['minutes'].'/'.$billet['secondes'].'-'.titre_url($billet['titre']);
-			echo '<item>'."\n";
-				echo '<title>'.$billet['titre'].'</title>'."\n";
-				echo '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
-				echo '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
-				echo '<pubDate>'.date('r', mktime($billet['heure'], $billet['minutes'], $billet['secondes'], $billet['mois'], $billet['jour'], $billet['annee'])).'</pubDate>'."\n";
-				echo '<description><![CDATA['.nl2br($billet['chapo']).']]></description>'."\n";
-				if (isset($_GET['full'])) {
-					echo '<content:encoded><![CDATA['.rel2abs($billet['contenu']).']]></content:encoded>'."\n";
-				}
-			echo '</item>'."\n";
+	// Mise en cache des fichiers (rss.php et rss.php?full) : évite les surcharges serveur.
+	$fichierCache = "cache_rss.dat";
+	$fichierCacheFull = "cache_rss_full.dat";
+	// si la page n'existe pas dans le cache ou si elle a expiré (30 minutes)
+	if (@filemtime($fichierCache)<time()-(1800)) {
+		// génération de la page, que l'on placera dans un fichier statique
+		$xml = '<title>'.$GLOBALS['nom_du_site'].'</title>'."\n";
+		$xml .= '<link>'.$GLOBALS['racine'].'</link>'."\n"; 
+		$xml .= '<description>'.$GLOBALS['description'].'</description>'."\n"; 
+		$xml .= '<language>fr</language>'."\n"; 
+		$xml .= '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
+		$xml_full = $xml;
+
+		$liste = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '15', '1', 'public');
+		foreach ($liste as $id => $article) {
+			$extension = substr($article, -3);
+			if ($extension == $GLOBALS['ext_data']) {
+				$id = substr($article, 0, 14);
+				$billet = init_billet('public', $id);
+				$dossier= $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.$billet['annee'].'/'.$billet['mois'].'/';
+				$fichier = $dossier.$article;
+				$lien = $billet['annee'].'/'.$billet['mois'].'/'.$billet['jour'].'/'.$billet['heure'].'/'.$billet['minutes'].'/'.$billet['secondes'].'-'.titre_url($billet['titre']);
+
+				$item = '<item>'."\n";
+				 $item .= '<title>'.$billet['titre'].'</title>'."\n";
+				 $item .= '<guid>'.$GLOBALS['racine'].'index.php?'.$lien.'</guid>'."\n";
+				 $item .= '<link>'.$GLOBALS['racine'].'index.php?'.$lien.'</link>'."\n";
+				 $item .= '<pubDate>'.date('r', mktime($billet['heure'], $billet['minutes'], $billet['secondes'], $billet['mois'], $billet['jour'], $billet['annee'])).'</pubDate>'."\n";
+				 $item .= '<description><![CDATA['.nl2br($billet['chapo']).']]></description>'."\n";
+
+					// on génère du même coup le fichier RSS avec les articles complets
+					$item_full = $item.'<content:encoded><![CDATA['.rel2abs($billet['contenu']).']]></content:encoded>'."\n";
+					$xml_full .= $item_full.'</item>'."\n";
+				$xml .= $item.'</item>'."\n";
+			}
 		}
+
+		$file = fopen("$fichierCache", "w");
+		$file_full = fopen("$fichierCacheFull", "w");
+		if ($file and $file_full) {
+			// rss
+			fwrite($file, $xml);
+			fclose($file);
+			// rss_full
+			fwrite($file_full, $xml_full);
+			fclose($file_full);
+		}
+		if (isset($_GET['full'])) { //on l'affiche
+			echo $xml_full;
+		} else {
+			echo $xml;
+		}
+
+	} else {
+		if (isset($_GET['full'])) { //on l'affiche
+			readfile($fichierCacheFull);
+		} else {
+			readfile($fichierCache);
+		}
+		echo "\n".'<!-- Servi par le cache -->';
 	}
 }
 

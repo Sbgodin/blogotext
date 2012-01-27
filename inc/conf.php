@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -12,6 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way BEFORE the download.
 # *** LICENSE ***
 
+// Sets timezone
 if (!empty($GLOBALS['fuseau_horaire'])) {
 	date_default_timezone_set($GLOBALS['fuseau_horaire']);
 } else {
@@ -19,10 +20,13 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version']= '33';
+$GLOBALS['version']= '34';
 
 // PROBLÈME D'HÉBERGEUR CHEZ free.fr AVEC timezone_identifier_list().
 $GLOBALS['etes_vous_chez_freefr'] = 1;
+
+// ACTIVER OU DÉSACTIVER LA MISE EN STATIQUE DE LA PAGE D'ACCUEIL, le cache du RSS est toujours actif lui (diminue la charge du serveur ; peu utile si le nombre de visiteurs < 300 par jour)
+$GLOBALS['cached_index'] = 0;
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -30,7 +34,7 @@ $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'php';
 $GLOBALS['date_premier_message_blog'] = '199701';
-$GLOBALS['salt']= '123456'; // if changed : delete /config/user.php file and proceed to a re-installation. No data loss.
+$GLOBALS['salt']= '123456'; // if you change that : delete /config/user.php file and proceed to a re-installation. No data loss.
 
 // FOLDERS (change this only if you know what you are doing...)
 $GLOBALS['dossier_admin']= 'admin';
@@ -53,6 +57,7 @@ function mk_captcha() {
 	return $captcha;
 }
 
+// regenerate captcha if the posted one is wrong
 if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialchars($_POST['captcha']) == $_SESSION['captx']+$_SESSION['capty']) ) {
 	$GLOBALS['captcha'] = mk_captcha();
 	$_SESSION['captx'] = $GLOBALS['captcha']['x'];
@@ -60,6 +65,11 @@ if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialch
 }
 
 // THEMES
+/*
+ * the files that will be used.
+ *
+ */
+
 if ( isset($GLOBALS['theme_choisi']) ) {
 	if (isset($_COOKIE['mobile_theme']) and $_COOKIE['mobile_theme'] == '1') {
 		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/m';
@@ -72,6 +82,11 @@ if ( isset($GLOBALS['theme_choisi']) ) {
 }
 
 // TEMPLATE VARS
+/*
+ * Vars used in them files, aimed to get
+ * replaced with some specific data
+ *
+ */
 $GLOBALS['boucles'] = array(
 	'articles' => 'BOUCLE_articles',
 	'commentaires' => 'BOUCLE_commentaires'
@@ -115,7 +130,8 @@ $GLOBALS['balises'] = array(
 	'commentaire_date' => '{commentaire_date}',
 	'commentaire_email' => '{commentaire_email}',
 	'commentaire_webpage' => '{commentaire_webpage}',
-	'commentaire_anchor' => '{commentaire_ancre}',
+	'commentaire_reply' => '{commentaire_reply}', // the reply-link
+	'commentaire_anchor' => '{commentaire_ancre}', // the id="" content
 );
 
 // SYNTAX FOR DATA STORAGE
@@ -140,11 +156,27 @@ $GLOBALS['data_syntax'] = array(
 	'comment_status' => 'bt_status',
 	'comment_content' => 'bt_content',
 	'comment_webpage' => 'bt_webpage',
+	'comment_subscribe' => 'bt_subscribe',
 	'comment_article_id' => 'bt_article_id',
 	'comment_wiki_content' => 'bt_wiki_content',
 );
 
+
+/*
+ * BELOW, THE FOUR MAIN
+ * CORE FUNCTIONS, USED
+ * TO TURN POSTED FORMS
+ * OR FILES INTO USABLE
+ * ARRAYS.
+ * 
+ */
+
 // POST SYNTAX
+/*
+ * Gets an article file and returns an array
+ * of the articles informations.
+ *
+ */
 function init_billet($mode, $id) {
 	$statut_com = ($mode == 'admin') ? '' : '1';
 	$dec = decode_id($id);
@@ -175,6 +207,12 @@ function init_billet($mode, $id) {
 }
 
 // COMMENT SYNTAX
+/*
+ * Gets a comment file and returns an array
+ * of the comments informations.
+ *
+ */
+
 function init_comment($mode, $id) {
 	$dec = decode_id($id);
 	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
@@ -187,9 +225,11 @@ function init_comment($mode, $id) {
 	$comment['auteur_lien'] = (!empty($comment['webpage'])) ? '<a href="'.$comment['webpage'].'" class="webpage">'.$comment['auteur'].'</a>' : $comment['auteur'] ;
 	$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email']);
 	$comment['status'] = parse_xml($file, $GLOBALS['data_syntax']['comment_status']);
-	$comment['anchor'] = '<a href="#form-commentaire" onclick="reply(\'[b]@['.$comment['auteur'].'|#'.article_anchor($comment['id']).'] :[/b] \'); ">@</a> <a href="#'.article_anchor($comment['id']).'" id="'.article_anchor($comment['id']).'">#</a>';
+	$comment['anchor'] = article_anchor($comment['id']);
+	$comment['lienreply'] = '<a href="#form-commentaire" onclick="reply(\'[b]@['.$comment['auteur'].'|#'.$comment['anchor'].'] :[/b] \'); ">@</a>';
 	$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content']);
 	$comment['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['comment_wiki_content']);
+	$comment['subscribe'] = parse_xml($file, $GLOBALS['data_syntax']['comment_subscribe']);
 	$comment['annee'] = $dec['annee'];
 	$comment['mois'] = $dec['mois'];
 	$comment['jour'] = $dec['jour'];
@@ -201,22 +241,28 @@ function init_comment($mode, $id) {
 }
 
 // POST ARTICLE
+/*
+ * On post of an article (always on admin sides)
+ * gets posted informations and turn them into
+ * an array
+ *
+ */
 function init_post_article($id) { //no mode : it's always admin.
 	if ($GLOBALS['automatic_keywords'] == '0') {
-		$keywords = htmlspecialchars(stripslashes(protect_markup($_POST['mots_cles'])));
+		$keywords = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['mots_cles']))));
 	} else {
 		$keywords = extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']);
 	}
 	$comment = array (
 		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
 		$GLOBALS['data_syntax']['article_id'] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
-		$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup($_POST['titre']))),
-		$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup($_POST['chapo']))),
-		$GLOBALS['data_syntax']['article_notes'] => htmlspecialchars(stripslashes(protect_markup($_POST['notes']))),
-		$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup($_POST['contenu'])),
-		$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup($_POST['contenu'])),
+		$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['titre'])))),
+		$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['chapo'])))),
+		$GLOBALS['data_syntax']['article_notes'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['notes'])))),
+		$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup(clean_txt($_POST['contenu']))),
+		$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup(clean_txt($_POST['contenu']))),
 		$GLOBALS['data_syntax']['article_keywords'] => $keywords,
-		$GLOBALS['data_syntax']['article_categories'] => traiter_tags($_POST['categories']),
+		$GLOBALS['data_syntax']['article_categories'] => htmlspecialchars(traiter_tags($_POST['categories']), ENT_NOQUOTES),
 		$GLOBALS['data_syntax']['article_status'] => $_POST['statut'],
 		$GLOBALS['data_syntax']['article_allow_comments'] => $_POST['allowcomment']
 	);
@@ -224,14 +270,19 @@ function init_post_article($id) { //no mode : it's always admin.
 }
 
 // POST COMMENT
-function init_post_comment($id, $mode='') {
+/*
+ * Same as init_post_article()
+ * but, this one can be used on admin side and on public side.
+ *
+ */
+function init_post_comment($id, $mode) {
 	$comment = array();
 	$edit_msg = '';
 	if ( (isset($id)) and (isset($_POST['_verif_envoi'])) ) {
-		if ( (isset($mode) and $mode == 'admin') and (isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes') ) {
+		if ( ($mode == 'admin') and (isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes') ) {
 			$status = $_POST['status'];
 			$comment_id = $_POST['comment_id'];
-		} elseif (isset($mode) and $mode == 'admin' and !isset($_POST['is_it_edit'])) {
+		} elseif ($mode == 'admin' and !isset($_POST['is_it_edit'])) {
 			$status = '1';
 			$comment_id = date('YmdHis');
 		} else {
@@ -243,10 +294,11 @@ function init_post_comment($id, $mode='') {
 			$GLOBALS['data_syntax']['comment_id'] => $comment_id,
 			$GLOBALS['data_syntax']['comment_article_id'] => $id,
 			$GLOBALS['data_syntax']['comment_content'] => formatage_commentaires(stripslashes(htmlspecialchars(clean_txt($_POST['commentaire'].$edit_msg)))),
-			$GLOBALS['data_syntax']['comment_wiki_content'] => stripslashes(protect_markup($_POST['commentaire'])),
+			$GLOBALS['data_syntax']['comment_wiki_content'] => stripslashes(protect_markup(clean_txt($_POST['commentaire']))),
 			$GLOBALS['data_syntax']['comment_author'] => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
 			$GLOBALS['data_syntax']['comment_email'] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
 			$GLOBALS['data_syntax']['comment_webpage'] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
+			$GLOBALS['data_syntax']['comment_subscribe'] => (isset($_POST['subscribe']) and $_POST['subscribe'] == 'on') ? '1' : '0',
 			$GLOBALS['data_syntax']['comment_status'] => $status,
 		);
 	}

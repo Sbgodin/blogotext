@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -20,10 +20,10 @@ function table_recherche($depart, $recherche, $statut, $mode) {
 		foreach ($articles as $id) {
 			$dec = decode_id($id);
 			$dossier = $depart.'/'.$dec['annee'].'/'.$dec['mois'].'/';
-			$article_content = parse_xml($dossier.$id, 'bt_content');
+			$article = parse_xml($dossier.$id, 'bt_content');
 			//	La ligne suivant évite de rechercher les balises (par ex, dans le "href" d'un <a></a>).
-			$article_content = preg_replace('#</?.*>#Ui', '', $article_content);
-			if (strpos(strtolower($article_content), strtolower($recherche)) !== FALSE ) {
+			$article = preg_replace('#</?.*>#Ui', '', $article);
+			if (strpos(strtolower($article), strtolower($recherche)) !== FALSE ) {
 				$table_matchs[]= $id;
 			}
 		}
@@ -55,26 +55,24 @@ function table_auteur($depart, $name, $statut, $mode) {
 
 // RETOURNE UN TABLEAU SELON TAG
 function table_tags($depart, $txt, $statut, $mode) {
-	$searched = htmlspecialchars($txt);
+	$searched = htmlspecialchars($txt); // essential to escape txt here ???
 	$articles = table_derniers($depart, '-1', $statut, $mode);
-	if (!empty($searched)) {
-		foreach ($articles as $id) {
-			$date = decode_id($id);
-			$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-			$article_tags_all = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
-			$article_tags = explode(', ', $article_tags_all);
-			if (in_array($searched, $article_tags)) {
-				$table_matchs[] = $id;
-			}
+	foreach ($articles as $id) {
+		$date = decode_id($id);
+		$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
+		$article_tags_all = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
+		$article_tags = explode(', ', $article_tags_all);
+		$article_tags = array_map("htmlspecialchars", $article_tags);
+		if (in_array($searched, $article_tags)) {
+			$table_matchs[] = $id;
 		}
-		if (!empty($table_matchs)) {
-			$retour = $table_matchs;
-		} else {
-			$retour = '';
-		}
+	}
+	if (!empty($table_matchs)) {
+		$retour = $table_matchs;
 	} else {
 		$retour = '';
 	}
+
 	return $retour;
 }
 
@@ -212,23 +210,6 @@ function traiter_form_billet($billet) {
 	}
 }
 
-function validate_comment($id_file, $choix) {
-	if ($choix == '0' or $choix == '1') $new_choix = abs($choix-1);
-	else $new_choix = $GLOBALS['comm_defaut_status'];
-	if (preg_match('#<bt_status>.*</bt_status>#', file_get_contents($id_file))) {
-		$content = preg_replace('#<bt_status>.*</bt_status>#', '<bt_status>'.$new_choix.'</bt_status>', file_get_contents($id_file));
-	} else {
-		$content = file_get_contents($id_file).'<bt_status>'.$GLOBALS['comm_defaut_status'].'</bt_status>';
-	}
-	$new_file = fopen($id_file,'wb+');
-	if (fwrite($new_file,$content) === FALSE) {
-		return FALSE;
-	} else {
-		fclose($new_file);
-		return TRUE;
-	}
-}
-
 function fichier_data($dossier, $billet) {
 	$article_data = '<?php die("If you were looking for the answer to life, the universe and everything... It is not here."); ?>';
 	$article_data .= "\n";
@@ -261,6 +242,7 @@ function fichier_data($dossier, $billet) {
 		return FALSE;
 	} else {
 		fclose($new_file_data);
+		return TRUE;
 	}
 }
 
@@ -275,23 +257,7 @@ function creer_dossier($dossier) {
 		return TRUE;
 	}
 }
-/*
-function parcourir_dossier($dossier) {
-	$contenu = array();
-	if (is_dir($dossier)) {
-		if ($ouverture = opendir($dossier) ) {
-			while (FALSE !== ($fichiers = readdir($ouverture))) {
-				if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#', $fichiers)) {
-					$contenu[] = $fichiers;
-				}
-			}
-			closedir($ouverture);
-		}
-	}
-	sort($contenu);
-	return $contenu;
-}
-*/
+
 function parcourir_dossier($dossier) {
 	$contenu = array();
 	if (is_dir($dossier)) {
@@ -333,6 +299,7 @@ function fichier_tags($new_tags, $reset) {
 	/* new tags */
 	$new_tags_array = explode(',' , $new_tags);
 	$new_tags_array = array_map("trim", $new_tags_array);
+//	$new_tags_array = array_map("base64_encode", $new_tags_array);
 	/* old tags */
 	if (isset($GLOBALS['tags']) and ($reset == '0')) {
 		$old_tags = $GLOBALS['tags'];
@@ -346,11 +313,8 @@ function fichier_tags($new_tags, $reset) {
 	sort($all_tags);
 	$inline_tags = implode(',' , $all_tags);
 	$inline_tags = trim($inline_tags, ',');
-	$tags = "<?php\n";
-	$tags .= "\$GLOBALS['tags'] = '".$inline_tags."';\n";
-	$tags .= "?>";
 	$new_file_tags = fopen($fichier_tags,'wb+');
-	if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$tags) === FALSE)) {
+	if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$inline_tags) === FALSE)) {
 		return FALSE;
 	} else {
 		fclose($new_file_tags);

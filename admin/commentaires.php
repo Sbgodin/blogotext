@@ -12,6 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+$begin = microtime(TRUE);
 //error_reporting(-1);
 $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
@@ -182,5 +183,5 @@ echo 'function reply(code) {
 }
 </script>';
 
-footer();
+footer('', $begin);
 ?>

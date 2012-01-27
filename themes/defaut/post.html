@@ -82,11 +82,11 @@ function resize(id, dht) {
 		</div>
 	</div>
 
-	<h2>{nombre_commentaires}</h2>
+	<h2 id="commentaires">{nombre_commentaires}</h2>
 
 	{BOUCLE_commentaires}
-	<div class="comment">
-		<h3>{commentaire_ancre}-{commentaire_auteur} - {commentaire_date} à {commentaire_heure}  </h3>
+	<div class="comment" id="{commentaire_ancre}">
+		<h3><a href="#{commentaire_ancre}">#</a> - {commentaire_reply} - {commentaire_auteur} - {commentaire_date} à {commentaire_heure}  </h3>
 		{commentaire_contenu}
 	</div>
 	{/BOUCLE_commentaires}

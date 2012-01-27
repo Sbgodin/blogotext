@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -272,7 +272,7 @@ function filtre($type, $filtre, $mode) {
 		foreach ($dossier_mois as $mois => $label) {
 			echo '<option value="' . htmlentities($mois) . '"';
 			echo ($filtre == $mois) ? ' selected="selected"' : '';
-			echo '>' . htmlentities($label) . '</option>'."\n";
+			echo '>'.$label.'</option>'."\n";
 		}
 		echo '</optgroup>';
 	}
@@ -308,7 +308,7 @@ function afficher_form_billet($article, $erreurs) {
 		$chapodefaut = $article['chapo'];
 		$notesdefaut = (isset($article['notes'])) ? $article['notes'] : '';
 		$categoriesdefaut = (isset($article['categories'])) ? $article['categories'] : '';
-		$contenudefaut = $article['contenu_wiki'];
+		$contenudefaut = htmlspecialchars($article['contenu_wiki']);
 		$motsclesdefaut = $article['mots_cles'];
 		$statutdefaut = $article['statut'];
 		$allowcommentdefaut = $article['allow_comments'];
@@ -370,9 +370,12 @@ function afficher_form_billet($article, $erreurs) {
 	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-imag'].'" type="button" value="'.$GLOBALS['lang']['wiki_image'].'" onclick="insertTag(\'((http://|\',\'))\',\'contenu\');" />'."\n";
 
 	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-code'].'" type="button" value="Code" onclick="insertTag(\'[code]\',\'[/code]\',\'contenu\');" />'."\n";
+
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-center'].'" type="button" value="Centrer" onclick="insertTag(\'[center]\',\'[/center]\',\'contenu\');" />'."\n";
+	echo "\t".'<input title="'.$GLOBALS['lang']['bouton-droite'].'" type="button" value="Droite" onclick="insertTag(\'[right]\',\'[/right]\',\'contenu\');" />'."\n";
 	echo '</p>';
 
-	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'"  tabindex="55">'.htmlspecialchars($contenudefaut).'</textarea>'."\n" ;
+	echo '<textarea id="contenu" name="contenu" rows="20" cols="60" required="" placeholder="'.$GLOBALS['lang']['label_contenu'].'"  tabindex="55">'.$contenudefaut.'</textarea>'."\n" ;
 
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		echo label('mots_cles', $GLOBALS['lang']['label_motscles']);
@@ -528,14 +531,16 @@ function form_categories($categoriesaffiche) {
 		$script .='<p style="display: none;" id="masknshow">'."\n";
 		echo $script;
 		$tags = explode(',', $GLOBALS['tags']);
+//		$tags = array_map("base64_decode", $tags);
+		$tags = array_map("htmlspecialchars", $tags);
 		$nb = sizeof($tags);
 		for ($i = 0 ; $i < $nb ; $i++) {
 			$tags[$i] = trim($tags[$i]);
-			echo "\t".'<a class="tags" id="tag'.$i.'" onclick="insertCatTag(\'categories\', \''.$tags[$i].'\');">'.$tags[$i]."</a>\n";
+			echo "\t".'<a class="tags" id="tag'.$i.'" onclick="insertCatTag(\'categories\', \''.addslashes($tags[$i]).'\');">'.$tags[$i]."</a>\n";
 		}
 		echo '</p>'."\n";
 	}
-	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" placeholder="'.$GLOBALS['lang']['label_categories'].'" tabindex="45" />'."\n";
+	echo '<input id="categories" name="categories" type="text" size="50" value="'.htmlspecialchars($categoriesaffiche).'" placeholder="'.$GLOBALS['lang']['label_categories'].'" tabindex="45" />'."\n";
 }
 
 ?>

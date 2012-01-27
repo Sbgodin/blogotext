@@ -12,6 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+$begin = microtime(TRUE);
 //error_reporting(-1);
 if ( !file_exists('../config/user.php') || !file_exists('../config/prefs.php') ) {
 	header('Location: install.php');
@@ -61,5 +62,5 @@ if (isset($_GET['filtre'])) {
 
 afficher_liste_articles($tableau);
 
-footer('show_last_ip');
+footer('show_last_ip', $begin);
 ?>
