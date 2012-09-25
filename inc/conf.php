@@ -20,13 +20,10 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version']= '34';
+$GLOBALS['version']= '2.0.0.0';
 
-// PROBLÈME D'HÉBERGEUR CHEZ free.fr AVEC timezone_identifier_list().
-$GLOBALS['etes_vous_chez_freefr'] = 1;
-
-// ACTIVER OU DÉSACTIVER LA MISE EN STATIQUE DE LA PAGE D'ACCUEIL, le cache du RSS est toujours actif lui (diminue la charge du serveur ; peu utile si le nombre de visiteurs < 300 par jour)
-$GLOBALS['cached_index'] = 0;
+// MINIMAL REQUIRED PHP VERSION
+$GLOBALS['minimal_php_version'] = '5.1.2';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
@@ -34,21 +31,26 @@ $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'php';
 $GLOBALS['date_premier_message_blog'] = '199701';
-$GLOBALS['salt']= '123456'; // if you change that : delete /config/user.php file and proceed to a re-installation. No data loss.
+$GLOBALS['salt']= '123456'; // if changed : delete /config/user.php file and proceed to a re-installation. No data loss.
+$GLOBALS['show_errors'] = -1; // -1 = all (for dev) ; 0 = none (recommended)
 
 // FOLDERS (change this only if you know what you are doing...)
 $GLOBALS['dossier_admin']= 'admin';
-$GLOBALS['dossier_articles'] = 'articles';
-$GLOBALS['dossier_commentaires'] = 'commentaires';
-$GLOBALS['dossier_backup']= 'bt_backup';
-$GLOBALS['dossier_images']= 'img';
+$GLOBALS['dossier_backup'] = 'bt_backup';
+$GLOBALS['dossier_images'] = 'img';
+$GLOBALS['dossier_fichiers'] = 'files';
 $GLOBALS['dossier_themes'] = 'themes';
+$GLOBALS['dossier_cache'] = 'cache';
+$GLOBALS['dossier_db'] = 'databases';
+$GLOBALS['dossier_config'] = 'config';
 
-// MISC BONUS PREFS
-$GLOBALS['connexion_delai'] = 0;       // login anti-bruteforce delay : 0 => 0.1sec ; 1 => 10sec ;          (recommended : '0')
-$GLOBALS['onglet_commentaires'] = 1;   // show panel link "comments" ('on'= show ; '' = hide) ;             (recommended : '1')
-$GLOBALS['onglet_images'] = 1;         // show panel link "images" ('on'= show ; '' = hide) ;               (recommended : '1')
-$GLOBALS['session_admin_time'] = 7200; // time in seconds until admin session expires (1800s = 30min)       (recommended : '1800')
+// DATABASE
+//$GLOBALS['sgbd'] = 'mysql'; /* sgbd : 'sqlite' or 'mysql' are supported yet */
+$GLOBALS['sgbd'] = 'sqlite';
+
+$GLOBALS['db_location'] = 'database.sqlite';    // data storage file (for sqlite)
+$GLOBALS['fichier_liste_fichiers'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_db'].'/'.'files.php'; // files/image info storage.
+
 
 // CAPTCHA
 function mk_captcha() {
@@ -67,178 +69,86 @@ if (!isset($_SESSION['captx']) or !(isset($_POST['captcha'])) or !(htmlspecialch
 // THEMES
 /*
  * the files that will be used.
- *
  */
 
 if ( isset($GLOBALS['theme_choisi']) ) {
-	if (isset($_COOKIE['mobile_theme']) and $_COOKIE['mobile_theme'] == '1') {
-		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/m';
-	} else {
-		$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'];
-	}
+	$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'];
 	$GLOBALS['theme_article'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
 	$GLOBALS['theme_liste'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
+
+	$GLOBALS['theme_post_artc'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/article.html';
+	$GLOBALS['theme_post_comm'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/commentaire.html';
+	$GLOBALS['theme_post_link'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/link.html';
+
 	$GLOBALS['rss'] = $GLOBALS['racine'].'rss.php';
 }
 
-// TEMPLATE VARS
-/*
- * Vars used in them files, aimed to get
- * replaced with some specific data
- *
- */
-$GLOBALS['boucles'] = array(
-	'articles' => 'BOUCLE_articles',
-	'commentaires' => 'BOUCLE_commentaires'
-);
+// table of recognized filetypes, for file-upload script.
+$GLOBALS['files_ext'] = array(
+	'archive'		=> array('zip', '7z', 'rar', 'tar', 'gz', 'bz', 'bz2', 'xz', 'lzma'), // more ?
+	'executable'	=> array('exe', 'e', 'bin'),
+	'html-xml'		=> array('html', 'htm', 'xml', 'mht'), // more ?
+	'image'			=> array('png', 'gif', 'bmp', 'jpg', 'jpeg', 'ico', 'svg', 'tif', 'tiff'),
+	'music'			=> array('mp3', 'wave', 'wav', 'ogg', 'wma', 'flac', 'aac', 'mid', 'midi'), // more ?
+	'presentation'	=> array('ppt', 'pptx', 'pps', 'ppsx', 'odp'),
+	'pdf'				=> array('pdf', 'ps', 'psd'),
+	'spreadsheet'	=> array('xls', 'xlsx', 'xlt', 'xltx', 'ods', 'ots', 'csv'),
+	'text_document'=> array('doc', 'docx', 'rtf', 'odt', 'ott'),
+	'text-code'		=> array('txt', 'css', 'py', 'c', 'cpp', 'dat', 'ini', 'inf', 'text', 'conf', 'sh'), // more ?
+	'video'			=> array('mp4', 'ogv', 'avi', 'mpeg', 'mpg', 'flv', 'webm', 'mov', 'divx', 'rm', 'rmvb'), // more ?
 
-$GLOBALS['balises'] = array(
-	'charset' => '{charset}',
-	'version' => '{version}',
-	'style' => '{style}',
-	'racine_du_site' => '{racine_du_site}',
-	'rss' => '{rss}',
-	'rss_comments' => '{rss_comments}',
-	// Blog
-	'blog_nom' => '{blog_nom}',
-	'blog_description' => '{blog_description}',
-	'blog_auteur' => '{blog_auteur}',
-	'blog_email' => '{blog_email}',
-	// Formulaires
-	'form_recherche' => '{recherche}',
-	'form_calendrier' => '{calendrier}',
-	'form_commentaire' => '{formulaire_commentaire}',
-	// Encarts
-	'commentaires_encart' => '{commentaires_encart}',
-	'categories_encart' => '{categories_encart}',
-	// Article
-	'article_titre' => '{article_titre}',
-	'article_titre_url' => '{article_titre_url}',
-	'article_chapo' => '{article_chapo}',
-	'article_contenu' => '{article_contenu}',
-	'article_heure' => '{article_heure}',
-	'article_date' => '{article_date}',
-	'article_motscles' => '{article_motscles}',
-	'article_lien' => '{article_lien}',
-	'article_tags' => '{article_tags}',
-	'article_tags_plain' => '{article_tags_plain}',
-	'nb_commentaires' => '{nombre_commentaires}',
-	// Commentaire
-	'commentaire_auteur' => '{commentaire_auteur}',
-	'commentaire_contenu' => '{commentaire_contenu}',
-	'commentaire_heure' => '{commentaire_heure}',
-	'commentaire_date' => '{commentaire_date}',
-	'commentaire_email' => '{commentaire_email}',
-	'commentaire_webpage' => '{commentaire_webpage}',
-	'commentaire_reply' => '{commentaire_reply}', // the reply-link
-	'commentaire_anchor' => '{commentaire_ancre}', // the id="" content
-);
-
-// SYNTAX FOR DATA STORAGE
-$GLOBALS['data_syntax'] = array(
-	// GENERAL
-	'bt_version' => 'bt_version',
-	// POST
-	'article_id' => 'bt_id',
-	'article_notes' => 'bt_notes',
-	'article_title' => 'bt_title',
-	'article_status' => 'bt_status',
-	'article_content' => 'bt_content',
-	'article_keywords' => 'bt_keywords',
-	'article_abstract' => 'bt_abstract',
-	'article_categories' => 'bt_categories',
-	'article_wiki_content' => 'bt_wiki_content',
-	'article_allow_comments' => 'bt_allow_comments',
-	// COMMENTS
-	'comment_id' => 'bt_id',
-	'comment_email' => 'bt_email',
-	'comment_author' => 'bt_author',
-	'comment_status' => 'bt_status',
-	'comment_content' => 'bt_content',
-	'comment_webpage' => 'bt_webpage',
-	'comment_subscribe' => 'bt_subscribe',
-	'comment_article_id' => 'bt_article_id',
-	'comment_wiki_content' => 'bt_wiki_content',
+	'other' => array(''), // par défaut
 );
 
 
-/*
- * BELOW, THE FOUR MAIN
- * CORE FUNCTIONS, USED
- * TO TURN POSTED FORMS
- * OR FILES INTO USABLE
- * ARRAYS.
- * 
- */
+// from an array given by SQLite's requests, this function adds some more stuf to data stored by DB.
+function init_list_articles($list, $mode, $chapo) {
+	$statut = ($mode == 'public') ? '1' : '';
+	if (!empty($list)) {
+		foreach($list as $item => $article) {
+			// pour ne plus rendre obligatoire le chapô : s'il est vide, on le recrée à partir du début du bt_content (peu recommandé, mais disponible)
+			if ($chapo == '1' and trim($list[$item]['bt_abstract']) == '') {
+				$abstract = array();
+				$abstract = explode("|", wordwrap($list[$item]['bt_content'], 250, "|"), 2);
+				$list[$item]['bt_abstract'] = strip_tags($abstract[0])."…";
+			}
+			$dec = decode_id($article['bt_date']);
+			$dec_id = decode_id($article['bt_id']);
+			$list[$item]['annee'] = $dec['annee'];
+			$list[$item]['mois'] = $dec['mois'];
+			$list[$item]['jour'] = $dec['jour'];
+			$list[$item]['heure'] = $dec['heure'];
+			$list[$item]['minutes'] = $dec['minutes'];
+			$list[$item]['secondes'] = $dec['secondes'];
+			$list[$item]['lien'] = $_SERVER['PHP_SELF'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
+			$list[$item]['bt_link'] = $GLOBALS['racine'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
+			$list[$item]['bt_url_rss_comments'] = 'rss.php?id='.$article['bt_id'];
+		}
 
-// POST SYNTAX
-/*
- * Gets an article file and returns an array
- * of the articles informations.
- *
- */
-function init_billet($mode, $id) {
-	$statut_com = ($mode == 'admin') ? '' : '1';
-	$dec = decode_id($id);
-	$art_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
-	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
-	$file = $art_directory.'/'.get_path($id);
-	$billet['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version']);
-	$billet['id'] = $id;
-	$billet['statut'] = parse_xml($file, $GLOBALS['data_syntax']['article_status']);
-	$billet['titre'] = parse_xml($file, $GLOBALS['data_syntax']['article_title']);
-	$billet['chapo'] = parse_xml($file, $GLOBALS['data_syntax']['article_abstract']);
-	$billet['notes'] = parse_xml($file, $GLOBALS['data_syntax']['article_notes']);
-	$billet['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['article_content']);
-	$billet['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['article_wiki_content']);
-	$billet['mots_cles'] = parse_xml($file, $GLOBALS['data_syntax']['article_keywords']);
-	$billet['categories'] = parse_xml($file, $GLOBALS['data_syntax']['article_categories']);
-	$billet['annee'] = $dec['annee'];
-	$billet['mois'] = $dec['mois'];
-	$billet['jour'] = $dec['jour'];
-	$billet['heure'] = $dec['heure'];
-	$billet['minutes'] = $dec['minutes'];
-	$billet['secondes'] = $dec['secondes'];
-	$GLOBALS['rss_comments'] = $GLOBALS['racine'].'rss.php?id='.$billet['id'];
-	$billet['lien'] = $_SERVER['PHP_SELF'].'?'.$dec['annee'].'/'.$dec['mois'].'/'.$dec['jour'].'/'.$dec['heure'].'/'.$dec['minutes'].'/'.$dec['secondes'].'-'.titre_url($billet['titre']);
-	$billet['nb_comments'] = liste_commentaires($com_directory, $id, $statut_com);
-	$billet['allow_comments'] = parse_xml($file, $GLOBALS['data_syntax']['article_allow_comments']);
-	return $billet;
+		// si un seul article, on affiche cet article et le flux RSS doit se trouver dans le <head>, et il doit être en GLOBAL.
+		if (count($list) == 1) {
+			$GLOBALS['rss_comments'] = $list[0]['bt_url_rss_comments'];
+		}
+	}
+	return $list;
 }
 
-// COMMENT SYNTAX
-/*
- * Gets a comment file and returns an array
- * of the comments informations.
- *
- */
-
-function init_comment($mode, $id) {
-	$dec = decode_id($id);
-	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
-	$file = $com_directory.'/'.get_path($id);
-	$comment['id'] = $id;
-	$comment['article_id'] = parse_xml($file, $GLOBALS['data_syntax']['comment_article_id']);
-	$comment['version'] = parse_xml($file, $GLOBALS['data_syntax']['bt_version']);
-	$comment['auteur'] = parse_xml($file, $GLOBALS['data_syntax']['comment_author']);
-	$comment['webpage'] = parse_xml($file, $GLOBALS['data_syntax']['comment_webpage']);
-	$comment['auteur_lien'] = (!empty($comment['webpage'])) ? '<a href="'.$comment['webpage'].'" class="webpage">'.$comment['auteur'].'</a>' : $comment['auteur'] ;
-	$comment['email'] = parse_xml($file, $GLOBALS['data_syntax']['comment_email']);
-	$comment['status'] = parse_xml($file, $GLOBALS['data_syntax']['comment_status']);
-	$comment['anchor'] = article_anchor($comment['id']);
-	$comment['lienreply'] = '<a href="#form-commentaire" onclick="reply(\'[b]@['.$comment['auteur'].'|#'.$comment['anchor'].'] :[/b] \'); ">@</a>';
-	$comment['contenu'] = parse_xml($file, $GLOBALS['data_syntax']['comment_content']);
-	$comment['contenu_wiki'] = parse_xml($file, $GLOBALS['data_syntax']['comment_wiki_content']);
-	$comment['subscribe'] = parse_xml($file, $GLOBALS['data_syntax']['comment_subscribe']);
-	$comment['annee'] = $dec['annee'];
-	$comment['mois'] = $dec['mois'];
-	$comment['jour'] = $dec['jour'];
-	$comment['heure'] = $dec['heure'];
-	$comment['minutes'] = $dec['minutes'];
-	$comment['secondes'] = $dec['secondes'];
-
-	return $comment;
+function init_list_comments($list) {
+	foreach ($list as $item => $comm) {
+		$dec = decode_id($comm['bt_id']);
+		$list[$item]['auteur_lien'] = (!empty($comm['bt_webpage'])) ? '<a href="'.$comm['bt_webpage'].'" class="webpage">'.$comm['bt_author'].'</a>' : $comm['bt_author'] ;
+		$list[$item]['anchor'] = article_anchor($comm['bt_id']);
+		$list[$item]['bt_link'] = get_blogpath($comm['bt_article_id'], '0').'#'.$list[$item]['anchor'];
+		$list[$item]['annee'] = $dec['annee'];
+		$list[$item]['mois'] = $dec['mois'];
+		$list[$item]['jour'] = $dec['jour'];
+		$list[$item]['heure'] = $dec['heure'];
+		$list[$item]['minutes'] = $dec['minutes'];
+		$list[$item]['secondes'] = $dec['secondes'];
+	}
+	return $list;
 }
+
 
 // POST ARTICLE
 /*
@@ -247,26 +157,35 @@ function init_comment($mode, $id) {
  * an array
  *
  */
-function init_post_article($id) { //no mode : it's always admin.
+function init_post_article() { //no $mode : it's always admin.
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		$keywords = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['mots_cles']))));
 	} else {
 		$keywords = extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']);
 	}
-	$comment = array (
-		$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-		$GLOBALS['data_syntax']['article_id'] => $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'],
-		$GLOBALS['data_syntax']['article_title'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['titre'])))),
-		$GLOBALS['data_syntax']['article_abstract'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['chapo'])))),
-		$GLOBALS['data_syntax']['article_notes'] => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['notes'])))),
-		$GLOBALS['data_syntax']['article_content'] => formatage_wiki(protect_markup(clean_txt($_POST['contenu']))),
-		$GLOBALS['data_syntax']['article_wiki_content'] => stripslashes(protect_markup(clean_txt($_POST['contenu']))),
-		$GLOBALS['data_syntax']['article_keywords'] => $keywords,
-		$GLOBALS['data_syntax']['article_categories'] => htmlspecialchars(traiter_tags($_POST['categories']), ENT_NOQUOTES),
-		$GLOBALS['data_syntax']['article_status'] => $_POST['statut'],
-		$GLOBALS['data_syntax']['article_allow_comments'] => $_POST['allowcomment']
+
+	$date = $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'];
+	$id = (isset($_POST['article_id']) and preg_match('#\d{14}#', $_POST['article_id'])) ? $_POST['article_id'] : $date;
+
+	$article = array (
+		'bt_id' => $id,
+		'bt_date' => $date,
+		'bt_title' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['titre'])))),
+		'bt_abstract' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['chapo'])))),
+		'bt_notes' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['notes'])))),
+		'bt_content' => formatage_wiki(protect_markup(clean_txt($_POST['contenu']))),
+		'bt_wiki_content' => stripslashes(protect_markup(clean_txt($_POST['contenu']))),
+		'bt_link' => '', // this one is not needed yet. Maybe in the futur. I dunno why it is still in the DB…
+		'bt_keywords' => $keywords,
+		'bt_categories' => htmlspecialchars(traiter_tags($_POST['categories'])), // htmlSpecialChars() nedded to escape the (") since tags are put in a <input/>. (') are escaped in form_categories(), with addslashes – not here because of JS problems :/
+		'bt_statut' => $_POST['statut'],
+		'bt_allow_comments' => $_POST['allowcomment'],
 	);
-	return $comment;
+
+	if ( isset($_POST['ID']) and is_numeric($_POST['ID']) ) { // ID only added on edit.
+		$article['ID'] = $_POST['ID']; 
+	}
+	return $article;
 }
 
 // POST COMMENT
@@ -280,7 +199,7 @@ function init_post_comment($id, $mode) {
 	$edit_msg = '';
 	if ( (isset($id)) and (isset($_POST['_verif_envoi'])) ) {
 		if ( ($mode == 'admin') and (isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes') ) {
-			$status = $_POST['status'];
+			$status = (isset($_POST['activer_comm']) and $_POST['activer_comm'] == 'on' ) ? '0' : '1'; // c'est plus « désactiver comm en fait »
 			$comment_id = $_POST['comment_id'];
 		} elseif ($mode == 'admin' and !isset($_POST['is_it_edit'])) {
 			$status = '1';
@@ -289,20 +208,52 @@ function init_post_comment($id, $mode) {
 			$status = $GLOBALS['comm_defaut_status'];
 			$comment_id = date('YmdHis');
 		}
+
 		$comment = array (
-			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['comment_id'] => $comment_id,
-			$GLOBALS['data_syntax']['comment_article_id'] => $id,
-			$GLOBALS['data_syntax']['comment_content'] => formatage_commentaires(stripslashes(htmlspecialchars(clean_txt($_POST['commentaire'].$edit_msg)))),
-			$GLOBALS['data_syntax']['comment_wiki_content'] => stripslashes(protect_markup(clean_txt($_POST['commentaire']))),
-			$GLOBALS['data_syntax']['comment_author'] => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
-			$GLOBALS['data_syntax']['comment_email'] => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
-			$GLOBALS['data_syntax']['comment_webpage'] => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
-			$GLOBALS['data_syntax']['comment_subscribe'] => (isset($_POST['subscribe']) and $_POST['subscribe'] == 'on') ? '1' : '0',
-			$GLOBALS['data_syntax']['comment_status'] => $status,
+			'bt_id' => $comment_id,
+			'bt_article_id' => $id,
+			'bt_content' => formatage_commentaires(htmlspecialchars(clean_txt($_POST['commentaire'].$edit_msg), ENT_NOQUOTES)),
+			'bt_wiki_content' => stripslashes(protect_markup(clean_txt($_POST['commentaire']))),
+			'bt_author' => htmlspecialchars(stripslashes(clean_txt($_POST['auteur']))),
+			'bt_email' => htmlspecialchars(stripslashes(clean_txt($_POST['email']))),
+			'bt_link' => '', // this is empty, 'cause bt_link is created on reading of DB, not writen in DB (usefull if we change server or site name some day).
+			'bt_webpage' => htmlspecialchars(stripslashes(clean_txt($_POST['webpage']))),
+			'bt_subscribe' => (isset($_POST['subscribe']) and $_POST['subscribe'] == 'on') ? '1' : '0',
+			'bt_statut' => $status,
 		);
 	}
+	if ( isset($_POST['ID']) and is_numeric($_POST['ID']) ) { // ID only added on edit.
+		$comment['ID'] = $_POST['ID']; 
+	}
+
 	return $comment;
 }
 
-?>
+// POST LINK
+function init_post_link2() { // second init : the whole link data needs to be stored
+	$id = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['bt_id']))));
+	$author = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['bt_author']))));
+	if (empty($_POST['url'])) {
+		$url = $GLOBALS['racine'].'index.php?mode=links&amp;id='.$id;
+	} else {
+		$url = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['url']))));
+	}
+	$statut = (isset($_POST['bt_statut'])) ? 0 : 1;
+	$link = array (
+		'bt_id' => $id,
+		'bt_type' => htmlspecialchars($_POST['type']),
+		'bt_content' => formatage_links(htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['description']))), ENT_NOQUOTES)), // formatage_wiki() ne parse que les tags BBCode. Le HTML est converti en texte.
+		'bt_wiki_content' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['description'])))),
+		'bt_author' => $author,
+		'bt_title' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['title'])))),
+		'bt_link' => $url,
+		'bt_statut'=> $statut
+	);
+	if ( isset($_POST['ID']) and is_numeric($_POST['ID']) ) { // ID only added on edit.
+		$link['ID'] = $_POST['ID']; 
+	}
+
+	return $link;
+}
+
+

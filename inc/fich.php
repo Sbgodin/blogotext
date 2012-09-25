@@ -12,265 +12,313 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-// RETOURNE UN TABLEAU SELON RECHERCHE
-function table_recherche($depart, $recherche, $statut, $mode) {
-	if (strlen(trim($recherche))) {
-		$table_matchs = array();
-		$articles = table_derniers($depart, '-1', $statut, $mode);
-		foreach ($articles as $id) {
-			$dec = decode_id($id);
-			$dossier = $depart.'/'.$dec['annee'].'/'.$dec['mois'].'/';
-			$article = parse_xml($dossier.$id, 'bt_content');
-			//	La ligne suivant évite de rechercher les balises (par ex, dans le "href" d'un <a></a>).
-			$article = preg_replace('#</?.*>#Ui', '', $article);
-			if (strpos(strtolower($article), strtolower($recherche)) !== FALSE ) {
-				$table_matchs[]= $id;
-			}
-		}
-	return $table_matchs;
+// THIS FILE
+// 
+// This file contains functions relative to search and list data posts.
+// It also contains functions about files : creating, deleting files, etc.
+// In addition, functions used when data is saved in files or DB-files are here too.
+
+
+/* FOR COMMENTS : RETUNS nb_com per author */
+function nb_entries_as($table, $what) {
+	$result = array();
+	$query = "SELECT count($what) AS nb,$what FROM $table GROUP BY $what ORDER BY nb DESC";
+
+	try {
+		$result = $GLOBALS['db_handle']->query($query)->fetchAll();
+		return $result;
+	} catch (Exception $e) {
+		die('Erreur 0349 : '.$e->getMessage());
 	}
 }
 
-// RETOURNE UN TABLEAU SELON AUTEUR DE COMMENTAIRE
-// IF NO AUTHOR SPECIFIED : $array[comment_id] => author
-// IF AUTHOR SPECIFIED    : $array[i] => comment_id
-function table_auteur($depart, $name, $statut, $mode) {
-	$comms = table_derniers($depart, '-1', $statut, $mode);
-	$author_list = array();
-	if ($comms != "") {
-		foreach ($comms as $id => $com) {
-			$comment = init_comment($mode, get_id($com));
-			$author = parse_xml($depart."/".get_path($comment['id']), $GLOBALS['data_syntax']['comment_author']);
-			if  (!empty($name)) {
-				if ($author == $name) {
-					$author_list[] = $comment['id'];
-				}
-			}
-			else $author_list[$comment['id']] = $author;
-		}
-	}
-	return $author_list;
-}
 
+// retourne la liste les jours d’un mois que le calendrier doit afficher.
+function table_list_date($date, $statut, $mode, $table) {
+	$return = array();
+	$and_statut = (!empty($statut)) ? 'AND bt_statut=\''.$statut.'\'' : '';
 
-// RETOURNE UN TABLEAU SELON TAG
-function table_tags($depart, $txt, $statut, $mode) {
-	$searched = htmlspecialchars($txt); // essential to escape txt here ???
-	$articles = table_derniers($depart, '-1', $statut, $mode);
-	foreach ($articles as $id) {
-		$date = decode_id($id);
-		$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-		$article_tags_all = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
-		$article_tags = explode(', ', $article_tags_all);
-		$article_tags = array_map("htmlspecialchars", $article_tags);
-		if (in_array($searched, $article_tags)) {
-			$table_matchs[] = $id;
-		}
-	}
-	if (!empty($table_matchs)) {
-		$retour = $table_matchs;
+	if ($table == 'articles') {
+		$and_date = ($mode == 'admin') ? '' : 'AND bt_date <= '.date('YmdHis');
+		$query = "SELECT bt_date FROM $table WHERE bt_date LIKE '$date%' $and_statut $and_date";
 	} else {
-		$retour = '';
+		$and_date = ($mode == 'admin') ? '' : 'AND bt_id <= '.date('YmdHis');
+		$query = "SELECT bt_id FROM $table WHERE bt_id LIKE '$date%' $and_statut $and_date";
+	}
+	try {
+		$return = $GLOBALS['db_handle']->query($query)->fetchAll();
+		return $return;
+	} catch (Exception $e) {
+		die('Erreur 21436 : '.$e->getMessage());
+	}
+}
+
+// LORS DU POSTAGE D'UN ARTICLE : FIXME : ajouter jeton de sécurité
+function traiter_form_billet($billet) {
+
+	if ( isset($_POST['enregistrer']) and !isset($billet['ID']) ) {
+		$result = bdd_article($billet, 'enregistrer-nouveau');
+		if ($result === TRUE) {
+			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj');
+		}
+		else { die($result); }
 	}
 
-	return $retour;
+	elseif ( isset($_POST['enregistrer']) and isset($billet['ID']) ) {
+		$result = bdd_article($billet, 'modifier-existant');
+		if ($result === TRUE) {
+			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout');
+		}
+		else { die($result); }
+	}
+	elseif ( isset($_POST['supprimer']) and isset($_POST['ID']) and is_numeric($_POST['ID']) ) {
+		$result = bdd_article($billet, 'supprimer-existant');
+		if ($result === TRUE) {
+			redirection('articles.php?msg=confirm_article_suppr');
+		}
+		else { die($result); }
+	}
 }
+
+function bdd_article($billet, $what) {
+	// l'article n'existe pas, on le crée
+	if ( $what == 'enregistrer-nouveau' ) {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('INSERT INTO articles
+				(	bt_type,
+					bt_id,
+					bt_date,
+					bt_title,
+					bt_abstract,
+					bt_link,
+					bt_notes,
+					bt_content,
+					bt_wiki_content,
+					bt_categories,
+					bt_keywords,
+					bt_allow_comments,
+					bt_nb_comments,
+					bt_statut
+				)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+			$req->execute(array(
+				'article',
+				$billet['bt_id'],
+				$billet['bt_date'],
+				$billet['bt_title'],
+				$billet['bt_abstract'],
+				$billet['bt_link'],
+				$billet['bt_notes'],
+				$billet['bt_content'],
+				$billet['bt_wiki_content'],
+				$billet['bt_categories'],
+				$billet['bt_keywords'],
+				$billet['bt_allow_comments'],
+				0,
+				$billet['bt_statut']
+			));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur ajout article: '.$e->getMessage();
+		}
+	// l'article existe, et il faut le mettre à jour alors.
+	} elseif ( $what == 'modifier-existant' ) {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('UPDATE articles SET
+				bt_date=?,
+				bt_title=?,
+				bt_link=?,
+				bt_abstract=?,
+				bt_notes=?,
+				bt_content=?,
+				bt_wiki_content=?,
+				bt_categories=?,
+				bt_keywords=?,
+				bt_allow_comments=?,
+				bt_statut=?
+				WHERE ID=?');
+			$req->execute(array(
+					$billet['bt_date'],
+					$billet['bt_title'],
+					$billet['bt_link'],
+					$billet['bt_abstract'],
+					$billet['bt_notes'],
+					$billet['bt_content'],
+					$billet['bt_wiki_content'],
+					$billet['bt_categories'],
+					$billet['bt_keywords'],
+					$billet['bt_allow_comments'],
+					$billet['bt_statut'],
+					$_POST['ID']
+			));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur mise à jour de l’article: '.$e->getMessage();
+		}
+	// Suppression d'un article
+	} elseif ( $what == 'supprimer-existant' ) {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('DELETE FROM articles WHERE ID=?');
+			$req->execute(array($_POST['ID']));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur 123456 : '.$e->getMessage();
+		}
+	}
+}
+
+
+
+// traiter un ajout de lien prend deux étapes : 1) on donne le lien > il donne un form avec lien+titre 2) après ajout d'une description, on clic pour l'ajouter à la bdd.
+// une fois le lien donné (étape 1) et les champs renseignés (étape 2) on traite dans la BDD
+function traiter_form_link($link) {
+	// redirection : conserve les param dans l'URL mais supprime le 'msg' (pour pas qu'il y soit plusieurs fois, après les redirections.
+	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
+	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
+
+	if ( isset($_POST['enregistrer'])) {
+		$result = bdd_lien($link, 'enregistrer-nouveau');
+		if ($result === TRUE) {
+			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
+		}
+		else { die($result); }
+	}
+
+	elseif (isset($_POST['editer'])) {
+		$result = bdd_lien($link, 'modifier-existant');
+		if ($result === TRUE) {
+			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
+		}
+		else { die($result); }
+	}
+	elseif ( isset($_POST['supprimer'])) {
+		$result = bdd_lien($link, 'supprimer-existant');
+		if ($result === TRUE) {
+			redirection($_SERVER['PHP_SELF'].'?msg=confirm_link_suppr');
+		}
+		else { die($result); }
+	}
+
+}
+
+
+function bdd_lien($link, $what) {
+	// ajout d'un nouveau lien
+	if ($what == 'enregistrer-nouveau') {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('INSERT INTO links
+			(	bt_type,
+				bt_id,
+				bt_content,
+				bt_wiki_content,
+				bt_author,
+				bt_title,
+				bt_link,
+				bt_statut
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+			$req->execute(array(
+				$link['bt_type'],
+				$link['bt_id'],
+				$link['bt_content'],
+				$link['bt_wiki_content'],
+				$link['bt_author'],
+				$link['bt_title'],
+				$link['bt_link'],
+				$link['bt_statut']
+			));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur 5867 : '.$e->getMessage();
+		}
+
+	// Édition d'un lien existant
+	} elseif ($what == 'modifier-existant') {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('UPDATE links SET
+				bt_content=?,
+				bt_wiki_content=?,
+				bt_author=?,
+				bt_title=?,
+				bt_link=?,
+				bt_statut=?
+				WHERE ID=?');
+			$req->execute(array(
+				$link['bt_content'],
+				$link['bt_wiki_content'],
+				$link['bt_author'],
+				$link['bt_title'],
+				$link['bt_link'],
+				$link['bt_statut'],
+				$link['ID']
+			));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur 435678 : '.$e->getMessage();
+		}
+	}
+	// Suppression d'un lien
+	elseif ($what == 'supprimer-existant') {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('DELETE FROM links WHERE ID=?');
+			$req->execute(array($link['ID']));
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur 97652 : '.$e->getMessage();
+		}
+	}
+}
+
+
 
 function list_all_tags() {
-	$depart = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
-	$articles = table_derniers($depart, '-1', '', 'public');
-	$tags = '';
-	if (!empty($articles)) {
-		foreach ($articles as $id) {
-			$date = decode_id($id);
-			$dossier = $depart.'/'.$date['annee'].'/'.$date['mois'].'/';
-			$article_tags = parse_xml($dossier.$id, $GLOBALS['data_syntax']['article_categories']);
-			$tags .= $article_tags.',';
-		}
-	}
-	return $tags;
-}
-
-// RETOURNE UN TABLEAU SELON DATE
-function table_date($depart, $annee, $mois, $jour, $statut) {
-	$dossier = $depart.'/'.$annee.'/'.$mois.'/';
-	$files = parcourir_dossier($dossier);
-	$contenu = array();
-	if ($statut != -1) {
-		foreach ($files as $file) {
-			if (get_id($file) <= date('YmdHis')) {
-				if (parse_xml($dossier.$file, $GLOBALS['data_syntax']['article_status']) == $statut) {
-					$contenu[] = $file;
-				}
+	try {
+		$res = $GLOBALS['db_handle']->query("SELECT bt_categories FROM articles");
+		$liste_tags = '';
+		// met tous les tags de tous les articles bout à bout
+		while ($entry = $res->fetch()) {
+			if (trim($entry['bt_categories']) != '') {
+				$liste_tags .= $entry['bt_categories'].',';
 			}
 		}
-	} else {
-		$contenu = $files;
+		$res->closeCursor();
+	} catch (Exception $e) {
+		die('Erreur : '.$e->getMessage());
 	}
-	if ($jour != '') { // jours, donc selection des messages
-		foreach ($contenu as $id) {
-			if (substr($id, 6, 2) == $jour) $contenu_j[] = $id;
+	// en crée un tableau
+	$tab_tags = explode(',', $liste_tags);
+	// les déboublonne
+	// c'est environ 100 fois plus rapide de faire un array_unique() avant ET un après de faire le trim() sur les cases.
+	$tab_tags = array_unique($tab_tags);
+	foreach($tab_tags as $i => $tag) {
+		if (trim($tag) != '') {
+			$tab_tags[$i] = trim($tag);
 		}
-	} else {
-		$contenu_j = $contenu;
 	}
-	if (isset($contenu_j)) {
-		natcasesort($contenu_j);
-		$liste = array_reverse($contenu_j); // faster than rsort()
-		return $liste;
+	$tab_tags = array_unique($tab_tags);
+	// parfois le explode laisse une case vide en fin de tableau. Le sort() le place alors au début.
+	// si la premiere case est vide, on la vire.
+	sort($tab_tags);
+	if ($tab_tags[0] == '') {
+		array_shift($tab_tags);
 	}
+	return $tab_tags;
 }
 
 
-// RETOURNE UN TABLEAU DE TOUS LES ARTICLES
-function table_derniers($dossier, $limite, $statut, $mode) {
-	$contenu = array();
-	// listage des dossiers des annees.
-	if ( $ouverture = opendir($dossier)) {
-		while ( false !== ($file = readdir($ouverture)) ) {
-			if (preg_match('/\d{4}/', $file)) {
-				$annees[]=$file;
-		}	}
-		closedir($ouverture);
-	}
-	// listage des dossiers des mois dans chaque dossier des annees
-	if (isset($annees)) {
-		foreach ($annees as $id => $dossier_annee) {
-			$chemin = $dossier.'/'.$dossier_annee.'/';
-			for ($mois = 1 ; $mois <= 12 ; $mois++) {
-				$mois = str_pad($mois, 2, "0", STR_PAD_LEFT);
-				$file_mois = $chemin.$mois;
-				if (is_dir($chemin.$mois) ) { 
-					if (preg_match('#'.$chemin.'\d{2}'.'#', $file_mois) ) {
-						$dossiers_mois[]= $dossier.'/'.$dossier_annee.'/'.$mois;
-					}
-				}
-	}	}	}
-	// listage des fichiers dans chaque dossiers des mois
-	if (isset($dossiers_mois)) {
-		foreach ($dossiers_mois as $path) {
-			$contenu = array_merge(parcourir_dossier($path), $contenu);
-		}
-	}
-	rsort($contenu);
-	if ($statut != '') { // if statut
-		$contenu_statut = array();
-		foreach ($contenu as $file) {
-			if (parse_xml($dossier.'/'.get_path(get_id($file)), $GLOBALS['data_syntax']['article_status']) == $statut) {
-				$contenu_statut[] = $file;
-			}
-		}
-	} else {
-		$contenu_statut = $contenu;
-	}
-	if ($mode == 'admin') {
-		$contenu_mode = $contenu_statut;
-	} else {
-		$contenu_mode = array();
-		foreach ($contenu_statut as $file) {
-			if (get_id($file) <= date('YmdHis')) {
-				$contenu_mode[] = $file;
-	}	}	}
-	if ($limite != '-1' ) {
-		$retour = array_slice($contenu_mode, 0, $limite);
-	} else {
-		$retour = $contenu_mode;
-	}
-	if (isset($retour)) {
-		return $retour;
-	}
-}
-
-function traiter_form_billet($billet) {
-	if (isset($_POST['enregistrer'])) {
-		if (fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $billet) !== FALSE) {
-			$id = $billet[$GLOBALS['data_syntax']['article_id']];
-			if (isset($_POST['article_id']) and ($billet[$GLOBALS['data_syntax']['article_id']] != $_POST['article_id'] )) {
-				unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($_POST['article_id']));
-				$id = $billet[$GLOBALS['data_syntax']['article_id']];
-			}
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$id.'&msg=confirm_article_ajout');
-		} else {
-			erreur('Ecriture impossible');
-			exit;
-		}
-	}
-	elseif (isset($_POST['supprimer'])) {
-		if (isset($_POST['security_coin_article']) and htmlspecialchars($_POST['security_coin_article']) == md5($_POST['article_id'].$_SESSION['time_supprimer_article']) and $_SESSION['time_supprimer_article'] >= (time() - 300) ) {
-			if (unlink($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($billet[$GLOBALS['data_syntax']['article_id']]))) {
-				redirection('index.php?msg=confirm_article_suppr');
-			} else {
-				redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr_impos');
-				exit;
-			}
-		} else {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet[$GLOBALS['data_syntax']['article_id']].'&errmsg=error_article_suppr');
-			exit;
-		}
-	}
-}
-
-function fichier_data($dossier, $billet) {
-	$article_data = '<?php die("If you were looking for the answer to life, the universe and everything... It is not here."); ?>';
-	$article_data .= "\n";
-	$date = decode_id($billet[$GLOBALS['data_syntax']['article_id']]);
-
-	foreach ($billet as $markup => $content) {
-		$article_data .= '<'.$markup.'>'.$content.'</'.$markup.'>'."\n" ;
-	}
-	if (!empty($billet['bt_categories']) and $billet['bt_status'] == 1) {
-		fichier_tags($billet['bt_categories'], '0');
-	}
+function creer_dossier($dossier, $make_htaccess='') {
 	if ( !is_dir($dossier) ) {
-		$dossier_ini = creer_dossier($dossier);
-		fichier_index($dossier);
-		fichier_htaccess($dossier);
-	}
-	if ( !is_dir(($dossier).'/'.$date['annee']) ) {
-		$dossier_annee = creer_dossier($dossier.'/'.$date['annee']);
-		fichier_index($dossier.'/'.$date['annee']);
-		fichier_htaccess($dossier.'/'.$date['annee']);
-	}
-	if ( !is_dir(($dossier).'/'.$date['annee'].'/'.$date['mois']) ) {
-		$dossier_mois = creer_dossier($dossier.'/'.$date['annee'].'/'.$date['mois']);
-		fichier_index($dossier.'/'.$date['annee'].'/'.$date['mois']);
-		fichier_htaccess($dossier.'/'.$date['annee'].'/'.$date['mois']);
-	}
-	$fichier_data = $dossier.'/'.$date['annee'].'/'.$date['mois'].'/'.$billet[$GLOBALS['data_syntax']['article_id']].'.'.$GLOBALS['ext_data'];
-	$new_file_data = fopen($fichier_data,'wb+');
-	if (fwrite($new_file_data,$article_data) === FALSE) {
-		return FALSE;
-	} else {
-		fclose($new_file_data);
-		return TRUE;
-	}
-}
-
-function creer_dossier($dossier) {
-	if ( !is_dir($dossier) ) {
-		if (mkdir($dossier, 0755) === FALSE) {
-			return FALSE;
-		} else {
+		if (mkdir($dossier, 0777) === TRUE) {
+			fichier_index($dossier); // fichier index.html pour éviter qu'on puisse lister les fihciers du dossier
+			if ($make_htaccess == 1) fichier_htaccess($dossier); // fichier évitant qu'on puisse accéder aux fichiers du dossier directement
 			return TRUE;
+		} else {
+			return FALSE;
 		}
-	} else {
-		return TRUE;
 	}
+	return TRUE; // si le dossier existe déjà.
 }
 
-function parcourir_dossier($dossier) {
-	$contenu = array();
-	if (is_dir($dossier)) {
-		$listage = scandir($dossier);	
-		foreach ($listage as $fichier) {
-			if (preg_match('#^\d{14}\.'.$GLOBALS['ext_data'].'$#', $fichier)) {
-				$contenu[] = $fichier;
-			}
-		}
-	}
-	sort($contenu);
-	return $contenu;
-}
 
 function fichier_user() {
 	$fichier_user = '../config/user.php';
@@ -294,33 +342,6 @@ function fichier_user() {
 	}
 }
 
-function fichier_tags($new_tags, $reset) {
-	$fichier_tags = '../config/tags.php';
-	/* new tags */
-	$new_tags_array = explode(',' , $new_tags);
-	$new_tags_array = array_map("trim", $new_tags_array);
-//	$new_tags_array = array_map("base64_encode", $new_tags_array);
-	/* old tags */
-	if (isset($GLOBALS['tags']) and ($reset == '0')) {
-		$old_tags = $GLOBALS['tags'];
-		$old_tags_array = explode(',' , $old_tags);
-		$nb2 = sizeof($old_tags_array);
-	} else {
-		$old_tags_array[] = '';
-		$nb2 = 1;
-	}
-	$all_tags = array_unique(array_merge($new_tags_array, $old_tags_array));
-	sort($all_tags);
-	$inline_tags = implode(',' , $all_tags);
-	$inline_tags = trim($inline_tags, ',');
-	$new_file_tags = fopen($fichier_tags,'wb+');
-	if (($new_file_tags === FALSE) or (fwrite($new_file_tags,$inline_tags) === FALSE)) {
-		return FALSE;
-	} else {
-		fclose($new_file_tags);
-		return TRUE ;
-	}
-}
 
 function fichier_prefs() {
 	$fichier_prefs = '../config/prefs.php';
@@ -331,7 +352,8 @@ function fichier_prefs() {
 		$description = clean_txt($_POST['description']);
 		$racine = trim($_POST['racine']);
 		$max_bill_acceuil = $_POST['nb_maxi'];
-		$max_comm_encart = $_POST['nb_maxi_comm'];
+//		$max_linx_accueil = $_POST['nb_maxi_linx'];
+//		$max_comm_encart = $_POST['nb_maxi_comm'];
 		$max_bill_admin = $_POST['nb_list'];
 		$max_comm_admin = $_POST['nb_list_com'];
 		$format_date = $_POST['format_date'];
@@ -344,14 +366,19 @@ function fichier_prefs() {
 		$comm_defaut_status = $_POST['comm_defaut_status'];
 		$automatic_keywords = $_POST['auto_keywords'];
 		$require_email = $_POST['require_email'];
+		// linx
+//		$autoriser_liens_public = $_POST['allow_public_linx'];
+//		$linx_defaut_status = $_POST['linx_defaut_status'];
+		$nombre_liens_admin = $_POST['nb_list_linx'];
 	} else {
 		$auteur = $GLOBALS['identifiant'];
-		$email = 'nom@mail.com';
+		$email = 'mail@example.com';
 		$nomsite = 'Blogotext';
 		$description = $GLOBALS['lang']['go_to_pref'];
 		$racine = trim($_POST['racine']);
 		$max_bill_acceuil = '10';
-		$max_comm_encart = '5';
+//		$max_linx_accueil = '50';
+//		$max_comm_encart = '5';
 		$max_bill_admin = '25';
 		$max_comm_admin = '50';
 		$format_date = '0';
@@ -360,12 +387,15 @@ function fichier_prefs() {
 		$global_com_rule = '0';
 		$connexion_captcha = '0';
 		$activer_categories = '1';
-		$theme_choisi = 'defaut';
+		$theme_choisi = 'default';
 		$comm_defaut_status = '1';
 		$automatic_keywords = '1';
 		$require_email = '0';
+		// linx
+//		$autoriser_liens_public = '0';
+//		$linx_defaut_status = '1';
+		$nombre_liens_admin = '50';
 	}
-
 	$prefs = "<?php\n";
 	$prefs .= "\$GLOBALS['auteur'] = '".$auteur."';\n";	
 	$prefs .= "\$GLOBALS['email'] = '".$email."';\n";
@@ -374,8 +404,9 @@ function fichier_prefs() {
 	$prefs .= "\$GLOBALS['racine'] = '".$racine."';\n";
 	$prefs .= "\$GLOBALS['max_bill_acceuil'] = '".$max_bill_acceuil."';\n";
 	$prefs .= "\$GLOBALS['max_bill_admin'] = '".$max_bill_admin."';\n";
-	$prefs .= "\$GLOBALS['max_comm_encart'] = '".$max_comm_encart."';\n";
+//	$prefs .= "\$GLOBALS['max_comm_encart'] = '".$max_comm_encart."';\n";
 	$prefs .= "\$GLOBALS['max_comm_admin'] = '".$max_comm_admin."';\n";
+//	$prefs .= "\$GLOBALS['max_linx_acceuil'] = '".$max_linx_accueil."';\n";
 	$prefs .= "\$GLOBALS['format_date'] = '".$format_date."';\n";
 	$prefs .= "\$GLOBALS['format_heure'] = '".$format_heure."';\n";
 	$prefs .= "\$GLOBALS['fuseau_horaire'] = '".$fuseau_horaire."';\n";
@@ -386,6 +417,9 @@ function fichier_prefs() {
 	$prefs .= "\$GLOBALS['comm_defaut_status']= '".$comm_defaut_status."';\n";
 	$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
 	$prefs .= "\$GLOBALS['require_email']= '".$require_email."';\n";
+	$prefs .= "\$GLOBALS['max_linx_admin']= '".$nombre_liens_admin."';\n";
+//	$prefs .= "\$GLOBALS['allow_public_linx']= '".$autoriser_liens_public."';\n";
+//	$prefs .= "\$GLOBALS['linx_defaut_status']= '".$linx_defaut_status."';\n";
 	$prefs .= "?>";
 	$new_file_pref = fopen($fichier_prefs,'wb+');
 	if (fwrite($new_file_pref,$prefs) === FALSE) {
@@ -395,6 +429,7 @@ function fichier_prefs() {
 		return TRUE;
 	}
 }
+
 
 function fichier_index($dossier) {
 	$content = '<html>'."\n";
@@ -415,6 +450,7 @@ function fichier_index($dossier) {
 	}
 }
 
+
 function fichier_htaccess($dossier) {
 	$content = '<Files *>'."\n";
 	$content .= 'Order allow,deny'."\n";
@@ -430,6 +466,8 @@ function fichier_htaccess($dossier) {
 	}
 }
 
+
+// dans le panel, l'IP de dernière connexion est affichée. Il est stoqué avec cette fonction.
 function fichier_ip() {
 	$new_ip = htmlspecialchars($_SERVER['REMOTE_ADDR']);
 	$new_time = date('YmdHis');
@@ -447,18 +485,22 @@ function fichier_ip() {
 	}
 }
 
-function apercu($article) {
-	if (isset($article)) {
-		$apercu = '<h1>'.$article['titre'].'</h1>'."\n";
-		$apercu .= '<div><strong>'.$article['chapo'].'</strong></div>'."\n";
-		$apercu .= '<div>'.$article['contenu'].'</div>'."\n";
-		echo '<div id="apercu">'."\n".$apercu.'</div>'."\n\n";
+
+// écrit un fichier cache (diminuer les charges serveur)
+function cache_file($file, $text) {
+	$text .= "\n".'<!-- Servi par le cache -->'."\n";
+	creer_dossier($GLOBALS['dossier_cache'], 1); // le test d'existence du dossier est fait dans creer_dossier()
+	$file_handle = fopen($file, "w");
+	if ($file_handle) {
+		// écriture
+		fwrite($file_handle, $text);
+		fclose($file_handle);
 	}
 }
 
+
 function get_literal_chmod($file) {
 	$perms = fileperms($file);
-
 	if (($perms & 0xC000) == 0xC000) {
 		$info = 's'; // Socket
 	} elseif (($perms & 0xA000) == 0xA000) {
@@ -476,7 +518,6 @@ function get_literal_chmod($file) {
 	} else {
 		$info = 'u'; // Inconnu
 	}
-
 	// Autres
 	$info .= (($perms & 0x0100) ? 'r' : '-');
 	$info .= (($perms & 0x0080) ? 'w' : '-');
@@ -493,35 +534,34 @@ function get_literal_chmod($file) {
 	return $info;
 }
 
-function liste_articles($liste, $template_liste) {
-	foreach ($liste as $cle => $article) {
-		$extension = pathinfo($article, PATHINFO_EXTENSION);
-		if ($extension == $GLOBALS['ext_data']) {
-			$id = substr($article, 0, 14);
-			$billet = init_billet('public', $id);
-			$liste_articles = conversions_theme_article($template_liste, $billet);
-			echo $liste_articles;
+
+// à partir de l’extension du fichier, trouve le "type" correspondant.
+// les "type" et le tableau des extensions est le $GLOBALS['files_ext'] dans conf.php
+function detection_type_fichier($extension) {
+	$good_type = 'other'; // par défaut
+	foreach($GLOBALS['files_ext'] as $type => $exts) {
+		if ( in_array($extension, $exts) ) {
+			$good_type = $type;
+			break; // sort du foreach au premier 'match'
 		}
+	}
+	return $good_type;
+}
+
+
+function open_file_db_fichiers($fichier) {
+	$liste  = (file_exists($fichier)) ? unserialize(base64_decode(substr(file_get_contents($fichier),strlen('<?php /* '), -strlen(' */')))) : array();
+	return $liste;
+}
+
+function get_external_file($url, $timeout) {
+	$context = stream_context_create(array('http'=>array('timeout' => $timeout))); // Timeout : time until we stop waiting for the response.
+	$data = @file_get_contents($url, false, $context, -1, 1000000); // We download at most 4 Mb from source.
+	if (isset($data) and isset($http_response_header) and (strpos($http_response_header[0], '200 OK') !== FALSE) ) {
+		return $data;
+	}
+	else {
+		return array();
 	}
 }
 
-function parse_xml($fichier, $balise) {
-	if (is_file($fichier)) {
-		if ($openfile = file_get_contents($fichier)) {
-				$sizeitem = strlen('<'.$balise.'>');
-				$debut = strpos($openfile, '<'.$balise.'>') + $sizeitem;
-				$fin = strpos($openfile, '</'.$balise.'>');
-			if (($debut and $fin) !== FALSE) {
-				$lenght = $fin - $debut;
-				$return = substr($openfile, $debut, $lenght);
-				return $return;
-			} else {
-				return '';
-			}
-		} else {
-			erreur('Impossible de lire le fichier '.$fichier);
-		}
-	}
-}
-
-?>

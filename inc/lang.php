@@ -19,9 +19,9 @@ $GLOBALS['langs'] = array(
 		"de" => 'Deutsch'
 );
 
-require_once('lang/fr_FR.php');
-require_once('lang/en_EN.php');
-require_once('lang/nl_NL.php');
-require_once('lang/de_DE.php');
+include_once('lang/fr_FR.php');
+include_once('lang/en_EN.php');
+include_once('lang/nl_NL.php');
+include_once('lang/de_DE.php');
 
 ?>

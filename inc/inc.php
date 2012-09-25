@@ -12,7 +12,6 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-$GLOBALS['tags'] = file_get_contents('../config/tags.php');
 require_once 'lang.php';
 require_once '../config/user.php';
 require_once '../config/prefs.php';
@@ -27,4 +26,7 @@ require_once 'veri.php';
 require_once 'util.php';
 require_once 'imgs.php';
 require_once 'jasc.php';
+
+require_once 'sqli.php';
+
 ?>

@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -13,11 +13,14 @@
 # *** LICENSE ***
 
 $begin = microtime(TRUE);
-//error_reporting(-1);
 $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
+error_reporting($GLOBALS['show_errors']);
 
 operate_session();
+
+$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
+
 
 // RECUP MAJ
 $article_id='';
@@ -29,27 +32,22 @@ $article_title='';
 $erreurs_form = array();
 if (isset($_POST['_verif_envoi'])) {
 	$comment = init_post_comment($_POST['comment_article_id'], 'admin');
-//	die(print_r($comment));
 	$erreurs_form = valider_form_commentaire($comment, 0, 0, 'admin');
 	if (empty($erreurs_form)) {
-		traiter_form_commentaire($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $comment);
+		traiter_form_commentaire($comment, 'admin');
 	}
 }
 
+$tableau = array();
 // if article ID is given in query string
 if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 	$param_makeup['menu_theme'] = 'for_article';
 	$article_id = $_GET['post_id'];
-	$loc_data = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'].'/'.get_path($article_id);
-	if ( (file_exists($loc_data)) and (preg_match('/\d{14}/',$article_id)) ) {
-		$post = init_billet('admin', $article_id);
-		$article_title = $post['titre'];
-		$commentaires = $post['nb_comments'];
-		$param_makeup['show_links'] = '0';
-	} else {
-		echo $GLOBALS['lang']['note_no_article'];
-		exit;
-	}
+	$post = liste_base_articles('id', $article_id, 'admin', '', 0, '');
+	$article_title = $post[0]['bt_title'];
+	$commentaires = liste_base_comms('assos_art', $article_id, 'admin', '', 0, '');
+	$param_makeup['show_links'] = '0';
+
 }
 // else, no ID 
 else {
@@ -60,96 +58,103 @@ else {
 			$annee = substr($_GET['filtre'], 0, 4);
 			$mois = substr($_GET['filtre'], 4, 2);
 			$jour = substr($_GET['filtre'], 6, 2);
-			$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'].'/'.$annee.'/'.$mois;
-			$commentaires = table_date($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $annee, $mois, $jour, -1);
-		} elseif ($_GET['filtre'] == 'draft') {
-			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '0', 'admin');
-		} elseif ($_GET['filtre'] == 'pub') {
-			$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '1', 'admin');
-		} else {
-			$commentaires = table_auteur($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], htmlspecialchars($_GET['filtre']), '', 'admin' );
+			$commentaires = liste_base_comms('date', $annee.$mois.$jour, 'admin', '', 0, '');
 		}
-	} elseif (isset($_GET['q'])) {
-		$commentaires = table_recherche($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], htmlspecialchars($_GET['q']), '', 'admin');
-	} else { // no filter, so list'em all
-		$commentaires = table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], $GLOBALS['max_comm_admin'], '', 'admin');
+		elseif ($_GET['filtre'] == 'draft') {
+			$commentaires = liste_base_comms('statut', 0, 'admin', '', 0, '');
+		}
+		elseif ($_GET['filtre'] == 'pub') {
+			$commentaires = liste_base_comms('statut', 1, 'admin', '', 0, '');
+		}
+		else {
+			$commentaires = liste_base_comms('auteur', htmlspecialchars($_GET['filtre']), 'admin', '', 0, '');
+		}
 	}
-	$nb_total_comms = count(table_derniers($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '-1', '', 'admin'));
-	$post['nb_comments'] = $commentaires;
+	elseif (!empty($_GET['q'])) {
+			$commentaires = liste_base_comms('recherche', htmlspecialchars($_GET['q']), 'admin', '', 0, '');
+	}
+	else { // no filter, so list'em all
+			$commentaires = liste_base_comms('', '', 'admin', '', 0, $GLOBALS['max_comm_admin']);
+	}
+	$nb_total_comms = liste_base_comms('nb', '', 'admin', '', '0', '');
 	$param_makeup['show_links'] = '1';
 }
 
-function afficher_commentaire($content, $with_link) {
-	$comment = init_comment('admin', get_id($content));
-	afficher_form_commentaire($comment['article_id'], 'admin', '', get_id($content));
-	$date = decode_id($comment['id']);
-	echo '<div class="commentbloc" id="'.article_anchor($comment['id']).'">'."\n";
-		echo '<span onclick="reply(\'[b]@['.$comment['auteur'].'|#'.article_anchor($comment['id']).'] :[/b] \'); ">@</span> ';
-		echo '<h3 class="titre-commentaire">'.$comment['auteur_lien'].'</h3>'."\n";
-		echo '<p class="email"><a href="mailto:'.$comment['email'].'">'.$comment['email'].'</a></p>'."\n";
-		echo '<p class="lien_article_de_com">';
-		if ($with_link == 1) {
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['article_id'].'">'.parse_xml($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']."/".get_path($comment['article_id']), 'bt_title').'</a>';
-		}
-		if ($comment['status'] == '1') {
-			echo '<img src="style/accept.gif" title="'.$GLOBALS['lang']['comment_is_visible'].'"/>';
-		} elseif ($comment['status'] == '0') {
-			echo '<img src="style/deny.gif" title="'.$GLOBALS['lang']['comment_is_invisible'].'"/>';
-		}
-		echo '</p>'."\n";
+function afficher_commentaire($comment, $with_link) {
+	afficher_form_commentaire($comment['bt_article_id'], 'admin', '', $comment);
+	$date = decode_id($comment['bt_id']);
 
-		echo '<p class="date">'.date_formate($comment['id']).', '.heure_formate($comment['id']).'</p>'."\n";
-		echo $comment['contenu'];
-		echo "\t\t".'<input class="submit" name="showhide-form" onclick="unfold(this);" value="'.$GLOBALS['lang']['editer'].'" type="button"/> '."\n";
-		echo '<br style="clear: right;"/>'."\n";
-		echo $GLOBALS['form_commentaire'];
+	if ($comment['bt_statut'] == 0) { // item privé
+		echo '<div class="commentbloc privatebloc" id="'.article_anchor($comment['bt_id']).'">'."\n";
+	} else { // item public
+		echo '<div class="commentbloc" id="'.article_anchor($comment['bt_id']).'">'."\n";
+	}
+	echo '<span onclick="reply(\'[b]@['.$comment['bt_author'].'|#'.article_anchor($comment['bt_id']).'] :[/b] \'); ">@</span> ';
+	echo '<h3 class="titre-commentaire">'.$comment['auteur_lien'].'</h3>'."\n";
+	echo '<p class="email"><a href="mailto:'.$comment['bt_email'].'">'.$comment['bt_email'].'</a></p>'."\n";
+	echo '<p class="lien_article_de_com">';
+	if ($with_link == 1) {
+		echo $GLOBALS['lang']['sur'].' <a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['bt_article_id'].'">'.get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $comment['bt_article_id'], 'return').'</a>';
+	}
+	if ($comment['bt_statut'] == '1') {
+		echo '<img src="style/accept.png" title="'.$GLOBALS['lang']['comment_is_visible'].'"/>';
+	} elseif ($comment['bt_statut'] == '0') {
+		echo '<img src="style/deny.png" title="'.$GLOBALS['lang']['comment_is_invisible'].'"/>';
+	}
+	echo '</p>'."\n";
+
+	echo '<p class="date">'.date_formate($comment['bt_id']).', '.heure_formate($comment['bt_id']).'</p>'."\n";
+	echo $comment['bt_content'];
+	echo "\t\t".'<input class="submit blue-square" name="showhide-form" onclick="unfold(this);" value="'.$GLOBALS['lang']['editer'].'" type="button"/> '."\n";
+	echo '<br style="clear: right;"/>'."\n";
+	echo $GLOBALS['form_commentaire'];
 	echo '</div>'."\n\n";
 }
 
 // DEBUT PAGE
-afficher_top($GLOBALS['lang']['titre_commentaires'].' | '.$article_title);
-afficher_msg();
-afficher_msg_error();
+if (!empty($article_title)) {
+	$msgg = $GLOBALS['lang']['titre_commentaires'].' | '.$article_title;
+} else {
+	$msgg = $GLOBALS['lang']['titre_commentaires'];
+}
+afficher_top($msgg);
+
 echo '<div id="top">'."\n";
-echo moteur_recherche();
-
-echo '<ul id="nav">'."\n";
-afficher_menu('commentaires.php');
-echo '</ul>'."\n";
-
+afficher_msg($GLOBALS['lang']['titre_commentaires']);
+echo moteur_recherche($GLOBALS['lang']['search_in_comments']);
+afficher_menu(pathinfo($_SERVER['PHP_SELF'], PATHINFO_BASENAME));
 echo '</div>'."\n";
+
+echo '<div id="axe">'."\n";
 
 // SUBNAV
 echo '<div id="subnav">'."\n";
 
-echo '<ul id="mode">'."\n";
+echo '<p id="mode">'."\n";
 if ($param_makeup['menu_theme'] == 'for_article') {
-	echo "\t".'<li id="lien-edit"><a href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].' : '.$article_title.'</a></li>'."\n";
-	echo "\t".'<li id="lien-comments">'.ucfirst(nombre_commentaires(count($commentaires))).'</li>'."\n";
+	echo '<a id="lien-edit" href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].' : '.$article_title.'</a> &nbsp; – &nbsp; <span id="lien-comments">'.ucfirst(nombre_commentaires(count($commentaires))).'</span>';
 } elseif ($param_makeup['menu_theme'] == 'for_comms') {
-	echo "\t".'<li id="lien-edit">'.ucfirst(nombre_commentaires(count($commentaires))).' sur '.$nb_total_comms.'</li>'."\n";
+	echo '<span id="lien-comments">'.ucfirst(nombre_commentaires(count($commentaires))).' '.$GLOBALS['lang']['sur'].' '.$nb_total_comms.'</span>';
 }
-echo '</ul>'."\n";
-
-echo '</div>'."\n";
- 	
-echo '<div id="axe">'."\n";
-echo '<div id="page">'."\n";
+echo '</p>'."\n";
 
 // Affichage formulaire filtrage commentaires
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre('commentaires', $_GET['filtre'], 'admin');
+	afficher_form_filtre('commentaires', htmlspecialchars($_GET['filtre']), 'admin');
 } else {
 	afficher_form_filtre('commentaires', '', 'admin');
 }
+echo '</div>'."\n";
+ 	
+echo '<div id="page">'."\n";
 
 // COMMENTAIRES
 if (count($commentaires) > 0) {
-	foreach ($commentaires as $file => $content) {
+	foreach ($commentaires as $content) {
 		afficher_commentaire($content, $param_makeup['show_links']);
 	}
 } else {
-	info($GLOBALS['lang']['note_no_comment']);
+	echo info($GLOBALS['lang']['note_no_comment']);
 }
 
 if ($param_makeup['menu_theme'] == 'for_article') {
@@ -157,17 +162,8 @@ if ($param_makeup['menu_theme'] == 'for_article') {
 	echo '<h2 class="poster-comment">'.$GLOBALS['lang']['comment_ajout'].'</h2>'."\n";
 	echo $GLOBALS['form_commentaire'];
 }
-	echo '<script type="text/javascript">
-function unfold(button) {
-	var elem2hide = button.parentNode.getElementsByTagName(\'form\')[0];
-	if (elem2hide.style.display !== \'\') {
-		elem2hide.style.display = \'\';
-//		button.style.display = \'none\';
-	} else {
-		elem2hide.style.display = \'none\';
-	}
-}
-';
+	echo '<script type="text/javascript">';
+	echo js_unfold(0);
 	echo js_resize(0);
 	echo js_inserttag(0);
 
@@ -184,4 +180,4 @@ echo 'function reply(code) {
 </script>';
 
 footer('', $begin);
-?>
+

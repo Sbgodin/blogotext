@@ -40,9 +40,38 @@ function protect_markup($text) {
 	$result = preg_replace($patterns, '', $text);
 	return $result;
 }
-// used in callback
-function echapcode($a) {
-	return '<code>'.htmlspecialchars($a[1]).'</code>';
+
+function clean_txt($text) {
+	if (!get_magic_quotes_gpc()) {
+		$return = trim(addslashes($text));
+	} else {
+		$return = trim($text);
+	}
+return $return;
+}
+
+function diacritique($texte, $majuscules, $espaces) {
+	$texte = strip_tags($texte);
+	if ($majuscules == '0')
+		$texte = strtolower($texte);
+	$texte = html_entity_decode($texte, ENT_QUOTES, 'UTF-8'); // &eacute => é ; é => é ; (uniformise)
+	$texte = htmlentities($texte, ENT_QUOTES, 'UTF-8'); // é => &eacute;
+	$texte = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash|caron);#', '$1', $texte); // &eacute => e
+	$texte = preg_replace('#(\t|\n|\r)#', ' ' , $texte); // retours à la ligne => espaces
+	$texte = preg_replace('#&([a-z]{2})lig;#i', '$1', $texte); // EX : œ => oe ; æ => ae 
+	$texte = preg_replace('#&[\w\#]*;#U', '', $texte); // les autres (&quote; par exemple) sont virés
+	$texte = preg_replace('#[^\w -]#U', '', $texte); // on ne garde que chiffres, lettres _, -, et espaces.
+	if ($espaces == '0')
+		$texte = preg_replace('#[ ]+#', '-', $texte); // les espaces deviennent des tirets.
+	return $texte;
+}
+
+function rel2abs($article) { // convertit les URL relatives en absolues
+	$article = str_replace(' src="/', ' src="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
+	$article = str_replace(' href="/', ' href="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
+	$base = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+	$article = preg_replace('/(src|href)=\"(?!http)/i','src="'.$base.'/',$article);
+	return $article;
 }
 
 function formatage_wiki($texte) {
@@ -50,7 +79,7 @@ function formatage_wiki($texte) {
 //	$texte = nl2br($texte);
 	$tofind = array(
 		'`<(.*?)>\r+`',															// html
-		'`(^|\s|p>)((http|ftp)s?://([^\s\w/]?[\w/])*)(\s|$)?`im',	// Regex URL
+		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',	// Regex URL
 		'`(.*?)\r\r+`',															// p (laisse une interligne)
 		'`(.*?)\r`',																// br : retour à la ligne sans saut de ligne
 		'`\[([^[]+)\|([^[]+)\]`',												// a href
@@ -76,7 +105,7 @@ function formatage_wiki($texte) {
 	);
 	$toreplace = array(
 		'<$1>'."\n",																// html
-		'$1<a href="$2">$2</a>$5',												// url regex
+		'$1<a href="$2">$2</a>',												// url regex
 		"\n".'<p>$1</p>'."\n",													// p (laisse une interligne)
 		'$1<br/>'."\n",															// br : retour à la ligne sans saut de ligne
 		'<a href="$2">$1</a>',													// a href
@@ -123,19 +152,19 @@ function formatage_wiki($texte) {
 	return $texte_formate;
 }
 
-
 function formatage_commentaires($texte) {
 	$texte = " ".$texte;
-	$texte = str_replace(array("\\"), array("&#92;"), $texte);
 	$tofindc = array(
-		'#\[quote\](.+?)\[/quote\]#s',									// citation
+		'#\[quote\](.+?)\[/quote\]#s',									// citation } les citation imbriquées marchent pour **deux niveaux** seulement. [quote][quote]bla[/quote][/quote], 
+		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat logiquement attendu.
+																					//				} !!!! : [quote*][quote**][quote]bla[/quote**][/quote*][/quote] fait que les balises avec *, ** matchent.
 		'#\[code\](.+?)\[/code\]#s',										// code
 		'# »#',																	// close quote
 		'#« #', 																	// open quote
 		'# !#',																	// !
 		'# :#',																	// :
 		'# ;#',																	// ;
-		'`(\s)((https?|ftps?)://(www\.)?\S*)(\s)?`i',				// Regex URL
+		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',				// Regex URL
 		'`\[([^[]+)\|([^[]+)\]`',											// a href
 		'`\[b\](.*?)\[/b\]`s',												// strong
 		'`\[i\](.*?)\[/i\]`s',												// italic
@@ -144,13 +173,14 @@ function formatage_commentaires($texte) {
 	);
 	$toreplacec = array(
 		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
+		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
 		'<code>$1</code>',													// code
 		'&thinsp;»',															// close quote
 		'«&thinsp;',															// open quote
 		'&thinsp;!',															// !
 		'&nbsp;:',																// :
 		'&thinsp;;',															// ;
-		'$1<a href="$2">$2</a>$5',											// url
+		'$1<a href="$2">$2</a>',												// url
 		'<a href="$2">$1</a>',												// a href
 		'<span style="font-weight: bold;">$1</span>',				// strong
 		'<span style="font-style: italic;">$1</span>',				// italic
@@ -160,15 +190,48 @@ function formatage_commentaires($texte) {
 
 	$toreplaceArrayLength = sizeof($tofindc);
 	for ($i=0; $i < $toreplaceArrayLength; $i++) {
-		$texte2 = preg_replace($tofindc["$i"], $toreplacec["$i"], $texte);
-		$texte = $texte2;
+		$texte = preg_replace($tofindc["$i"], $toreplacec["$i"], $texte);
 	}
-	$texte = '<p>'.trim(nl2br(stripslashes($texte))).'</p>';
+
+	$texte = stripslashes($texte);
+	$texte = str_replace(array("\\"), array("&#92;"), $texte);
+	$texte = '<p>'.trim(nl2br($texte)).'</p>';
 	return $texte;
 }
 
+function formatage_links($texte) {
+	$tofind = array(
+		'#([^"\[\]])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',			// Regex URL /((http|ftp)+(s)?:\/\/[^<>\s]+)/i",
+		'#\[b\](.*?)\[/b\]#s',												// strong
+		'#\[i\](.*?)\[/i\]#s',												// italic
+		'#\[s\](.*?)\[/s\]#s',												// strike
+		'#\[u\](.*?)\[/u\]#s',												// souligne
+//		'#(.*?)\r#',															// br : retour à la ligne sans saut de ligne
+	);
+	$toreplace = array(
+		'$1<a href="$2">$2</a>',											// url
+		'<span style="font-weight: bold;">$1</span>',				// strong
+		'<span style="font-style: italic;">$1</span>',				// italic
+		'<span style="text-decoration: line-through;">$1</span>',// barre
+		'<span style="text-decoration: underline;">$1</span>',	// souligne
+//		'$1<br/>'."\n",														// br : retour à la ligne sans saut de ligne
+	);
 
-function date_formate($id) {
+	// ceci permet de formater l’ensemble du message, sauf les balises [code], 
+	$nb_balises_code_avant = preg_match_all('#\[code\](.*?)\[/code\]#s', $texte, $balises_code, PREG_SET_ORDER);
+	$texte_formate = preg_replace($tofind, $toreplace, ' '.$texte.' ');
+	if ($nb_balises_code_avant) {
+		$nb_balises_code_apres = preg_match_all('#\[code\](.*?)\[/code\]#s', $texte_formate, $balises_code_apres, PREG_SET_ORDER);
+		foreach ($balises_code as $i => $code) {
+			$texte_formate = str_replace($balises_code_apres[$i][0], '<pre>'.$balises_code[$i][1].'</pre>', $texte_formate);
+		}
+	}
+	$texte_formate = nl2br(trim(($texte_formate)));
+	return $texte_formate;
+}
+
+
+function date_formate($id, $format_force='') {
 	$retour ='';
 	$date= decode_id($id);
 		$time_article = mktime(0, 0, 0, $date['mois'], $date['jour'], $date['annee']);
@@ -191,7 +254,11 @@ function date_formate($id) {
 				'6' => $date['annee'].'-'.$date['mois'].'-'.$date['jour'],                 // 1983-01-14
 			);
 
-	$retour = $format[$GLOBALS['format_date']];
+		if ($format_force != '') {
+			$retour = $format[$format_force];
+		} else {
+			$retour = $format[$GLOBALS['format_date']];
+		}
 	}
 	return ucfirst($retour);
 }
@@ -209,6 +276,40 @@ function heure_formate($id) {
 	return $valeur;
 }
 
+// à partir d’une valeur en octets (par ex 20M) retourne la quantité en octect.
+// le format « 20M » est par exemple retourné avec ini_get("max_upload_size").
+function return_bytes($val) {
+	$val = trim($val);
+	$last = strtolower($val[strlen($val)-1]);
+	switch($last) {
+		case 'g': $val *= 1024;
+		case 'm': $val *= 1024;
+		case 'k': $val *= 1024;
+	}
+	return $val;
+}
+
+// retourne une chaine en kio, Mio, Gio… d’un entier représentant une taille en octets
+function taille_formate($taille) {
+	$prefixe = array (
+		'0' => $GLOBALS['lang']['byte_symbol'],   // 2^00 o
+		'1' => 'ki'.$GLOBALS['lang']['byte_symbol'], // 2^10 o
+		'2' => 'Mi'.$GLOBALS['lang']['byte_symbol'], // 2^20 o
+		'3' => 'Gi'.$GLOBALS['lang']['byte_symbol'], // ...
+		'4' => 'Ti'.$GLOBALS['lang']['byte_symbol'], // ...
+	);
+	$dix = 0;
+	while ($taille / (pow(2, 10*$dix)) > 1024 /*or ($dix >= '40')*/) {
+		$dix++;
+	}
+	$taille = $taille / (pow(2, 10*$dix));
+	if ($dix != 0) {
+		$taille = sprintf("%.1f", $taille);
+	}
+
+	return $taille.' '.$prefixe[$dix];
+}
+
 function jour_en_lettres($jour, $mois, $annee) {
 	$date = date('w', mktime(0, 0, 0, $mois, $jour, $annee));
 	switch($date) {
@@ -224,28 +325,48 @@ function jour_en_lettres($jour, $mois, $annee) {
 	return $nom;
 }
 
-function mois_en_lettres($numero) {
-	switch($numero) {
-		case '01': $nom = $GLOBALS['lang']['janvier']; break;
-		case '02': $nom = $GLOBALS['lang']['fevrier']; break;
-		case '03': $nom = $GLOBALS['lang']['mars']; break;
-		case '04': $nom = $GLOBALS['lang']['avril']; break;
-		case '05': $nom = $GLOBALS['lang']['mai']; break;
-		case '06': $nom = $GLOBALS['lang']['juin']; break;
-		case '07': $nom = $GLOBALS['lang']['juillet']; break;
-		case '08': $nom = $GLOBALS['lang']['aout']; break;
-		case '09': $nom = $GLOBALS['lang']['septembre']; break;
-		case '10': $nom = $GLOBALS['lang']['octobre']; break;
-		case '11': $nom = $GLOBALS['lang']['novembre']; break;
-		case '12': $nom = $GLOBALS['lang']['decembre']; break;
-		default: $nom = "(BT_ERROR_MONTH)"; break;
+function mois_en_lettres($numero, $abbrv='') {
+	if ($abbrv == 1) {
+		switch($numero) {
+			case '01': $nom = $GLOBALS['lang']['janv.']; break;
+			case '02': $nom = $GLOBALS['lang']['fev.']; break;
+			case '03': $nom = $GLOBALS['lang']['mars.']; break;
+			case '04': $nom = $GLOBALS['lang']['avr.']; break;
+			case '05': $nom = $GLOBALS['lang']['mai.']; break;
+			case '06': $nom = $GLOBALS['lang']['juin.']; break;
+			case '07': $nom = $GLOBALS['lang']['juil.']; break;
+			case '08': $nom = $GLOBALS['lang']['aout.']; break;
+			case '09': $nom = $GLOBALS['lang']['sept.']; break;
+			case '10': $nom = $GLOBALS['lang']['oct.']; break;
+			case '11': $nom = $GLOBALS['lang']['nov.']; break;
+			case '12': $nom = $GLOBALS['lang']['dec.']; break;
+			default: $nom = "(BT_ERROR_MONTH)"; break;
+		}
+		return $nom;
 	}
-	return $nom;
+	else {
+		switch($numero) {
+			case '01': $nom = $GLOBALS['lang']['janvier']; break;
+			case '02': $nom = $GLOBALS['lang']['fevrier']; break;
+			case '03': $nom = $GLOBALS['lang']['mars']; break;
+			case '04': $nom = $GLOBALS['lang']['avril']; break;
+			case '05': $nom = $GLOBALS['lang']['mai']; break;
+			case '06': $nom = $GLOBALS['lang']['juin']; break;
+			case '07': $nom = $GLOBALS['lang']['juillet']; break;
+			case '08': $nom = $GLOBALS['lang']['aout']; break;
+			case '09': $nom = $GLOBALS['lang']['septembre']; break;
+			case '10': $nom = $GLOBALS['lang']['octobre']; break;
+			case '11': $nom = $GLOBALS['lang']['novembre']; break;
+			case '12': $nom = $GLOBALS['lang']['decembre']; break;
+			default: $nom = "(BT_ERROR_MONTH)"; break;
+		}
+		return $nom;
+	}
 }
 
 function nombre_articles($nb) {
 	if ($nb == '0') {
-		$retour = $GLOBALS['lang']['aucun'].' '.$GLOBALS['lang']['label_article'];
+		$retour = $GLOBALS['lang']['note_no_article'];
 	} elseif ($nb == '1') {
 		$retour = $nb.' '.$GLOBALS['lang']['label_article'];
 	} elseif ($nb > '1') {
@@ -259,10 +380,42 @@ function nombre_commentaires($nb) {
 		$retour = $GLOBALS['lang']['note_no_comment'];
 	} elseif ($nb == '1') {
 		$retour = $nb.' '.$GLOBALS['lang']['label_commentaire'];
-	} elseif ($nb > '1') {
+	} else {
 		$retour = $nb.' '.$GLOBALS['lang']['label_commentaires'];
 	}
 	return $retour;
 }
 
-?>
+function nombre_liens($nb) {
+	if ($nb == '0') {
+		$retour = $GLOBALS['lang']['note_no_link'];
+	} elseif ($nb == '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_link'];
+	} elseif ($nb > '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_links'];
+	}
+	return $retour;
+}
+
+function nombre_images($nb) {
+	if ($nb == '0') {
+		$retour = $GLOBALS['lang']['note_no_image'];
+	} elseif ($nb == '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_image'];
+	} elseif ($nb > '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_images'];
+	}
+	return $retour;
+}
+
+function nombre_fichiers($nb) {
+	if ($nb == '0') {
+		$retour = $GLOBALS['lang']['note_no_file'];
+	} elseif ($nb == '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_fichier'];
+	} elseif ($nb > '1') {
+		$retour = $nb.' '.$GLOBALS['lang']['label_fichiers'];
+	}
+	return $retour;
+}
+

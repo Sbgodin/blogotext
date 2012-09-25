@@ -12,14 +12,20 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+/*****************************************************************************
+ some misc routines
+******************************************************************************/
 // gzip compression
-function initOutputFilter() {
-  ob_start('ob_gzhandler');
-  register_shutdown_function('ob_end_flush');
+if (extension_loaded('zlib')) {
+	ob_end_clean();
+	ob_start("ob_gzhandler");
 }
-initOutputFilter();
+else {
+	ob_start("ob_gzhandler");
+}
 
-//$begin = microtime(TRUE);
+
+$begin = microtime(TRUE);
 error_reporting(-1);
 
 session_start();
@@ -44,7 +50,6 @@ if ( !file_exists('config/user.php') or !file_exists('config/prefs.php') ) {
 
 $GLOBALS['BT_ROOT_PATH'] = '';
 
-$GLOBALS['tags'] = file_get_contents('config/tags.php');
 require_once 'inc/lang.php';
 require_once 'config/user.php';
 require_once 'config/prefs.php';
@@ -58,104 +63,196 @@ require_once 'inc/conv.php';
 require_once 'inc/util.php';
 require_once 'inc/veri.php';
 require_once 'inc/jasc.php';
+require_once 'inc/sqli.php';
 
-$depart = $GLOBALS['dossier_articles'];
+$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
+
+/*****************************************************************************
+ some misc requests
+******************************************************************************/
 
 // anti XSS : /index.php/%22onmouseover=prompt(971741)%3E or /index.php/ redirects all on index.php
+// if there is a slash after the "index.php", the file is considered as a folder, but the code inside it still executed…
+// You can also put escape with HTMLSPECIALCHARS the server[php_self] variable each time (less efficient…).
 if ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME']) {
 	header('Location: '.$_SERVER['SCRIPT_NAME']);
 }
-// mobile theme ?
-if ( isset($_GET['m'])) {
-	if (isset($_COOKIE['mobile_theme']) and $_COOKIE['mobile_theme'] == 1) {
-		setcookie('mobile_theme', '0', time() + 32000000, null, null, false, true);
-	} else {
-		setcookie('mobile_theme', '1', time() + 32000000, null, null, false, true);
-	}
-	header('Location: '.$_SERVER['PHP_SELF']);
+/* this-one bugs with the forward/backward link...
+foreach ($_SERVER as $i => $var) { $_SERVER[$i] = htmlspecialchars($_SERVER[$i]); }
+*/
+
+
+// Random article :-)
+if (isset($_GET['random'])) {
+	$tableau = liste_base_articles('random', '', 'public', '1', '', 1);
+	header('Location: '.$tableau[0]['bt_link']);
+	exit;
 }
 
 // unsubscribe from comments-newsletter and redirect on main page
-if ((isset($_GET['unsub']) and $_GET['unsub'] == 1) and (isset($_GET['article']) and preg_match('#\d{14}#',($_GET['article']))) and isset($_GET['mail']) ) { echo 'hi';
-	if (unsubscribe(htmlspecialchars($_GET['article']), $_GET['mail']) == TRUE) {
+if ((isset($_GET['unsub']) and $_GET['unsub'] == 1) and (isset($_GET['comment']) and preg_match('#\d{14}#',($_GET['comment']))) and isset($_GET['mail']) ) {
+
+	if (isset($_GET['all'])) {
+		$res = unsubscribe(htmlspecialchars($_GET['comment']), $_GET['mail'], 1);
+	} else {
+		$res = unsubscribe(htmlspecialchars($_GET['comment']), $_GET['mail'], 0);
+	}
+
+	if ($res == TRUE) {
 		header('Location: '.$_SERVER['PHP_SELF'].'?unsubsribe=yes');
 	} else {
 		header('Location: '.$_SERVER['PHP_SELF'].'?unsubsribe=no');
 	}
-// Single 
-} elseif ( isset($_SERVER['QUERY_STRING']) and preg_match('/^\d{4}\/\d{2}\/\d{2}\/\d{2}\/\d{2}\/\d{2}/',($_SERVER['QUERY_STRING'])) ) {
-	$article_id = $_SERVER['QUERY_STRING'] ;
-	$tab = explode('/',$article_id);
-	$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
-	$fichier_data = $depart.'/'.$tab['0'].'/'.$tab['1'].'/'.$id.'.'.$GLOBALS['ext_data'];
-	afficher_calendrier($depart, $tab['1'], $tab['0'], $tab['2']);
-	afficher_article($id);
-// search query
-} elseif (isset($_GET['q'])) {
-	afficher_calendrier($depart, date('m'), date('Y'));
-	$tableau = table_recherche($depart, htmlspecialchars($_GET['q']), '1', 'public');
-	afficher_index($tableau);
-// display by tag
-} elseif (!empty($_GET['tag'])) {
-	afficher_calendrier($depart, date('m'), date('Y'));
-	$tableau = table_tags($depart, $_GET['tag'], '1', 'public');
-	afficher_index($tableau);
-// display by day, month
-} elseif (isset($_SERVER['QUERY_STRING']) and ( (preg_match('/^\d{4}\/\d{2}(\/\d{2})?/',($_SERVER['QUERY_STRING']))) ) ) {
-	$tab = explode('/', ($_SERVER['QUERY_STRING']));
-	if ( preg_match('/\d{4}/',($tab['0'])) ) {
-		$annee = $tab['0'];
-	} else {
-		$annee = date('Y');
-	}
-	if ( isset($tab['1']) and (preg_match('/\d{2}/',($tab['1']))) ) {
-		$mois = $tab['1'];
-	} else {
-		$mois = date('m');
-	}
-	if ( isset($tab['2']) and (preg_match('/\d{2}/',($tab['2']))) ) {
-		$jour = $tab['2'];
-	} else {
-		$jour = '';
-	}
-	afficher_calendrier($depart, $mois, $annee, $jour);
-	$tableau = table_date($depart, $annee, $mois, $jour, '1');
-	afficher_index($tableau);
-// display regular blog page
-} else {
-
-	// la mise en cache est active
-	if ($GLOBALS['cached_index'] == 1) {
-
-		$fichierCache = 'cache_index.dat';
-		// si la page n'existe pas dans le cache ou si elle a expiré (15 minutes)
-		if (@filemtime($fichierCache)<time()-(900)) {
-			// on démarre la bufferisation de la page: rien de ce qui suit n'est envoyé au navigateur 
-			ob_start(); 
-			afficher_calendrier($depart, date('m'), date('Y'));
-			$tableau = table_derniers($depart, $GLOBALS['max_bill_acceuil'], '1', 'public');
-			afficher_index($tableau);
-			$contenuCache = ob_get_contents(); // on recuperre le contenu du buffer
-			ob_end_flush();// on termine la bufferisation
-			$fd = fopen("$fichierCache", "w"); // on ouvre le fichier cache
-			if ($fd) {
-				fwrite($fd,$contenuCache); // on ecrit le contenu du buffer dans le fichier cache
-				fclose($fd);
-			}
-		} else { // le fichier cache existe déjà, donc on l'envoie
-			readfile('cache_index.dat');
-			echo "\n".'<!-- Servi par le cache -->';
-		} 
-	}
-	// pas d'utilisation de la mise en cache (par exemple pour du DEV)
-	else {
-		afficher_calendrier($depart, date('m'), date('Y'));
-		$tableau = table_derniers($depart, $GLOBALS['max_bill_acceuil'], '1', 'public');
-		afficher_index($tableau);
-	}
 }
 
-//$end = microtime(TRUE);
-//echo round(($end - $begin),6).' seconds';
+
+/*****************************************************************************
+ Show one post : 1 blogpost (with comments)
+******************************************************************************/
+// Single Blog Post
+if ( isset($_GET['d']) and preg_match('#^\d{4}/\d{2}/\d{2}/\d{2}/\d{2}/\d{2}#', $_GET['d']) ) {
+	$article_id = $_GET['d'];
+	$tab = explode('/', $article_id);
+	$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
+	afficher_calendrier($tab['0'], $tab['1'], $tab['2']);
+	echo afficher_article($id);
+}
+
+// single link post
+elseif ( isset($_GET['id']) and is_numeric($_GET['id']) ) {
+	$link_id = $_GET['id'];
+
+	$tableau = liste_base_liens('id', $link_id, 'public', '1', '', '');
+	if (!empty($tableau[0]['bt_id']) and preg_match('/\d{14}/', $tableau[0]['bt_id'])) {
+		$tab = decode_id($tableau[0]['bt_id']);
+		afficher_calendrier($tab['annee'], $tab['mois'], $tab['jour']);
+	} else {
+		afficher_calendrier(date('Y'), date('m'));
+	}
+	afficher_index($tableau);
+}
+
+/*****************************************************************************
+ show by lists of more than one post
+******************************************************************************/
+else {
+	$all = array(); $all1 = array(); $all2 = array(); $all3 = array();
+	$annee = date('Y'); $mois = date('m'); $jour = '';
+
+	if (isset($_GET['p']) and is_numeric($_GET['p']) and $_GET['p'] >= 1) {
+		$page = $GLOBALS['max_bill_acceuil'] * $_GET['p'];
+	} else { $page = 0; }
+
+
+	if ( (isset($_GET['d']) and preg_match('/^\d{4}\/\d{2}(\/\d{2})?/', $_GET['d']) or !empty($_GET['mode'])) and !isset($_GET['q']) )  {
+
+			/*****************************************************************************
+			 Show by date or mode : 
+				- by date : all elements of one date (month, day…) are displayed.
+				- by mode : the elements of one sort are displayer by number, then by month
+				- if both mode and date are asked, both filters are applied, but only one type of data (links, comments, blogpost…) are listed. 
+			******************************************************************************/
+
+			// sélection sur date & optionnellement mode
+			if ( isset($_GET['d']) and preg_match('/^\d{4}\/\d{2}(\/\d{2})?/', $_GET['d']) and !isset($_GET['q']) )  {
+
+					$tab = explode('/', $_GET['d']);
+					if ( preg_match('/\d{4}/',($tab['0'])) ) {
+						$annee = $tab['0'];
+					}
+					if ( isset($tab['1']) and (preg_match('/\d{2}/',($tab['1']))) ) {
+						$mois = $tab['1'];
+					}
+					if ( isset($tab['2']) and (preg_match('/\d{2}/',($tab['2']))) ) {
+						$jour = $tab['2'];
+					}
+
+					if (empty($_GET['mode'])) {
+						// juste date donnée : seulement les articles du blog sont affichés (pas les liens ni les commentaires)
+						$all/*2*/ = liste_base_articles('date', $annee.$mois.$jour, 'public', '1', '', '');
+					} else {
+						// recoupage par mode qui n’est pas vide
+						    if ( preg_match('#links#', $_GET['mode']) ) { $all/*1*/ = liste_base_liens('date', $annee.$mois.$jour, 'public', '1', '', ''); }
+						elseif ( preg_match('#blog#', $_GET['mode']) ) { $all/*2*/ = liste_base_articles('date', $annee.$mois.$jour, 'public', '1', '', ''); }
+						elseif ( preg_match('#comments#', $_GET['mode']) ) { $all/*3*/ = liste_base_comms('date', $annee.$mois.$jour, 'public', '1', '', ''); }
+
+					}
+			}
+			// mode est donnée, pas date
+			if (isset($_GET['mode']) and empty($_GET['d'])) {
+					    if ( preg_match('#links#', $_GET['mode']) ) { $all/*1*/ = liste_base_liens('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+					elseif ( preg_match('#blog#', $_GET['mode']) ) { $all/*2*/ = liste_base_articles('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+					elseif ( preg_match('#comments#', $_GET['mode']) ) { $all/*3*/ = liste_base_comms('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+			}
+			/*
+			// fusionne les tableaux
+			$tableau = array_merge($all1, $all2, $all3);
+
+			// tri le tableau fusionné selon les bt_id (selon une des clés d'un sous tableau. Sûrement plus simple il y a, mais dans Doc PHP ceci est).
+			foreach ($tableau as $key => $item) {
+				 $bt_id[$key] = $item['bt_id'];
+			}
+			if (isset($bt_id)) {
+				array_multisort($bt_id, SORT_DESC, $tableau);
+			}
+			*/
+			if (empty($_GET['d'])) { // si date, on garde tout quelque soit le nombre d’éléments, sinon on coupe.
+				$all = array_slice($all, 0, $GLOBALS['max_bill_acceuil']);
+			}
+			afficher_calendrier($annee, $mois, $jour);
+			$GLOBALS['nb_elements_client_side'] = array('nb' => count($all), 'nb_page' => $GLOBALS['max_bill_acceuil']); // Needed in lien_pagination(), very ugly
+			afficher_index($all);
+
+	}
+
+	/*****************************************************************************
+	 Show by search query : 
+		- if mode is set : search in one ore more databases, else search only in blog.
+	******************************************************************************/
+	// search query
+	elseif (isset($_GET['q'])) {
+		if (!empty($_GET['mode'])) {
+			if ( preg_match(   '#links#', $_GET['mode']) ) { $all1 = liste_base_liens('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+			if ( preg_match(    '#blog#', $_GET['mode']) ) { $all2 = liste_base_articles('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+			if ( preg_match('#comments#', $_GET['mode']) ) { $all3 = liste_base_comms('recherche', htmlspecialchars($_GET['q']), 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+			// fusionne les tableaux
+			$tableau = array_merge($all1, $all2, $all3);
+
+			// sort the tableau by "bt_id" index
+			foreach ($tableau as $key => $item) {
+				 $bt_id[$key] = $item['bt_id'];
+			}
+			if (isset($bt_id)) {
+				array_multisort($bt_id, SORT_DESC, $tableau);
+			}
+		} else {
+			$tableau = liste_base_articles('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']);
+		}
+		afficher_calendrier(date('Y'), date('m'));
+		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']); // Needed in lien_pagination(), very ugly I know
+		afficher_index($tableau);
+	}
+
+	// display blog by tag
+	elseif (!empty($_GET['tag'])) {
+		$tableau = liste_base_articles('tags', html_entity_decode($_GET['tag']), 'public', 1, $page, $GLOBALS['max_bill_acceuil']); // entity_decode : &quot; => ".
+		afficher_calendrier(date('Y'), date('m'));
+		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
+		afficher_index($tableau);
+	}
+
+	// display regular blog page
+	else {
+		$tableau = liste_base_articles('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']);
+		afficher_calendrier(date('Y'), date('m'));
+		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
+		afficher_index($tableau);
+	}
+
+}
+
+
+ $end = microtime(TRUE);
+ echo '<!-- Rendered in '.round(($end - $begin),6).' seconds -->';
 
 ?>

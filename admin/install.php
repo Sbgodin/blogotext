@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2011 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -12,14 +12,26 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-//error_reporting(E_ALL);
-if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')) and (file_exists('../config/tags.php')) ) {
+/*
+// This may be needed for testing PDO SQLite & GD lib : 
+if (in_array('pdo_sqlite', get_loaded_extensions())) {
+	echo 'PDO SQLite yes';
+} else {
+	echo 'PDO SQLite no';
+}
+
+
+
+*/
+
+if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')) ) {
 	header('Location: auth.php');
 	exit;
 }
 $GLOBALS['BT_ROOT_PATH'] = '../';
 
 require_once '../inc/conf.php';
+error_reporting($GLOBALS['show_errors']); // MUST be after including "conf.php"...
 require_once '../inc/lang.php';
 require_once '../inc/html.php';
 require_once '../inc/form.php';
@@ -28,6 +40,7 @@ require_once '../inc/fich.php';
 require_once '../inc/veri.php';
 require_once '../inc/util.php';
 require_once '../inc/jasc.php';
+require_once '../inc/sqli.php';
 
 if (isset($_GET['l'])) {
 	$lang = $_GET['l'];
@@ -65,6 +78,13 @@ if ($step == '1') {
 		if ($err_2 = valid_install_2()) {
 				afficher_form_2($err_2);
 		} else {
+			$config_dir = '../config';
+			if (!is_dir($config_dir)) creer_dossier($config_dir, 1);
+			if (!is_dir('../'.$GLOBALS['dossier_images'])) creer_dossier('../'.$GLOBALS['dossier_images'], 0);
+			if (!is_dir('../'.$GLOBALS['dossier_fichiers'])) creer_dossier('../'.$GLOBALS['dossier_fichiers'], 0);
+			fichier_user();
+			include_once($config_dir.'/user.php');
+
 			traiter_install_2();
 			redirection('auth.php');
 		}
@@ -73,72 +93,103 @@ if ($step == '1') {
 	}
 }
 
-function afficher_form_1($erreurs = '') {
+function afficher_form_1($erreurs='') {
 	afficher_top('Install');
 	echo '<div id="axe">'."\n";
 	echo '<div id="pageauth">'."\n";
-	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
-	afficher_titre ('Bienvenue Welcome', 'step', '1');
+	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
+	echo '<h1 id="step">Bienvenue / Welcome</h1>'."\n";
 	erreurs($erreurs);
+	/*
+	if (in_array('gd', get_loaded_extensions())) {
+		echo 'GD yes';
+	} else {
+		echo 'GD no';
+	}
+	*/
+
+	$conferrors = array();
+	// check PHP version
+	if (version_compare(PHP_VERSION, $GLOBALS['minimal_php_version'], '<')) {
+		$conferrors[] = "\t".'<li>Your PHP Version is '.PHP_VERSION.'. BlogoText requires '.$GLOBALS['minimal_php_version'].'.</li>'."\n";
+	}
+	// pdo_sqlite (required)
+	if (!extension_loaded('pdo_sqlite') ) {
+		$conferrors[] = "\t".'<li>Required PHP-extension "<b>pdo_sqlite</b>" is not loaded.</li>'."\n";
+	}
+	// check directory readability
+	if (!is_writable('../') ) {
+		$conferrors[] = "\t".'<li>Blogotext has no write rights (chmod of home folder must be 644 at least, 777 recommended).</li>'."\n";
+	}
+	if (!empty($conferrors)) {
+		echo '<ol>'."\n";
+		echo implode($conferrors, '');
+		echo '</ol>'."\n";
+		echo '<p style="color: red;"><b>Installation aborded.</b></p>'."\n";
+		echo '</div>'."\n".'</div>'."\n".'</html>';
+		die;
+	}
+
 	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
 	form_langue_install('Choisissez votre langue / Choose your language');
 	echo hidden_input('verif_envoi_1', '1');
-	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
+	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />';
 	echo '</form>' ;
 }
 
-function afficher_form_2($erreurs = '') {
+function afficher_form_2($erreurs='') {
 	afficher_top('Install');
 	echo '<div id="axe">'."\n";
 	echo '<div id="pageauth">'."\n";
-	afficher_titre ($GLOBALS['nom_application'], 'logo', '1');
-	afficher_titre ($GLOBALS['lang']['install'], 'step', '1');
+	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
+	echo '<h1 id="step">'.$GLOBALS['lang']['install'].'</h1>'."\n";
 	erreurs($erreurs);
 	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" onsubmit="return verifForm2(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
 	echo form_text('identifiant', '', $GLOBALS['lang']['install_id']);
 	echo form_password('mdp', '', $GLOBALS['lang']['install_mdp']);
 	echo form_password('mdp_rep', '', $GLOBALS['lang']['install_remdp']);
-	echo form_text('racine', 'http://', $GLOBALS['lang']['pref_racine']);
+	$lien = str_replace('?'.$_SERVER['QUERY_STRING'],'','http://'.$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+	$lien = str_replace('admin/install.php', '', $lien);
+	echo form_text('racine', $lien, $GLOBALS['lang']['pref_racine']);
 	echo hidden_input('verif_envoi_3', '1');
 	echo hidden_input('comm_defaut_status', '1');
 	echo hidden_input('langue', $_GET['l']);
 	echo hidden_input('verif_envoi_2', '1');
-	echo '<input class="inpauth" type="submit" name="enregistrer" value="Ok" />';
+	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />';
 	echo '</form>' ;
 }
 
 
 function traiter_install_2() {
 	$config_dir = '../config';
-	if (!is_dir($config_dir)) creer_dossier($config_dir);
-	fichier_user();
-	fichier_index($config_dir, '1');
-	fichier_htaccess($config_dir);
-
 	if (!is_file($config_dir.'/prefs.php')) fichier_prefs();
-	if (!is_file($config_dir.'/tags.php')) fichier_tags($_POST['tags'], '');
+	$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
 
-	if (!is_dir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'])) {
-		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
-		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
-		creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
+	if ($GLOBALS['db_handle']) {
 		$first_post = array (
-			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['article_id'] => date('YmdHis'),
-			$GLOBALS['data_syntax']['article_title'] => $GLOBALS['lang']['first_titre'],
-			$GLOBALS['data_syntax']['article_abstract'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_content'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_wiki_content'] => $GLOBALS['lang']['first_edit'],
-			$GLOBALS['data_syntax']['article_keywords'] => '',
-			$GLOBALS['data_syntax']['article_status'] => '1',
-		$GLOBALS['data_syntax']['article_allow_comments'] => '1'
+			'bt_id' => date('YmdHis', time()),
+			'bt_date' => date('YmdHis', time()),
+			'bt_title' => $GLOBALS['lang']['first_titre'],
+			'bt_abstract' => $GLOBALS['lang']['first_edit'],
+			'bt_content' => $GLOBALS['lang']['first_edit'],
+			'bt_wiki_content' => $GLOBALS['lang']['first_edit'],
+			'bt_keywords' => '',
+			'bt_categories' => '',
+			'bt_link' => '',
+			'bt_notes' => '',
+			'bt_statut' => '1',
+			'bt_allow_comments' => '1'
 		);
 		$readme_post = array (
-			$GLOBALS['data_syntax']['bt_version'] => $GLOBALS['version'],
-			$GLOBALS['data_syntax']['article_id'] => date('YmdHis')+2,
-			$GLOBALS['data_syntax']['article_title'] => 'README / LISEZ-MOI',
-			$GLOBALS['data_syntax']['article_abstract'] => 'Instructions / Instructions',
-			$GLOBALS['data_syntax']['article_content'] => '
+			'bt_notes' => '',
+			'bt_link' => '',
+			'bt_categories' => '',
+			'bt_link' => '',
+			'bt_id' => date('YmdHis', time()+2),
+			'bt_date' => date('YmdHis', time()+2),
+			'bt_title' => 'README / LISEZ-MOI',
+			'bt_abstract' => 'Instructions / Instructions',
+			'bt_content' => '
 These are some instructions for the safety of your blog.<br/>
 In order to protect your personal blog against attacks, Blogotext allows you to <b>rename the "admin" folder</b>. Using the FTP connection to your web-hosting, you should really rename the "admin" folder to whatever you want. <b>It\'s not forced, but it will increase heavily the strength of Blogotext against attacks</b>.<br/>
 Please, after you renamed the folder (if you do), remember the new name because that will now be the folder you have to go to in order to access the admin panel of Blogotext.
@@ -147,20 +198,21 @@ Please, after you renamed the folder (if you do), remember the new name because 
 <br/>
 Voici quelques conseils pour la sécurité de votre blog.<br/>
 Afin de protéger votre blog contre d\'éventuelles attaques, Blogotext vous permet de <b>renommer le dossier « admin »</b>. En utilisant la connexion FTP à votre espace d\'hébergement, vous devriez renommer le dossier « admin » en un autre nom que vous voudrez. <b>Ceci n\'est pas obligatoire mais cela améliorera de manière drastique la sécurité de votre blog contre les attaques.</b><br/>
-S\'il vous plaît, veuillez retenir le nouveau nom que vous donnez au dossier, car c\'est ce nom qu\'il faudra utiliser comme dossier admin pour accéder au panel.
+S\'il vous plaît, veuillez retenir le nouveau nom que vous donnez au dossier, car c\'est ce nom qu\'il faudra utiliser comme dossier "admin" pour accéder au panel.
 
 ',
-			$GLOBALS['data_syntax']['article_wiki_content'] => 'Once readed, you may delete this post / Une fois que vous avez lu ceci, vous pouvez supprimer l\'article',
-			$GLOBALS['data_syntax']['article_keywords'] => '',
-			$GLOBALS['data_syntax']['article_status'] => '0',
-		$GLOBALS['data_syntax']['article_allow_comments'] => '0'
+			'bt_wiki_content' => 'Once readed, you may delete this post / Une fois que vous avez lu ceci, vous pouvez supprimer l\'article',
+			'bt_keywords' => '',
+			'bt_statut' => '0',
+			'bt_allow_comments' => '0'
 		);
-		fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $first_post); // billet "Mon premier article"
-		fichier_data($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], $readme_post); // billet "read me" avec les instructions
-		fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'], '1');
-		fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles']);
-		fichier_index($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'], '1');
-		fichier_htaccess($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires']);
+		$res1 = bdd_article($first_post, 'enregistrer-nouveau'); // billet "Mon premier article"
+		$res2 = bdd_article($readme_post, 'enregistrer-nouveau'); // billet "read me" avec les instructions
+
+		if ($res1 !== TRUE or $res2 !== TRUE) {
+			echo $res1.' /// '. $res2;
+			die();
+		}
 	}
 }
 
@@ -277,4 +329,3 @@ function verifForm2(form) {
 
 }
 footer();
-?>

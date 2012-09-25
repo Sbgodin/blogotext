@@ -13,21 +13,11 @@
 # *** LICENSE ***
 
 function redirection($url) {
-		header('Location: '.$url);
-}
-
-function clean_txt($text) {
-	if (!get_magic_quotes_gpc()) {
-		$return = trim(addslashes($text));
-	} else {
-		$return = trim($text);
-	}
-return $return;
+	header('Location: '.$url);
+	exit;
 }
 
 /// DECODAGES //////////
-
-// function get_ext($file) REPLACED WITH "pathinfo($file, PATHINFO_EXTENSION);"
 
 function get_id($file) {
 	$retour = substr($file, 0, 14);
@@ -46,28 +36,21 @@ function decode_id($id) {
 	return $retour;
 }
 
-function url($niveau) {
-	if ($dec = explode('/', $_SERVER['QUERY_STRING'])) {
-		return $dec[$niveau];
-	}
-}
-
 function get_path($id) {
 	$dec = decode_id($id);
 	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id.'.'.$GLOBALS['ext_data'];
 	return $retour;
 }
 
-function get_blogpath($id, $domain='') {
+// used sometimes, like in the email that is send.
+function get_blogpath($id) {
 	$date = decode_id($id);
-	$dom = ($domain == 1) ? $GLOBALS['racine'].'index.php?' : '';
-	$path = $dom.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-';
-
+	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $id, 'return'));
 	return $path;
 }
 
 function ww_hach_sha($text, $salt) {
-	$out = hash("sha512", $text.$salt);		// PHP 5
+	$out = hash("sha512", $text.$salt);	// PHP 5
 	return $out;
 }
 
@@ -88,158 +71,178 @@ function traiter_tags($tags) {
 	return $str_tags;
 }
 
-function check_session() {
-	session_start();
-	$ip = htmlspecialchars($_SERVER["REMOTE_ADDR"]);
+// tri un tableau non pas comme "sort()" sur l’ID, mais selon une sous clé d’un tableau.
+function tri_selon_sous_cle($table, $cle) {
+	foreach ($table as $key => $item) {
+		 $ss_cles[$key] = $item[$cle];
+	}
+	if (isset($ss_cles)) {
+		array_multisort($ss_cles, SORT_DESC, $table);
+	}
+	return $table;
+}
 
-	if ((!isset($_SESSION['nom_utilisateur']))
-		or ($_SESSION['nom_utilisateur'] != $GLOBALS['identifiant'].$GLOBALS['mdp'])
-		or (!isset($_SESSION['antivol']))
-		or ($_SESSION['antivol'] != md5($_SERVER['HTTP_USER_AGENT'].$ip))
-		or (!isset($_SESSION['timestamp']))
-		or ($_SESSION['timestamp'] < time()-$GLOBALS['session_admin_time'])) {
-			return FALSE;
+
+
+function check_session() {
+	@session_start();
+	ini_set('session.cookie_httponly', TRUE);
+// first method to stay logged in : only server parameters
+/*	if (!empty($_SESSION['stay_logged_mode'])) {
+		session_set_cookie_params(365*24*60*60); // set cookie lifetime
+		//session_regenerate_id(true);  // Send new expiration date to browser. (if isset : I've noticed some "cache" issues...)
+	} else {
+		session_set_cookie_params(0);
+		//session_regenerate_id(true);
+	}
+*/
+
+// secondth method : uses a cookie (a bit less safe)
+	if (isset($_COOKIE['BT-admin-stay-logged']) and $_COOKIE['BT-admin-stay-logged'] == '1') {
+		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"].$GLOBALS['salt']));
+
+		if (isset($_COOKIE['BT-admin-uuid']) and $_COOKIE['BT-admin-uuid'] == $uuid) {
+			$_SESSION['rand_sess_id'] = md5($uuid);
+			session_set_cookie_params(365*24*60*60); // set new expiration time to the browser
+			session_regenerate_id(true);  // Send cookie
+			return TRUE;
+		}
+	}
+///////
+	if ( (!isset($_SESSION['rand_sess_id'])) or ($_SESSION['rand_sess_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"])) ) {
+		return FALSE;
 	} else {
 		return TRUE;
 	}
 }
 
+
+// this will look if session expired and kill it.
 function operate_session() {
-	if (check_session() === FALSE) {
-		fermer_session();
+	if (check_session() === FALSE) { // session is not good
+		fermer_session(); // destroy it
 	} else {
-		$_SESSION['prev_ses_id'] = sha1(session_id());
-	//	session_regenerate_id(); // seems not to work everywhere
-		$_SESSION['timestamp'] = time();
+		return TRUE;
 	}
 }
 
 function fermer_session() {
-	unset($_SESSION['nom_utilisateur'],$_SESSION['antivol'],$_SESSION['timestamp']);
-	$_SESSION = array();
-	session_destroy();
-	redirection('auth.php'); // cookies are destroyed in auth.php
+	unset($_SESSION['nom_utilisateur'],$_SESSION['rand_sess_id']);
+	setcookie('BT-admin-stay-logged', 0);
+	setcookie('BT-admin-uuid', NULL);
+	session_destroy(); // destroy session
+	session_regenerate_id(true); // change l'ID au cas ou
+	redirection('auth.php');
 	exit();
 }
 
-function diacritique($texte, $majuscules, $espaces) {
-	$texte = strip_tags($texte);
-	if ($majuscules == '0')
-		$texte = strtolower($texte);
-	$texte = html_entity_decode($texte, ENT_QUOTES, 'UTF-8'); // &eacute => é ; é => é ; (uniformise)
-	$texte = htmlentities($texte, ENT_QUOTES, 'UTF-8'); // é => &eacute;
-	$texte = preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash|caron);#', '$1', $texte); // &eacute => e
-	$texte = preg_replace('#(\t|\n|\r)#', ' ' , $texte); // retours à la ligne => espaces
-	$texte = preg_replace('#&([a-z]{2})lig;#i', '$1', $texte); // EX : œ => oe ; æ => ae 
-	$texte = preg_replace('#&[\w\#]*;#U', '', $texte); // les autres (&quote; par exemple) sont virés
-	$texte = preg_replace('#[^\w -]#U', '', $texte); // on ne garde que chiffres, lettres _, -, et espaces.
-	if ($espaces == '0')
-		$texte = preg_replace('#[ ]+#', '-', $texte); // les espaces deviennent des tirets.
-	return $texte;
+function remove_url_param($param) {
+	$msg_param_to_trim = (isset($_GET[$param])) ? '&'.$param.'='.$_GET[$param] : '';
+	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
+	return $query_string;
 }
 
-function rel2abs($article) { // convertit les URL relatives en absolues
-	$article = str_replace(' src="/', ' src="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
-	$article = str_replace(' href="/', ' href="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
-	$base = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
-	$article = preg_replace('/(src|href)=\"(?!http)/i','src="'.$base.'/',$article);
-	return $article;
-}
 
 // A partir d'un commentaire posté, détermine les emails
 // à qui envoyer la notification de nouveau commentaire.
 function send_emails($id_comment) {
-	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
-	$art_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_articles'];
+	// disposant de l'email d'un commentaire, on détermine l'article associé, le titre, l’auteur du comm et l’email de l’auteur du com.
+	$article = get_entry($GLOBALS['db_handle'], 'commentaires', 'bt_article_id', $id_comment, 'return');
+	$article_title = get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $article, 'return');
+	$comm_author = get_entry($GLOBALS['db_handle'], 'commentaires', 'bt_author', $id_comment, 'return');
+	$comm_author_email = get_entry($GLOBALS['db_handle'], 'commentaires', 'bt_email', $id_comment, 'return');
 
-	$article = parse_xml($com_directory.'/'.get_path($id_comment), $GLOBALS['data_syntax']['comment_article_id']);
-	$article_title = parse_xml($art_directory.'/'.get_path($article), $GLOBALS['data_syntax']['article_title']);
-	$comm_author = parse_xml($com_directory.'/'.get_path($id_comment), $GLOBALS['data_syntax']['comment_author']);
+	// puis la liste de tous les commentaires de cet article
+	$liste_commentaires = array();
+	try {
+		$query = "SELECT bt_email,bt_subscribe,bt_id FROM commentaires WHERE bt_statut='1' AND bt_article_id=? ORDER BY bt_id";
+		$req = $GLOBALS['db_handle']->prepare($query);
+		$req->execute(array($article));
+		$liste_commentaires = $req->fetchAll();
+	} catch (Exception $e) {
+		die('Erreur : '.$e->getMessage());
+	}
 
-	$liste_commentaires = liste_commentaires($com_directory, $article, 1);
-
-	sort($liste_commentaires);
+	// Récupérre la liste (sans doublons) des emails des commentateurs, ainsi que leurs souscription à la notification d'email.
+	// si plusieurs comm avec la même email, alors seul le dernier est pris en compte.
+	// si l’auteur même du commentaire est souscrit, il ne recoit pas l’email de son propre commentaire.
 	$emails = array();
+	foreach ($liste_commentaires as $i => $comment) {
+		if (!empty($comment['bt_email']) and ($comm_author_email != $comment['bt_email'])) {
+			$emails[$comment['bt_email']] = $comment['bt_subscribe'].'-'.get_id($comment['bt_id']);
+		}
+	}
+	// ne conserve que la liste des mails dont la souscription est demandée (= 1)
+	$to_send_mail = array();
+	foreach ($emails as $mail => $is_subscriben) {
+		if ($is_subscriben[0] == '1') { // $is_subscriben is seen as a array of chars here, first char is 0 or 1 for subscription.
+			$to_send_mail[$mail] = substr($is_subscriben, -14);
+		}
+	}
+	$subject = 'New comment on "'.$article_title.'" - '.$GLOBALS['nom_du_site'];
+	$headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset="UTF-8"'."\r\n";
+	$headers .= 'From: no.reply_'.$GLOBALS['email']."\r\n".'X-Mailer: BlogoText - PHP/'.phpversion();
 
-	/* Récupérrer les emails des commentateurs
-	 * le visiteur s'abonne ou se désabonne aux commentaires mais c'est le dernier choix qui est compté.
-	 * Pour se désabonner, il faut donc poster un commentaire en désactivant l'abonnement.
-	 */
-	foreach ($liste_commentaires as $comment) {
-		if (get_id($comment) == $id_comment) { // n'envoie pas l'email à soi même pour le commentaire tout juste posté.
-			$email = parse_xml($com_directory.'/'.get_path(get_id($comment)), $GLOBALS['data_syntax']['comment_email']);
-			$subscr = parse_xml($com_directory.'/'.get_path(get_id($comment)), $GLOBALS['data_syntax']['comment_subscribe']);
-			if (!empty($email)) {
-				$emails[$email] = $subscr.'-'.get_id($comment);
+	// for debug
+	//header('Content-type: text/html; charset=UTF-8');
+	//die(($to. $subject. $message. $headers));
+	//echo '<pre>';print_r($emails);
+	//echo '<pre>';print_r($to_send_mail);
+	//die();
+	// envoi les emails.
+	foreach ($to_send_mail as $mail => $is_subscriben) {
+		$comment = substr($is_subscriben, -14);
+		$unsublink = get_blogpath($article).'&amp;unsub=1&amp;comment='.$comment.'&amp;mail='.sha1($mail);
+		$message = '<html>';
+		$message .= '<head><title>'.$subject.'</title></head>';
+		$message .= '<body><p>A new comment by <b>'.$comm_author.'</b> has been posted on <b>'.$article_title.'</b> form '.$GLOBALS['nom_du_site'].'.<br/>';
+		$message .= 'You can see it by following <a href="'.get_blogpath($article).'#'.article_anchor($id_comment).'">this link</a>.</p>';
+		$message .= '<p>To unsubscribe from the comments on that post, you can follow this link: <a href="'.$unsublink.'">'.$unsublink.'</a>.</p>';
+		$message .= '<p>To unsubscribe from the comments on all the posts, follow this link: <a href="'.$unsublink.'&amp;all=1">'.$unsublink.'&amp;all=1</a>.</p>';
+		$message .= '<p>Also, do not reply to this email, since it is an automatic generated email.</p><p>Regards.</p></body>';
+		$message .= '</html>';
+		mail($mail, $subject, $message, $headers);
+	}
+	return TRUE;
+}
+
+// met à 0 la subscription d'un auteur à un article. (met à 0 celui dans le dernier commentaire qu'il a posté sur un article)
+function unsubscribe($file_id, $email_sha, $all) {
+	// récupération de quelques infos sur le commentaire
+	try {
+		$query = "SELECT bt_email,bt_subscribe,bt_id FROM commentaires WHERE bt_id=?";
+		$req = $GLOBALS['db_handle']->prepare($query);
+		$req->execute(array($file_id));
+		$result = $req->fetchAll();
+
+	} catch (Exception $e) {
+		die ('Erreur BT #12725 : '. $e->getMessage());
+	}
+	try {
+		if (!empty($result[0])) {
+			$comment = $result[0];
+			// (le test SHA1 sur l'email sert à vérifier que c'est pas un lien forgé pouvant désinscrire une email de force
+			if ( ($email_sha == sha1($comment['bt_email'])) and ($comment['bt_subscribe'] == 1) ) {
+				if ($all == 1) {
+					// mettre à jour de tous les commentaire qui ont la même email.
+					$query = "UPDATE commentaires SET bt_subscribe=0 WHERE bt_email=?";
+					$array = $comment['bt_email'];
+				} else {
+					// mettre à jour le commentaire
+					$query = "UPDATE commentaires SET bt_subscribe=0 WHERE bt_id=?";
+					$array = $comment['bt_id'];
+				}
+				$req = $GLOBALS['db_handle']->prepare($query);
+				$req->execute(array($array));
+				return TRUE;
+			}
+			elseif ($comment['bt_subscribe'] == 0) {
+				return TRUE;
 			}
 		}
+	} catch (Exception $e) {
+		die('Erreur BT 89867 : '.$e->getMessage());
 	}
-
-
-	$subject = 'New comment on "'.$article_title.'" - '.$GLOBALS['nom_du_site'];
-
-	$headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset="UTF-8"'."\r\n";
-//	$headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset=UTF-8'."\r\n";   
-//	$headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset=iso-8859-1'."\r\n";
-
-	$headers .= 'From: '.$GLOBALS['email']."\r\n".'X-Mailer: BlogoText - PHP/'.phpversion();
-
-
-// for debug
-// header('Content-type: text/html; charset=UTF-8');
-// die(($to. $subject. $message. $headers));
-//	echo '<pre>';die(print_r($emails));
-
-
-// envoyer les emails une fois qu'on a récupéré la liste de tous les commentateurs à qui l'envoyer.
-	foreach ($emails as $mail => $is_subscriben) {
-		if ($is_subscriben[0] == '1') { // $is_subscribtion is seen as a array of chars here (like in C language).
-			$comment = substr($is_subscriben, -14);
-			$unsublink = get_blogpath($article, 1).'&amp;unsub=1&amp;article='.$comment.'&amp;mail='.sha1($mail);
-
-
-			$message = '<html>';
-			$message .= '<head><title>'.$subject.'</title></head>';
-			$message .= '<body><p>A new comment by <b>'.$comm_author.'</b> has been posted on <b>'.$article_title.'</b> form '.$GLOBALS['nom_du_site'].'.<br/>';
-			$message .= 'You can see it by following <a href="'.get_blogpath($article, 1).'">this link</a>.</p>';
-			$message .= '<p>To unsubscribe from the comments on that post, you can follow this link: <a href="'.$unsublink.'">'.$unsublink.'</a>.</p>';
-//			$message .= '<p>To unsubscribe from the comments on all the posts, follow this link: <a href="'.$unsublink.'&amp;all=1">'.$unsublink.'&amp;all=1</a>.</p>';
-			$message .= '<p>Also, do not reply to this email, since it is an automatic generated email.</p><p>Regards.</p></body>';
-			$message .= '</html>';
-
-
-//	$message = utf8_decode($message); // since iso-8859-1 is used in emails…
-//	$subject = utf8_decode($subject); // since iso-8859-1 is used in emails…
-
-			mail($mail, $subject, $message, $headers);
-
-		}
-	}
-	return true;
+	return FALSE; // si il y avait été TRUE, on serait déjà sorti de la fonction
 }
 
-
-function unsubscribe($file_id, $email_sha) {
-	$com_directory = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_commentaires'];
-	$comment = init_comment('public', $file_id);
-	if ( ($email_sha == sha1($comment['email'])) and ($comment['subscribe'] == 1) ) {
-		// mettre à jour le fichier avec un "subscribe" à 0;
-		$bal = $GLOBALS['data_syntax']['comment_subscribe'];
-
-		$fichier_data = $com_directory.'/'.get_path($comment['id']);
-		$contenu = file_get_contents($fichier_data);
-		$contenu = preg_replace('#<'.$bal.'>1</'.$bal.'>#', '<'.$bal.'>0</'.$bal.'>', $contenu);
-
-		$new_file_data = fopen($fichier_data,'wb+');
-		if (fwrite($new_file_data, $contenu) === FALSE) {
-			return FALSE;
-		} else {
-			fclose($new_file_data);
-			return TRUE;
-		}
-	}
-}
-
-
-
-?>
