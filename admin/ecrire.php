@@ -39,6 +39,7 @@ $article_id = '';
 if (isset($_GET['post_id'])) {
 	$article_id = htmlspecialchars($_GET['post_id']);
 	$posts = liste_base_articles('id', $article_id, 'admin', '', 0, '');
+//	echo '<pre>'; print_r($posts); die();
 	$post = $posts[0];
 }
 

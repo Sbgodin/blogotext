@@ -20,7 +20,7 @@ $GLOBALS['dbase_structure']['links'] = "CREATE TABLE ".$if_not_exists." links
 	(
 		ID INTEGER PRIMARY KEY $auto_increment,
 		bt_type TEXT,
-		bt_id INTEGER, 
+		bt_id BIGINT, 
 		bt_content LONGTEXT,
 		bt_wiki_content LONGTEXT,
 		bt_author TEXT,
@@ -34,8 +34,8 @@ $GLOBALS['dbase_structure']['commentaires'] = "CREATE TABLE ".$if_not_exists." c
 	(
 		ID INTEGER PRIMARY KEY $auto_increment,
 		bt_type TEXT,
-		bt_id INTEGER, 
-		bt_article_id TEXT,
+		bt_id BIGINT, 
+		bt_article_id BIGINT,
 		bt_content LONGTEXT,
 		bt_wiki_content LONGTEXT,
 		bt_author TEXT,
@@ -51,8 +51,8 @@ $GLOBALS['dbase_structure']['articles'] = "CREATE TABLE ".$if_not_exists." artic
 	(
 		ID INTEGER PRIMARY KEY $auto_increment,
 		bt_type TEXT,
-		bt_id INTEGER, 
-		bt_date INTEGER, 
+		bt_id BIGINT, 
+		bt_date BIGINT, 
 		bt_title TEXT,
 		bt_abstract TEXT,
 		bt_notes TEXT,
@@ -120,7 +120,7 @@ function create_tables() {
 		case 'mysql':
 				try {
 					$options_pdo[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-					$db_handle = new PDO('mysql:host=localhost;dbname=blogotext', 'blogotext_u', 'pass', $options_pdo);
+					$db_handle = new PDO('mysql:host=localhost;dbname=timo', 'timo', 'pass', $options_pdo);
 
 					// check each wanted table 
 					$wanted_tables = array('commentaires', 'articles', 'links');
@@ -222,7 +222,8 @@ function liste_base_articles($tri_selon, $motif, $mode, $statut, $offset, $nombr
 			break;
 
 		case 'random': // always on public side
-			$query = "SELECT * FROM articles $where_stat ORDER BY random() LIMIT 0, 1";
+			$om = ($GLOBALS['sgbd'] == 'sqlite') ? 'om' : '';
+			$query = "SELECT * FROM articles $where_stat ORDER BY rand$om() LIMIT 0, 1";
 			$array = array();
 			break;
 

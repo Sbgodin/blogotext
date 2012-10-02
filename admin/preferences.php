@@ -153,18 +153,22 @@ function afficher_form_prefs($erreurs= '') {
 		$field_maintenance .= '</fieldset>';
 	echo $field_maintenance;
 
-
-	// might cause page to load slowly ; limited at 6 seconds
-	$last_version = get_external_file('http://lehollandaisvolant.net/blogotext/version.php', 6);
-	if ( !empty($last_version) ) {
-		if ($GLOBALS['version'] < $last_version) {
+	// check if a new Blogotext version is available (code from Shaarli, by Sebsauvage).
+	// Get latest version number at most once a day.
+	if ( !is_file($GLOBALS['last-online-file']) or (filemtime($GLOBALS['last-online-file']) < time()-(24*60*60)) ) {
+		$last_version = get_external_file('http://lehollandaisvolant.net/blogotext/version.php', 6);
+		// If failed, nevermind. We don't want to bother the user with that.
+		file_put_contents($GLOBALS['last-online-file'], $GLOBALS['version']); // touch file date
+	}
+	// Compare versions:
+	$newestversion = file_get_contents($GLOBALS['last-online-file']);
+	if (version_compare($newestversion, $GLOBALS['version']) == 1) { // does this work :o ? That function initialy works for PHP versions only...
 			$field_update = '<fieldset class="pref">';
 			$field_update .=  legend($GLOBALS['lang']['maint_chk_update'], 'legend-update');
 			$field_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')<br/>'."\n";
 			$field_update .= $GLOBALS['lang']['maint_update_go_dl_it'].' <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.</p>';
 			$field_update .= '</fieldset></div>'."\n";
-			echo $field_update;
-		}
+		echo $field_update;
 	}
 
 	echo '<div class="submit">';

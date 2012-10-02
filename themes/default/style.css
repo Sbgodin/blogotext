@@ -187,6 +187,10 @@ h3 img {
 	overflow: show;
 }
 
+.news pre, .comment pre, .lien pre {
+	white-space: pre-wrap;
+}
+
 .news h3, .lien h3 {
 	font-size: 12px;
 }

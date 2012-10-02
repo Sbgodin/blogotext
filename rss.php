@@ -117,7 +117,7 @@ if (!empty($_GET['mode'])) {
 		$all = array_merge($all1, $all2, $all4);
 		// tri le tableau fusionné selon les bt_id
 		foreach ($all as $key => $item) {
-			 $bt_id[$key] = $item['bt_id'];
+			 $bt_id[$key] = (isset($item['bt_date'])) ? $item['bt_date'] : $item['bt_id'];
 		}
 		// trick : tri selon des sous-clés d'un tableau à plusieurs sous-niveaux (trouvé dans doc-PHP)
 		array_multisort($bt_id, SORT_DESC, $all);
@@ -128,7 +128,8 @@ if (!empty($_GET['mode'])) {
 		// les affiche (dans le RSS la forme des articles / billets / liens est la même)
 		$xml = '';
 		foreach ($all as $elem) {
-			$dec = decode_id($elem['bt_id']);
+			$time = (isset($elem['bt_date'])) ? $elem['bt_date'] : $elem['bt_id'];
+			$dec = decode_id($time);
 			$xml .= '<item>'."\n";
 				if ($elem['bt_type'] == 'article' or $elem['bt_type'] == 'link' or $elem['bt_type'] == 'note') {
 					$xml .= '<title>'.$elem['bt_title'].'</title>'."\n";
@@ -209,7 +210,8 @@ else {
 			$xml_full = $xml;
 			$liste = liste_base_articles('', '', 'public', '1', 0, 20);
 			foreach ($liste as $billet) {
-				$dec = decode_id($billet['bt_id']);
+				$time = (isset($billet['bt_date'])) ? $billet['bt_date'] : $billet['bt_id'];
+				$dec = decode_id($time);
 				$item = '<item>'."\n";
 				 $item .= '<title>'.$billet['bt_title'].'</title>'."\n";
 				 $item .= '<guid>'.$billet['bt_link'].'</guid>'."\n";

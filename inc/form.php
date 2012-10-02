@@ -105,32 +105,38 @@ function form_format_date($defaut) {
  // we could make BT require 5.2.0 to run, but the function in the only one that uses PHP 5.2.
 function form_fuseau_horaire($defaut) {
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		$liste_fuseau['AFRICA'] = timezone_identifiers_list(DateTimeZone::AFRICA);
-		$liste_fuseau['AMERICA'] = timezone_identifiers_list(DateTimeZone::AMERICA);
-		$liste_fuseau['ANTARCTICA'] = timezone_identifiers_list(DateTimeZone::ANTARCTICA);
-		$liste_fuseau['ARCTIC'] = timezone_identifiers_list(DateTimeZone::ARCTIC);
-		$liste_fuseau['ASIA'] = timezone_identifiers_list(DateTimeZone::ASIA);
-		$liste_fuseau['ATLANTIC'] = timezone_identifiers_list(DateTimeZone::ATLANTIC);
-		$liste_fuseau['AUSTRALIA'] = timezone_identifiers_list(DateTimeZone::AUSTRALIA);
-		$liste_fuseau['EUROPE'] = timezone_identifiers_list(DateTimeZone::EUROPE);
-		$liste_fuseau['INDIAN'] = timezone_identifiers_list(DateTimeZone::INDIAN);
-		$liste_fuseau['PACIFIC'] = timezone_identifiers_list(DateTimeZone::PACIFIC);
-		$liste_fuseau['UTC'] = timezone_identifiers_list(DateTimeZone::UTC);
-		$form = '<p>';
-		$form .= '<label for="fuseau_horaire">'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
-		$form .= '<select id="fuseau_horaire" name="fuseau_horaire">' ;
-		foreach ($liste_fuseau as $continent => $zone) {
-			$form .= '<optgroup label="'.ucfirst(strtolower($continent)).'">';
-			foreach ($zone as $fuseau) {
-				$form .= '<option value="'.htmlentities($fuseau).'"';
-				$form .= ($defaut == $fuseau) ? ' selected="selected"' : '';
-				$form .= '>'.htmlentities($fuseau).'</option>'."\n";
-			}
-			$form .= '</optgroup>';
+
+	$all_timezones = timezone_identifiers_list();
+	$liste_fuseau = array();
+	$cities = array();
+	foreach($all_timezones as $tz) {
+		$spos = strpos($tz, '/');
+		if ($spos !== FALSE) {
+			$continent = substr($tz, 0, $spos);
+			$city = substr($tz, $spos+1);
+			$liste_fuseau[$continent][] = array('tz_name' => $tz, 'city' => $city);
 		}
-		$form .= '</select> '."\n";
-		$form .= '</p>'."\n";
-		return $form;
+		if ($tz == 'UTC') {
+			$liste_fuseau['UTC'][] = array('tz_name' => 'UTC', 'city' => 'UTC');
+		}
+	}
+	$form = '<p>';
+	$form .= '<label for="fuseau_horaire">'.$GLOBALS['lang']['pref_fuseau_horaire'].'</label>';
+	$form .= '<select id="fuseau_horaire" name="fuseau_horaire">' ;
+	foreach ($liste_fuseau as $continent => $zone) {
+		$form .= '<optgroup label="'.ucfirst(strtolower($continent)).'">'."\n";
+		foreach ($zone as $fuseau) {
+			$form .= '<option value="'.htmlentities($fuseau['tz_name']).'"';
+			$form .= ($defaut == $fuseau['tz_name']) ? ' selected="selected"' : '';
+				$timeoffset = date_offset_get(date_create('now', timezone_open($fuseau['tz_name'])) );
+				$formated_toffset = '(UTC'.(($timeoffset < 0) ? '–' : '+').str_pad(floor((abs($timeoffset) / 3600)), 2, '0', STR_PAD_LEFT) .':'.str_pad( floor((abs($timeoffset) % 3600) / 60), 2, '0', STR_PAD_LEFT)  .') ';
+			$form .= '>'.$formated_toffset.' '.htmlentities($fuseau['city']).'</option>'."\n";
+		}
+		$form .= '</optgroup>'."\n";
+	}
+	$form .= '</select> '."\n";
+	$form .= '</p>'."\n";
+	return $form;
 	}
 }
 
@@ -367,8 +373,32 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 
 		} else {
 			$url = htmlspecialchars($_GET['url']);
-			if ($ext_file = get_external_file($url, 15) and (preg_match('#<title>(.*)</title>#Usi', $ext_file, $titles))) {
-				$title = htmlspecialchars(trim(html_entity_decode(substr($titles[0], 7, -8), ENT_QUOTES, 'UTF-8')) );
+			if ($ext_file = get_external_file($url, 15) ) {
+				// cherche le charset spécifié dans le code HTML.
+				// récupère la balise méta tout entière, dans $meta
+				preg_match('#<meta .*charset=.*>#Usi', $ext_file, $meta);
+
+				// si la balise a été trouvée, on tente d’isoler l’encodage.
+				if (!empty($meta[0])) {
+
+					// récupère juste l’encodage utilisé, dans $enc
+					preg_match('#charset="?(.*)"#si', $meta[0], $enc);
+
+					// regarde si le charset a été trouvé, sinon le fixe à UTF-8
+					$html_charset = (!empty($enc[1])) ? strtolower($enc[1]) : 'utf-8';
+				}
+				else { $html_charset = 'utf-8'; }
+
+				// récupère le titre, dans le tableau $titles, rempli par preg_match()
+				preg_match('#<title>(.*)</title>#Usi', $ext_file, $titles);
+				if (!empty($titles[1])) {
+					$html_title = trim($titles[1]);
+					// ré-encode le titre en UTF-8 en fonction de son encodage.
+					$title = ($html_charset == 'iso-8859-1') ? utf8_encode($html_title) : $html_title;
+				// si pas de titre : on utilise l’URL.
+				} else {
+					$title = $url;
+				}
 			} else {
 				$title = $url;
 			}

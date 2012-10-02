@@ -89,7 +89,7 @@ function afficher_commentaire($comment, $with_link) {
 	} else { // item public
 		echo '<div class="commentbloc" id="'.article_anchor($comment['bt_id']).'">'."\n";
 	}
-	echo '<span onclick="reply(\'[b]@['.$comment['bt_author'].'|#'.article_anchor($comment['bt_id']).'] :[/b] \'); ">@</span> ';
+	echo '<span onclick="reply(\'[b]@['.str_replace('\'', '\\\'', $comment['bt_author']).'|#'.article_anchor($comment['bt_id']).'] :[/b] \'); ">@</span> ';
 	echo '<h3 class="titre-commentaire">'.$comment['auteur_lien'].'</h3>'."\n";
 	echo '<p class="email"><a href="mailto:'.$comment['bt_email'].'">'.$comment['bt_email'].'</a></p>'."\n";
 	echo '<p class="lien_article_de_com">';
