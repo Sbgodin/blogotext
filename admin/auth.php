@@ -29,39 +29,48 @@ if (check_session() === TRUE) { // return to index if session is already open.
 
 // Acces LOG
 if (isset($_POST['nom_utilisateur'])) {
-	$fichier = "xauthlog.php";
-	$dest = fopen("$fichier", "a+"); 
-	$ip = htmlspecialchars($_SERVER["REMOTE_ADDR"]);				// IPs
-   if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip .= '_'.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']); }
-   if (isset($_SERVER['HTTP_CLIENT_IP'])) { $ip .= '_'.htmlspecialchars($_SERVER['HTTP_CLIENT_IP']); }
-	$browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '' ;	// navigateur
-	$origine = (isset($_SERVER['HTTP_REFERER'])) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'none';		// url d'origine
-	$curent_time = date('r');						// heure selon RFC 2822 : Wed, 18 Jan 2012 20:42:12 +0100
-	$nom = htmlspecialchars($_POST['nom_utilisateur']);			// nom de login tente.
-	fputs($dest, $curent_time.' = IP: '.str_pad($ip, 15, "-")." = LOGIN: ".str_pad($nom, 25, "-")." = ORIGINE: $origine = BROWSER: $browser\n");
-	fclose($dest);
+	// IP
+	$ip = htmlspecialchars($_SERVER["REMOTE_ADDR"]);
+	// Proxy IPs, if exists.
+	$ip .= (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? '_'.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : '';
+	$browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '' ; // navigateur
+	$referer = (isset($_SERVER['HTTP_REFERER'])) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'none'; // url d'origine
+	$curent_time = date('r'); // heure selon RFC 2822 : Wed, 18 Jan 2012 20:42:12 +0100
+	$username = htmlspecialchars($_POST['nom_utilisateur']); // nom de login tenté.
+
+	$data = "\n\n\n".'<?php'."\n";
+	$data .= '	// '.$curent_time . "\n";
+	$data .= '	// '.'IP      : ' . $ip . "\n";
+	$data .= '	// '.'ORIGINE : ' . $referer . "\n";
+	$data .= '	// '.'BROWSER : ' . $browser . "\n";
+	$data .= '	// '.'LOGIN   : ' . $username . "\n";
+	$data .= '?>';
+
+	file_put_contents('xauthlog.php', $data, FILE_APPEND);
 }// end log
 
 
 // Auth checking :
 if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting in.
-	$_SESSION['rand_sess_id'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"]); // set special hash
+	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
+	$_SESSION['rand_sess_id'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).md5($_SERVER['HTTP_USER_AGENT'].$ip); // set special hash
 	usleep(100000); // 100ms sleep to avoid bruteforce
 
 	if (!empty($_POST['stay_logged'])) { // if user wants to stay logged
 // first method : uses only server sessions, but may not work every where
 //		$_SESSION['stay_logged_mode'] = 1; // if user wants to stay logged : 1
-//		session_set_cookie_params(365*24*60*60); // Set session cookie expiration on client side 
+//		session_set_cookie_params(365*24*60*60); // Set session cookie expiration on client side (one year)
 //		session_regenerate_id(true);  // Send cookie with new expiration date to browser.
 // secondth method : uses a cookie. A bit less safe.
 		setcookie('BT-admin-stay-logged', '1', time()+365*42*60*60, null, null, false, true);
-		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"].$GLOBALS['salt']));
+		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
 		setcookie('BT-admin-uuid', $uuid, time()+365*42*60*60, null, null, false, true);
 
 	} else {
 		$_SESSION['stay_logged_mode'] = 0;
 		session_regenerate_id(true);
 	}
+	fichier_ip();
 	header('Location: index.php');
 
 } else { // On sort…

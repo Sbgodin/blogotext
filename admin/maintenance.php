@@ -464,11 +464,12 @@ function importer_blogotext($content_xml) {
 			$tableau_final = tri_selon_sous_cle($tableau_final, 'bt_id');
 
 			file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($tableau_final))).' */');
-//			print_r($tableau_final);
+			//print_r($tableau_final);
 
 		}
 
 		// TRAITEMENT DES ARTICLES ET DES COMMENTAIRES
+		$c=0; // counter on comments array()
 		$items = explode('</bt_backup_item>', $restore_text); // découpage en articles uniques.
 		$nb_msg = sizeof($items);
 		if ($nb_msg > 1) {
@@ -477,7 +478,6 @@ function importer_blogotext($content_xml) {
 			$tableau_articles_trouves = array();
 			$tableau_comments_trouves = array();
 
-			$c=0; // counter on comments array()
 			for ($msg = 0; $msg < $nb_msg -1; $msg++) { // parsage des articles.
 					$msg_content = preg_replace('#(.*)<bt_backup_article>(.+)</bt_backup_article>(.*)#is', "$2", $items[$msg]);
 
@@ -718,9 +718,6 @@ function importer_blogotext($content_xml) {
 						}
 				}
 			}
-
-
-
 		}
 
 		$toprint = '<div>'."\n";
@@ -1137,7 +1134,7 @@ else {
 				}
 				// on génère le fichier
 				else {
-					creer_fich_html($_POST['nb']); ////////////////////////////////////////////// FAIRE CETTE FONCTION, REGARDER DNAS SHAARLI
+					creer_fich_html($_POST['nb']);
 				}
 
 			}
@@ -1233,19 +1230,23 @@ else {
 					$content_xml = str_replace('bt_backup_img_hash>', 'bt_checksum>', $content_xml); // old BT xml files update…
 					$content_xml = str_replace('bt_backup_img_name>', 'bt_filename>', $content_xml); // old BT xml files update…
 
-					importer_blogotext($content_xml);
+					$liste_importe = importer_blogotext($content_xml);
 				}
 
 				// ON A DONNÉ UN FICHIER WORDPRESS et il faut le convertir avant...
 				elseif ($_POST['format'] == 'wordpress') {
 					$new_file = convert_wp2bt($content_xml); // on convertit en fichier BT
-					importer_blogotext($new_file); // on importe le fichier BT obtenu
+					$liste_importe = importer_blogotext($new_file); // on importe le fichier BT obtenu
 				}
 
 				// ON A DONNÉ UN FICHIER SHAARLI (qui est aussi - en principe - le format d’export utilisé par tous les navigateurs)
 				elseif ($_POST['format'] == 'shaarli') {
 					$new_file = convert_netscape2bt($content_xml);
-					importer_blogotext($new_file);
+					$liste_importe = importer_blogotext($new_file);
+				}
+
+				else {
+					$liste_importe = '';
 				}
 
 				echo '<form action="maintenance.php" method="post" enctype="multipart/form-data" class="bordered-formbloc">'."\n";
@@ -1254,6 +1255,7 @@ else {
 						echo '<p>';
 						echo $GLOBALS['lang']['bak_restor_done_mesage'];
 						echo '</p>'."\n".'<p>'."\n";
+						echo $liste_importe;
 						echo '<input class="submit blue-square" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
 						echo '</p>'."\n";
 					echo '</fieldset>'."\n";

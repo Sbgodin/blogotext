@@ -85,6 +85,7 @@ function tri_selon_sous_cle($table, $cle) {
 
 
 function check_session() {
+	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
 	@session_start();
 	ini_set('session.cookie_httponly', TRUE);
 // first method to stay logged in : only server parameters
@@ -99,7 +100,7 @@ function check_session() {
 
 // secondth method : uses a cookie (a bit less safe)
 	if (isset($_COOKIE['BT-admin-stay-logged']) and $_COOKIE['BT-admin-stay-logged'] == '1') {
-		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"].$GLOBALS['salt']));
+		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
 
 		if (isset($_COOKIE['BT-admin-uuid']) and $_COOKIE['BT-admin-uuid'] == $uuid) {
 			$_SESSION['rand_sess_id'] = md5($uuid);
@@ -109,7 +110,7 @@ function check_session() {
 		}
 	}
 ///////
-	if ( (!isset($_SESSION['rand_sess_id'])) or ($_SESSION['rand_sess_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$_SERVER["REMOTE_ADDR"])) ) {
+	if ( (!isset($_SESSION['rand_sess_id'])) or ($_SESSION['rand_sess_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$ip)) ) {
 		return FALSE;
 	} else {
 		return TRUE;

@@ -327,10 +327,12 @@ $lang_fr = array(
 'pref_commentaires'				=> 'Utiliser les commentaires',
 'pref_allow_global_coms'		=> 'Fermeture des commentaires sur tous les articles',
 'pref_allow_global_linx'		=> 'Autoriser les internautes à poster des liens',
-'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="captcha_test.php" target="_blank"><b>tester avant !</b></a>)',
+'pref_connexion_captcha'		=> 'Activer le captcha à la connexion (<a href="?test_captcha" target="_blank"><b>tester avant !</b></a>)',
 'pref_make_backup'				=> 'Effectuer une sauvegarde des messages/commentaires.',
 'pref_all'							=> 'Tout',
 'pref_go_to_mainteance'			=> 'Accéder à la page de maintenance.',
+'pref_label_bookmark_lien'		=> 'Gardez ce lien en favori. Cliquez ensuite dessus pour sauver n’importe quelle page dans Blogotext.',
+'pref_alert_bookmark_link'		=> 'Gardez ce lien en favoris : glissez-le sur la barre des favoris ou faites un clic droit et choissez Marque Page sur ce lien.',
 'legend_what_doyouwant'			=> 'Backup des messages - Que voulez vous faire ?',
 'legend_what_doyouwant_optim'	=> 'Nettoyer la base de données ?',
 // Notes

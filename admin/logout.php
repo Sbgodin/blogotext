@@ -16,7 +16,6 @@ $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 error_reporting($GLOBALS['show_errors']);
 
-fichier_ip();
 operate_session();
 fermer_session();
 

@@ -121,7 +121,7 @@ function afficher_top($titre) {
 	$txt = '<!DOCTYPE html>'."\n";
 	$txt .= '<head>'."\n";
 	$txt .= '<meta charset="'.$GLOBALS['charset'].'" />'."\n";
-	$txt .= '<link type="text/css" rel="stylesheet" href="style/ecrire.css" />'."\n";
+	$txt .= '<link type="text/css" rel="stylesheet" href="style/style-style.css" />'."\n";
 	$txt .= '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
 	$txt .= '</head>'."\n";
 	$txt .= '<body>'."\n\n";
@@ -149,7 +149,7 @@ function footer($index='', $begin_time='') {
 	if ($begin_time != ''){
 		$end = microtime(TRUE);
 		$dt = round(($end - $begin_time),6);
-		$msg2 = ' - rendered in '.$dt.' seconds';
+		$msg2 = ' - rendered in '.$dt.' seconds using '.$GLOBALS['sgbd'];
 	} else {
 		$msg2 = '';
 	}

@@ -317,20 +317,22 @@ $lang_nl = array(
 'pref_nb_list_linx'				=> 'Aantal linken in de admin-lijst',
 'pref_fuseau_horaire'			=> 'Tijd-zone',
 'pref_comm_BoW_list'				=> 'De commentaaren zijn zichtbaar',
-'pref_comm_white_list'			=> 'Naa dat de webmaster ze geactiviert heeft', ///
-'pref_comm_black_list'			=> 'Gelijk als ze geposteerd zijn', ///
-'pref_linx_BoW_list'				=> 'De links zijn zichbaar', ////////////////
+'pref_comm_white_list'			=> 'Naa dat de webmaster ze geactiviert heeft',
+'pref_comm_black_list'			=> 'Gelijk als ze geposteerd zijn',
+'pref_linx_BoW_list'				=> 'De links zijn zichbaar',
 'pref_automatic_keywords'		=> 'Laat Blogotext de meta-keywords kiezen',
 'pref_force_email'				=> 'Email is verplicht om te commenteren',
 'pref_theme'						=> 'Thema',
 'pref_categories'					=> 'Gebruijk vaken om artikels te classeren',
 'pref_commentaires'				=> 'Reacties aan zeten',
 'pref_allow_global_coms'		=> 'Sluiten van alle reacties',
-'pref_allow_global_linx'		=> 'Het publik kan links posteren', //
-'pref_connexion_captcha'		=> 'Captcha bij het inloggen (<a href="captcha_test.php" target="_blank"><b>testen !</b></a>)',
+'pref_allow_global_linx'		=> 'Idereen kan links posteren', //
+'pref_connexion_captcha'		=> 'Captcha bij het inloggen (<a href="?test_captcha" target="_blank"><b>testen !</b></a>)',
 'pref_make_backup'				=> 'En backup-bestand van uw berichten/reacties maaken.',
 'pref_all'							=> 'Alles',
 'pref_go_to_mainteance'			=> 'Blogotext opruimen',
+'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
+'pref_alert_bookmark_lien'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
 'legend_what_doyouwant'			=> 'Wat wilt u doen?',
 'legend_what_doyouwant_optim'	=> 'De database opruimen?',
 // Notes

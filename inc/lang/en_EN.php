@@ -327,10 +327,12 @@ $lang_en = array(
 'pref_commentaires'				=> 'Use comments',
 'pref_allow_global_coms'		=> 'Close comments on all articles',
 'pref_allow_global_linx'		=> 'Allow public to post links',
-'pref_connexion_captcha'		=> 'Captcha on login (<a href="captcha_test.php" target="_blank"><b>test before !</b></a>)',
+'pref_connexion_captcha'		=> 'Captcha on login (<a href="?test_captcha" target="_blank"><b>test before !</b></a>)',
 'pref_make_backup'				=> 'Make a backup file of your articles/comments.',
 'pref_all'							=> 'All',
 'pref_go_to_mainteance'			=> 'Go to the maintenance page.',
+'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.',
+'pref_alert_bookmark_lien'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
 'legend_what_doyouwant'			=> 'What do you you want to do ?',
 'legend_what_doyouwant_optim'	=> 'Clean the database ?',
 // Notes

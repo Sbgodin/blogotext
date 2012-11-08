@@ -327,10 +327,12 @@ $lang_de = array(
 'pref_Kommentare'					=> 'Kommentare benutzen',
 'pref_allow_global_coms'		=> 'Alle Kommentare schließen',
 'pref_allow_global_linx'		=> 'ermöglichen publike Links',
-'pref_connexion_captcha'		=> 'Das Captcha beim Einloggen activieren (<a href="captcha_test.php" target="_blank"><b>vorher testen!</b></a>)',
+'pref_connexion_captcha'		=> 'Das Captcha beim Einloggen activieren (<a href="?test_captcha" target="_blank"><b>vorher testen!</b></a>)',
 'pref_make_backup'				=> 'Einen Backup des Nachrichten/Kommentare durchführen.',
 'pref_all'							=> 'Alles',
 'pref_go_to_mainteance'			=> 'Zur Wartungsseite gelangen.',
+'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
+'pref_alert_bookmark_lien'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
 'legend_what_doyouwant'			=> 'Backup des Nachrichten - Was wollen sie tun?',
 'legend_what_doyouwant_optim'	=> 'Der Datenbank optimierung ?',
 // Notes

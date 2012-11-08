@@ -20,7 +20,7 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version'] = '2.0.0.1';
+$GLOBALS['version'] = '2.0.0.2';
 $GLOBALS['last-online-file'] = '../config/version.txt';
 // MINIMAL REQUIRED PHP VERSION
 $GLOBALS['minimal_php_version'] = '5.1.2';
@@ -44,12 +44,17 @@ $GLOBALS['dossier_cache'] = 'cache';
 $GLOBALS['dossier_db'] = 'databases';
 $GLOBALS['dossier_config'] = 'config';
 
-// DATABASE
-//$GLOBALS['sgbd'] = 'mysql'; /* sgbd : 'sqlite' or 'mysql' are supported yet */
-$GLOBALS['sgbd'] = 'sqlite';
-
 $GLOBALS['db_location'] = 'database.sqlite';    // data storage file (for sqlite)
 $GLOBALS['fichier_liste_fichiers'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_db'].'/'.'files.php'; // files/image info storage.
+
+
+// DATABASE 'sqlite' or 'mysql' are supported yet. If
+$GLOBALS['sgbd'] = 'sqlite';
+
+$mysql_file = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php';
+if ($GLOBALS['sgbd'] == 'mysql' and is_file($mysql_file) and is_readable($mysql_file)) {
+	include($mysql_file);
+}
 
 
 // CAPTCHA

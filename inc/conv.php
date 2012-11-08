@@ -70,43 +70,60 @@ function rel2abs($article) { // convertit les URL relatives en absolues
 	$article = str_replace(' src="/', ' src="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
 	$article = str_replace(' href="/', ' href="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
 	$base = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
-	$article = preg_replace('/(src|href)=\"(?!http)/i','src="'.$base.'/',$article);
+	$article = preg_replace('#(src|href)=\"(?!http)#i','src="'.$base.'/', $article);
 	return $article;
 }
 
+
 function formatage_wiki($texte) {
-	$texte = preg_replace("/(\r\n|\r\n\r|\n|\n\r|\r)/", "\r", "\r\r".$texte."\r\r");
+	$texte = preg_replace("/(\r\n|\r\n\r|\n|\n\r|\r)/", "\r", /*"\r\r".*/$texte/*."\r\r"*/);
 //	$texte = nl2br($texte);
 	$tofind = array(
-		'`<(.*?)>\r+`',															// html
+		// transforme certains \r en \n
+		'#<(.*?)>\r#',			// html (les <tag> suivi d’un \r ne prennent pas de <br/> (le <br> remplace un \r, pas un \n).
+		'#(\[/?code\])\r#',	// idem pour les balises [code], qui sont converties un peu à part, en <pre>
+
+		// css block elements
+		'#\[left\](.*?)\[/left\]#s',			// aligner à gauche
+		'#\[center\](.*?)\[/center\]#s',		// aligner au centre
+		'#\[right\](.*?)\[/right\]#s',		// aligner à droite
+		'#\[justify\](.*?)\[/justify\]#s',	// justifier
+
+		// misc
 		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',	// Regex URL
-		'`(.*?)\r\r+`',															// p (laisse une interligne)
-		'`(.*?)\r`',																// br : retour à la ligne sans saut de ligne
-		'`\[([^[]+)\|([^[]+)\]`',												// a href
-		'`\[(https?://)([^[]+)\]`',											// url
-		'`\(\(([^ ]*?)\|(.*?)\)\)`',											// img src alt
-		'`\[img\](.*?)\[/img\]`s',												// [img]
-		'`\[b\](.*?)\[/b\]`s',													// strong
-		'`\[i\](.*?)\[/i\]`s',													// italic
-		'`\[s\](.*?)\[/s\]`s',													// strike
-		'`\[u\](.*?)\[/u\]`s',													// souligne
-		'`%%`',																		// br
-		'`\[quote\](.*?)\[/quote\]`s',										// citation
-		'`\[quote\](.*?)\[/quote\]`s',										// citation
-		'`\[left\](.*?)\[/left\]`s',											// aligner à gauche
-		'`\[center\](.*?)\[/center\]`s',										// aligner au centre
-		'`\[right\](.*?)\[/right\]`s',										// aligner à droite
-		'`\[justify\](.*?)\[/justify\]`s',									// justifier
-		'` »`',																		// close quote
-		'`« `', 																		// open quote
-		'` !`',																		// !
-		'` :`',																		// :
-		'`\n?<p></p>\n?`',														// vide
+		'#(.*?)\r#',																// br : retour à la ligne sans saut de ligne
+		'#\[([^[]+)\|([^[]+)\]#',												// a href
+		'#\[(https?://)([^[]+)\]#',											// url
+		'#\(\(([^ ]*?)\|(.*?)\)\)#',											// img src alt
+		'#\[img\](.*?)\[/img\]#s',												// [img]
+		'#\[b\](.*?)\[/b\]#s',													// strong
+		'#\[i\](.*?)\[/i\]#s',													// italic
+		'#\[s\](.*?)\[/s\]#s',													// strike
+		'#\[u\](.*?)\[/u\]#s',													// souligne
+		'#%%#',																		// br
+		'#\[quote\](.*?)\[/quote\]#s',										// citation
+		'#\[color=(\\\?")?(\w*|\#[0-9a-fA-F]{3}|\#[0-9a-fA-F]{6})(\\\?")?\](.*?)\[/color\]#s',			// color
+		'#\[size=(\\\?")?([0-9]{1,})(\\\?")?\](.*?)\[/size\]#s',			// size
+
+		// quelques &nbsp; que j’ajoute
+		'# »#',
+		'#« #',
+		'# !#',
+		'# :#',
 	);
 	$toreplace = array(
-		'<$1>'."\n",																// html
+		// transforme certains \r en \n
+		'<$1>'."\n",		// html
+		'$1'."\n",			// la balise code qui ne doit pas recevoir de <br/>
+
+		// css block elements
+		'<div style="text-align:left;">$1</div>',		// aligner à gauche
+		'<div style="text-align:center;">$1</div>',	// aligner au centre
+		'<div style="text-align:right;">$1</div>',	// aligner à droite
+		'<div style="text-align:justify;">$1</div>',	// justifier
+
+		// misc
 		'$1<a href="$2">$2</a>',												// url regex
-		"\n".'<p>$1</p>'."\n",													// p (laisse une interligne)
 		'$1<br/>'."\n",															// br : retour à la ligne sans saut de ligne
 		'<a href="$2">$1</a>',													// a href
 		'<a href="$1$2">$2</a>',												// url
@@ -118,23 +135,21 @@ function formatage_wiki($texte) {
 		'<span style="text-decoration: underline;">$1</span>',		// souligne
 		'<br />',																	// br
 		'<q>$1</q>',																// citation
-		'<q>$1</q>',																// citation
-		'<div style="text-align:left;">$1</div>',							// aligner à gauche
-		'<div style="text-align:center;">$1</div>',						// aligner au centre
-		'<div style="text-align:right;">$1</div>',						// aligner à droite
-		'<div style="text-align:justify;">$1</div>',						// justifier
+		'<span style="color:$2;">$4</span>',								// color
+		'<span style="font-size:$2pt;">$4</span>',								// text-size
+
+		// quelques &nbsp; que j’ajoute
 		'&nbsp;»',
 		'«&nbsp;',
 		'&nbsp;!',
 		'&nbsp;:',
-		'',																			// vide
 	);
 
 	// un array des balises [code] avant qu’ils ne soient modifiées par le preg_replace($tofind, $toreplace, $texte);
 	// il met en mémoire le contenu des balises [code] tels quelles
 	$nb_balises_code_avant = preg_match_all('#\[code\](.*?)\[/code\]#s', $texte, $balises_code, PREG_SET_ORDER);
 
-	// formate
+	// formate tout sauf les [code]
 	$texte_formate = preg_replace($tofind, $toreplace, $texte);
 
 	// remplace les balises [codes] modifiées par la balise code non formatée et précédement mises en mémoire.
@@ -148,15 +163,14 @@ function formatage_wiki($texte) {
 	}
 
 	$texte_formate = stripslashes($texte_formate);
-//	$texte_formate = str_replace(array("\\"), array("&#92;"), $texte_formate); // 2/5/12 : plus nécessaire avec SQL.
 	return $texte_formate;
 }
 
 function formatage_commentaires($texte) {
 	$texte = " ".$texte;
 	$tofindc = array(
-		'#\[quote\](.+?)\[/quote\]#s',									// citation } les citation imbriquées marchent pour **deux niveaux** seulement. [quote][quote]bla[/quote][/quote], 
-		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat logiquement attendu.
+		'#\[quote\](.+?)\[/quote\]#s',									// citation } les citation imbriquées marchent pour **deux niveaux** seulement, 
+		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat attendu.
 																					//				} !!!! : [quote*][quote**][quote]bla[/quote**][/quote*][/quote] fait que les balises avec *, ** matchent.
 		'#\[code\](.+?)\[/code\]#s',										// code
 		'# »#',																	// close quote

@@ -119,8 +119,9 @@ function create_tables() {
 		*/
 		case 'mysql':
 				try {
+
 					$options_pdo[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-					$db_handle = new PDO('mysql:host=localhost;dbname=timo', 'timo', 'pass', $options_pdo);
+					$db_handle = new PDO('mysql:host='.$GLOBALS['mysql_host'].';dbname=blogotext', $GLOBALS['mysql_login'], $GLOBALS['mysql_passwd'], $options_pdo);
 
 					// check each wanted table 
 					$wanted_tables = array('commentaires', 'articles', 'links');
