@@ -309,7 +309,7 @@ function list_all_tags() {
 function creer_dossier($dossier, $make_htaccess='') {
 	if ( !is_dir($dossier) ) {
 		if (mkdir($dossier, 0777) === TRUE) {
-			fichier_index($dossier); // fichier index.html pour éviter qu'on puisse lister les fihciers du dossier
+			fichier_index($dossier); // fichier index.html pour éviter qu'on puisse lister les fichiers du dossier
 			if ($make_htaccess == 1) fichier_htaccess($dossier); // fichier évitant qu'on puisse accéder aux fichiers du dossier directement
 			return TRUE;
 		} else {
