@@ -1,0 +1,8 @@
+# URL Rewriting
+
+# AVANT : http://XXXXXX/2012/12/19/16/55/08-titre
+# APRÈS : http://XXXXXX/index.php?d=2012/12/19/16/55/08-titre
+# RewriteCond %{REMOTE_ADDR} ^A\.B\.C\.D$ (pour tester avec sa propre ip)
+
+RewriteEngine On
+RewriteRule ^([0-9].*)$ /index.php?d=$1 [L]
