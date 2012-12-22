@@ -115,7 +115,7 @@ p.formatbut {
 	float: right;
 }
 
-.formatbut .but {
+.formatbut button {
 	padding: 0;
 	display: inline-block;
 	text-align: center;
@@ -126,7 +126,7 @@ p.formatbut {
 	border-radius: 4px;
 }
 
-.formatbut .but:hover {
+.formatbut button:hover {
 	-webkit-transition: border-color .3s;
 	   -moz-transition: border-color .3s;
 	    -ms-transition: border-color .3s;
@@ -136,7 +136,7 @@ p.formatbut {
 	
 }
 
-.formatbut .but:active {
+.formatbut button:active {
 	border-color: gray;
 	background: #cde6ff;
 	background: -webkit-linear-gradient(bottom, white, #d6d6d6);
@@ -182,7 +182,7 @@ p.formatbut {
 #button13 span{ background-image: url("format-bbcode/edit-color.png"); }
 #button14 span{ background-image: url("format-bbcode/edit-small-caps.png"); }
 
-.but-dropdown .list {
+button-dropdown .list {
 	display:none;
 	padding: 3px;
 	border: 1px solid #9999a3;
@@ -196,13 +196,13 @@ p.formatbut {
 	line-height: 20px;
 }
 
-.but-dropdown:hover .list {
+button-dropdown:hover .list {
 	display: block;
 	box-shadow: 0px 2px 7px silver;
 }
 
 /* list colors */
-.but-dropdown .list-color button {
+button-dropdown .list-color button {
 	display: inline-block;
 	background: white;
 	margin: 0 2px;
@@ -212,7 +212,7 @@ p.formatbut {
 	border: 1px solid transparent;
 }
 
-.but-dropdown .list-color button span {
+button-dropdown .list-color button span {
 	vertical-align: middle;
 	border: 1px solid #ccc;
 	margin: 0 auto;
@@ -221,22 +221,22 @@ p.formatbut {
 	height: 12px;
 }
 
-.but-dropdown .list-color button:hover {
+button-dropdown .list-color button:hover {
 	background-color: #ddd;
 }
-.but-dropdown .list-color button:hover span {
+button-dropdown .list-color button:hover span {
 	border-color: #888;
 }
 
 /* list sizes */
-.but-dropdown .list-size {
+button-dropdown .list-size {
 	text-align: left;
 	width: 140px;
 	padding: 3px 0;
 	left: -60px;
 }
 
-.but-dropdown .list-size button {
+button-dropdown .list-size button {
 	color: black;
 	padding: 2px;
 	text-align: left;
@@ -249,12 +249,12 @@ p.formatbut {
 	border: 1px solid transparent;
 }
 
-.but-dropdown .list-size button span {
+button-dropdown .list-size button span {
 	vertical-align: middle;
 	margin: 0 auto;
 }
 
-.but-dropdown .list-size button:hover {
+button-dropdown .list-size button:hover {
 	background-color: #ddd;
 }
 
