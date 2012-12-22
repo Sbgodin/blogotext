@@ -146,7 +146,7 @@ p.formatbut {
 	background:         linear-gradient(bottom, white, #d6d6d6);
 }
 
-.formatbut .but span{
+.formatbut button span{
 	display: inline-block;
 	width: 16px;
 	height: 24px;
@@ -164,23 +164,23 @@ p.formatbut {
 #pmm span{ background-image: url("toggle.png"); }
 #pmp span{ background-image: url("toggle-expand.png"); }
 
-#button01 span{ background-image: url("style/format-bbcode/edit-bold.png"); }
-#button02 span{ background-image: url("style/format-bbcode/edit-italic.png"); }
-#button03 span{ background-image: url("style/format-bbcode/edit-underline.png"); }
-#button04 span{ background-image: url("style/format-bbcode/edit-strike.png"); }
+#button01 span{ background-image: url("format-bbcode/edit-bold.png"); }
+#button02 span{ background-image: url("format-bbcode/edit-italic.png"); }
+#button03 span{ background-image: url("format-bbcode/edit-underline.png"); }
+#button04 span{ background-image: url("format-bbcode/edit-strike.png"); }
 
-#button05 span{ background-image: url("style/format-bbcode/edit-alignment.png"); }
-#button06 span{ background-image: url("style/format-bbcode/edit-alignment-center.png"); }
-#button07 span{ background-image: url("style/format-bbcode/edit-alignment-right.png"); }
-#button08 span{ background-image: url("style/format-bbcode/edit-alignment-justify.png"); }
+#button05 span{ background-image: url("format-bbcode/edit-alignment.png"); }
+#button06 span{ background-image: url("format-bbcode/edit-alignment-center.png"); }
+#button07 span{ background-image: url("format-bbcode/edit-alignment-right.png"); }
+#button08 span{ background-image: url("format-bbcode/edit-alignment-justify.png"); }
 
-#button09 span{ background-image: url("style/format-bbcode/edit-link.png"); }
-#button10 span{ background-image: url("style/format-bbcode/edit-quotation.png"); }
-#button11 span{ background-image: url("style/format-bbcode/edit-image.png"); }
-#button12 span{ background-image: url("style/format-bbcode/edit-code.png"); }
+#button09 span{ background-image: url("format-bbcode/edit-link.png"); }
+#button10 span{ background-image: url("format-bbcode/edit-quotation.png"); }
+#button11 span{ background-image: url("format-bbcode/edit-image.png"); }
+#button12 span{ background-image: url("format-bbcode/edit-code.png"); }
 
-#button13 span{ background-image: url("style/format-bbcode/edit-color.png"); }
-#button14 span{ background-image: url("style/format-bbcode/edit-small-caps.png"); }
+#button13 span{ background-image: url("format-bbcode/edit-color.png"); }
+#button14 span{ background-image: url("format-bbcode/edit-small-caps.png"); }
 
 .but-dropdown .list {
 	display:none;
