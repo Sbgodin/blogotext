@@ -6,3 +6,6 @@
 
 RewriteEngine On
 RewriteRule ^([0-9].*)$ /index.php?d=$1 [L]
+
+
+# egrep -ilR '\Wd=' . | egrep -v '\.hg|urlRewriting\.txt|^\./htaccess|png$'

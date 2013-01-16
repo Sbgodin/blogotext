@@ -12,6 +12,9 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way BEFORE the download.
 # *** LICENSE ***
 
+$GLOBALS['urlPasRécrit'] = '?d=';
+$GLOBALS['urlPasRécrit'] = ''; // @FIXME: un inclus surcharge cette affectation
+
 // Sets timezone
 if (!empty($GLOBALS['fuseau_horaire'])) {
 	date_default_timezone_set($GLOBALS['fuseau_horaire']);
@@ -125,8 +128,8 @@ function init_list_articles($list, $mode, $chapo) {
 			$list[$item]['heure'] = $dec['heure'];
 			$list[$item]['minutes'] = $dec['minutes'];
 			$list[$item]['secondes'] = $dec['secondes'];
-			$list[$item]['lien'] = $_SERVER['PHP_SELF'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
-			$list[$item]['bt_link'] = $GLOBALS['racine'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
+			$list[$item]['lien'] = '/'.$GLOBALS['urlPasRécrit'].$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
+			$list[$item]['bt_link'] = $GLOBALS['racine'].$GLOBALS['urlPasRécrit'].$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
 			$list[$item]['bt_url_rss_comments'] = 'rss.php?id='.$article['bt_id'];
 		}
 
