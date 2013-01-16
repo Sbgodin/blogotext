@@ -9,3 +9,17 @@ RewriteRule ^([0-9].*)$ /index.php?d=$1 [L]
 
 
 # egrep -ilR '\Wd=' . | egrep -v '\.hg|urlRewriting\.txt|^\./htaccess|png$'
+
+BUG: Dans le courriel de notifications de nouveaux commentaires, le lien de désinscription des emails de d'avertissement de nouveaux commentaire n'est plus bon.
+
+1/ N'est pas encore adapté au liens : http://blog.sbgodin.fr/index.php?mode=links&id=20121231081147
+Soit adapter la réécriture d'url, soit utiliser "?d=" comme pour tout le reste
+
+2/ Les tags n'y sont pas adaptés : http://blog.sbgodin.fr/index.php?tag=maths
+[http://blog.sbgodin.fr/tags/maths] serait plus joli.
+
+3/ Les derniers commentaires s'obtiennent via http://blog.sbgodin.fr/index.php?mode=comments
+[http://blog.sbgodin.fr/comments] serait mieux
+
+4/ L'envoi d'un commentaire (avec somme captcha incorrecte) refait apparaître l'url avec "?d="
+
