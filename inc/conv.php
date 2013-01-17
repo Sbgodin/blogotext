@@ -41,6 +41,7 @@ function protect_markup($text) {
 	return $result;
 }
 
+// remove slashes if necessary
 function clean_txt($text) {
 	if (!get_magic_quotes_gpc()) {
 		$return = trim(addslashes($text));
@@ -49,6 +50,14 @@ function clean_txt($text) {
 	}
 return $return;
 }
+
+function clean_txt_array($array) {
+	foreach ($array as $i => $key) {
+		$array[$i] = clean_txt($key);
+	}
+	return $array;
+}
+
 
 function diacritique($texte, $majuscules, $espaces) {
 	$texte = strip_tags($texte);
@@ -70,14 +79,19 @@ function rel2abs($article) { // convertit les URL relatives en absolues
 	$article = str_replace(' src="/', ' src="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
 	$article = str_replace(' href="/', ' href="http://'.$_SERVER['HTTP_HOST'].'/' , $article);
 	$base = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
-	$article = preg_replace('#(src|href)=\"(?!http)#i','src="'.$base.'/', $article);
+	$article = preg_replace('#(src|href)=\"(?!http)#i','$1="'.$base.'/', $article);
+	return $article;
+}
+
+function rel2abs_admin($article) { // pour le panel admin : l’aperçu de l’article doit convertir les liens (vu que /admin est un sous dossier de /).
+	// remplace tous les (src|href)="$i" ou $i ne contient pas "/" ni "[a-z]+://" (référence avant négative (avec le !))
+	$article = preg_replace('#(src|href)=\"(?!(/|[a-z]+://))#i','$1="../', $article);
 	return $article;
 }
 
 
 function formatage_wiki($texte) {
 	$texte = preg_replace("/(\r\n|\r\n\r|\n|\n\r|\r)/", "\r", /*"\r\r".*/$texte/*."\r\r"*/);
-//	$texte = nl2br($texte);
 	$tofind = array(
 		// transforme certains \r en \n
 		'#<(.*?)>\r#',			// html (les <tag> suivi d’un \r ne prennent pas de <br/> (le <br> remplace un \r, pas un \n).
@@ -173,33 +187,33 @@ function formatage_commentaires($texte) {
 		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat attendu.
 																					//				} !!!! : [quote*][quote**][quote]bla[/quote**][/quote*][/quote] fait que les balises avec *, ** matchent.
 		'#\[code\](.+?)\[/code\]#s',										// code
-		'# »#',																	// close quote
-		'#« #', 																	// open quote
-		'# !#',																	// !
-		'# :#',																	// :
-		'# ;#',																	// ;
-		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',				// Regex URL
+		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s\)\(]+))#i',				// Regex URL
 		'`\[([^[]+)\|([^[]+)\]`',											// a href
 		'`\[b\](.*?)\[/b\]`s',												// strong
 		'`\[i\](.*?)\[/i\]`s',												// italic
 		'`\[s\](.*?)\[/s\]`s',												// strike
 		'`\[u\](.*?)\[/u\]`s',												// souligne
+		'# »#',																	// close quote
+		'#« #', 																	// open quote
+		'# !#',																	// !
+		'# :#',																	// :
+		'# ;#',																	// ;
 	);
 	$toreplacec = array(
 		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
 		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
 		'<code>$1</code>',													// code
-		'&thinsp;»',															// close quote
-		'«&thinsp;',															// open quote
-		'&thinsp;!',															// !
-		'&nbsp;:',																// :
-		'&thinsp;;',															// ;
 		'$1<a href="$2">$2</a>',												// url
 		'<a href="$2">$1</a>',												// a href
 		'<span style="font-weight: bold;">$1</span>',				// strong
 		'<span style="font-style: italic;">$1</span>',				// italic
 		'<span style="text-decoration: line-through;">$1</span>',// barre
 		'<span style="text-decoration: underline;">$1</span>',	// souligne
+		'&thinsp;»',															// close quote
+		'«&thinsp;',															// open quote
+		'&thinsp;!',															// !
+		'&nbsp;:',																// :
+		'&thinsp;;',															// ;
 	);
 
 	$toreplaceArrayLength = sizeof($tofindc);
@@ -432,4 +446,12 @@ function nombre_fichiers($nb) {
 	}
 	return $retour;
 }
+
+function str2($nb) {
+	return str_pad($nb, 2, "0", STR_PAD_LEFT);
+}
+function str4($nb) {
+	return str_pad($nb, 4, "0", STR_PAD_LEFT);
+}
+
 

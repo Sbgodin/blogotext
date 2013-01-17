@@ -40,7 +40,7 @@ if (isset($_GET['post_id'])) {
 	$article_id = htmlspecialchars($_GET['post_id']);
 	$posts = liste_base_articles('id', $article_id, 'admin', '', 0, '');
 //	echo '<pre>'; print_r($posts); die();
-	$post = $posts[0];
+	if (isset($posts[0])) $post = $posts[0];
 }
 
 // TITRE PAGE
@@ -77,7 +77,13 @@ if ($post != '') {
 	apercu($post);
 }
 afficher_form_billet($post, $erreurs_form);
-echo js_resize(1);
-echo js_inserttag(1);
+
+echo '<script type="text/javascript">';
+echo js_resize(0);
+echo js_inserttag(0);
+echo js_addcategories(0);
+echo js_html5_str_pad_time(0);
+echo '</script>';
+
 footer('', $begin);
 ?>

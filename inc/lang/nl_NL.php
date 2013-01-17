@@ -22,6 +22,13 @@ $lang_nl = array(
 'install_id'						=> 'Kies en naam',
 'install_mdp'						=> 'Kies en wachtwoord',
 'install_remdp'					=> 'Bevestig je wachtwoord',
+'install_choose_sgdb'			=> 'Kies uw DBMS:',
+'install_sqlite_no_more_todo'	=> 'Geen extra configuratie nodig met SQLite.',
+'install_err_mysql_usr_empty'	=> 'Gegeven MySQL-user is leeg.',
+'install_err_mysql_pss_empty'	=> 'Gegeven MySQL-password is leeg.',
+'install_err_mysql_hst_empty'	=> 'Gegeven MySQL-hostname is leeg.',
+'install_err_mysql_dba_empty'	=> 'Gegeven MySQL-database-name is leeg.',
+'install_err_mysql_connect'	=> 'Kan geen verbinding maken met MySQL.',
 'first_titre' 						=> 'Mijn eerste bericht',
 'first_edit' 						=> 'Wijzig-mij',
 // Navigation
@@ -58,6 +65,9 @@ $lang_nl = array(
 'trouve'								=> 'gevonden',
 'voir_sur_le_blog'				=> 'op de blog zien',
 'byte_symbol'						=> 'b',
+'using'								=> 'met',
+'rendered'							=> 'gegenereerd in',
+'recherche'							=> 'Uw zoekresultaten',
 // Boutons formatage commentaires
 'bouton-gras'						=> 'vet',
 'bouton-ital'						=> 'cursief',
@@ -119,7 +129,7 @@ $lang_nl = array(
 'label_nouv_note'					=> 'Nieuw note',
 'label_notes'						=> 'note', /////////////////////
 'label_categories'				=> 'Tags, met en comma geschijden',
-'label_nouv_lien'					=> 'Nieuw link',
+'label_nouv_lien'					=> 'Nieuw link <span style="font-weight:normal;">of laat leeg voor en autolink</span>',
 'label_edit_lien'					=> 'Link bijverken',
 'label_lien_priv'					=> 'Verborgen link?',
 'label_img_priv'					=> 'Verborgen afbeelding?',
@@ -332,7 +342,7 @@ $lang_nl = array(
 'pref_all'							=> 'Alles',
 'pref_go_to_mainteance'			=> 'Blogotext opruimen',
 'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
-'pref_alert_bookmark_lien'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
+'pref_alert_bookmark_link'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
 'legend_what_doyouwant'			=> 'Wat wilt u doen?',
 'legend_what_doyouwant_optim'	=> 'De database opruimen?',
 // Notes

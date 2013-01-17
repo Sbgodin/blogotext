@@ -25,18 +25,25 @@ $tableau = array();
 if (!empty($_GET['q'])) {
 	$tableau = liste_base_articles('recherche', urldecode($_GET['q']), 'admin', '', 0, '');
 }
-elseif ( !empty($_GET['filtre']) and !isset($_GET['msg']) ) {
-	if ( preg_match('#\d{6}(\d{2})?#',($_GET['filtre'])) ) {
-		$annee = substr($_GET['filtre'], 0, 4);
-		$mois = substr($_GET['filtre'], 4, 2);
-		$jour = substr($_GET['filtre'], 6, 2);
-		$tableau = liste_base_articles('date', $annee.$mois.$jour, 'admin', '', 0, '');
+elseif ( !empty($_GET['filtre']) ) {
+	// for "tags" the requests is "tag.$search" : here we split the type of search and what we search.
+	$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
+	$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
+
+	if ( preg_match('#^\d{6}(\d{1,8})?$#', $_GET['filtre']) ) {
+		$tableau = liste_base_articles('date', $_GET['filtre'], 'admin', '', 0, '');
 	}
 	elseif ($_GET['filtre'] == 'draft') {
 		$tableau = liste_base_articles('statut', '0', 'admin', '0', 0, '');
 	}
 	elseif ($_GET['filtre'] == 'pub') {
 		$tableau = liste_base_articles('statut', '1', 'admin', '1', 0, '');
+	}
+	elseif ($type == 'tag' and $search != '') {
+		$tableau = liste_base_articles('tags', $search, 'admin', '', 0, ''); 
+	}
+	else {
+		$tableau = liste_base_articles('', '', 'admin', '', 0, $GLOBALS['max_bill_admin']);
 	}
 }
 else {
@@ -61,9 +68,9 @@ echo '</p>'."\n";
 
 
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre('articles', htmlspecialchars($_GET['filtre']), 'admin');
+	afficher_form_filtre('articles', htmlspecialchars($_GET['filtre']));
 } else {
-	afficher_form_filtre('articles', '', 'admin');
+	afficher_form_filtre('articles', '');
 }
 echo '</div>'."\n";
 

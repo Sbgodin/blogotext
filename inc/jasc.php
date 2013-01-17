@@ -209,6 +209,26 @@ function switchUploadForm(where) {
 	return $sc;
 }
 
+/*
+ * JS to add tags/labels ont links and articles.
+*
+*/
+
+function js_addcategories($a) {
+	$sc = '
+function insertCatTag(inputId, tag) {
+	var field = document.getElementById(inputId);
+	if (field.value !== \'\') {
+		field.value += \', \';
+	}
+	field.value += tag;
+}';
+
+	if ($a == 1) {
+		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	}
+	return $sc;
+}
 
 /*
  * JS to handle drag-n-drop : it listens to the event of draging files on a <div> and
@@ -216,6 +236,7 @@ function switchUploadForm(where) {
 *
 */
 function js_drag_n_drop_handle($a) {
+	$max_file_size = return_bytes(ini_get('upload_max_filesize'));
 	$sc = '
 
 // pour le input des fichiers publics ou privés.
@@ -297,7 +318,7 @@ function uploadNext() {
 		count.innerHTML = \'Files done: \'+nbDone+\' ; \'+\'Files left: \'+nb;
 
 		var nextFile = list.shift();
-		if (nextFile.size >= 20000000) { // 20Mb = generally the max file size on PHP hosts
+		if (nextFile.size >= '.$max_file_size.') {
 			result.innerHTML += \'<div class="f">File too big</div>\';
 			uploadNext();
 		} else {
@@ -316,4 +337,21 @@ initHandlers();
 	return $sc;
 }
 
+function js_html5_str_pad_time($a) {
+$sc = '
+function padz(field) {
+	if (field.value.length == 1) {
+		field.value = "0" + field.value;
+	}
+	if (field.value.length == 0) {
+		field.value = "00";
+	}
+}
+';
+	if ($a == 1) {
+		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	}
+	return $sc;
+
+}
 

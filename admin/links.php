@@ -46,8 +46,8 @@ function afficher_liens($link) {
 	$list .= "\t".'<p class="date">'.date_formate($link['bt_id']).', '.heure_formate($link['bt_id']).' '.$GLOBALS['lang']['par'].' <a href="'.$_SERVER['PHP_SELF'].'?filtre='.urlencode($link['bt_author']).'">'.$link['bt_author'].'</a></p>'."\n";
 	$list .= "\t".'<p>'.$link['bt_content'].'</p>'."\n";
 	$list .= "\t".'<p class="link_no_clic">'.$link['bt_link'].'</p>'."\n";
-
-	$list .= '</div>'."\n";
+	$list .= (!empty($link['bt_tags'])) ? "\t".'<p class="link-tags">'.'<span class="tag">'.str_replace(', ', '</span> <span class="tag">', $link['bt_tags']).'</span>'.'</p>'."\n" : '';
+	$list .= '<hr style="clear:both; border: none;margin:0;"/></div>'."\n";
 	// si ID est dans l'url, alors on affiche le formulaire d'édition
 	if (!empty($_GET['id']) and preg_match('#\d{14}#' ,$_GET['id'])) {
 		$list .= afficher_form_link('edit', '', $link);
@@ -77,19 +77,26 @@ $tableau = array();
 
 // si on veut ajouter un lien : on n’affiche pas les anciens liens
 if (!isset($_GET['url']) and !isset($_GET['ajout'])) {
-	if ( isset($_GET['filtre']) and $_GET['filtre'] !== '' ) {
-		if ( preg_match('/\d{6}/',($_GET['filtre'])) ) { // par date
-			$annee = substr($_GET['filtre'], 0, 4);
-			$mois = substr($_GET['filtre'], 4, 2);
-			$jour = substr($_GET['filtre'], 6, 2);
-			$tableau = liste_base_liens('date', $annee.$mois.$jour, 'admin', '', 0, '');
-		} elseif ($_GET['filtre'] == 'draft') {
+	if ( !empty($_GET['filtre']) ) {
+		// for "tags" & "author" the requests is "tag.$search" : here we split the type of search and what we search.
+		$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
+		$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
+
+		if ( preg_match('#^\d{6}(\d{1,8})?$#', $_GET['filtre']) ) { // date
+			$tableau = liste_base_liens('date', $_GET['filtre'], 'admin', '', 0, '');
+		} elseif ($_GET['filtre'] == 'draft') { //brouillons
 			$tableau = liste_base_liens('statut', '0', 'admin', '', 0, '');
-		} elseif ($_GET['filtre'] == 'pub') {
+		} elseif ($_GET['filtre'] == 'pub') { // visibles
 			$tableau = liste_base_liens('statut', '1', 'admin', '', 0, '');
+
+		} elseif ($type == 'tag' and $search != '') { // tags
+			$tableau = liste_base_liens('tags', $search, 'admin', '', 0, ''); 
+		} elseif ($type == 'auteur' and $search != '') { // auteur
+			$tableau = liste_base_liens('auteur', $search, 'admin', '', 0, ''); 
 		} else {
-			$tableau = liste_base_liens('auteur', htmlspecialchars($_GET['filtre']), 'admin', '', 0, '');
+			$tableau = liste_base_liens('', '', 'admin', '', 0, $GLOBALS['max_linx_admin']);
 		}
+
 	} elseif (!empty($_GET['q'])) { // mot clé
 			$tableau = liste_base_liens('recherche', htmlspecialchars($_GET['q']), 'admin', '', 0, '');
 	} elseif (!empty($_GET['id']) and is_numeric($_GET['id'])) { // édition d’un lien spécifique
@@ -118,9 +125,9 @@ echo '<p id="mode"><span id="lien-comments">'.ucfirst(nombre_liens($nb_links_dis
 
 // Affichage formulaire filtrage liens
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre('links', htmlspecialchars($_GET['filtre']), 'admin');
+	afficher_form_filtre('links', htmlspecialchars($_GET['filtre']));
 } else {
-	afficher_form_filtre('links', '', 'admin');
+	afficher_form_filtre('links', '');
 }
 echo '</div>'."\n";
 
@@ -139,6 +146,8 @@ elseif (!isset($_GET['id'])) {
 foreach ($tableau as $link) {
 	afficher_liens($link);
 }
+
+echo js_addcategories(1);
 
 footer('', $begin);
 ?>

@@ -129,7 +129,7 @@ function form_fuseau_horaire($defaut) {
 			$form .= '<option value="'.htmlentities($fuseau['tz_name']).'"';
 			$form .= ($defaut == $fuseau['tz_name']) ? ' selected="selected"' : '';
 				$timeoffset = date_offset_get(date_create('now', timezone_open($fuseau['tz_name'])) );
-				$formated_toffset = '(UTC'.(($timeoffset < 0) ? '–' : '+').str_pad(floor((abs($timeoffset) / 3600)), 2, '0', STR_PAD_LEFT) .':'.str_pad( floor((abs($timeoffset) % 3600) / 60), 2, '0', STR_PAD_LEFT)  .') ';
+				$formated_toffset = '(UTC'.(($timeoffset < 0) ? '–' : '+').str2(floor((abs($timeoffset)/3600))) .':'.str2(floor((abs($timeoffset)%3600)/60)) .') ';
 			$form .= '>'.$formated_toffset.' '.htmlentities($fuseau['city']).'</option>'."\n";
 		}
 		$form .= '</optgroup>'."\n";
@@ -209,20 +209,21 @@ function liste_themes($chemin) {
 
 // formulaires ARTICLES //////////
 
-function afficher_form_filtre($type, $filtre, $mode) {
+function afficher_form_filtre($type, $filtre) {
 	echo '<form method="get" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	echo '<div id="form-filtre">'."\n";
-		filtre($type, $filtre, $mode);
+		filtre($type, $filtre);
 	echo '</div>'."\n";
 	echo '</form>'."\n";
 }
 
-function filtre($type, $filtre, $mode) {
+function filtre($type, $filtre) {
 	echo "\n".'<select name="filtre">'."\n" ;
 	// Articles
 	if ($type == 'articles') {
 		echo '<option value="">'.$GLOBALS['lang']['label_article_derniers'].'</option>'."\n";
 		$query = "SELECT bt_id FROM articles";
+		$tab_tags = list_all_tags('articles');
 		$BDD = 'sqlite';
 	// Commentaires
 	} elseif ($type == 'commentaires') {
@@ -233,14 +234,12 @@ function filtre($type, $filtre, $mode) {
 	// Liens
 	} elseif ($type == 'links') {
 		echo '<option value="">'.$GLOBALS['lang']['label_link_derniers'].'</option>'."\n";
-		$tab_auteur = nb_entries_as('links', 'bt_author');
+		// $tab_auteur = nb_entries_as('links', 'bt_author'); // uncomment when readers will be able to post links
+		$tab_tags = list_all_tags('links');
 		$query = "SELECT bt_id FROM links";
 		$BDD = 'sqlite';
-	// Images
-	} elseif ($type == 'images') {
-		echo '<option value="">'.$GLOBALS['lang']['label_image_derniers'].'</option>'."\n";
-		$filtre_type = 'images';
-		$BDD = 'fichier_txt_files';
+
+
 	// Fichiers
 	} elseif ($type == 'fichiers') {
 
@@ -250,18 +249,15 @@ function filtre($type, $filtre, $mode) {
 		if (!empty($files)) {
 			foreach ($files as $id => $file) {
 				$type = $file['bt_type'];
-				if ($type != 'image') {
-					if (!array_key_exists($type, $liste_des_types)) {
-						$liste_des_types[$type] = 1;
-					} else {
-						$liste_des_types[$type]++;
-					}
+				if (!array_key_exists($type, $liste_des_types)) {
+					$liste_des_types[$type] = 1;
+				} else {
+					$liste_des_types[$type]++;
 				}
 			}
 		}
 		arsort($liste_des_types);
 
-		// echo '<pre>'; print_r($liste_des_types); die();
 		echo '<option value="">'.$GLOBALS['lang']['label_fichier_derniers'].'</option>'."\n";
 		$filtre_type = '';
 		$BDD = 'fichier_txt_files';
@@ -278,7 +274,6 @@ function filtre($type, $filtre, $mode) {
 		}
 	} elseif ($BDD == 'fichier_txt_files') {
 		$tableau = $GLOBALS['liste_fichiers'];
-		//echo '<pre>'; print_r($tableau); die();
 	}
 
 	foreach ($tableau as $e) {
@@ -314,8 +309,8 @@ function filtre($type, $filtre, $mode) {
 		echo '<optgroup label="'.$GLOBALS['lang']['pref_auteur'].'">'."\n";
 		foreach ($tab_auteur as $nom) {
 			if (!empty($nom['nb']) ) {
-				echo '<option value="'.$nom['bt_author'].'"';
-				echo ($filtre == $nom['bt_author']) ? ' selected="selected"' : '';
+				echo '<option value="auteur.'.$nom['bt_author'].'"';
+				echo ($filtre == 'auteur.'.$nom['bt_author']) ? ' selected="selected"' : '';
 				echo '>'.$nom['bt_author'].' ('.$nom['nb'].')'.'</option>'."\n";
 			}
 		}
@@ -327,13 +322,25 @@ function filtre($type, $filtre, $mode) {
 		echo '<optgroup label="'.'Type'.'">'."\n";
 		foreach ($liste_des_types as $type => $nb) {
 			if (!empty($type) ) {
-				echo '<option value="'.$type.'"';
-				echo ($filtre == $type) ? ' selected="selected"' : '';
+				echo '<option value="type.'.$type.'"';
+				echo ($filtre == 'type.'.$type) ? ' selected="selected"' : '';
 				echo '>'.$type.' ('.$nb.')'.'</option>'."\n";
 			}
 		}
 		echo '</optgroup>'."\n";
 	}
+
+	///PAR TAGS POUR LES LIENS & ARTICLES
+	if (isset($tab_tags)) {
+		echo '<optgroup label="'.'Tags'.'">'."\n";
+		foreach ($tab_tags as $tag) {
+			echo '<option value="tag.'.$tag['tag'].'"';
+			echo ($filtre == 'tag.'.$tag['tag']) ? ' selected="selected"' : '';
+			echo '>'.$tag['tag'].' ('.$tag['nb'].')</option>'."\n";
+		}
+		echo '</optgroup>'."\n";
+	}
+
 	echo '</select> '."\n\n";
 	echo '<input type="submit" value="'.$GLOBALS['lang']['label_afficher'].'" />'."\n";
 }
@@ -355,14 +362,14 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= '</fieldset>'."\n";
 		$form .= '</form>'."\n\n";
 
-	} elseif ($step == 2) { // Form de l'URL, avec titre et description, en POST cette fois, et qu'il faut vérifier avant de stoquer dans la BDD.
+	} elseif ($step == 2) { // Form de l'URL, avec titre, description, en POST cette fois, et qu'il faut vérifier avant de stoquer dans la BDD.
 		$form .= '<form method="post" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'">'."\n";
 		$form .= '<fieldset>'."\n";
 
 		$new_id = date('YmdHis');
 		if (empty($_GET['url'])) { // URL vide : on ajoute une "note" (le champ de l’URL est masqué)
 			$title = 'Note';
-			$url = $GLOBALS['racine'].'index.php?mode=links&amp;id='.$new_id;
+			$url = $GLOBALS['racine'].'?mode=links&amp;id='.$new_id;
 
 			$form .= legend($GLOBALS['lang']['label_nouv_note'], 'legend-note');
 			$form .= '<p>'."\n";
@@ -373,6 +380,7 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 
 		} else {
 			$url = htmlspecialchars($_GET['url']);
+			$titre = $url;
 			if ($ext_file = get_external_file($url, 15) ) {
 				// cherche le charset spécifié dans le code HTML.
 				// récupère la balise méta tout entière, dans $meta
@@ -411,19 +419,23 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 			$form .= '</p>'."\n";
 		}
 		$link = array('title' => $title, 'url' => $url);
-
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="title">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
 		$form .= "\t".'<input type="text" id="title" name="title" placeholder="'.$GLOBALS['lang']['label_titre'].'" required="" value="'.$link['title'].'" size="50" class="text" tabindex="1" />'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
-		$form .= "\t".'<label for="contenu">'.ucfirst($GLOBALS['lang']['pref_desc']).' : </label>'."\n";
+		$form .= "\t".'<label for="description">'.ucfirst($GLOBALS['lang']['pref_desc']).' : </label>'."\n";
 		$form .= "\t".'<textarea class="description" name="description" id="description" cols="40" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" class="text" tabindex="2"></textarea>'."\n";
 		$form .= '</p>'."\n";
-		$form .= '<p class="sinline">';
-		$form .= "\t".'<input type="checkbox" id="bt_statut" name="bt_statut" tabindex="3" />' . '<label for="bt_statut">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
+		$form .= '<p>'."\n";
+		$form .= form_categories('links');
+		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
+		$form .= "\t".'<input type="text" id="categories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="" size="50" class="text" tabindex="3" />'."\n";
 		$form .= '</p>'."\n";
-		$form .= '<input class="submit blue-square" type="submit" name="enregistrer" id="valid-link" value="'.$GLOBALS['lang']['envoyer'].'" tabindex="4" />'."\n";
+		$form .= '<p class="sinline">';
+		$form .= "\t".'<input type="checkbox" id="bt_statut" name="bt_statut" tabindex="4" />' . '<label for="bt_statut">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
+		$form .= '</p>'."\n";
+		$form .= '<input class="submit blue-square" type="submit" name="enregistrer" id="valid-link" value="'.$GLOBALS['lang']['envoyer'].'" tabindex="5" />'."\n";
 		$form .= hidden_input('_verif_envoi', '1');
 		$form .= hidden_input('bt_id', $new_id);
 		$form .= hidden_input('bt_author', $GLOBALS['auteur']);
@@ -442,12 +454,17 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= "\t".'<input type="text" id="url'.$rand.'" name="url" value="'.$editlink['bt_link'].'" size="70" class="text readonly-like" />'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
-		$form .= "\t".'<label for="titre'.$rand.'">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
+		$form .= "\t".'<label for="title'.$rand.'">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
 		$form .= "\t".'<input type="text" id="title'.$rand.'" name="title" placeholder="'.$GLOBALS['lang']['label_titre'].'" required="" value="'.$editlink['bt_title'].'" size="70" class="text" />'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="description'.$rand.'">'.ucfirst($GLOBALS['lang']['pref_desc']).' : </label>'."\n";
 		$form .= "\t".'<textarea class="description text" id="description'.$rand.'" name="description" cols="70" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" >'.$editlink['bt_wiki_content'].'</textarea>'."\n";
+		$form .= '</p>'."\n";
+		$form .= '<p>'."\n";
+		$form .= form_categories('links');
+		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
+		$form .= "\t".'<input type="text" id="categories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="'.$editlink['bt_tags'].'" size="50" class="text" tabindex="3" />'."\n";
 		$form .= '</p>'."\n";
 		$checked = ($editlink['bt_statut'] == 0) ? 'checked ' : '';
 		$form .= '<p class="sinline">';
@@ -470,12 +487,6 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 
 
 
-
-
-
-
-
-
 /*
 
 /// Formulaire link public
@@ -487,9 +498,6 @@ function afficher_form_link_public($step, $erreurs) {
 
 
 */
-
-
-
 
 
 
@@ -543,22 +551,20 @@ function afficher_form_billet($article, $erreurs) {
 	} else {
 		echo '<form id="form-ecrire" method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	}
-		//echo label('titre', $GLOBALS['lang']['label_titre']);
 		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" title="'.$GLOBALS['lang']['label_titre'].'" tabindex="30" class="text" />'."\n" ;
 	echo '<div id="chapo_note">'."\n";
 	echo '<div id="blocchapo">'."\n";
-		//echo label('chapo', $GLOBALS['lang']['label_chapo']);
 		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" placeholder="'.$GLOBALS['lang']['label_chapo'].'" title="'.$GLOBALS['lang']['label_chapo'].'" tabindex="35" class="text" >'.$chapodefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n";
 	echo '<div id="blocnote">'."\n";
-		//echo label('notes', 'Notes');
 		echo '<textarea id="notes" name="notes" rows="5" cols="30" placeholder="Notes" title="Notes" tabindex="40" class="text" >'.$notesdefaut.'</textarea>'."\n" ;
 	echo '</div>'."\n";
 	echo '</div>'."\n";
 
 	if ($GLOBALS['activer_categories'] == '1') {
-		//echo label('categories', $GLOBALS['lang']['label_categories']);
-		form_categories($categoriesdefaut) ;
+		echo form_categories('articles');
+		echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesdefaut.'" placeholder="'.$GLOBALS['lang']['label_categories'].'" title="'.$GLOBALS['lang']['label_categories'].'" tabindex="45" class="text" />'."\n";
+
 	} else {
 		echo hidden_input('categories', '');
 	}
@@ -705,6 +711,9 @@ function form_mois($mois_affiche) {
 
 function form_annee($annee_affiche) {
 	$annees = array();
+
+//	echo '<input name="annee" type="number" size="6" maxlength="4" step="1" min="'.($annees-10).'" max="'.($annees+10).'" value="'.$annee_affiche.'" required="" class="text" />';
+
 	for ($annee = date('Y') -3, $annee_max = date('Y') +3; $annee <= $annee_max; $annee++) {
 		$annees[$annee] = $annee;
 	}
@@ -718,9 +727,12 @@ function form_annee($annee_affiche) {
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-	echo '<input name="heure" type="text" size="2" maxlength="2" value="'.$heureaffiche.'" required="" class="text" /> : ';
-	echo '<input name="minutes" type="text" size="2" maxlength="2" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
-	echo '<input name="secondes" type="text" size="2" maxlength="2" value="'.$secondesaffiche.'" required="" class="text" />' ;
+	echo '<input name="heure" onblur="padz(this)" type="text" size="2" value="'.$heureaffiche.'" required="" class="text" /> : ';
+	echo '<input name="minutes" onblur="padz(this)" type="text" size="2" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
+	echo '<input name="secondes" onblur="padz(this)" type="text" size="2" value="'.$secondesaffiche.'" required="" class="text" />' ;
+//	echo '<input name="heure" onblur="padz(this)" type="number" size="3" step="1" min="0" max="23" value="'.$heureaffiche.'" required="" class="text" /> : ';
+//	echo '<input name="minutes" onblur="padz(this)" type="number" size="3" step="1" min="0" max="59" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
+//	echo '<input name="secondes" onblur="padz(this)" type="number" size="3" step="1" min="0" max="59" value="'.$secondesaffiche.'" required="" class="text" />' ;
 }
 
 function form_statut($etat) {
@@ -743,28 +755,17 @@ function form_allow_comment($etat) {
 	echo form_select('allowcomment', $choix, $etat, $GLOBALS['lang']['label_allowcomment']);
 }
 
-function form_categories($categoriesaffiche) {
-	$tags = list_all_tags();
+function form_categories($table) {
+	$tags = list_all_tags($table);
+	$html = '';
 	if (!empty($tags)) {
-		$script = '<script type="text/javascript">'."\n";
-
-		$script .='function insertCatTag(inputId, tag) {'."\n";
-		$script .='	var field = document.getElementById(inputId);'."\n";
-		$script .='	if (field.value !== \'\') {'."\n";
-		$script .='		field.value += \', \';'."\n";
-		$script .='	}'."\n";
-		$script .='	field.value += tag;'."\n";
-		$script .='}'."\n";
-		$script .='</script>'."\n";
-		$script .='<p id="liste-tags">'."\n";
-		echo $script;
-		$nb = sizeof($tags);
-		for ($i = 0 ; $i < $nb ; $i++) {
-			$tags[$i] = trim($tags[$i]);
-			echo "\t".'<button type="button" class="tag" id="tag'.$i.'" onclick="insertCatTag(\'categories\', \''.addslashes($tags[$i]).'\');">'.$tags[$i]."</button>\n";
+		$html .= '<p id="liste-tags">'."\n";
+		foreach($tags as $i => $tag) {
+			$html .= "\t".'<button type="button" class="tag" id="tag'.$i.'" onclick="insertCatTag(\'categories\', \''.addslashes($tag['tag']).'\');">'.$tag['tag']."</button>\n";
 		}
-		echo '</p>'."\n";
+		$html .= '</p>'."\n";
 	}
-	echo '<input id="categories" name="categories" type="text" size="50" value="'.$categoriesaffiche.'" placeholder="'.$GLOBALS['lang']['label_categories'].'" title="'.$GLOBALS['lang']['label_categories'].'" tabindex="45" class="text" />'."\n";
+
+	return $html;
 }
 

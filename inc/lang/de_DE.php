@@ -22,7 +22,14 @@ $lang_de = array(
 'install_id'						=> 'Wählen Sie eine Benutzeridentifizierung',
 'install_mdp'						=> 'Wählen Sie ein Passwort',
 'install_remdp'					=> 'Bestätigen Die ihre Passwort',
-'first_titre' 						=> 'Mein erster Artikel',
+'install_choose_sgdb'			=> 'Wählen Sie Ihre DBMS:',
+'install_sqlite_no_more_todo'	=> 'Keine zusätzliche Konfiguration ist benötigt mit SQLite.',
+'install_err_mysql_usr_empty'	=> 'Angesichts MySQL-user ist leer.',
+'install_err_mysql_pss_empty'	=> 'Angesichts MySQL-password ist leer.',
+'install_err_mysql_hst_empty'	=> 'Angesichts MySQL-hostname ist leer.',
+'install_err_mysql_dba_empty'	=> 'Angesichts MySQL-database-name ist leer.',
+'install_err_mysql_connect'	=> 'Failed to connect to Mysql host with these informations.',
+'first_titre' 						=> 'Keine Verbindung zum MySQL-Host mit diesen Informationen verbinden.',
 'first_edit' 						=> 'Editieren-Sie mir',
 // Navigation
 'remarque'							=> 'Anmerkung',
@@ -58,6 +65,9 @@ $lang_de = array(
 'trouve'								=> 'gefunden',
 'voir_sur_le_blog'				=> 'auf dem Blog sehen',
 'byte_symbol'						=> 'b',
+'using'								=> 'mit',
+'rendered'							=> 'erzeugt ins',
+'recherche'							=> 'Ihre Suchergebnisse',
 // Boutons formatage Kommentare
 'bouton-gras'						=> 'Das Gewählte fett markieren',
 'bouton-ital'						=> 'Das Gewählte kursiv markieren',
@@ -119,7 +129,7 @@ $lang_de = array(
 'label_nouv_note'					=> 'Neue Beachte',
 'label_notes'						=> 'beachten',
 'label_categories'				=> 'Tags, durch Kommata getrennt',
-'label_nouv_lien'					=> 'Neuer Link',
+'label_nouv_lien'					=> 'Neuer Link  <span style="font-weight:normal;">(oder leer lassen, um eine Notiz onhe Link verlassen)</span>',
 'label_edit_lien'					=> 'Link editieren',
 'label_lien_priv'					=> 'Private Link?',
 'label_img_priv'					=> 'Unsichtbare Bild?',
@@ -332,7 +342,7 @@ $lang_de = array(
 'pref_all'							=> 'Alles',
 'pref_go_to_mainteance'			=> 'Zur Wartungsseite gelangen.',
 'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
-'pref_alert_bookmark_lien'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
+'pref_alert_bookmark_link'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
 'legend_what_doyouwant'			=> 'Backup des Nachrichten - Was wollen sie tun?',
 'legend_what_doyouwant_optim'	=> 'Der Datenbank optimierung ?',
 // Notes

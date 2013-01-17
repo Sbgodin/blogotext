@@ -16,294 +16,7 @@
 // 
 // This file contains functions relative to search and list data posts.
 // It also contains functions about files : creating, deleting files, etc.
-// In addition, functions used when data is saved in files or DB-files are here too.
 
-
-/* FOR COMMENTS : RETUNS nb_com per author */
-function nb_entries_as($table, $what) {
-	$result = array();
-	$query = "SELECT count($what) AS nb,$what FROM $table GROUP BY $what ORDER BY nb DESC";
-
-	try {
-		$result = $GLOBALS['db_handle']->query($query)->fetchAll();
-		return $result;
-	} catch (Exception $e) {
-		die('Erreur 0349 : '.$e->getMessage());
-	}
-}
-
-
-// retourne la liste les jours d’un mois que le calendrier doit afficher.
-function table_list_date($date, $statut, $mode, $table) {
-	$return = array();
-	$and_statut = (!empty($statut)) ? 'AND bt_statut=\''.$statut.'\'' : '';
-
-	if ($table == 'articles') {
-		$and_date = ($mode == 'admin') ? '' : 'AND bt_date <= '.date('YmdHis');
-		$query = "SELECT bt_date FROM $table WHERE bt_date LIKE '$date%' $and_statut $and_date";
-	} else {
-		$and_date = ($mode == 'admin') ? '' : 'AND bt_id <= '.date('YmdHis');
-		$query = "SELECT bt_id FROM $table WHERE bt_id LIKE '$date%' $and_statut $and_date";
-	}
-	try {
-		$return = $GLOBALS['db_handle']->query($query)->fetchAll();
-		return $return;
-	} catch (Exception $e) {
-		die('Erreur 21436 : '.$e->getMessage());
-	}
-}
-
-// LORS DU POSTAGE D'UN ARTICLE : FIXME : ajouter jeton de sécurité
-function traiter_form_billet($billet) {
-
-	if ( isset($_POST['enregistrer']) and !isset($billet['ID']) ) {
-		$result = bdd_article($billet, 'enregistrer-nouveau');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj');
-		}
-		else { die($result); }
-	}
-
-	elseif ( isset($_POST['enregistrer']) and isset($billet['ID']) ) {
-		$result = bdd_article($billet, 'modifier-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout');
-		}
-		else { die($result); }
-	}
-	elseif ( isset($_POST['supprimer']) and isset($_POST['ID']) and is_numeric($_POST['ID']) ) {
-		$result = bdd_article($billet, 'supprimer-existant');
-		if ($result === TRUE) {
-			redirection('articles.php?msg=confirm_article_suppr');
-		}
-		else { die($result); }
-	}
-}
-
-function bdd_article($billet, $what) {
-	// l'article n'existe pas, on le crée
-	if ( $what == 'enregistrer-nouveau' ) {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('INSERT INTO articles
-				(	bt_type,
-					bt_id,
-					bt_date,
-					bt_title,
-					bt_abstract,
-					bt_link,
-					bt_notes,
-					bt_content,
-					bt_wiki_content,
-					bt_categories,
-					bt_keywords,
-					bt_allow_comments,
-					bt_nb_comments,
-					bt_statut
-				)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-			$req->execute(array(
-				'article',
-				$billet['bt_id'],
-				$billet['bt_date'],
-				$billet['bt_title'],
-				$billet['bt_abstract'],
-				$billet['bt_link'],
-				$billet['bt_notes'],
-				$billet['bt_content'],
-				$billet['bt_wiki_content'],
-				$billet['bt_categories'],
-				$billet['bt_keywords'],
-				$billet['bt_allow_comments'],
-				0,
-				$billet['bt_statut']
-			));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur ajout article: '.$e->getMessage();
-		}
-	// l'article existe, et il faut le mettre à jour alors.
-	} elseif ( $what == 'modifier-existant' ) {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('UPDATE articles SET
-				bt_date=?,
-				bt_title=?,
-				bt_link=?,
-				bt_abstract=?,
-				bt_notes=?,
-				bt_content=?,
-				bt_wiki_content=?,
-				bt_categories=?,
-				bt_keywords=?,
-				bt_allow_comments=?,
-				bt_statut=?
-				WHERE ID=?');
-			$req->execute(array(
-					$billet['bt_date'],
-					$billet['bt_title'],
-					$billet['bt_link'],
-					$billet['bt_abstract'],
-					$billet['bt_notes'],
-					$billet['bt_content'],
-					$billet['bt_wiki_content'],
-					$billet['bt_categories'],
-					$billet['bt_keywords'],
-					$billet['bt_allow_comments'],
-					$billet['bt_statut'],
-					$_POST['ID']
-			));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur mise à jour de l’article: '.$e->getMessage();
-		}
-	// Suppression d'un article
-	} elseif ( $what == 'supprimer-existant' ) {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('DELETE FROM articles WHERE ID=?');
-			$req->execute(array($_POST['ID']));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur 123456 : '.$e->getMessage();
-		}
-	}
-}
-
-
-
-// traiter un ajout de lien prend deux étapes : 1) on donne le lien > il donne un form avec lien+titre 2) après ajout d'une description, on clic pour l'ajouter à la bdd.
-// une fois le lien donné (étape 1) et les champs renseignés (étape 2) on traite dans la BDD
-function traiter_form_link($link) {
-	// redirection : conserve les param dans l'URL mais supprime le 'msg' (pour pas qu'il y soit plusieurs fois, après les redirections.
-	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
-	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
-
-	if ( isset($_POST['enregistrer'])) {
-		$result = bdd_lien($link, 'enregistrer-nouveau');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
-		}
-		else { die($result); }
-	}
-
-	elseif (isset($_POST['editer'])) {
-		$result = bdd_lien($link, 'modifier-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
-		}
-		else { die($result); }
-	}
-	elseif ( isset($_POST['supprimer'])) {
-		$result = bdd_lien($link, 'supprimer-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?msg=confirm_link_suppr');
-		}
-		else { die($result); }
-	}
-
-}
-
-
-function bdd_lien($link, $what) {
-	// ajout d'un nouveau lien
-	if ($what == 'enregistrer-nouveau') {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('INSERT INTO links
-			(	bt_type,
-				bt_id,
-				bt_content,
-				bt_wiki_content,
-				bt_author,
-				bt_title,
-				bt_link,
-				bt_statut
-			)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-			$req->execute(array(
-				$link['bt_type'],
-				$link['bt_id'],
-				$link['bt_content'],
-				$link['bt_wiki_content'],
-				$link['bt_author'],
-				$link['bt_title'],
-				$link['bt_link'],
-				$link['bt_statut']
-			));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur 5867 : '.$e->getMessage();
-		}
-
-	// Édition d'un lien existant
-	} elseif ($what == 'modifier-existant') {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('UPDATE links SET
-				bt_content=?,
-				bt_wiki_content=?,
-				bt_author=?,
-				bt_title=?,
-				bt_link=?,
-				bt_statut=?
-				WHERE ID=?');
-			$req->execute(array(
-				$link['bt_content'],
-				$link['bt_wiki_content'],
-				$link['bt_author'],
-				$link['bt_title'],
-				$link['bt_link'],
-				$link['bt_statut'],
-				$link['ID']
-			));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur 435678 : '.$e->getMessage();
-		}
-	}
-	// Suppression d'un lien
-	elseif ($what == 'supprimer-existant') {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('DELETE FROM links WHERE ID=?');
-			$req->execute(array($link['ID']));
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur 97652 : '.$e->getMessage();
-		}
-	}
-}
-
-
-
-function list_all_tags() {
-	try {
-		$res = $GLOBALS['db_handle']->query("SELECT bt_categories FROM articles");
-		$liste_tags = '';
-		// met tous les tags de tous les articles bout à bout
-		while ($entry = $res->fetch()) {
-			if (trim($entry['bt_categories']) != '') {
-				$liste_tags .= $entry['bt_categories'].',';
-			}
-		}
-		$res->closeCursor();
-	} catch (Exception $e) {
-		die('Erreur : '.$e->getMessage());
-	}
-	// en crée un tableau
-	$tab_tags = explode(',', $liste_tags);
-	// les déboublonne
-	// c'est environ 100 fois plus rapide de faire un array_unique() avant ET un après de faire le trim() sur les cases.
-	$tab_tags = array_unique($tab_tags);
-	foreach($tab_tags as $i => $tag) {
-		if (trim($tag) != '') {
-			$tab_tags[$i] = trim($tag);
-		}
-	}
-	$tab_tags = array_unique($tab_tags);
-	// parfois le explode laisse une case vide en fin de tableau. Le sort() le place alors au début.
-	// si la premiere case est vide, on la vire.
-	sort($tab_tags);
-	if ($tab_tags[0] == '') {
-		array_shift($tab_tags);
-	}
-	return $tab_tags;
-}
 
 
 function creer_dossier($dossier, $make_htaccess='') {
@@ -333,11 +46,9 @@ function fichier_user() {
 	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
 	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
 	$user .= "?>";
-	$new_file_user = fopen($fichier_user,'wb+');
-	if (fwrite($new_file_user,$user) === FALSE) {
+	if (file_put_contents($fichier_user, $user) === FALSE) {
 		return FALSE;
 	} else {
-		fclose($new_file_user);
 		return TRUE;
 	}
 }
@@ -421,15 +132,32 @@ function fichier_prefs() {
 //	$prefs .= "\$GLOBALS['allow_public_linx']= '".$autoriser_liens_public."';\n";
 //	$prefs .= "\$GLOBALS['linx_defaut_status']= '".$linx_defaut_status."';\n";
 	$prefs .= "?>";
-	$new_file_pref = fopen($fichier_prefs,'wb+');
-	if (fwrite($new_file_pref,$prefs) === FALSE) {
+	if (file_put_contents($fichier_prefs, $prefs) === FALSE) {
 		return FALSE;
 	} else {
-		fclose($new_file_pref);
 		return TRUE;
 	}
 }
 
+function fichier_mysql($sgdb) {
+	$fichier_mysql = '../config/mysql.php';
+	$data = '';
+	if ($sgdb !== FALSE) {
+		$data .= "<?php\n";
+		$data .= "\$GLOBALS['mysql_login'] = '".htmlentities($_POST['mysql_user'], ENT_QUOTES)."';\n";	
+		$data .= "\$GLOBALS['mysql_passwd'] = '".htmlentities($_POST['mysql_passwd'], ENT_QUOTES)."';\n";
+		$data .= "\$GLOBALS['mysql_db'] = '".htmlentities($_POST['mysql_db'], ENT_QUOTES)."';\n";
+		$data .= "\$GLOBALS['mysql_host'] = '".htmlentities($_POST['mysql_host'], ENT_QUOTES)."';\n";
+		$data .= "\n";
+		$data .= "\$GLOBALS['sgdb'] = '".$sgdb."';\n";
+	}
+
+	if (file_put_contents($fichier_mysql, $data) === FALSE) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
+}
 
 function fichier_index($dossier) {
 	$content = '<html>'."\n";
@@ -441,11 +169,10 @@ function fichier_index($dossier) {
 	$content .= "\t".'</body>'."\n";
 	$content .= '</html>';
 	$index_html = $dossier.'/index.html';
-	$dest_file = fopen($index_html,'wb+');
-	if (fwrite($dest_file,$content) === FALSE) {
+
+	if (file_put_contents($index_html, $content) === FALSE) {
 		return FALSE;
 	} else {
-		fclose($dest_file);
 		return TRUE;
 	}
 }
@@ -457,11 +184,10 @@ function fichier_htaccess($dossier) {
 	$content .= 'Deny from all'."\n";
 	$content .= '</Files>'."\n";
 	$htaccess = $dossier.'/.htaccess';
-	$dest_file = fopen($htaccess,'wb+');
-	if (fwrite($dest_file,$content) === FALSE) {
+
+	if (file_put_contents($htaccess, $content) === FALSE) {
 		return FALSE;
 	} else {
-		fclose($dest_file);
 		return TRUE;
 	}
 }
@@ -476,11 +202,10 @@ function fichier_ip() {
 	$content .= "\$GLOBALS['old_time'] = '".$new_time."';\n";	
 	$content .= "?>";
 	$fichier = '../config/ip.php';
-	$dest_file = fopen($fichier,'wb+');
-	if (fwrite($dest_file,$content) === FALSE) {
+
+	if (file_put_contents($fichier, $content) === FALSE) {
 		return FALSE;
 	} else {
-		fclose($dest_file);
 		return TRUE;
 	}
 }
@@ -489,13 +214,8 @@ function fichier_ip() {
 // écrit un fichier cache (diminuer les charges serveur)
 function cache_file($file, $text) {
 	$text .= "\n".'<!-- Servi par le cache -->'."\n";
-	creer_dossier($GLOBALS['dossier_cache'], 1); // le test d'existence du dossier est fait dans creer_dossier()
-	$file_handle = fopen($file, "w");
-	if ($file_handle) {
-		// écriture
-		fwrite($file_handle, $text);
-		fclose($file_handle);
-	}
+	creer_dossier($GLOBALS['dossier_cache'], 1);
+	file_put_contents($file, $text);
 }
 
 
@@ -556,8 +276,8 @@ function open_file_db_fichiers($fichier) {
 
 function get_external_file($url, $timeout) {
 	$context = stream_context_create(array('http'=>array('timeout' => $timeout))); // Timeout : time until we stop waiting for the response.
-	$data = @file_get_contents($url, false, $context, -1, 1000000); // We download at most 4 Mb from source.
-	if (isset($data) and isset($http_response_header) and (strpos($http_response_header[0], '200 OK') !== FALSE) ) {
+	$data = @file_get_contents($url, false, $context, -1, 1000000); // We download at most 1 Mb from source.
+	if (isset($data) and isset($http_response_header[0]) and (strpos($http_response_header[0], '200 OK') !== FALSE) ) {
 		return $data;
 	}
 	else {

@@ -53,7 +53,7 @@ if (!empty($_GET['q'])) {
 	$nb_files = sizeof(liste_base_files('recherche', urldecode($_GET['q']), ''));
 
 
-	echo '<h2>Votre recherche pour « <span style="font-style: italic">'.htmlspecialchars($_GET['q']).'</span> » :</h2>'."\n";
+	echo '<h2>'.$GLOBALS['lang']['recherche'].' "<span style="font-style: italic">'.htmlspecialchars($_GET['q']).'</span>" :</h2>'."\n";
 	echo '<ul id="resultat-recherche">';
 	echo "\t".'<li><a href="commentaires.php?q='.htmlspecialchars($_GET['q']).'">'.nombre_commentaires($nb_commentaires).'</a></li>';
 	echo "\t".'<li><a href="articles.php?q='.htmlspecialchars($_GET['q']).'">'.nombre_articles($nb_articles).'</a></li>';
@@ -61,18 +61,6 @@ if (!empty($_GET['q'])) {
 	echo "\t".'<li><a href="fichiers.php?q='.htmlspecialchars($_GET['q']).'">'.nombre_fichiers($nb_files).'</a></li>';
 	echo '</ul>';
 }
-
-
-echo '<div id="add-stuff">'."\n";
-echo "\t".'<p>Ajouter quelque chose ?</p>'."\n";
-echo "\t".'<a id="add-article" href="ecrire.php">'.$GLOBALS['lang']['label_article'].'</a>'."\n";
-echo "\t".'<a id="add-lien" href="links.php?ajout">'.$GLOBALS['lang']['label_link'].'</a>'."\n";
-echo "\t".'<a id="add-note" href="links.php?url">'.$GLOBALS['lang']['label_note'].'</a>'."\n";
-echo "\t".'<a id="add-fichier" href="fichiers.php?ajout">'.$GLOBALS['lang']['label_fichier'].'</a>'."\n";
-echo "\t".'<a id="add-image" href="image.php?ajout">'.$GLOBALS['lang']['label_image'].'</a>'."\n";
-echo '</div>'."\n";
-
-
 
 
 
@@ -194,7 +182,7 @@ echo '<div id="miniatures"><h3>'.ucfirst($GLOBALS['lang']['label_images']).' :</
 			echo '<a class="miniature" href="'.$file.'" style="background-image: url('.$file_thb.');"></a>'."\n";
 		}
 	}
-	echo '<a class="miniature" href="image.php">&nbsp;</a>'."\n";
+	echo '<a class="miniature" href="fichiers.php?filtre=image">&nbsp;</a>'."\n";
 
 echo '</div>'."\n";
 

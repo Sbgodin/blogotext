@@ -22,7 +22,6 @@ function afficher_menu($active) {
 	echo "\t".'<a href="articles.php" id="lien-liste"', ($active == 'articles.php') ? ' class="current"' : '', '>'.$GLOBALS['lang']['mesarticles'].'</a>'."\n";
 	echo "\t".'<a href="ecrire.php" id="lien-nouveau"', ($active == 'ecrire.php') ? ' class="current"' : '', '>'.$GLOBALS['lang']['nouveau'].'</a>'."\n";
 	echo "\t".'<a href="commentaires.php" id="lien-lscom"', ($active == 'commentaires.php') ? ' class="current"' : '', '>'.$GLOBALS['lang']['titre_commentaires'].'</a>'."\n";
-	echo "\t".'<a href="image.php" id="lien-image"', ($active == 'image.php') ? ' class="current"' : '', '>'.ucfirst($GLOBALS['lang']['label_images']).'</a>'."\n";
 	echo "\t".'<a href="fichiers.php" id="lien-fichiers"', ($active == 'fichiers.php') ? ' class="current"' : '', '>'.ucfirst($GLOBALS['lang']['label_fichiers']).'</a>'."\n";
 	echo "\t".'<a href="links.php" id="lien-links"', ($active == 'links.php') ? ' class="current"' : '', '>'.ucfirst($GLOBALS['lang']['label_links']).'</a>'."\n";
 	echo "\t".'<div id="nav-top">'."\n";
@@ -94,7 +93,7 @@ function apercu($article) {
 	if (isset($article)) {
 		$apercu = '<h2>'.$article['bt_title'].'</h2>'."\n";
 		$apercu .= '<div><strong>'.$article['bt_abstract'].'</strong></div>'."\n";
-		$apercu .= '<div>'.$article['bt_content'].'</div>'."\n";
+		$apercu .= '<div>'.rel2abs_admin($article['bt_content']).'</div>'."\n";
 		echo '<div id="apercu">'."\n".$apercu.'</div>'."\n\n";
 	}
 }
@@ -151,7 +150,7 @@ function footer($index='', $begin_time='') {
 	if ($begin_time != ''){
 		$end = microtime(TRUE);
 		$dt = round(($end - $begin_time),6);
-		$msg2 = ' - rendered in '.$dt.' seconds using '.$GLOBALS['sgbd'];
+		$msg2 = ' - '.$GLOBALS['lang']['rendered'].' '.$dt.' s '.$GLOBALS['lang']['using'].' '.$GLOBALS['sgdb'];
 	} else {
 		$msg2 = '';
 	}
@@ -185,11 +184,11 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 	$premier_jour = mktime('0', '0', '0', $ce_mois, '1', $annee);
 	$jours_dans_mois = date('t', $premier_jour);
 	$decalage_jour = date('w', $premier_jour-'1');
-	$prev_mois =      $urlPasRécrit.$annee.'/'.str_pad($ce_mois-1, 2, "0", STR_PAD_LEFT);
+	$prev_mois =      $urlPasRécrit.$annee.'/'.str2($ce_mois-1);
 	if ($prev_mois == $urlPasRécrit.$annee.'/'.'00') {
 		$prev_mois =   $urlPasRécrit.($annee-'1').'/'.'12';
 	}
-	$next_mois =      $urlPasRécrit.$annee.'/'.str_pad($ce_mois+1, 2, "0", STR_PAD_LEFT);
+	$next_mois =      $urlPasRécrit.$annee.'/'.str2($ce_mois+1);
 	if ($next_mois == $urlPasRécrit.$annee.'/'.'13') {
 		$next_mois =   $urlPasRécrit.($annee+'1').'/'.'01';
 	}
@@ -203,7 +202,6 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 	if ( preg_match('#comments#', $where) ) { $all3 = table_list_date($annee.$ce_mois, 1, 'public', 'commentaires'); }
 
 	$tableau = (array_merge($all1, $all2, $all3));
-	// echo '<pre>';print_r($tableau);die();
 	$jour_fichier = array();
 	if (!empty($tableau)) {
 		foreach ($tableau as $article) {
@@ -212,7 +210,6 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 			}
 		}
 		$jour_fichier = array_unique($jour_fichier);
-		//echo '<pre>';print_r($jour_fichier);die();
 	}
 	$GLOBALS['calendrier'] = '<table id="calendrier">'."\n";
 	$GLOBALS['calendrier'].= '<caption>';
@@ -248,7 +245,7 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 			$class = '';
 		}
 		if ( (isset($jour_fichier)) and in_array($jour, $jour_fichier) ) {
-			$lien = '<a href="'.$urlPasRécrit.$annee.'/'.$ce_mois.'/'.str_pad($jour, 2, "0", STR_PAD_LEFT).'">'.$jour.'</a>';
+			$lien = '<a href="'.$urlPasRécrit.$annee.'/'.$ce_mois.'/'.str2($jour).'">'.$jour.'</a>';
 		} else {
 			$lien = $jour;
 		}
@@ -296,11 +293,11 @@ function encart_commentaires() {
 
 function encart_categories() {
 	if ($GLOBALS['activer_categories'] == '1') {
-		$liste = list_all_tags();
+		$liste = list_all_tags('articles');
 		$uliste = '<ul>'."\n";
 		foreach($liste as $tag) {
-			$tagurl = urlencode(trim($tag));
-			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.ucfirst($tag).'</a></li>'."\n";
+			$tagurl = urlencode(trim($tag['tag']));
+			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.ucfirst($tag['tag']).'</a></li>'."\n";
 		}
 		$uliste .= '</ul>'."\n";
 		return $uliste;

@@ -180,7 +180,8 @@ else {
 			}
 			// mode est donnée, pas date
 			if (isset($_GET['mode']) and empty($_GET['d'])) {
-					    if ( preg_match('#links#', $_GET['mode']) ) { $all/*1*/ = liste_base_liens('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
+						// notons que pour les liens, on affiche 5 fois plus d’éléments.
+						if ( preg_match('#links#', $_GET['mode']) ) { $GLOBALS['max_bill_acceuil']*=5; $page*=5; $all/*1*/ = liste_base_liens('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
 					elseif ( preg_match('#blog#', $_GET['mode']) ) { $all/*2*/ = liste_base_articles('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
 					elseif ( preg_match('#comments#', $_GET['mode']) ) { $all/*3*/ = liste_base_comms('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
 			}

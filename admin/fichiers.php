@@ -23,14 +23,8 @@ $GLOBALS['liste_fichiers'] = open_file_db_fichiers($GLOBALS['fichier_liste_fichi
 
 // suppression directe d’un fichier (FIXME: ajouter une sécurité)
 if (isset($_GET['file_id']) and preg_match('#\d{14}#',($_GET['file_id'])) and isset($_GET['suppr']) and isset($_GET['type']) ) {
-	if ($_GET['type'] == 'img') {
-		$page_renvoi = 'image.php';
-	} else {
-		$page_renvoi = 'fichiers.php';
-	}
-
 	// test sur la durée de la session
-	if (isset($_GET['av']) and $_GET['av'] <= time() and $_GET['av'] > time()-600 ) {
+	if ( isset($_GET['av']) and $_GET['av'] <= time() and $_GET['av'] > time()-600 ) {
 		foreach ($GLOBALS['liste_fichiers'] as $fich) {
 			if ($fich['bt_id'] == $_GET['file_id']) {
 				$fichier = $fich;
@@ -41,19 +35,20 @@ if (isset($_GET['file_id']) and preg_match('#\d{14}#',($_GET['file_id'])) and is
 	}
 	// temps de session probablement expiré...
 	else {
-		redirection($page_renvoi.'?errmsg=error_fichier_suppr&what=session_expire');
+		redirection('fichiers.php?errmsg=error_fichier_suppr&what=session_expire');
 	}
 }
 
 
 // recherche / tri
-if ( isset($_GET['filtre']) and $_GET['filtre'] !== '' ) {
+if ( !empty($_GET['filtre']) ) {
+	// for "type" the requests is "type.$search" : here we split the type of search and what we search.
+	$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
+	$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
+
 	// selon date
-	if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
-		$annee = substr($_GET['filtre'], 0, 4);
-		$mois = substr($_GET['filtre'], 4, 2);
-		$jour = substr($_GET['filtre'], 6, 2);
-		$fichiers = liste_base_files('date', $annee.$mois.$jour, '');
+	if ( preg_match('#^\d{6}(\d{1,8})?$#', $_GET['filtre']) ) {
+		$fichiers = liste_base_files('date', $_GET['filtre'], '');
 	// brouillons
 	} elseif ($_GET['filtre'] == 'draft') {
 		$fichiers = liste_base_files('statut', '0', '');
@@ -61,14 +56,16 @@ if ( isset($_GET['filtre']) and $_GET['filtre'] !== '' ) {
 	} elseif ($_GET['filtre'] == 'pub') {
 		$fichiers = liste_base_files('statut', '1', '');
 	// liste selon type de fichier
+	} elseif ($type == 'type' and $search != '') {
+		$fichiers = liste_base_files('type', $search, '');
 	} else {
-		$fichiers = liste_base_files('type', htmlspecialchars($_GET['filtre']), '');
+		$fichiers = $GLOBALS['liste_fichiers'];
 	}
 // recheche par mot clé
-} elseif (isset($_GET['q']) and $_GET['q'] !== '') {
+} elseif (!empty($_GET['q'])) {
 	$fichiers = liste_base_files('recherche', htmlspecialchars(urldecode($_GET['q'])), '');
 // par extension
-} elseif (isset($_GET['extension']) and $_GET['extension'] !== '') {
+} elseif (!empty($_GET['extension'])) {
 	$fichiers = liste_base_files('extension', htmlspecialchars($_GET['extension']), '');
 // par fichier unique (id)
 } elseif (isset($_GET['file_id']) and preg_match('/\d{14}/',($_GET['file_id']))) {
@@ -108,9 +105,9 @@ echo '<div id="axe">'."\n";
 echo '<div id="subnav">'."\n";
 // Affichage formulaire filtrage fichiers
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre('fichiers', htmlspecialchars($_GET['filtre']), 'admin');
+	afficher_form_filtre('fichiers', htmlspecialchars($_GET['filtre']));
 } else {
-	afficher_form_filtre('fichiers', '', 'admin');
+	afficher_form_filtre('fichiers', '');
 }
 echo '</div>'."\n";
 
@@ -137,7 +134,20 @@ elseif ( isset($_GET['file_id']) ) {
 // affichage de la liste des fichiers.
 else {
 	afficher_form_fichier($erreurs, '', 'fichier');
-	afficher_liste_fichiers($real_fichiers);
+
+	// séparation des images des autres types de fichiers
+	$fichiers = array(); $images = array();
+	foreach ($real_fichiers as $file) {
+		if ($file['bt_type'] == 'image') {
+			$images[] = $file;
+		}
+		else {
+			$fichiers[] = $file;
+		}
+	}
+
+	afficher_liste_images($images);
+	afficher_liste_fichiers($fichiers);
 }
 
 footer('', $begin);
