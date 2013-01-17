@@ -42,7 +42,7 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 	}
 
 	if (trim($commentaire['bt_webpage']) != "") {
-		if (!preg_match('#^(https?://[\S]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire['bt_webpage'])) ) { // avec possiblité des URL internationnales, comme http://âpp.com
+		if (!preg_match('#^(https?://[\S]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire['bt_webpage'])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
 		}
 	}

@@ -115,15 +115,18 @@ if (!empty($_GET['mode'])) {
 
 		// fusionne les tableaux
 		$all = array_merge($all1, $all2, $all4);
-		// tri le tableau fusionné selon les bt_id
-		foreach ($all as $key => $item) {
-			 $bt_id[$key] = (isset($item['bt_date'])) ? $item['bt_date'] : $item['bt_id'];
-		}
-		// trick : tri selon des sous-clés d'un tableau à plusieurs sous-niveaux (trouvé dans doc-PHP)
-		array_multisort($bt_id, SORT_DESC, $all);
 
-		// conserve les 20 dernières entrées seulement
-		$all = array_slice($all, 0, 20);
+		if (!empty($all)) {
+			// tri le tableau fusionné selon les bt_id
+			foreach ($all as $key => $item) {
+				 $bt_id[$key] = (isset($item['bt_date'])) ? $item['bt_date'] : $item['bt_id'];
+			}
+			// trick : tri selon des sous-clés d'un tableau à plusieurs sous-niveaux (trouvé dans doc-PHP)
+			array_multisort($bt_id, SORT_DESC, $all);
+
+			// conserve les 20 dernières entrées seulement
+			$all = array_slice($all, 0, 20);
+		}
 
 		// les affiche (dans le RSS la forme des articles / billets / liens est la même)
 		$xml = '';
@@ -137,12 +140,12 @@ if (!empty($_GET['mode'])) {
 					$xml .= '<title>'.$elem['bt_author'].'</title>'."\n";
 				}
 				$xml .= '<link>'.$elem['bt_link'].'</link>'."\n";
-				$xml .= '<guid>'.$GLOBALS['racine'].'index.php?mode=links&amp;id='.$elem['bt_id'].'</guid>'."\n";
+				$xml .= '<guid isPermaLink="false">'.$GLOBALS['racine'].'index.php?mode=links&amp;id='.$elem['bt_id'].'</guid>'."\n";
 				$xml .= '<pubDate>'.date('r', mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee'])).'</pubDate>'."\n";
 
 
 				if ($elem['bt_type'] == 'link') {
-					$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']). '<br/><span style="font-style:italic;font-size:80%;">(posté par '.$elem['bt_author'].')</span>]]></description>'."\n";
+					$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']). '<br/><span style="font-style:italic;font-size:80%;">(par '.$elem['bt_author'].')</span>]]></description>'."\n";
 				} else {
 					$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']).']]></description>'."\n";
 				}
@@ -177,7 +180,7 @@ else {
 				$dec = decode_id($comment['bt_id']);
 				echo '<item>'."\n";
 					echo '<title>'.$comment['bt_author'].'</title>'."\n";
-					echo '<guid>'.$comment['bt_link'].'</guid>'."\n";
+					echo '<guid isPermaLink="false">'.$comment['bt_link'].'</guid>'."\n";
 					echo '<link>'.$comment['bt_link'].'</link>'."\n";
 					echo '<pubDate>'.date('r', mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee'])).'</pubDate>'."\n";
 					echo '<description><![CDATA['.($comment['bt_content']).']]></description>'."\n";
@@ -186,7 +189,7 @@ else {
 		} else {
 			echo '<item>'."\n";
 				echo '<title>'.$GLOBALS['lang']['note_no_comment'].'</title>'."\n";
-				echo '<guid>'.$GLOBALS['racine'].'index.php</guid>'."\n";
+				echo '<guid isPermaLink="false">'.$GLOBALS['racine'].'index.php</guid>'."\n";
 				echo '<link>'.$GLOBALS['racine'].'index.php</link>'."\n";
 				echo '<pubDate>'.date('r').'</pubDate>'."\n";
 				echo '<description>'.$GLOBALS['lang']['no_comments'].'</description>'."\n";
@@ -214,12 +217,13 @@ else {
 				$dec = decode_id($time);
 				$item = '<item>'."\n";
 				 $item .= '<title>'.$billet['bt_title'].'</title>'."\n";
-				 $item .= '<guid>'.$billet['bt_link'].'</guid>'."\n";
+				 $item .= '<guid isPermaLink="false">'.$billet['bt_link'].'</guid>'."\n";
 				 $item .= '<link>'.$billet['bt_link'].'</link>'."\n";
 				 $item .= '<pubDate>'.date('r', mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee'])).'</pubDate>'."\n";
+				 $iitem = $item;
 				 $item .= '<description><![CDATA['.nl2br($billet['bt_abstract']).']]></description>'."\n";
 					// on génère du même coup le fichier RSS avec les articles complets
-					$item_full = $item.'<content:encoded><![CDATA['.rel2abs($billet['bt_content']).']]></content:encoded>'."\n";
+					$item_full = $iitem.'<description><![CDATA[<b>'.nl2br($billet['bt_abstract']).'</b><br/>'.rel2abs($billet['bt_content']).']]></description>'."\n";
 					$xml_full .= $item_full.'</item>'."\n";
 				$xml .= $item.'</item>'."\n";
 			}

@@ -1163,7 +1163,7 @@ else {
 				else {
 					$dossiers = array();
 					$text = '';
-					if ($_POST['db_sql'] == 1 and $GLOBALS['sgbd'] == 'sqlite') {
+					if ($_POST['db_sql'] == 1 and $GLOBALS['sgdb'] == 'sqlite') {
 						$dossiers[] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_db'];
 						$text .= 'dossier SQL, ';
 					}
@@ -1479,13 +1479,13 @@ else {
 		else {
 			echo '<form action="maintenance.php?quefaire=optimise" method="post" enctype="multipart/form-data" class="bordered-formbloc"><fieldset class="pref">';
 			echo legend($GLOBALS['lang']['bak_choosefile'], 'legend-user');
-			echo '<p>'.select_yes_no('miniature', 1, $GLOBALS['lang']['bak_opti_miniature']).'<p>'."\n";
-			if ($GLOBALS['sgbd'] == 'sqlite') {
-				echo '<p>'.select_yes_no('vacuum', 1, $GLOBALS['lang']['bak_opti_vacuum']).'<p>'."\n";
+			echo '<p>'.select_yes_no('miniature', 1, $GLOBALS['lang']['bak_opti_miniature']).'</p>'."\n";
+			if ($GLOBALS['sgdb'] == 'sqlite') {
+				echo '<p>'.select_yes_no('vacuum', 1, $GLOBALS['lang']['bak_opti_vacuum']).'</p>'."\n";
 			} else {
-				echo '<p>'.hidden_input('vacuum', 1).'<p>'."\n";
+				echo '<p>'.hidden_input('vacuum', 0).'</p>'."\n";
 			}
-			echo '<p>'.select_yes_no('recount', 1, $GLOBALS['lang']['bak_opti_recountcomm']).'<p>'."\n";
+			echo '<p>'.select_yes_no('recount', 1, $GLOBALS['lang']['bak_opti_recountcomm']).'</p>'."\n";
 			echo '<p>'."\n";
 			echo '<input class="submit blue-square" type="submit" name="opt" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
 			echo '</p>'."\n";

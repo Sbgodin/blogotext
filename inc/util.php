@@ -61,14 +61,9 @@ function article_anchor($id) {
 
 function traiter_tags($tags) {
 	$tags_array = explode(',' , trim($tags, ','));
-	$nb = sizeof($tags_array);
-	for ($i = 0 ; $i < $nb ; $i ++) {
-		$tags_array[$i] = trim($tags_array[$i]);
-	}
-	$tags_array = array_unique($tags_array);
+	$tags_array = array_unique(array_map('trim', $tags_array));
 	sort($tags_array);
-	$str_tags = implode(', ' , $tags_array);
-	return $str_tags;
+	return implode(', ' , $tags_array);
 }
 
 // tri un tableau non pas comme "sort()" sur l’ID, mais selon une sous clé d’un tableau.
@@ -88,17 +83,7 @@ function check_session() {
 	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
 	@session_start();
 	ini_set('session.cookie_httponly', TRUE);
-// first method to stay logged in : only server parameters
-/*	if (!empty($_SESSION['stay_logged_mode'])) {
-		session_set_cookie_params(365*24*60*60); // set cookie lifetime
-		//session_regenerate_id(true);  // Send new expiration date to browser. (if isset : I've noticed some "cache" issues...)
-	} else {
-		session_set_cookie_params(0);
-		//session_regenerate_id(true);
-	}
-*/
-
-// secondth method : uses a cookie (a bit less safe)
+	// use a cookie to remain logged in
 	if (isset($_COOKIE['BT-admin-stay-logged']) and $_COOKIE['BT-admin-stay-logged'] == '1') {
 		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
 
@@ -109,7 +94,6 @@ function check_session() {
 			return TRUE;
 		}
 	}
-///////
 	if ( (!isset($_SESSION['rand_sess_id'])) or ($_SESSION['rand_sess_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$ip)) ) {
 		return FALSE;
 	} else {

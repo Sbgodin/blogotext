@@ -62,9 +62,9 @@ function afficher_liste_images($images) {
 			$out .= '<div class="image_bloc">'."\n";
 				$description = (empty($image['bt_content'])) ? $image['bt_filename'] : $image['bt_content'];
 				$out .= "\t".'<span class="spantop black">';
-					$out .= '<a class="lien lien-edit" href="image.php?file_id='.$image['bt_id'].'&amp;edit">&nbsp;</a>';
+					$out .= '<a class="lien lien-edit" href="fichiers.php?file_id='.$image['bt_id'].'&amp;edit">&nbsp;</a>';
 					$out .= '<a class="lien lien-voir" href="'.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
-					$out .= '<a class="lien lien-supr" href="image.php?file_id='.$image['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
+					$out .= '<a class="lien lien-supr" href="fichiers.php?file_id='.$image['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
 				$out .= '</span>'."\n";
 				$out .= "\t".'<span class="spanmiddle black"><span> '.date_formate($image['bt_id'], '0').', '.heure_formate($image['bt_id']).' </span></span>'."\n";
 				$out .= "\t".'<span class="spanbottom black"><span> '.$description.' </span></span>'."\n";
@@ -490,17 +490,9 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 
 
 // affichage de la liste des fichiers
-function afficher_liste_fichiers($tableau_all, $modele='') {
+function afficher_liste_fichiers($tableau, $modele='') {
 	$dossier = $GLOBALS['racine'].$GLOBALS['dossier_fichiers'];
 	$out = '';
-	$tableau = array();
-	// only keeps non-images files
-	foreach($tableau_all as $fichier) {
-		if (!($fichier['bt_type'] == 'image')) {
-			$tableau[] = $fichier;
-		}
-	}
-
 	if (!empty($tableau)) {
 		// affichage sous forme d’un tableau (comme les articles)
 		if ($modele == 'tableau') {

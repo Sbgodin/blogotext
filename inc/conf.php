@@ -20,7 +20,7 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version'] = '2.0.0.2';
+$GLOBALS['version'] = '2.0.0.3';
 $GLOBALS['last-online-file'] = '../config/version.txt';
 // MINIMAL REQUIRED PHP VERSION
 $GLOBALS['minimal_php_version'] = '5.1.2';
@@ -48,12 +48,12 @@ $GLOBALS['db_location'] = 'database.sqlite';    // data storage file (for sqlite
 $GLOBALS['fichier_liste_fichiers'] = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_db'].'/'.'files.php'; // files/image info storage.
 
 
-// DATABASE 'sqlite' or 'mysql' are supported yet. If
-$GLOBALS['sgbd'] = 'sqlite';
-
+// DATABASE 'sqlite' or 'mysql' are supported yet.
 $mysql_file = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php';
-if ($GLOBALS['sgbd'] == 'mysql' and is_file($mysql_file) and is_readable($mysql_file)) {
+if (is_file($mysql_file) and is_readable($mysql_file) and file_get_contents($mysql_file) != '') {
 	include($mysql_file);
+} else {
+	$GLOBALS['sgdb'] = 'sqlite';
 }
 
 
@@ -169,7 +169,7 @@ function init_post_article() { //no $mode : it's always admin.
 		$keywords = extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']);
 	}
 
-	$date = $_POST['annee'].$_POST['mois'].$_POST['jour'].$_POST['heure'].$_POST['minutes'].$_POST['secondes'];
+	$date = str4($_POST['annee']).str2($_POST['mois']).str2($_POST['jour']).str2($_POST['heure']).str2($_POST['minutes']).str2($_POST['secondes']);
 	$id = (isset($_POST['article_id']) and preg_match('#\d{14}#', $_POST['article_id'])) ? $_POST['article_id'] : $date;
 
 	$article = array (
@@ -252,6 +252,7 @@ function init_post_link2() { // second init : the whole link data needs to be st
 		'bt_author' => $author,
 		'bt_title' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['title'])))),
 		'bt_link' => $url,
+		'bt_tags' => htmlspecialchars(traiter_tags($_POST['categories'])),
 		'bt_statut'=> $statut
 	);
 	if ( isset($_POST['ID']) and is_numeric($_POST['ID']) ) { // ID only added on edit.

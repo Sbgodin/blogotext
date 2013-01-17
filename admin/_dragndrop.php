@@ -45,7 +45,7 @@ if (isset($_FILES['fichier'])) {
 	}
 
 
-	$image = array (
+	$fichier = array (
 		'bt_id' => $id,
 		'bt_type' => detection_type_fichier($ext),
 		'bt_fileext' => $ext,
@@ -57,19 +57,19 @@ if (isset($_FILES['fichier'])) {
 		'bt_statut' => (isset($_POST['statut']) and $_POST['statut'] == 'on') ? '0' : '1',
 	);
 
-	bdd_fichier($image, 'ajout-nouveau', 'upload', $_FILES['fichier']);
+	bdd_fichier($fichier, 'ajout-nouveau', 'upload', $_FILES['fichier']);
 
 	echo '
 <div class="success">
 	<p>
-		Your file: '.$_FILES['fichier']['name'].' has been successfully received. (<a class="lien lien-edit" href="image.php?file_id='.$image['bt_id'].'&amp;edit">Lien</a>)<br/>
+		Your file: '.$_FILES['fichier']['name'].' has been successfully received. (<a class="lien lien-edit" href="fichiers.php?file_id='.$fichier['bt_id'].'&amp;edit">Lien</a>)<br/>
 		Type: '.$_FILES['fichier']['type'].'<br/>
 		Size: '.taille_formate($_FILES['fichier']['size']).'
-		Edit: '.$image['bt_id'].'
 	</p>
 </div>';
 exit;
 } else {
-	echo '<div class="failure">An error occurred #65</div>';
+	echo '<div class="failure">An error occurred';
+	echo '</div>';
 }
 

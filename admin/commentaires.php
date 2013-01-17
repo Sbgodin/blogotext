@@ -52,22 +52,28 @@ if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 // else, no ID 
 else {
 	$param_makeup['menu_theme'] = 'for_comms';
-	// if filter for date
-	if ( isset($_GET['filtre']) and $_GET['filtre'] !== '' ) {
-		if ( preg_match('/\d{6}/',($_GET['filtre'])) ) {
-			$annee = substr($_GET['filtre'], 0, 4);
-			$mois = substr($_GET['filtre'], 4, 2);
-			$jour = substr($_GET['filtre'], 6, 2);
-			$commentaires = liste_base_comms('date', $annee.$mois.$jour, 'admin', '', 0, '');
+	if ( !empty($_GET['filtre']) ) {
+		// for "authors" the requests is "auteur.$search" : here we split the type of search and what we search.
+		$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
+		$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
+		// filter for date
+		if (preg_match('#^\d{6}(\d{1,8})?$#', ($_GET['filtre'])) ) {
+			$commentaires = liste_base_comms('date', $_GET['filtre'], 'admin', '', 0, '');
 		}
+		// filter for statut
 		elseif ($_GET['filtre'] == 'draft') {
 			$commentaires = liste_base_comms('statut', 0, 'admin', '', 0, '');
 		}
 		elseif ($_GET['filtre'] == 'pub') {
 			$commentaires = liste_base_comms('statut', 1, 'admin', '', 0, '');
 		}
+		// filter for author
+		elseif ($type == 'auteur' and $search != '') {
+			$commentaires = liste_base_comms('auteur', $search, 'admin', '', 0, '');
+		}
+		// no filter
 		else {
-			$commentaires = liste_base_comms('auteur', htmlspecialchars($_GET['filtre']), 'admin', '', 0, '');
+			$commentaires = liste_base_comms('', '', 'admin', '', 0, $GLOBALS['max_comm_admin']);
 		}
 	}
 	elseif (!empty($_GET['q'])) {
@@ -140,9 +146,9 @@ echo '</p>'."\n";
 
 // Affichage formulaire filtrage commentaires
 if (isset($_GET['filtre'])) {
-	afficher_form_filtre('commentaires', htmlspecialchars($_GET['filtre']), 'admin');
+	afficher_form_filtre('commentaires', htmlspecialchars($_GET['filtre']));
 } else {
-	afficher_form_filtre('commentaires', '', 'admin');
+	afficher_form_filtre('commentaires', '');
 }
 echo '</div>'."\n";
  	

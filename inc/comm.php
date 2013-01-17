@@ -131,17 +131,17 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 		$form .= "\t".'<fieldset class="field">'."\n";
 		$form .= "\t\t".hidden_input('comment_article_id', $article_id);
 		$form .= "\t".'<p class="formatbut">'."\n";
-		$form .= "\t\t".'<button id="button01" type="button" title="'.$GLOBALS['lang']['bouton-gras'].'" onclick="insertTag(\'[b]\',\'[/b]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="button02" type="button" title="'.$GLOBALS['lang']['bouton-ital'].'" onclick="insertTag(\'[i]\',\'[/i]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="button03" type="button" title="'.$GLOBALS['lang']['bouton-soul'].'" onclick="insertTag(\'[u]\',\'[/u]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="button04" type="button" title="'.$GLOBALS['lang']['bouton-barr'].'" onclick="insertTag(\'[s]\',\'[/s]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
+		$form .= "\t\t".'<button id="button01" class="but" type="button" title="'.$GLOBALS['lang']['bouton-gras'].'" onclick="insertTag(\'[b]\',\'[/b]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="button02" class="but" type="button" title="'.$GLOBALS['lang']['bouton-ital'].'" onclick="insertTag(\'[i]\',\'[/i]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="button03" class="but" type="button" title="'.$GLOBALS['lang']['bouton-soul'].'" onclick="insertTag(\'[u]\',\'[/u]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="button04" class="but" type="button" title="'.$GLOBALS['lang']['bouton-barr'].'" onclick="insertTag(\'[s]\',\'[/s]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
 		$form .= "\t\t".'<span class="spacer"></span>'."\n";
-		$form .= "\t\t".'<button id="button09" type="button" title="'.$GLOBALS['lang']['bouton-lien'].'" onclick="insertTag(\'[\',\'|http://]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="button10" type="button" title="'.$GLOBALS['lang']['bouton-cita'].'" onclick="insertTag(\'[quote]\',\'[/quote]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="button12" type="button" title="'.$GLOBALS['lang']['bouton-code'].'" onclick="insertTag(\'[code]\',\'[/code]\',\'commentaire'.$rand.'\');"><span></span></button>'."\n";
+		$form .= "\t\t".'<button id="button09" class="but" type="button" title="'.$GLOBALS['lang']['bouton-lien'].'" onclick="insertTag(\'[\',\'|http://]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="button10" class="but" type="button" title="'.$GLOBALS['lang']['bouton-cita'].'" onclick="insertTag(\'[quote]\',\'[/quote]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="button12" class="but" type="button" title="'.$GLOBALS['lang']['bouton-code'].'" onclick="insertTag(\'[code]\',\'[/code]\',\'commentaire'.$rand.'\');"><span class="c"></span></button>'."\n";
 		$form .= "\t\t".'<span class="spacer"></span>'."\n";
-		$form .= "\t\t".'<button id="pmm" type="button" class="pm" onclick="resize(\'commentaire'.$rand.'\', -40); return false;"><span></span></button>'."\n";
-		$form .= "\t\t".'<button id="pmp" type="button" class="pm" onclick="resize(\'commentaire'.$rand.'\', 40); return false;"><span></span></button>'."\n";
+		$form .= "\t\t".'<button id="pmm" type="button" class="pm but" onclick="resize(\'commentaire'.$rand.'\', -40); return false;"><span class="c"></span></button>'."\n";
+		$form .= "\t\t".'<button id="pmp" type="button" class="pm but" onclick="resize(\'commentaire'.$rand.'\', 40); return false;"><span class="c"></span></button>'."\n";
 		$form .= "\t".'</p><!--end formatbut-->'."\n";
 		$form .= "\t\t".'<textarea class="commentaire text" name="commentaire" required="" placeholder="'.$GLOBALS['lang']['label_commentaire'].'" id="commentaire'.$rand.'" cols="50" rows="10" tabindex="2" >'.$defaut['commentaire'].'</textarea>'."\n";
 		$form .= "\t".'</fieldset>'."\n";
@@ -234,139 +234,4 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 }
 
 
-// ceci est traité coté Admin seulement car c'est appellé lors de l'édition ou la suppression d'un commentaire:
-function traiter_form_commentaire($commentaire, $admin) {
-	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
-	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
-
-	// add new comment
-	if (isset($_POST['enregistrer']) and empty($_POST['is_it_edit'])) {
-		$result = bdd_commentaire($commentaire, 'enregistrer-nouveau');
-		if ($result === TRUE) {
-			send_emails($commentaire['bt_id']); // send emails new comment posted
-			if ($admin == 'admin') {
-				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_ajout');
-			}
-		}
-		else { die($result); }
-	}
-	// edit existing comment.
-	elseif (	isset($_POST['enregistrer']) and $admin == 'admin'
-	  and isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes'
-	  and isset($commentaire['ID']) ) {
-		$result = bdd_commentaire($commentaire, 'editer-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_edit');
-		}
-		else { die($result); }
-	}
-	// remove existing comment.
-	elseif (isset($_POST['supprimer_comm']) and isset($commentaire['ID']) and $admin == 'admin' ) {
-		$result = bdd_commentaire($commentaire, 'supprimer-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_suppr');
-		}
-		else { die($result); }
-	}
-	// do nothing & die :-o
-	else {
-		redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=nothing_happend_oO');
-	}
-}
-
-function bdd_commentaire($commentaire, $what) {
-
-	// ENREGISTREMENT D'UN NOUVEAU COMMENTAIRE.
-	if ($what == 'enregistrer-nouveau') {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('INSERT INTO commentaires
-				(	bt_type,
-					bt_id,
-					bt_article_id,
-					bt_content,
-					bt_wiki_content,
-					bt_author,
-					bt_link,
-					bt_webpage,
-					bt_email,
-					bt_subscribe,
-					bt_statut
-				)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-			$req->execute(array(
-				'comment',
-				$commentaire['bt_id'],
-				$commentaire['bt_article_id'],
-				$commentaire['bt_content'],
-				$commentaire['bt_wiki_content'],
-				$commentaire['bt_author'],
-				$commentaire['bt_link'],
-				$commentaire['bt_webpage'],
-				$commentaire['bt_email'],
-				$commentaire['bt_subscribe'],
-				$commentaire['bt_statut']
-			));
-
-			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
-			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
-			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur : '.$e->getMessage();
-		}
-	}
-	elseif ($what == 'editer-existant') {
-	// ÉDITION D'UN COMMENTAIRE DÉJÀ EXISTANT. (ou activation)
-		try {
-			$req = $GLOBALS['db_handle']->prepare('UPDATE commentaires SET
-				bt_article_id=?,
-				bt_content=?,
-				bt_wiki_content=?,
-				bt_author=?,
-				bt_link=?,
-				bt_webpage=?,
-				bt_email=?,
-				bt_subscribe=?,
-				bt_statut=?
-				WHERE ID=?');
-			$req->execute(array(
-				$commentaire['bt_article_id'],
-				$commentaire['bt_content'],
-				$commentaire['bt_wiki_content'],
-				$commentaire['bt_author'],
-				$commentaire['bt_link'],
-				$commentaire['bt_webpage'],
-				$commentaire['bt_email'],
-				$commentaire['bt_subscribe'],
-				$commentaire['bt_statut'],
-				$commentaire['ID'],
-			));
-
-			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
-			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
-			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur : '.$e->getMessage();
-		}
-	}
-	// SUPPRESSION D'UN COMMENTAIRE
-
-	elseif ($what == 'supprimer-existant') {
-		try {
-			$req = $GLOBALS['db_handle']->prepare('DELETE FROM commentaires WHERE ID=?');
-			$req->execute(array($commentaire['ID']));
-
-			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
-			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
-			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
-			return TRUE;
-		} catch (Exception $e) {
-			return 'Erreur : '.$e->getMessage();
-		}
-	}
-}
 
