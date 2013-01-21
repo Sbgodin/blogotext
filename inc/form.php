@@ -37,7 +37,7 @@ function form_text($id, $defaut, $label) {
 function form_password($id, $defaut, $label) {
 	$form = '<p>'."\n";
 	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" class="text" />'."\n";
+	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" class="text" autocomplete="off"/>'."\n";
 	$form .= '</p>'."\n";
 	return $form;
 }
