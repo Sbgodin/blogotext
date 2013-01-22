@@ -12,8 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way BEFORE the download.
 # *** LICENSE ***
 
-$GLOBALS['urlPasRécrit'] = '?d=';
-$GLOBALS['urlPasRécrit'] = ''; // @FIXME: un inclus surcharge cette affectation
+if ($GLOBALS['urlRewriting']['enabled']) {
+    $GLOBALS['urlPasRécrit'] = 'x'; // @FIXME: un inclus surcharge cette affectation
+} else {
+    $GLOBALS['urlPasRécrit'] = '?d=';
+}
 
 // Sets timezone
 if (!empty($GLOBALS['fuseau_horaire'])) {

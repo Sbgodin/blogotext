@@ -12,8 +12,12 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-$GLOBALS['urlPasRécrit'] = '?d=';
-$GLOBALS['urlPasRécrit'] = '';
+if ($GLOBALS['urlRewriting']['enabled']) {
+    $GLOBALS['urlPasRécrit'] = '';
+} else {
+    $GLOBALS['urlPasRécrit'] = '?d=';
+}
+
 
 function redirection($url) {
 	header('Location: '.$url);
