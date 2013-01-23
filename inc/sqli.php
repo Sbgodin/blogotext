@@ -203,13 +203,16 @@ function liste_base_articles($tri_selon, $motif, $mode, $statut, $offset, $nombr
 			break;
 
 		case 'tags':
-			$query = "SELECT * FROM articles WHERE bt_categories LIKE ? $and_statut ORDER BY bt_date DESC $limite";
-// 			var_dump($query);
-// 			var_dump($motif);
-// 			die();
-            // C'est là! rechercher "en" fait ressortir "science"
-            // Il faut pouvoir chercher sur les mots entiers
-			$array = array('%'.$motif.'%');
+			$query = "SELECT * FROM articles WHERE
+			(bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ?) $and_statut ORDER BY bt_date DESC $limite";
+			/* Je suppose que la gestion des catégories/tags assure que les
+			   données sont correctement formatées : X, Y, Z, ... */
+			$array = array(
+				$motif, // tout seul
+				$motif.", %", // au moins deux, il est tout à gauche
+				"%, ".$motif.", %", // au moins deux, il est au milieu
+				"%, ".$motif // au moins deux, il est à droite
+			);
 			break;
 
 		case 'date':
@@ -370,7 +373,18 @@ function liste_base_liens($tri_selon, $motif, $mode, $statut, $offset, $nombre_v
 			$query = "SELECT * FROM links WHERE bt_tags LIKE ? $and_statut ORDER BY bt_id DESC $limite";
 			$array = array('%'.$motif.'%');
 			break;
-
+		case 'tags': // adapté de liste_base_articles()
+			$query = "SELECT * FROM links WHERE
+			(bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ?) $and_statut ORDER BY bt_id DESC $limite";
+			/* Je suppose que la gestion des catégories/tags assure que les
+			   données sont correctement formatées : X, Y, Z, ... */
+			$array = array(
+				$motif, // tout seul
+				$motif.", %", // au moins deux, il est tout à gauche
+				"%, ".$motif.", %", // au moins deux, il est au milieu
+				"%, ".$motif // au moins deux, il est à droite
+			);
+			break;
 		case 'date':
 		  	$query = "SELECT * FROM links WHERE bt_id LIKE ? $and_statut ORDER BY bt_id DESC $limite";
 			$array = array($motif.'%');
