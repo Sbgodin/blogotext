@@ -237,6 +237,7 @@ else {
 	// display blog by tag
 	elseif (!empty($_GET['tag'])) {
 		$tableau = liste_base_articles('tags', html_entity_decode($_GET['tag']), 'public', 1, $page, $GLOBALS['max_bill_acceuil']); // entity_decode : &quot; => ".
+		echo "<pre>\n";var_dump($_GET['tag']);echo "<pre>\n";die('paret564');
 		afficher_calendrier(date('Y'), date('m'));
 		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
 		afficher_index($tableau);
