@@ -369,10 +369,6 @@ function liste_base_liens($tri_selon, $motif, $mode, $statut, $offset, $nombre_v
 			$array = array($motif);
 			break;
 
-		case 'tags':
-			$query = "SELECT * FROM links WHERE bt_tags LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array('%'.$motif.'%');
-			break;
 		case 'tags': // adapté de liste_base_articles()
 			$query = "SELECT * FROM links WHERE
 			(bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ?) $and_statut ORDER BY bt_id DESC $limite";
