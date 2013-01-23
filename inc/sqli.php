@@ -204,6 +204,11 @@ function liste_base_articles($tri_selon, $motif, $mode, $statut, $offset, $nombr
 
 		case 'tags':
 			$query = "SELECT * FROM articles WHERE bt_categories LIKE ? $and_statut ORDER BY bt_date DESC $limite";
+// 			var_dump($query);
+// 			var_dump($motif);
+// 			die();
+            // C'est là! rechercher "en" fait ressortir "science"
+            // Il faut pouvoir chercher sur les mots entiers
 			$array = array('%'.$motif.'%');
 			break;
 
