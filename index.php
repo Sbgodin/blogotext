@@ -148,8 +148,8 @@ else {
 
 			/*****************************************************************************
 			 Show by date or mode : 
-				- by date : all elements of one date (month, day…) are displayed.
-				- by mode : the elements of one sort are displayer by number, then by month
+				- by date: all elements of one date (month, day…) are displayed.
+				- by mode: the elements of one sort are displayer by number, then by month
 				- if both mode and date are asked, both filters are applied, but only one type of data (links, comments, blogpost…) are listed. 
 			******************************************************************************/
 
