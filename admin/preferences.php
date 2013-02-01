@@ -176,7 +176,7 @@ function afficher_form_prefs($erreurs = '') {
 	if (version_compare($newestversion, $GLOBALS['version']) == 1) { // does this work :o ? That function initialy works for PHP versions only...
 			$fld_update = '<fieldset class="pref">';
 			$fld_update .= legend($GLOBALS['lang']['maint_chk_update'], 'legend-update');
-			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')<br/>'."\n";
+			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$newestversion.')<br/>'."\n";
 			$fld_update .= $GLOBALS['lang']['maint_update_go_dl_it'].' <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.</p>';
 			$fld_update .= '</fieldset></div>'."\n";
 		echo $fld_update;
