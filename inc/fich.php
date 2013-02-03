@@ -179,10 +179,8 @@ function fichier_index($dossier) {
 
 
 function fichier_htaccess($dossier) {
-	$content = '<Files *>'."\n";
 	$content .= 'Order allow,deny'."\n";
 	$content .= 'Deny from all'."\n";
-	$content .= '</Files>'."\n";
 	$htaccess = $dossier.'/.htaccess';
 
 	if (file_put_contents($htaccess, $content) === FALSE) {
