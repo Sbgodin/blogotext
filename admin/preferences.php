@@ -166,6 +166,10 @@ function afficher_form_prefs($erreurs = '') {
 
 	// check if a new Blogotext version is available (code from Shaarli, by Sebsauvage).
 	// Get latest version number at most once a day.
+
+/** Désactivé en attendant de faire ça plus propre.
+https://bitbucket.org/sbgodin/blogotext/issue/9/test-version-acc-s-r-seau-initi-de-lint
+	
 	if ( !is_file($GLOBALS['last-online-file']) or (filemtime($GLOBALS['last-online-file']) < time()-(24*60*60)) ) {
 		$last_version = get_external_file('http://lehollandaisvolant.net/blogotext/version.php', 6);
 		// If failed, nevermind. We don't want to bother the user with that.
@@ -176,11 +180,12 @@ function afficher_form_prefs($erreurs = '') {
 	if (version_compare($newestversion, $GLOBALS['version']) == 1) { // does this work :o ? That function initialy works for PHP versions only...
 			$fld_update = '<fieldset class="pref">';
 			$fld_update .= legend($GLOBALS['lang']['maint_chk_update'], 'legend-update');
-			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')<br/>'."\n";
+			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$newestversion.')<br/>'."\n";
 			$fld_update .= $GLOBALS['lang']['maint_update_go_dl_it'].' <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.</p>';
 			$fld_update .= '</fieldset></div>'."\n";
 		echo $fld_update;
 	}
+*/
 
 	echo '<div class="submit">';
 	echo hidden_input('_verif_envoi', '1');
