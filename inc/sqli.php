@@ -22,8 +22,8 @@ function create_tables() {
 	if (file_exists($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php')) {
 		include($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php');
 	}
-	$if_not_exists = ($GLOBALS['sgdb'] == 'mysql') ? 'IF NOT EXISTS' : ''; // SQLite does'nt know these syntaxes.
-	$auto_increment = ($GLOBALS['sgdb'] == 'mysql') ? 'AUTO_INCREMENT' : ''; // SQLite does'nt know these syntaxes, but MySQL needs it.
+	$if_not_exists = ($GLOBALS['sgdb'] == 'mysql') ? 'IF NOT EXISTS' : ''; // SQLite doesn't know these syntaxes.
+	$auto_increment = ($GLOBALS['sgdb'] == 'mysql') ? 'AUTO_INCREMENT' : ''; // SQLite doesn't know these syntaxes, but MySQL needs it.
 
 	$GLOBALS['dbase_structure']['links'] = "CREATE TABLE ".$if_not_exists." links
 		(
@@ -203,8 +203,16 @@ function liste_base_articles($tri_selon, $motif, $mode, $statut, $offset, $nombr
 			break;
 
 		case 'tags':
-			$query = "SELECT * FROM articles WHERE bt_categories LIKE ? $and_statut ORDER BY bt_date DESC $limite";
-			$array = array('%'.$motif.'%');
+			$query = "SELECT * FROM articles WHERE
+			(bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ?) $and_statut ORDER BY bt_date DESC $limite";
+			/* Je suppose que la gestion des catégories/tags assure que les
+			   données sont correctement formatées : X, Y, Z, ... */
+			$array = array(
+				$motif, // tout seul
+				$motif.", %", // au moins deux, il est tout à gauche
+				"%, ".$motif.", %", // au moins deux, il est au milieu
+				"%, ".$motif // au moins deux, il est à droite
+			);
 			break;
 
 		case 'date':
@@ -361,11 +369,18 @@ function liste_base_liens($tri_selon, $motif, $mode, $statut, $offset, $nombre_v
 			$array = array($motif);
 			break;
 
-		case 'tags':
-			$query = "SELECT * FROM links WHERE bt_tags LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array('%'.$motif.'%');
+		case 'tags': // adapté de liste_base_articles()
+			$query = "SELECT * FROM links WHERE
+			(bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ?) $and_statut ORDER BY bt_id DESC $limite";
+			/* Je suppose que la gestion des catégories/tags assure que les
+			   données sont correctement formatées : X, Y, Z, ... */
+			$array = array(
+				$motif, // tout seul
+				$motif.", %", // au moins deux, il est tout à gauche
+				"%, ".$motif.", %", // au moins deux, il est au milieu
+				"%, ".$motif // au moins deux, il est à droite
+			);
 			break;
-
 		case 'date':
 		  	$query = "SELECT * FROM links WHERE bt_id LIKE ? $and_statut ORDER BY bt_id DESC $limite";
 			$array = array($motif.'%');
@@ -640,7 +655,7 @@ function bdd_lien($link, $what) {
 }
 
 
-// ceci est traité coté Admin seulement car c'est appellé lors de l'édition ou la suppression d'un commentaire:
+// ceci est traité coté Admin seulement car c'est appelé lors de l'édition ou la suppression d'un commentaire:
 function traiter_form_commentaire($commentaire, $admin) {
 	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
 	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
@@ -847,7 +862,7 @@ function list_all_tags($table) {
 		array_shift($tab_tags);
 	}
 
-	// compte le nombre d’occurences de chaque tags
+	// compte le nombre d’occurences de chaque tag
 	$return = array();
 	foreach($tab_tags as $i => $tag) {
 		$return[] = array('tag' => $tag, 'nb' => substr_count($liste_tags, $tag));
