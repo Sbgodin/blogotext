@@ -22,8 +22,8 @@ function create_tables() {
 	if (file_exists($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php')) {
 		include($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php');
 	}
-	$if_not_exists = ($GLOBALS['sgdb'] == 'mysql') ? 'IF NOT EXISTS' : ''; // SQLite does'nt know these syntaxes.
-	$auto_increment = ($GLOBALS['sgdb'] == 'mysql') ? 'AUTO_INCREMENT' : ''; // SQLite does'nt know these syntaxes, but MySQL needs it.
+	$if_not_exists = ($GLOBALS['sgdb'] == 'mysql') ? 'IF NOT EXISTS' : ''; // SQLite doesn't know these syntaxes.
+	$auto_increment = ($GLOBALS['sgdb'] == 'mysql') ? 'AUTO_INCREMENT' : ''; // SQLite doesn't know these syntaxes, but MySQL needs it.
 
 	$GLOBALS['dbase_structure']['links'] = "CREATE TABLE ".$if_not_exists." links
 		(
@@ -655,7 +655,7 @@ function bdd_lien($link, $what) {
 }
 
 
-// ceci est traité coté Admin seulement car c'est appellé lors de l'édition ou la suppression d'un commentaire:
+// ceci est traité coté Admin seulement car c'est appelé lors de l'édition ou la suppression d'un commentaire:
 function traiter_form_commentaire($commentaire, $admin) {
 	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
 	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
@@ -862,7 +862,7 @@ function list_all_tags($table) {
 		array_shift($tab_tags);
 	}
 
-	// compte le nombre d’occurences de chaque tags
+	// compte le nombre d’occurences de chaque tag
 	$return = array();
 	foreach($tab_tags as $i => $tag) {
 		$return[] = array('tag' => $tag, 'nb' => substr_count($liste_tags, $tag));
