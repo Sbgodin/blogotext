@@ -12,6 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+if ($GLOBALS['urlRewriting']['enabled']) {
+    $GLOBALS['urlPasRécrit'] = '';
+} else {
+    $GLOBALS['urlPasRécrit'] = '?d=';
+}
 
 /// menu haut panneau admin /////////
 function afficher_menu($active) {
@@ -155,7 +160,8 @@ function footer($index='', $begin_time='') {
 
 	echo '</div>'."\n";
 	echo '</div>'."\n";
-	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg2.$msg.'</p>'."\n";
+	//echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg2.$msg.'</p>'."\n";
+	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].'</a>'.$msg2.$msg.'</p>'."\n";
 	echo '</body>'."\n";
 	echo '</html>'."\n";
 }
@@ -177,16 +183,17 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 		$GLOBALS['lang']['sa'],
 		$GLOBALS['lang']['di']
 	);
+	$urlPasRécrit = $GLOBALS['urlPasRécrit'];
 	$premier_jour = mktime('0', '0', '0', $ce_mois, '1', $annee);
 	$jours_dans_mois = date('t', $premier_jour);
 	$decalage_jour = date('w', $premier_jour-'1');
-	$prev_mois =      $_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.str2($ce_mois-1);
-	if ($prev_mois == $_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.'00') {
-		$prev_mois =   $_SERVER['PHP_SELF'].'?'.$qstring.'d='.($annee-'1').'/'.'12';
+	$prev_mois =      $urlPasRécrit.$annee.'/'.str2($ce_mois-1);
+	if ($prev_mois == $urlPasRécrit.$annee.'/'.'00') {
+		$prev_mois =   $urlPasRécrit.($annee-'1').'/'.'12';
 	}
-	$next_mois =      $_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.str2($ce_mois+1);
-	if ($next_mois == $_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.'13') {
-		$next_mois =   $_SERVER['PHP_SELF'].'?'.$qstring.'d='.($annee+'1').'/'.'01';
+	$next_mois =      $urlPasRécrit.$annee.'/'.str2($ce_mois+1);
+	if ($next_mois == $urlPasRécrit.$annee.'/'.'13') {
+		$next_mois =   $urlPasRécrit.($annee+'1').'/'.'01';
 	}
 
 	// On verifie si il y a un ou des articles du jour dans le mois courant
@@ -216,7 +223,7 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 
 	// Si on affiche un jour on ajoute le lien sur le mois
 	if ($ce_jour) {
-		$GLOBALS['calendrier'].= '<a href="'.$_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.$ce_mois.'">'.mois_en_lettres($ce_mois).' '.$annee.'</a>';
+		$GLOBALS['calendrier'].= '<a href="'.$urlPasRécrit.$annee.'/'.$ce_mois.'">'.mois_en_lettres($ce_mois).' '.$annee.'</a>';
 	} else {
 		$GLOBALS['calendrier'].= mois_en_lettres($ce_mois).' '.$annee;
 	}
@@ -241,7 +248,7 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 			$class = '';
 		}
 		if ( (isset($jour_fichier)) and in_array($jour, $jour_fichier) ) {
-			$lien = '<a href="'.$_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.$ce_mois.'/'.str2($jour).'">'.$jour.'</a>';
+			$lien = '<a href="'.$urlPasRécrit.$annee.'/'.$ce_mois.'/'.str2($jour).'">'.$jour.'</a>';
 		} else {
 			$lien = $jour;
 		}
