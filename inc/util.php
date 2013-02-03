@@ -122,8 +122,8 @@ function fermer_session() {
 	unset($_SESSION['nom_utilisateur'],$_SESSION['rand_sess_id']);
 	setcookie('BT-admin-stay-logged', 0);
 	setcookie('BT-admin-uuid', NULL);
-	session_destroy(); // destroy session
-	session_regenerate_id(true); // change l'ID au cas ou
+	session_destroy();
+	session_regenerate_id(true); // change l'ID au cas où
 	redirection('auth.php');
 	exit();
 }
