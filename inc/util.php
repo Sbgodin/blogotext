@@ -121,6 +121,12 @@ function fermer_session() {
 	exit();
 }
 
+// Retire le paramètre $param de la requête
+// Ex: AVANT = domaine.com/?a=1&b=2&c=3
+// Ex: APRÈS = domaine.com/?a=1&c=3
+// Pour l'appel de la fonction avec $param="b"
+// @FIXME: ne marche pas pour le premier paramètre car non précédé de "&"
+// @FIXME: ne permet pas d'enlever deux paramètres
 function remove_url_param($param) {
 	$msg_param_to_trim = (isset($_GET[$param])) ? '&'.$param.'='.$_GET[$param] : '';
 	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
