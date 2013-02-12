@@ -122,7 +122,7 @@ function create_tables() {
 				try {
 
 					$options_pdo[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-					$db_handle = new PDO('mysql:host='.$GLOBALS['mysql_host'].';dbname='.$GLOBALS['mysql_db'], $GLOBALS['mysql_login'], $GLOBALS['mysql_passwd'], $options_pdo);
+					$db_handle = new PDO('mysql:host='.$GLOBALS['mysql_host'].';dbname='.$GLOBALS['mysql_db'].";charset=utf8", $GLOBALS['mysql_login'], $GLOBALS['mysql_passwd'], $options_pdo);
 
 					// check each wanted table 
 					$wanted_tables = array('commentaires', 'articles', 'links');
