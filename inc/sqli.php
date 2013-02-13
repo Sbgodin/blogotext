@@ -37,7 +37,7 @@ function create_tables() {
 			bt_tags TEXT,
 			bt_link LONGTEXT,
 			bt_statut INTEGER
-		);";
+		)";
 
 	$GLOBALS['dbase_structure']['commentaires'] = "CREATE TABLE ".$if_not_exists." commentaires
 		(
@@ -53,7 +53,7 @@ function create_tables() {
 			bt_email LONGTEXT,
 			bt_subscribe INTEGER,
 			bt_statut INTEGER
-		);";
+		)";
 
 
 	$GLOBALS['dbase_structure']['articles'] = "CREATE TABLE ".$if_not_exists." articles
@@ -73,7 +73,7 @@ function create_tables() {
 			bt_nb_comments INTEGER,
 			bt_allow_comments INTEGER,
 			bt_statut INTEGER
-		);";
+		)";
 
 
 	/*
@@ -127,7 +127,10 @@ function create_tables() {
 					// check each wanted table 
 					$wanted_tables = array('commentaires', 'articles', 'links');
 					foreach ($wanted_tables as $i => $name) {
-							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]);
+							$results = $db_handle->exec(
+								$GLOBALS['dbase_structure'][$name]
+								."DEFAULT CHARSET=utf8"
+							);
 					}
 
 			
