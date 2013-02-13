@@ -204,7 +204,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 		$form .= "\t\t".label('webpage', $GLOBALS['lang']['comment_webpage'].' :');
 		$form .= "\t\t".'<input type="text" name="webpage" placeholder="'.$GLOBALS['lang']['comment_webpage'].'" id="webpage" value="'.$defaut['webpage'].'" size="25"  tabindex="2"/><br/>'."\n";
 		$form .= "\t\t".label('captcha', $GLOBALS['lang']['comment_captcha'].' <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?');
-		$form .= "\t\t".'<input type="text" id="captcha" name="captcha" placeholder="'.$GLOBALS['lang']['comment_captcha_usenumbers'].'" value="" size="25" tabindex="2" class="text" /><br/>'."\n";
+		$form .= "\t\t".'<input type="text" id="captcha" name="captcha" autocomplete="off" placeholder="'.$GLOBALS['lang']['comment_captcha_usenumbers'].'" value="" size="25" tabindex="2" class="text" /><br/>'."\n";
 		$form .= "\t\t".hidden_input('_verif_envoi', '1');
 		$form .= "\t".'</fieldset><!--end info-->'."\n";
 		$form .= "\t".'<fieldset class="cookie"><!--begin cookie asking -->'."\n";
