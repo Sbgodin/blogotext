@@ -31,7 +31,6 @@ $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['ext_data']= 'php';
 $GLOBALS['date_premier_message_blog'] = '199701';
-$GLOBALS['salt']= '123456'; // if changed : delete /config/user.php file and proceed to a re-installation. No data loss.
 $GLOBALS['show_errors'] = -1; // -1 = all (for dev) ; 0 = none (recommended)
 
 // FOLDERS (change this only if you know what you are doing...)
