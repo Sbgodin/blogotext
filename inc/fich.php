@@ -34,17 +34,25 @@ function creer_dossier($dossier, $make_htaccess='') {
 
 
 function fichier_user() {
+	$salt = ''; // sel cryptographique au niveau de l'application
+	$alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+	$longueur = 16;
+	for($i=0;$i<$longueur;$i++)
+		$salt .= substr($alphabet, rand(0,strlen($alphabet)-1), 1);
+	assert('!empty($salt)');
+
 	$fichier_user = '../config/user.php';
 	$user='';
 	if (strlen(trim($_POST['mdp'])) == 0) {
 		$new_mdp = $GLOBALS['mdp']; 
 	} else {
-		$new_mdp = ww_hach_sha($_POST['mdp_rep'], $GLOBALS['salt']);
+		$new_mdp = ww_hach_sha($_POST['mdp_rep'], $salt);
 	}
 	$user .= "<?php\n";
 	$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
 	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
 	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
+	$user .= "\$GLOBALS['salt'] = '".$salt."';\n";
 	$user .= "?>";
 	if (file_put_contents($fichier_user, $user) === FALSE) {
 		return FALSE;
