@@ -102,6 +102,11 @@ if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting
 
 function valider_form() {
 	$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
+	if (empty($GLOBALS['salt'])) {
+		// Si le code est à jour mais le sel non regénéré,
+		// alors on utilise l'ancien sel par défaut
+		$GLOBALS['salt'] = '123456';
+	}
 	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
 	// first test password
 	if ($mot_de_passe_essai == $mot_de_passe_ok and $_POST['nom_utilisateur'] == $GLOBALS['identifiant']) { // avoids "string a + string bc" to be equal to "string ab + string c"
