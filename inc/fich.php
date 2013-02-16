@@ -37,7 +37,7 @@ function fichier_user() {
 	$salt = ''; // sel cryptographique au niveau de l'application
 	$longueur = 28; // 128 bits d'entropie, solution de : ln2(26^longueur)=128
 	for($i=0;$i<$longueur;$i++)
-		$salt .= chr(ord('a')+mt_rand(0,ord('z')-ord('a'));
+		$salt .= chr(ord('a')+mt_rand(0,ord('z')-ord('a')));
 	assert('!empty($salt)');
 
 	$fichier_user = '../config/user.php';
