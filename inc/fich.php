@@ -114,6 +114,13 @@ function fichier_prefs() {
 //		$linx_defaut_status = '1';
 		$nombre_liens_admin = '50';
 	}
+	switch(true) {
+		case 'true' == @$GLOBALS['urlRewriting']['enabled']:
+			$urlrewriting_enabled = 'true';
+			break;
+		default:
+			$urlrewriting_enabled = 'false';
+	}
 	$prefs = "<?php\n";
 	$prefs .= "\$GLOBALS['auteur'] = '".$auteur."';\n";	
 	$prefs .= "\$GLOBALS['email'] = '".$email."';\n";
@@ -136,6 +143,7 @@ function fichier_prefs() {
 	$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
 	$prefs .= "\$GLOBALS['require_email']= '".$require_email."';\n";
 	$prefs .= "\$GLOBALS['max_linx_admin']= '".$nombre_liens_admin."';\n";
+	$prefs .= "\$GLOBALS['urlRewriting']['enabled']= '".$urlrewriting_enabled."';\n";
 //	$prefs .= "\$GLOBALS['allow_public_linx']= '".$autoriser_liens_public."';\n";
 //	$prefs .= "\$GLOBALS['linx_defaut_status']= '".$linx_defaut_status."';\n";
 	$prefs .= "?>";
