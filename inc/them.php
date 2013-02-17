@@ -68,7 +68,6 @@ $GLOBALS['balises'] = array(
 	'commentaire_webpage' => '{commentaire_webpage}',
 	'commentaire_anchor' => '{commentaire_ancre}', // the id="" content
 	'commentaire_lien' => '{commentaire_lien}',
-	'commentaire_gravatar' => '{commentaire_gravatar_link}', // only contains http://2.gravatar.com/avatar/md5($email)
 
 	// Liens
 	'lien_auteur' => '{lien_auteur}',
@@ -117,7 +116,6 @@ function conversions_theme_commentaire($texte, $commentaire) {
 	if (isset($commentaire['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['commentaire_date'], date_formate($commentaire['bt_id']), $texte); }
 	if (isset($commentaire['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['commentaire_heure'], heure_formate($commentaire['bt_id']), $texte); }
 	if (isset($commentaire['bt_email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['bt_email'], $texte); }
-	if (isset($commentaire['bt_email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_gravatar'], 'http://2.gravatar.com/avatar/'.md5($commentaire['bt_email']), $texte); }
 	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur_lien'], $commentaire['auteur_lien'], $texte); }
 	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $commentaire['bt_author'], $texte); }
 	if (isset($commentaire['bt_webpage'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['bt_webpage'], $texte); }

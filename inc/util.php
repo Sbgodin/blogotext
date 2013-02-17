@@ -12,6 +12,13 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+if ($GLOBALS['urlRewriting']['enabled']) {
+    $GLOBALS['urlPasRécrit'] = '';
+} else {
+    $GLOBALS['urlPasRécrit'] = '?d=';
+}
+
+
 function redirection($url) {
 	header('Location: '.$url);
 	exit;
@@ -42,10 +49,10 @@ function get_path($id) {
 	return $retour;
 }
 
-// used sometimes, like in the email that is send.
+// used sometimes, like in the email that is sent.
 function get_blogpath($id) {
 	$date = decode_id($id);
-	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $id, 'return'));
+	$path = $GLOBALS['racine'].$GLOBALS['urlPasRécrit'].$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $id, 'return'));
 	return $path;
 }
 
