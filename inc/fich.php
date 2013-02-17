@@ -34,12 +34,17 @@ function creer_dossier($dossier, $make_htaccess='') {
 
 
 function fichier_user() {
-	$salt = ''; // sel cryptographique au niveau de l'application
-	$longueur = 28; // 128 bits d'entropie, solution de : ln2(26^longueur)=128
-	for($i=0;$i<$longueur;$i++)
-		$salt .= chr(ord('a')+mt_rand(0,ord('z')-ord('a')));
+	// Fabrique un nouveau sel seulement si nécessaire
+	// sinon ça invalide un mot de passe existant.
+	if (''==@$GLOBALS['salt']) {
+		$salt = ''; // sel cryptographique au niveau de l'application
+		$longueur = 28; // 128 bits d'entropie, solution de : ln2(26^longueur)=128
+		for($i=0;$i<$longueur;$i++)
+			$salt .= chr(ord('a')+mt_rand(0,ord('z')-ord('a')));
+	} else {
+		$salt = $GLOBALS['salt'];
+	}
 	assert('!empty($salt)');
-
 	$fichier_user = '../config/user.php';
 	$user='';
 	if (strlen(trim($_POST['mdp'])) == 0) {
