@@ -1,7 +1,7 @@
-cache
-config
-databases
-files
-img
-theme
-admin/xauthlog.php
+^cache
+^config
+^databases
+^files
+^img
+^theme
+^admin/xauthlog.php
