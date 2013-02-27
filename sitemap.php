@@ -1,6 +1,9 @@
 <?php
 /**********************
 Sitemap Blogotext
+Source : http://www.milletmaxime.net/index.php?d=2013/02/26/12/47/11-nouvelle-version-et-migration-sous-blogotext
+Test du fichier : http://www.xml-sitemaps.com/validate-xml-sitemap.html
+htaccess : RewriteRule ^sitemap\.xml$ /sitemap.php [NC,L]
 **********************/
 header('Content-Type: text/html; charset=UTF-8');
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
@@ -28,7 +31,7 @@ foreach ($liste as $billet)
 	$item .= '	<loc>'.$billet['bt_link'].'</loc>'."\n";
 	$item .= "	<lastmod>$dec[annee]-$dec[mois]-$dec[jour]</lastmod>\n";
 	$item .= '	<changefreq>yearly</changefreq>'."\n";
-	$item .= '	<priority>0.8</priority>'."\n";
+	$item .= '	<priority>0.5</priority>'."\n";
 	$item .= '</url>'."\n";
 	echo $item;
 }
