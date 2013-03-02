@@ -13,16 +13,61 @@
 # *** LICENSE ***
 
 function extraire_mots($texte) {
-	$txt = preg_replace("/(\r\n|\n|\r|\s|\t)/", " ", $texte);
-	$texte_propre = preg_replace('#[[:punct:]]#', " ", $txt);
-	$tableau = array_unique(explode(' ', $texte_propre));
-	foreach ($tableau as $mots) {
-		if (strlen($mots) > 3) {
-			$table[] = strtolower($mots);
+	// supprime les retours à la ligne
+	$texte = str_replace("\r", '', $texte);
+	$texte = str_replace("\n", ' ', $texte);
+	$texte = str_replace("\t", ' ', $texte);
+
+	// supprime les balises
+	$texte = preg_replace('#<[^>]*>#', ' ', $texte);
+     
+	// supprime la pontuation
+	$texte = preg_replace('#[[:punct:]]#', ' ', $texte);
+
+	// supprime les espaces multiples 
+	$texte = trim(preg_replace('# {2,}#', ' ', $texte));
+
+	$tableau = explode(' ', $texte);
+	foreach ($tableau as $i => $mots) {
+		// supprime les mots trop courts (typiquement les déterminants, particules, etc.
+		if (strlen(trim($mots)) <= 4) {
+			unset($tableau[$i]);
+		}
+		// supprime les mots contenant des chiffres
+		elseif (preg_match('#\d#', $mots)) {
+			unset($tableau[$i]);
+		}
+		// supprime les mots contenant des caractères spéciaux autre que les diacritiques (c’est mieux)
+		elseif ( preg_match('#\?#', utf8_decode(preg_replace('#&(.)(acute|grave|circ|uml|cedil|tilde|ring|slash|caron);#', '$1', $mots))) ) {
+			unset($tableau[$i]);
 		}
 	}
-	natsort($table);
-	$retour = implode(', ', $table);
+
+	natsort($tableau);
+	// Ici on a une liste de mots avec doublons.
+	// on recherche les mots trouvés plusieurs fois dans la liste, qui seront les mots clés en priorité
+	$tableau = array_unique($tableau);
+
+	
+	$n = 3; // nb occurences
+	$liste = array();
+
+	// on recherche les mots trouvés 3 fois. S’il y a plus de 7 mots, on s’arrête
+	// si moins de 7 mots, on cherche les mots présents 2 fois (en plus des mots présents 3 fois), on les ajoute
+	// si toujours moins de 7 mots, on les prends tous.
+	//  Ceci permet de garder en prio les mots présents le plus de fois.
+	while ($n > 0 and count($liste) < 7) {
+
+		foreach($tableau as $i => $mot) {
+			if (substr_count($texte, $mot) == $n) {
+				$liste[] = $mot;
+			}
+		}
+		$n--;
+	}
+
+
+	$retour = implode($liste, ', ');
 	return $retour;
 }
 
@@ -187,12 +232,12 @@ function formatage_commentaires($texte) {
 		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat attendu.
 																					//				} !!!! : [quote*][quote**][quote]bla[/quote**][/quote*][/quote] fait que les balises avec *, ** matchent.
 		'#\[code\](.+?)\[/code\]#s',										// code
-		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s\)\(]+))#i',				// Regex URL
-		'`\[([^[]+)\|([^[]+)\]`',											// a href
-		'`\[b\](.*?)\[/b\]`s',												// strong
-		'`\[i\](.*?)\[/i\]`s',												// italic
-		'`\[s\](.*?)\[/s\]`s',												// strike
-		'`\[u\](.*?)\[/u\]`s',												// souligne
+		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s\)\(]+))#i',	// Regex URL
+		'#\[([^[]+)\|([^[]+)\]#',											// a href
+		'#\[b\](.*?)\[/b\]#s',												// strong
+		'#\[i\](.*?)\[/i\]#s',												// italic
+		'#\[s\](.*?)\[/s\]#s',												// strike
+		'#\[u\](.*?)\[/u\]#s',												// souligne
 		'# »#',																	// close quote
 		'#« #', 																	// open quote
 		'# !#',																	// !

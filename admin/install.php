@@ -186,7 +186,7 @@ function afficher_form_3($erreurs='') {
 	echo '<label>'.$GLOBALS['lang']['install_choose_sgdb'].'</label>'."\n";
 	echo '<select id="sgdb" name="sgdb" onchange="show_mysql_form()">'."\n";
 	if (extension_loaded('pdo_sqlite')) {
-		echo "\t".'<option value="sqlite" selected="selected">SQLite</option>'."\n";
+		echo "\t".'<option value="sqlite">SQLite</option>'."\n";
 	}
 	if (extension_loaded('pdo_mysql') ) {
 		echo "\t".'<option value="mysql">MySQL</option>'."\n";
@@ -474,6 +474,7 @@ if (!empty($_GET['s']) and $_GET['s'] == 3) {
 			document.getElementById("sqlite_vars").style.display = "block";
 		}
 	}
+	show_mysql_form();
 
 </script>'."\n";
 }

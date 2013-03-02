@@ -8,6 +8,7 @@
 	<meta name="robots" content="all" />
 	<meta name="author" content="{blog_auteur}" />
 	<meta name="description" content="{blog_description}" />
+	<meta name="viewport" content="width=device-width, user-scalable=yes" />
 	<meta name="keywords" content="{article_motscles}" />
 	<link type="text/css" rel="stylesheet" href="{style}/style.css" />
 	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles Résumés" href="{rss}" />
@@ -15,7 +16,7 @@
 	<link rel="alternate" type="application/rss+xml" title="RSS-2.0 - Commentaires pour cet article" href="{rss_comments}" />
 <style type="text/css">
 #email-adress {
-	display: none;
+	display: none!important;
 }
 
 </style>
@@ -132,7 +133,8 @@ function resize(id, dht) {
 			</div>
 			<p class="tags"><img src="themes/default/icon_tag.png" alt="icon" /> Tags de l'article : {article_tags}</p>
 
-			<p id="nombre_comment">{nombre_commentaires}</p>
+			<p id="nombre_comment"><span id="commentaires">{nombre_commentaires}</span></p>
+
 			{BOUCLE_commentaires}
 			<article class="comment" id="{commentaire_ancre}">
 			<h3>{commentaire_auteur_lien} - {commentaire_date} à {commentaire_heure}  </h3>

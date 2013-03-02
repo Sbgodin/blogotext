@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -46,6 +46,8 @@ $lang_de = array(
 'mesliens'	 						=> 'Meine Links',
 'nouveau' 							=> 'Neuer Artikel',
 'supprimer' 						=> 'Löschen',
+'voir'		 						=> 'Sehen',
+'partager' 							=> 'Teilen',
 'deconnexion' 						=> 'Ausloggen',
 'rechercher' 						=> 'Suchen',
 'filtrer' 							=> 'Filtrieren',
@@ -143,6 +145,7 @@ $lang_de = array(
 'label_taille_fichier'			=> 'Grooße',
 'label_precedent'					=> 'vorherige',
 'label_suivant'					=> 'nächste',
+'label_dl_fichier'				=> 'Der Feile auch in BlogoText importieren?',
 // Commentaire
 'aucun'								=> 'keine(n)',
 'comment_ajout'					=> 'Einen Kommentar hinzufügen',
@@ -244,6 +247,7 @@ $lang_de = array(
 'err_comm_webpage'				=> 'Die URL ist ungültig',
 'err_comm_article_id'			=> 'Die Artikel-ID ist ungültig',
 'err_lien_vide'					=> 'Die URL ist leer',
+'err_wrong_token'					=> 'Der Sicherheits-Token ist ungültig oder abgelaufen.',
 // problems
 'prob_no_img_folder'				=> 'Es gibt keinen Ordner für die Bilder',
 'prob_img_folder_chmod'			=> 'Der Ordner für die Bilder ist schreibgeschützt',
@@ -343,6 +347,8 @@ $lang_de = array(
 'pref_go_to_mainteance'			=> 'Zur Wartungsseite gelangen.',
 'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
 'pref_alert_bookmark_link'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
+'pref_linx_dl_auto'				=> 'Automatisches Ihren Shared Links, die Dateien sein, auf Ihre Dateien Hinzufügen?',
+'pref_ask_everytime'				=> 'Frag mich jedes Mal',
 'legend_what_doyouwant'			=> 'Backup des Nachrichten - Was wollen sie tun?',
 'legend_what_doyouwant_optim'	=> 'Der Datenbank optimierung ?',
 // Notes

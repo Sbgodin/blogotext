@@ -80,7 +80,6 @@ $GLOBALS['balises'] = array(
 	'lien_id' => '{lien_id}',
 );
 
-//Commentaires
 function conversions_theme($texte) {
 	if (isset($GLOBALS['charset'])) {			$texte = str_replace($GLOBALS['balises']['charset'], $GLOBALS['charset'], $texte); }
 	if (isset($GLOBALS['version'])) {			$texte = str_replace($GLOBALS['balises']['version'], $GLOBALS['version'], $texte); }
@@ -117,7 +116,7 @@ function conversions_theme_commentaire($texte, $commentaire) {
 	if (isset($commentaire['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['commentaire_heure'], heure_formate($commentaire['bt_id']), $texte); }
 	if (isset($commentaire['bt_email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['bt_email'], $texte); }
 	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur_lien'], $commentaire['auteur_lien'], $texte); }
-	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $commentaire['bt_author'], $texte); }
+	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], str_replace("'", "\\'", $commentaire['bt_author']), $texte); }
 	if (isset($commentaire['bt_webpage'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['bt_webpage'], $texte); }
 	if (isset($commentaire['anchor'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_anchor'], $commentaire['anchor'], $texte); }
 	if (isset($commentaire['bt_link'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_lien'], $commentaire['bt_link'], $texte); }
@@ -238,10 +237,14 @@ function liste_post($liste) { // la liste contenir soit des articles, soit des l
 // only used by the main page of the blog (not on admin)
 function afficher_article($id) {
 	// 'admin' connected is allowed to see draft articles, but not 'public'. Same for article posted with a date in the future.
-	if (!empty($_SESSION['rand_sess_id'])) {
-		$billets = liste_base_articles('id', $id, 'admin', '', 0, 1);
+	if (!empty($_SESSION['user_id'])) {
+		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date <=? AND bt_statut='1'";
+		$billets = liste_elements($query, array($id, date('YmdHis')), 'articles');
+
 	} else {
-		$billets = liste_base_articles('id', $id, 'public', 1, 0, 1);
+		$query = "SELECT * FROM articles WHERE bt_id=?";
+		$billets = liste_elements($query, array($id), 'articles');
+
 	}
 	if (isset($billets[0])) {
 		$billet = $billets[0];
@@ -272,7 +275,9 @@ function afficher_article($id) {
 		$template_comments = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'liste');
 		$fin = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'fin');
 		echo conversions_theme_article($debut, $billet);
-		$commentaires = liste_base_comms('assos_art', $id, '', '1', 0, '');
+
+		$query = "SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut='1' ORDER BY bt_id";
+		$commentaires = liste_elements($query, array($id), 'commentaires');
 
 		if (!empty($commentaires)) {
 			foreach ($commentaires as $element) {

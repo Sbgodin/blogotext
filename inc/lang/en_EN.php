@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -46,6 +46,8 @@ $lang_en = array(
 'mesliens'	 						=> 'My links',
 'nouveau' 							=> 'New article',
 'supprimer' 						=> 'Delete',
+'voir'		 						=> 'See',
+'partager' 							=> 'Share',
 'deconnexion' 						=> 'Logout',
 'rechercher' 						=> 'Search',
 'filtrer' 							=> 'Filter',
@@ -143,6 +145,7 @@ $lang_en = array(
 'label_taille_fichier'			=> 'Size',
 'label_precedent'					=> 'newer elements',
 'label_suivant'					=> 'older elements',
+'label_dl_fichier'				=> 'Import this file in yours?',
 // Commentaire
 'aucun'								=> 'no',
 'comment_ajout'					=> 'Post a comment',
@@ -244,6 +247,7 @@ $lang_en = array(
 'err_comm_webpage'				=> 'Invalid URL',
 'err_comm_article_id'			=> 'Invalid Article ID',
 'err_lien_vide'					=> 'Your ULR is empty',
+'err_wrong_token'					=> 'Security token is wrong.',
 // problems
 'prob_no_img_folder'				=> 'There isn\t any image folder',
 'prob_img_folder_chmod'			=> 'The image folder is not accesible',
@@ -343,6 +347,8 @@ $lang_en = array(
 'pref_go_to_mainteance'			=> 'Go to the maintenance page.',
 'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.',
 'pref_alert_bookmark_link'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
+'pref_linx_dl_auto'				=> 'Automatically add shared links that are files at your files?',
+'pref_ask_everytime'				=> 'Ask me every time',
 'legend_what_doyouwant'			=> 'What do you you want to do ?',
 'legend_what_doyouwant_optim'	=> 'Clean the database ?',
 // Notes

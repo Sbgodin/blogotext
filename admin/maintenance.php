@@ -158,11 +158,7 @@ function base642file($file) {
 	} else {
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers'];
 	}
-	if ( !is_dir($dossier) ) {
-		if (creer_dossier($dossier, 0) === FALSE) {
-			return FALSE;
-		}
-	}
+	if (creer_dossier($dossier, 0) === FALSE) return FALSE;
 	$bin_data_target = base64_decode($file['bt_backup_img_base64']);
 	$file_target_name = $dossier.'/'.$file['bt_filename'];
 	if ($file_target_name != $dossier.'/') {
@@ -228,15 +224,20 @@ function creer_fich_xml() {
 // invoqued in function above : create the whote XML data : articles + comms + files + …
 function creer_xml() {
 	$limite = (is_numeric($_POST['combien_articles'])) ? $_POST['combien_articles'] : '' ;
-	$limite = ($limite == '-1') ? '' : $limite;
-	$tableau = liste_base_articles('', '', 'admin', '', 0, $limite);
+	$limite = ($limite == '-1') ? '' : "DESC LIMIT 0, $limite";
+
+	$query = "SELECT * FROM articles ORDER BY bt_date $limite";
+	$tableau = liste_elements($query, array(), 'articles');
+
+
 	$data = '<bt_backup_database>'."\n\n";
 	if (!empty($tableau)) { // pour chaque article…
 		$data .= '<bt_backup_items>'."\n";
 		foreach ($tableau as $key => $article) {
 			$data .= '<bt_backup_item>'."\n";
 			$data .= xml_billet($article);
-			$commentaires = liste_base_comms('assos_art', $article['bt_id'], 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_article_id=? ORDER BY bt_id";
+			$commentaires = liste_elements($query, array($article['bt_id']), 'commentaires');
 			if (!empty($commentaires)) { // pour chaque commentaire par articles.
 				foreach ($commentaires as $id => $content) {
 					$comment = xml_comment($content);
@@ -250,8 +251,11 @@ function creer_xml() {
 	// restaurer aussi les liens ?
 	if (!empty($_POST['restore_linx']) and ($_POST['restore_linx'] == 1)) {
 		$data .= '<bt_backup_linxs>'."\n";
-		$nb_max_liens = (is_numeric($_POST['combien_liens'])) ? $_POST['combien_liens'] : ''; // nombre d’images ? Si oui, on prend le nombre, sinon tous les liens.
-		$list_liens = array_reverse(liste_base_liens('', '', 'admin', '', 0, $nb_max_liens)); // inversion : pour conserver l’ordre. Peu important en soi, mais mieux.
+		$nb_max_liens = (is_numeric($_POST['combien_liens']) and $_POST['combien_liens'] > 0) ? 'LIMIT 0, '.$_POST['combien_liens'] : ''; // nombre de liens (tous par défaut)
+
+		$query = "SELECT * FROM links ORDER BY bt_id $nb_max_liens";
+		$list_liens = liste_elements($query, array(), 'links');
+
 		foreach ($list_liens as $lien) {
 			$data .= xml_link($lien)."\n";
 		}
@@ -294,8 +298,11 @@ function creer_fich_html() {
 	$final_html .= 'Do Not Edit! -->'."\n";
 	$final_html .= '<TITLE>Blogotext links export '.date('Y-M-D').'</TITLE>'."\n";
 	$final_html .= '<H1>Blogotext links export</H1>'."\n";
-	$nb_max_liens = (is_numeric($_POST['nb']) and $_POST['nb'] > 0) ? $_POST['nb'] : '';
-	$list = liste_base_liens('', '', 'admin', '', 0, $nb_max_liens);
+
+	$nb_max_liens = (is_numeric($_POST['nb']) and $_POST['nb'] > 0) ? 'LIMIT 0, '.$_POST['nb'] : ''; // nombre de liens (tous par défaut)
+	$query = "SELECT * FROM links ORDER BY bt_id $nb_max_liens";
+	$list = liste_elements($query, array(), 'links');
+
 	foreach ($list as $n => $link) {
 		$dec = decode_id($link['bt_id']);
 		$timestamp = mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee']); // H I S M D Y : wtf americans...
@@ -310,7 +317,7 @@ function creer_fich_html() {
 		return FALSE;
 	} else {
 		fclose($new_file);
-		// affichage d’un formulaire indiquand que tout s’est bien passé, et demande si (une fois le fichier sauvé par l’user) il faut le supprimer du server.
+		// affichage d’un formulaire indiquant que tout s’est bien passé, et demande si (une fois le fichier sauvé par l’user) il faut le supprimer du server.
 		echo '<form method="post" action="maintenance.php" class="bordered-formbloc"><div>'."\n";
 			echo '<fieldset class="pref">';
 			echo legend($GLOBALS['lang']['bak_succes_save'], 'legend-tic');
@@ -517,96 +524,61 @@ function importer_blogotext($content_xml) {
 			 * STOCKAGE
 			 */
 			// compare la liste des commentaires du XML à ceux trouvés dans la BDD et ne conserve que ceux qui doivent être ajoutés dans la base.
+			// FIXME : est-ce bien utile, ça ? Surtout pour les articles, car les articles présents mais mis à jours ne sont pas mis à jour lors de la ré-importation, du coup…
 			$ta = diff_trouve_base('commentaires', $tableau_comments_trouves);
 			$tableau_comments_retenus = $ta['retenus'];
 			// génération de la requête SQL, et du tableau (celui qu’on met dans le $req->execute(<<<ICI>>>).
 			// On utilise ici le SQLite pour de multiples insertions en même temps : BEAUCOUP plus rapide que de les faire une à une.
+			$nb_comments_to_store = count($tableau_comments_retenus);
 			if (!empty($tableau_comments_retenus)) {
+				try {
+					$GLOBALS['db_handle']->beginTransaction();
 
-				// découpe le tableau par tranche de 83 éléments ; PDO ne pouvant prendre >1000 variables dans le tableau du execute()
-				// et 83 < 1000/12 où 12 est le nombre de variables (« ? ») par ligne.
-				$nb_comments_to_store = count($tableau_comments_retenus);
-				$tab = array_chunk($tableau_comments_retenus, 83);
-				unset($tableau_comments_retenus);
-
-				foreach($tab as $i => $tableau_comments) {
-						$f = array_shift($tableau_comments); // first comment
-						// Génération des deux éléments de la requête (requête + tableau).
-						$query = "INSERT INTO commentaires (
-							bt_type, bt_id, bt_article_id, bt_content, bt_wiki_content, 
-							bt_author, bt_link, bt_webpage, bt_email, bt_subscribe, bt_statut
-							) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-						$array = array(
-							$f['bt_type'], $f['bt_id'], $f['bt_article_id'], $f['bt_content'], $f['bt_wiki_content'],
-							$f['bt_author'], $f['bt_link'], $f['bt_webpage'], $f['bt_email'], $f['bt_subscribe'], $f['bt_statut']
-						);
-
-						// les articles suivants, on vérifie s’il n’est vide à cause du array_shift() qui retire un élement.
-						if (!empty($tableau_comments)) {
-							foreach ($tableau_comments as $key => $f) {
-								$query .= "UNION ALL SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-								array_push($array,
-									$f['bt_type'], $f['bt_id'], $f['bt_article_id'], $f['bt_content'], $f['bt_wiki_content'],
-									$f['bt_author'], $f['bt_link'], $f['bt_webpage'], $f['bt_email'], $f['bt_subscribe'], $f['bt_statut']);
-							}
-						}
-
-						// Éxécution de la requête.
-						try {
-							$req = $GLOBALS['db_handle']->prepare($query);
-							$req->execute($array);
-						} catch (Exception $e) {
-							die('Erreur : '.$e->getMessage());
-						}
+					foreach($tableau_comments_retenus as $com) {
+						$query = 'INSERT INTO commentaires (bt_type, bt_id, bt_article_id, bt_content, bt_wiki_content, bt_author,
+									bt_link, bt_webpage, bt_email, bt_subscribe, bt_statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+						$req = $GLOBALS['db_handle']->prepare($query);
+						$req->execute(array($com['bt_type'], $com['bt_id'], $com['bt_article_id'], $com['bt_content'], $com['bt_wiki_content'],
+													$com['bt_author'], $com['bt_link'], $com['bt_webpage'], $com['bt_email'], $com['bt_subscribe'], $com['bt_statut']));
+					}
+					$GLOBALS['db_handle']->commit();
+				} catch (Exception $e) {
+					$req->rollBack();
+					die('Erreur 1150 : '.$e->getMessage());
 				}
+
 			}
 
 
 			// compare la liste des articls du XML à ceux trouvés dans la BDD et ne conserve que ceux qui doivent être ajoutés dans la base.
-			$ta = diff_trouve_base('articles', $tableau_articles_trouves);
-			$tableau_articles_retenus = $ta['retenus'];
+			$a = diff_trouve_base('articles', $tableau_articles_trouves);
+			$tableau_articles_retenus = $a['retenus'];
 
 			// on libère un peu de mémoire (les array() son assez gros : plusieurs dizaines de Mo.
 			unset($tableau_articles_trouves);
 
-			// génération de la requête SQL, et du tableau (celui qu’on met dans le $req->execute(<<<ICI>>>).
-			// On utilise ici le SQLite pour de multiples insertions en même temps : BEAUCOUP plus rapide que de les faire une à une.
+			// génération des requêtes SQL
+			$nb_articles_to_store = count($tableau_articles_retenus);
 			if (!empty($tableau_articles_retenus)) {
-				// découpe le tableau par tranche de 70 éléments ; PDO ne pouvant prendre >1000 variables dans le tableau du execute()
-				// et 70 < 1000/14 où 14 est le nombre de variables (« ? ») par ligne.
 
-				$nb_articles_to_store = count($tableau_articles_retenus);
-				$tab = array_chunk($tableau_articles_retenus, 70);
-				unset($tableau_articles_retenus);
+				try {
+					$GLOBALS['db_handle']->beginTransaction();
 
-				foreach($tab as $i => $tableau_articles) {
-					$f = array_shift($tableau_articles); // first article
-					// Génération des deux éléments de la requête (requête + tableau).
-					$query = "INSERT INTO articles (
-						bt_type, bt_id, bt_date, bt_title, bt_abstract, bt_notes,
-						bt_link, bt_content, bt_wiki_content, bt_categories, bt_keywords, bt_nb_comments,
-						bt_allow_comments, bt_statut ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-					$array = array(
-						$f['bt_type'], $f['bt_id'], $f['bt_date'], $f['bt_title'], $f['bt_abstract'], $f['bt_notes'],
-						$f['bt_link'], $f['bt_content'], $f['bt_wiki_content'], $f['bt_categories'], $f['bt_keywords'], $f['bt_nb_comments'],
-						$f['bt_allow_comments'], $f['bt_statut']
-					);
-
-					// les articles suivants
-					foreach ($tableau_articles as $key => $f) {
-						$query .=  "UNION ALL SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-						array_push($array,
-							$f['bt_type'], $f['bt_id'], $f['bt_date'], $f['bt_title'], $f['bt_abstract'], $f['bt_notes'],
-							$f['bt_link'], $f['bt_content'], $f['bt_wiki_content'], $f['bt_categories'], $f['bt_keywords'], $f['bt_nb_comments'],
-							$f['bt_allow_comments'], $f['bt_statut']);
-						}
-					// Éxécution de la requête.
-					try {
+					foreach($tableau_articles_retenus as $art) {
+						$query = 'INSERT INTO articles (
+												bt_type, bt_id, bt_date, bt_title, bt_abstract, bt_notes, bt_link, bt_content, bt_wiki_content,
+												bt_categories, bt_keywords, bt_nb_comments, bt_allow_comments, bt_statut
+											) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )';
 						$req = $GLOBALS['db_handle']->prepare($query);
-						$req->execute($array);
-					} catch (Exception $e) {
-						die('Erreur : '.$e->getMessage());
+						$req->execute(array(
+										$art['bt_type'], $art['bt_id'], $art['bt_date'], $art['bt_title'], $art['bt_abstract'], $art['bt_notes'], $art['bt_link'],
+										$art['bt_content'], $art['bt_wiki_content'], $art['bt_categories'], $art['bt_keywords'], $art['bt_nb_comments'], $art['bt_allow_comments'], $art['bt_statut']
+									));
 					}
+					$GLOBALS['db_handle']->commit();
+				} catch (Exception $e) {
+					$req->rollBack();
+					die('Erreur 1530 : '.$e->getMessage());
 				}
 
 			}
@@ -642,29 +614,22 @@ function importer_blogotext($content_xml) {
 				die('Erreur listage des articles après compatage nombre commentaires par articles (Maintenance): '.$e->getMessage());
 			}
 
-			/* construit et applique les changements dans la BDD
-			*/
-			$tab = array_chunk($tab_nbcom_all, 499);unset($art_nbcom_all);
-			foreach($tab as $i => $tableau_articles) {
-					// constuit la $query et le array()
-					$array = array();
-					$query = "UPDATE articles SET bt_nb_comments = (CASE ";
-					foreach ($tableau_articles as $value) {
-						$query .= "WHEN bt_id=? THEN ? ";
-						$array[] = $value['bt_id'];
-						$array[] = $value['nb'];
-					}
-					$query .= "ELSE bt_nb_comments END) ";
-					try {
+			if (!empty($tab_nbcom_all)) {
+				try {
+					$GLOBALS['db_handle']->beginTransaction();
+
+					foreach($tab_nbcom_all as $value) {
+						$query = 'UPDATE articles SET bt_nb_comments=? WHERE bt_id=? ';
 						$req = $GLOBALS['db_handle']->prepare($query);
-						$req->execute($array);
-					} catch (Exception $e) {
-						die('Erreur MAJ comptage commentaires (Maintenance) : '.$e->getMessage());
+						$req->execute(array($value['nb'], $value['bt_id']));
 					}
+					$GLOBALS['db_handle']->commit();
+				} catch (Exception $e) {
+					$req->rollBack();
+					die('Erreur 5794 : '.$e->getMessage());
+				}
 			}
 		}
-
-
 
 		// TRAITEMENT DES LIENS
 		$items = explode('</bt_backup_link>', $restore_linx); // découpage en articles uniques.
@@ -685,37 +650,19 @@ function importer_blogotext($content_xml) {
 			$ta = diff_trouve_base('links', $tableau_liens_trouves);
 			$tableau_liens_retenus = $ta['retenus'];
 
-			// génération de la requête SQL, et du tableau (celui qu’on met dans le $req->execute(<<<ICI>>>).
 			if (!empty($tableau_liens_retenus)) {
 				$nb_links_to_store = count($tableau_liens_retenus);
-
-				// découpe le tableau par tranche de 83 éléments ; PDO ne pouvant prendre >1000 variables dans le tableau du execute()
-				// et 83 < 1000/12 où 12 est le nombre de variables (« ? ») par ligne.
-				$tab = array_chunk($tableau_liens_retenus, 99);
-				unset($tableau_liens_retenus);
-
-				foreach($tab as $i => $tableau_liens) {
-						$f = array_shift($tableau_liens); // first link
-						// Génération des deux éléments de la requête (requête + tableau).
-						$query = "INSERT INTO links (bt_type, bt_id, bt_link, bt_content, bt_wiki_content, bt_statut, bt_author, bt_title, bt_tags ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-						$array = array( $f['bt_type'],$f['bt_id'],$f['bt_link'],$f['bt_content'],$f['bt_wiki_content'],$f['bt_statut'],$f['bt_author'],$f['bt_title'],$f['bt_tags'] );
-
-						// les liens suivants, on vérifie s’il n’est vide à cause du array_shift() qui retire un élement.
-						if (!empty($tableau_liens)) {
-							foreach ($tableau_liens as $key => $f) {
-								$query .= "UNION ALL SELECT ?, ?, ?, ?, ?, ?, ?, ?, ? ";
-								array_push($array, $f['bt_type'], $f['bt_id'], $f['bt_link'], $f['bt_content'],
-														$f['bt_wiki_content'], $f['bt_statut'], $f['bt_author'], $f['bt_title'], $f['bt_tags']);
-							}
-						}
-
-						// Éxécution de la requête.
-						try {
-							$req = $GLOBALS['db_handle']->prepare($query);
-							$req->execute($array);
-						} catch (Exception $e) {
-							die('Erreur ajout liens (Maintenance) : '.$e->getMessage());
-						}
+				try {
+					$GLOBALS['db_handle']->beginTransaction();
+					foreach($tableau_liens_retenus as $f) {
+						$query = 'INSERT INTO links (bt_type, bt_id, bt_link, bt_content, bt_wiki_content, bt_statut, bt_author, bt_title, bt_tags ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ';
+						$req = $GLOBALS['db_handle']->prepare($query);
+						$req->execute(array($f['bt_type'], $f['bt_id'], $f['bt_link'], $f['bt_content'], $f['bt_wiki_content'], $f['bt_statut'], $f['bt_author'], $f['bt_title'], $f['bt_tags']));
+					}
+					$GLOBALS['db_handle']->commit();
+				} catch (Exception $e) {
+					$req->rollBack();
+					die('Erreur 1123 : '.$e->getMessage());
 				}
 			}
 		}
@@ -742,8 +689,9 @@ function addFolder2zip($zip, $folder) {
 			if ($entry != "." and $entry != ".." and is_readable($folder.'/'.$entry)) {
 				if (is_dir($folder.'/'.$entry)) {
 					addFolder2zip($zip, $folder.'/'.$entry);
+				} else {
+					$zip->addFile($folder.'/'.$entry, preg_replace('#^\.\./#', '', $folder.'/'.$entry));
 				}
-				$zip->addFile($folder.'/'.$entry, preg_replace('#^\.\./#', '', $folder.'/'.$entry));
 			}
 		}
 		closedir($handle);
@@ -833,7 +781,7 @@ function convert_wp2bt($xml_content) {
 		$restore_text = parse_xml_str($xml_content, 'channel');
 
 		$items = explode('<item>', $restore_text);
-		array_shift($items); // removes first element (Wordpress's configuration information, not articles or comments data)
+		array_shift($items); // removes first element (Wordpress's configuration information, not articles nor comments data)
 		$array_id_art = array(); // un tableau avec les ID au format BlogoText, WP permettant d’avoir des articles publiés à une même date, mais pas BT.
 		$array_id_com = array(); // un tableau avec les ID des commentaires.
 
@@ -1030,15 +978,7 @@ if (!isset($_GET['quefaire'])) {
 		echo legend($GLOBALS['lang']['legend_what_doyouwant'], 'legend-backup');
 		echo form_radio('quefaire', 'sauvegarde', 'sauvegarde', $GLOBALS['lang']['bak_save2xml']);
 		echo form_radio('quefaire', 'restore', 'restore', $GLOBALS['lang']['bak_restorefromxml']);
-		echo '</fieldset>';
-
-		echo '<fieldset class="pref valid-center">';
-		echo legend($GLOBALS['lang']['legend_what_doyouwant_optim'], 'legend-backup');
 		echo form_radio('quefaire', 'optimise', 'optimise', $GLOBALS['lang']['legend_what_doyouwant_optim']);
-		echo '</fieldset>';
-
-		echo '<fieldset class="pref valid-center">';
-		echo legend($GLOBALS['lang']['bak_nothing'], 'legend-backup');
 		echo form_radio('quefaire', 'rien', 'rien', $GLOBALS['lang']['bak_nothing'], TRUE);
 		echo '</fieldset>';
 
@@ -1120,7 +1060,7 @@ else {
 			// sauvegarde des liens au format HTML de netscape
 			elseif ($_GET['type'] == 'netscape') {
 
-				if (!(isset($_POST['nb']) and is_numeric($_POST['nb']) and ($_POST['nb'] > -1)) ) {
+				if (!(isset($_POST['nb']) and is_numeric($_POST['nb']) ) ) {
 						echo '<form method="post" action="maintenance.php?quefaire=sauvegarde&amp;type=netscape" class="bordered-formbloc"><div>'."\n";
 						// nombre de liens ?
 						echo '<fieldset class="pref">'."\n";
@@ -1134,7 +1074,7 @@ else {
 				}
 				// on génère le fichier
 				else {
-					creer_fich_html($_POST['nb']);
+					creer_fich_html();
 				}
 
 			}

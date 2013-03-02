@@ -12,7 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-if ($GLOBALS['urlRewriting']['enabled']) {
+if (@$GLOBALS['urlRewriting']['enabled']) {
     $GLOBALS['urlPasRécrit'] = '';
 } else {
     $GLOBALS['urlPasRécrit'] = '?d=';
@@ -43,12 +43,6 @@ function decode_id($id) {
 	return $retour;
 }
 
-function get_path($id) {
-	$dec = decode_id($id);
-	$retour = $dec['annee'].'/'.$dec['mois'].'/'.$id.'.'.$GLOBALS['ext_data'];
-	return $retour;
-}
-
 // used sometimes, like in the email that is sent.
 function get_blogpath($id) {
 	$date = decode_id($id);
@@ -56,7 +50,7 @@ function get_blogpath($id) {
 	return $path;
 }
 
-function ww_hach_sha($text, $salt) {
+function hash_password($text, $salt) {
 	$out = hash("sha512", $text.$salt);	// PHP 5
 	return $out;
 }
@@ -91,17 +85,15 @@ function check_session() {
 	@session_start();
 	ini_set('session.cookie_httponly', TRUE);
 	// use a cookie to remain logged in
-	if (isset($_COOKIE['BT-admin-stay-logged']) and $_COOKIE['BT-admin-stay-logged'] == '1') {
-		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
+	$user_id = hash_password($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
 
-		if (isset($_COOKIE['BT-admin-uuid']) and $_COOKIE['BT-admin-uuid'] == $uuid) {
-			$_SESSION['rand_sess_id'] = md5($uuid);
-			session_set_cookie_params(365*24*60*60); // set new expiration time to the browser
-			session_regenerate_id(true);  // Send cookie
-			return TRUE;
-		}
+	if (isset($_COOKIE['BT-admin-stay-logged']) and $_COOKIE['BT-admin-stay-logged'] == $user_id) {
+		$_SESSION['user_id'] = md5($user_id);
+		session_set_cookie_params(365*24*60*60); // set new expiration time to the browser
+		session_regenerate_id(true);  // Send cookie
+		return TRUE;
 	}
-	if ( (!isset($_SESSION['rand_sess_id'])) or ($_SESSION['rand_sess_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$ip)) ) {
+	if ( (!isset($_SESSION['user_id'])) or ($_SESSION['user_id'] != $GLOBALS['identifiant'].$GLOBALS['mdp'].md5($_SERVER['HTTP_USER_AGENT'].$ip)) ) {
 		return FALSE;
 	} else {
 		return TRUE;
@@ -119,14 +111,31 @@ function operate_session() {
 }
 
 function fermer_session() {
-	unset($_SESSION['nom_utilisateur'],$_SESSION['rand_sess_id']);
-	setcookie('BT-admin-stay-logged', 0);
-	setcookie('BT-admin-uuid', NULL);
+	unset($_SESSION['nom_utilisateur'],$_SESSION['user_id']);
+	setcookie('BT-admin-stay-logged', NULL);
 	session_destroy();
 	session_regenerate_id(true); // change l'ID au cas où
 	redirection('auth.php');
 	exit();
 }
+
+// Code from Shaarli. Generate an unique sess_id, usable only once.
+function new_token() {
+	$rnd = sha1(uniqid('',true).mt_rand());  // We generate a random string.
+	$_SESSION['tokens'][$rnd]=1;  // Store it on the server side.
+	return $rnd;
+}
+
+// Tells if a token is ok. Using this function will destroy the token.
+// true=token is ok.
+function check_token($token) {
+	if (isset($_SESSION['tokens'][$token])) {
+		unset($_SESSION['tokens'][$token]); // Token is used: destroy it.
+		return true; // Token is ok.
+	}
+	return false; // Wrong token, or already used.
+}
+
 
 // Retire le paramètre $param de la requête
 // Ex: AVANT = domaine.com/?a=1&b=2&c=3

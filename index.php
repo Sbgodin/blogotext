@@ -33,14 +33,8 @@ if (isset($_POST['allowcookie'])) { // si cookies autorisés, conserve les champ
 	if (isset($_POST['auteur'])) {  setcookie('auteur_c', $_POST['auteur'], time() + 365*24*3600, null, null, false, true); }
 	if (isset($_POST['email'])) {   setcookie('email_c', $_POST['email'], time() + 365*24*3600, null, null, false, true); }
 	if (isset($_POST['webpage'])) { setcookie('webpage_c', $_POST['webpage'], time() + 365*24*3600, null, null, false, true); }
-	setcookie('subscribe_c', (isset($_POST['subscribe']) and $_POST['subscribe'] == 'on')?1:0, time() + 365*24*3600, null, null, false, true);
+	setcookie('subscribe_c', (isset($_POST['subscribe']) and $_POST['subscribe'] == 'on' ) ? 1 : 0, time() + 365*24*3600, null, null, false, true);
 	setcookie('cookie_c', 1, time() + 365*24*3600, null, null, false, true);
-} elseif (isset($_POST['auteur'])) { // cookies interdits : on en fait des vides (afin de vider les éventuels précédents cookies)
-	setcookie('auteur_c', '', time()-42, null, null, false, true);
-	setcookie('email_c', '', time()-42, null, null, false, true);
-	setcookie('webpage_c', '', time()-42, null, null, false, true);
-	setcookie('cookie_c', '', time()-42, null, null, false, true);
-	setcookie('subscribe_c', '', time()-42, null, null, false, true);
 }
 
 if ( !file_exists('config/user.php') or !file_exists('config/prefs.php') ) {
@@ -84,7 +78,10 @@ foreach ($_SERVER as $i => $var) { $_SERVER[$i] = htmlspecialchars($_SERVER[$i])
 
 // Random article :-)
 if (isset($_GET['random'])) {
-	$tableau = liste_base_articles('random', '', 'public', '1', '', 1);
+	$om = ($GLOBALS['sgdb'] == 'sqlite') ? 'om' : '';
+	$query = "SELECT * FROM articles WHERE bt_date <= ".date('YmdHis')." AND bt_statut='1' ORDER BY rand$om() LIMIT 0, 1";
+	$tableau = liste_elements($query, array(), 'articles');
+
 	header('Location: '.$tableau[0]['bt_link']);
 	exit;
 }
@@ -114,7 +111,8 @@ if ( isset($_GET['d']) and preg_match('#^\d{4}/\d{2}/\d{2}/\d{2}/\d{2}/\d{2}#', 
 	$article_id = $_GET['d'];
 	$tab = explode('/', $article_id);
 	$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
-	afficher_calendrier($tab['0'], $tab['1'], $tab['2']);
+	$article_date = get_entry($GLOBALS['db_handle'], 'articles', 'bt_date', $id, 'return');
+	afficher_calendrier(substr($article_date, 0, 4), substr($article_date, 4, 2), substr($article_date, 6, 2));
 	echo afficher_article($id);
 }
 
@@ -122,7 +120,7 @@ if ( isset($_GET['d']) and preg_match('#^\d{4}/\d{2}/\d{2}/\d{2}/\d{2}/\d{2}#', 
 elseif ( isset($_GET['id']) and is_numeric($_GET['id']) ) {
 	$link_id = $_GET['id'];
 
-	$tableau = liste_base_liens('id', $link_id, 'public', '1', '', '');
+	$tableau = liste_elements("SELECT * FROM links WHERE bt_id=? AND bt_statut='1'", array($link_id), 'links');
 	if (!empty($tableau[0]['bt_id']) and preg_match('/\d{14}/', $tableau[0]['bt_id'])) {
 		$tab = decode_id($tableau[0]['bt_id']);
 		afficher_calendrier($tab['annee'], $tab['mois'], $tab['jour']);
@@ -136,119 +134,157 @@ elseif ( isset($_GET['id']) and is_numeric($_GET['id']) ) {
  show by lists of more than one post
 ******************************************************************************/
 else {
-	$all = array(); $all1 = array(); $all2 = array(); $all3 = array();
 	$annee = date('Y'); $mois = date('m'); $jour = '';
+	$array = array();
+	$query = "SELECT * FROM ";
 
-	if (isset($_GET['p']) and is_numeric($_GET['p']) and $_GET['p'] >= 1) {
-		$page = $GLOBALS['max_bill_acceuil'] * $_GET['p'];
-	} else { $page = 0; }
-
-
-	if ( (isset($_GET['d']) and preg_match('/^\d{4}\/\d{2}(\/\d{2})?/', $_GET['d']) or !empty($_GET['mode'])) and !isset($_GET['q']) )  {
-
-			/*****************************************************************************
-			 Show by date or mode: 
-				- by date: all elements of one date (month, day…) are displayed.
-				- by mode: the elements of one sort are displayer by number, then by month
-				- if both mode and date are asked, both filters are applied, but only one type of data (links, comments, blogpost…) are listed. 
-			******************************************************************************/
-
-			// sélection sur date & optionnellement mode
-			if ( isset($_GET['d']) and preg_match('/^\d{4}\/\d{2}(\/\d{2})?/', $_GET['d']) and !isset($_GET['q']) )  {
-
-					$tab = explode('/', $_GET['d']);
-					if ( preg_match('/\d{4}/',($tab['0'])) ) {
-						$annee = $tab['0'];
-					}
-					if ( isset($tab['1']) and (preg_match('/\d{2}/',($tab['1']))) ) {
-						$mois = $tab['1'];
-					}
-					if ( isset($tab['2']) and (preg_match('/\d{2}/',($tab['2']))) ) {
-						$jour = $tab['2'];
-					}
-
-					if (empty($_GET['mode'])) {
-						// juste date donnée : seulement les articles du blog sont affichés (pas les liens ni les commentaires)
-						$all/*2*/ = liste_base_articles('date', $annee.$mois.$jour, 'public', '1', '', '');
-					} else {
-						// recoupage par mode qui n’est pas vide
-						    if ( preg_match('#links#', $_GET['mode']) ) { $all/*1*/ = liste_base_liens('date', $annee.$mois.$jour, 'public', '1', '', ''); }
-						elseif ( preg_match('#blog#', $_GET['mode']) ) { $all/*2*/ = liste_base_articles('date', $annee.$mois.$jour, 'public', '1', '', ''); }
-						elseif ( preg_match('#comments#', $_GET['mode']) ) { $all/*3*/ = liste_base_comms('date', $annee.$mois.$jour, 'public', '1', '', ''); }
-
-					}
-			}
-			// mode est donnée, pas date
-			if (isset($_GET['mode']) and empty($_GET['d'])) {
-						// notons que pour les liens, on affiche 5 fois plus d’éléments.
-						if ( preg_match('#links#', $_GET['mode']) ) { $GLOBALS['max_bill_acceuil']*=5; $page*=5; $all/*1*/ = liste_base_liens('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-					elseif ( preg_match('#blog#', $_GET['mode']) ) { $all/*2*/ = liste_base_articles('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-					elseif ( preg_match('#comments#', $_GET['mode']) ) { $all/*3*/ = liste_base_comms('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-			}
-			/*
-			// fusionne les tableaux
-			$tableau = array_merge($all1, $all2, $all3);
-
-			// tri le tableau fusionné selon les bt_id (selon une des clés d'un sous tableau. Sûrement plus simple il y a, mais dans Doc PHP ceci est).
-			foreach ($tableau as $key => $item) {
-				 $bt_id[$key] = $item['bt_id'];
-			}
-			if (isset($bt_id)) {
-				array_multisort($bt_id, SORT_DESC, $tableau);
-			}
-			*/
-			if (empty($_GET['d'])) { // si date, on garde tout quelque soit le nombre d’éléments, sinon on coupe.
-				$all = array_slice($all, 0, $GLOBALS['max_bill_acceuil']);
-			}
-			afficher_calendrier($annee, $mois, $jour);
-			$GLOBALS['nb_elements_client_side'] = array('nb' => count($all), 'nb_page' => $GLOBALS['max_bill_acceuil']); // Needed in lien_pagination(), very ugly
-			afficher_index($all);
-
-	}
-
-	/*****************************************************************************
-	 Show by search query : 
-		- if mode is set : search in one ore more databases, else search only in blog.
-	******************************************************************************/
-	// search query
-	elseif (isset($_GET['q'])) {
-		if (!empty($_GET['mode'])) {
-			if ( preg_match(   '#links#', $_GET['mode']) ) { $all1 = liste_base_liens('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-			if ( preg_match(    '#blog#', $_GET['mode']) ) { $all2 = liste_base_articles('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-			if ( preg_match('#comments#', $_GET['mode']) ) { $all3 = liste_base_comms('recherche', htmlspecialchars($_GET['q']), 'public', '1', $page, $GLOBALS['max_bill_acceuil']); }
-			// fusionne les tableaux
-			$tableau = array_merge($all1, $all2, $all3);
-
-			// sort the tableau by "bt_id" index
-			foreach ($tableau as $key => $item) {
-				 $bt_id[$key] = $item['bt_id'];
-			}
-			if (isset($bt_id)) {
-				array_multisort($bt_id, SORT_DESC, $tableau);
-			}
-		} else {
-			$tableau = liste_base_articles('recherche', $_GET['q'], 'public', '1', $page, $GLOBALS['max_bill_acceuil']);
+	// paramètre mode : quelle table "mode" ?
+	if (isset($_GET['mode'])) {
+		switch($_GET['mode']) {
+			case 'blog':
+				$where = 'articles';
+				break;
+			case 'comments':
+				$where = 'commentaires';
+				break;
+			case 'links':
+				$where = 'links';
+				break;
+			default:
+				$where = 'articles';
+				break;
 		}
-		afficher_calendrier(date('Y'), date('m'));
-		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']); // Needed in lien_pagination(), very ugly I know
-		afficher_index($tableau);
+	} else {
+		$where = 'articles';
+	}
+	$query .= $where.' ';
+
+
+	// paramètre de date "d"
+	if (isset($_GET['d']) and preg_match('#^\d{4}/\d{2}(/\d{2})?#', $_GET['d'])) {
+		$date = '';
+		$dates = array();
+		$tab = explode('/', $_GET['d']);
+		if ( isset($tab['0']) and preg_match('#\d{4}#', ($tab['0'])) ) { $date .= $tab['0']; $annee = $tab['0']; }
+		if ( isset($tab['1']) and preg_match('#\d{2}#', ($tab['1'])) ) { $date .= $tab['1']; $mois = $tab['1']; }
+		if ( isset($tab['2']) and preg_match('#\d{2}#', ($tab['2'])) ) { $date .= $tab['2']; $jour = $tab['2']; }
+
+		if (!empty($date)) {
+			switch ($where) {
+				case 'articles':
+					$sql_date = "bt_date LIKE ? ";
+					break;
+				default:
+					$sql_date = "bt_id LIKE ? ";
+					break;
+			}
+			$array[] = $date.'%';
+		} else {
+			$sql_date = "";
+		}
 	}
 
-	// display blog by tag
-	elseif (!empty($_GET['tag'])) {
-		$tableau = liste_base_articles('tags', html_entity_decode($_GET['tag']), 'public', 1, $page, $GLOBALS['max_bill_acceuil']); // entity_decode : &quot; => ".
-		afficher_calendrier(date('Y'), date('m'));
-		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
-		afficher_index($tableau);
+
+	// paramètre de recherche "q"
+	if (isset($_GET['q'])) {
+		switch ($where) {
+			case 'articles' :
+				$sql_q = "( bt_content LIKE ? OR bt_title LIKE ? ) ";
+				$array[] = '%'.$_GET['q'].'%';
+				$array[] = '%'.$_GET['q'].'%';
+				break;
+			case 'links' :
+				$sql_q = "( bt_content LIKE ? OR bt_title LIKE ? OR bt_link LIKE ? ) ";
+				$array[] = '%'.$_GET['q'].'%';
+				$array[] = '%'.$_GET['q'].'%';
+				$array[] = '%'.$_GET['q'].'%';
+				break;
+			case 'commentaires' :
+				$sql_q = "bt_content LIKE ? ";
+				$array[] = '%'.$_GET['q'].'%';
+				break;
+			default:
+				$sql_q = "";
+				break;
+		}
+
 	}
 
-	// display regular blog page
-	else {
-		$tableau = liste_base_articles('', '', 'public', '1', $page, $GLOBALS['max_bill_acceuil']);
-		afficher_calendrier(date('Y'), date('m'));
-		$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
-		afficher_index($tableau);
+	// paramètre de tag "tag"
+	if (isset($_GET['tag'])) {
+		switch ($where) {
+			case 'articles' :
+				$sql_tag = "bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? ";
+				$array[] = $_GET['tag'];
+				$array[] = $_GET['tag'].', ';
+				$array[] = '%, '.$_GET['tag'].', %';
+				$array[] = '%, '.$_GET['tag'];
+				break;
+			case 'links' :
+				$sql_tag = "bt_tags LIKE ? ";
+				$array[] = '%'.$_GET['tag'].'%';
+				break;
+			default:
+				$sql_tag = "";
+				break;
+		}
+
 	}
+
+	// paramètre d’auteur "author" FIXME !
+
+	// paramètre ORDER BY (pas un paramètre, mais ajouté à la $query quand même)
+	switch ($where) {
+		case 'articles' :
+			$sql_order = "ORDER BY bt_date DESC ";
+			break;
+		default:
+			$sql_order = "ORDER BY bt_id DESC ";
+			break;
+	}
+
+	// paramètre de filtrage admin/public (pas un paramètre, mais ajouté quand même)
+
+	switch ($where) {
+		case 'articles' :
+			$sql_a_p = "bt_date <= ".date('YmdHis')." AND bt_statut='1' ";
+			break;
+		default:
+			$sql_a_p = "bt_id <= ".date('YmdHis')." AND bt_statut='1' ";
+			break;
+	}
+
+	
+	// paramètre de page "p"
+	if (isset($_GET['p']) and is_numeric($_GET['p']) and $_GET['p'] >= 1) {
+		$sql_p = 'LIMIT '.$GLOBALS['max_bill_acceuil'] * $_GET['p'].', '.$GLOBALS['max_bill_acceuil'];
+	} else {
+		$sql_p = 'LIMIT 0, '.$GLOBALS['max_bill_acceuil'];
+	}
+
+	// Concaténation de tout ça.
+	$glue = 'WHERE ';
+	if (!empty($sql_date)) {
+		$query .= $glue.$sql_date;
+		$glue = 'AND ';
+	}
+	if (!empty($sql_q)) {
+		$query .= $glue.$sql_q;
+		$glue = 'AND ';
+	}
+	if (!empty($sql_tag)) {
+		$query .= $glue.$sql_tag;
+		$glue = 'AND ';
+	}
+
+	$query .= $glue.$sql_a_p.$sql_order.$sql_p;
+
+
+	$tableau = liste_elements($query, $array, $where);
+	afficher_calendrier($annee, $mois, $jour);
+	$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
+	afficher_index($tableau);
+
 
 }
 

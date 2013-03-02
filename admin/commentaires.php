@@ -43,9 +43,15 @@ $tableau = array();
 if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 	$param_makeup['menu_theme'] = 'for_article';
 	$article_id = $_GET['post_id'];
-	$post = liste_base_articles('id', $article_id, 'admin', '', 0, '');
+
+	$query = "SELECT * FROM articles WHERE bt_id=?";
+	$post = liste_elements($query, array($article_id), 'articles');
+
 	$article_title = $post[0]['bt_title'];
-	$commentaires = liste_base_comms('assos_art', $article_id, 'admin', '', 0, '');
+
+	$query = "SELECT * FROM commentaires WHERE bt_article_id=? ORDER BY bt_id";
+	$commentaires = liste_elements($query, array($article_id), 'commentaires');
+
 	$param_makeup['show_links'] = '0';
 
 }
@@ -58,31 +64,38 @@ else {
 		$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
 		// filter for date
 		if (preg_match('#^\d{6}(\d{1,8})?$#', ($_GET['filtre'])) ) {
-			$commentaires = liste_base_comms('date', $_GET['filtre'], 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_id LIKE ? ORDER BY bt_id DESC";
+			$commentaires = liste_elements($query, array($_GET['filtre'].'%'), 'commentaires');
 		}
 		// filter for statut
 		elseif ($_GET['filtre'] == 'draft') {
-			$commentaires = liste_base_comms('statut', 0, 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_statut=0 ORDER BY bt_id DESC";
+			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 		elseif ($_GET['filtre'] == 'pub') {
-			$commentaires = liste_base_comms('statut', 1, 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_statut =1 ORDER BY bt_id DESC";
+			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 		// filter for author
 		elseif ($type == 'auteur' and $search != '') {
-			$commentaires = liste_base_comms('auteur', $search, 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_author=? ORDER BY bt_id DESC";
+			$commentaires = liste_elements($query, array($search), 'commentaires');
 		}
 		// no filter
 		else {
-			$commentaires = liste_base_comms('', '', 'admin', '', 0, $GLOBALS['max_comm_admin']);
+			$query = "SELECT * FROM commentaires ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_comm_admin'];
+			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 	}
 	elseif (!empty($_GET['q'])) {
-			$commentaires = liste_base_comms('recherche', htmlspecialchars($_GET['q']), 'admin', '', 0, '');
+			$query = "SELECT * FROM commentaires WHERE bt_content LIKE ? ORDER BY bt_id DESC";
+			$commentaires = liste_elements($query, array('%'.htmlspecialchars($_GET['q']).'%'), 'commentaires');
 	}
 	else { // no filter, so list'em all
-			$commentaires = liste_base_comms('', '', 'admin', '', 0, $GLOBALS['max_comm_admin']);
+			$query = "SELECT * FROM commentaires ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_comm_admin'];
+			$commentaires = liste_elements($query, array(), 'commentaires');
 	}
-	$nb_total_comms = liste_base_comms('nb', '', 'admin', '', '0', '');
+	$nb_total_comms = liste_elements_count("SELECT count(*) AS nbr FROM commentaires", array());
 	$param_makeup['show_links'] = '1';
 }
 

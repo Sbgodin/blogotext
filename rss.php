@@ -75,7 +75,7 @@ echo '<channel>'."\n";
 if (!empty($_GET['mode'])) {
 	echo '<title>Rss sur "'.$GLOBALS['nom_du_site'].'"</title>'."\n";
 	echo '<link>'.$GLOBALS['racine'].'index.php'.'</link>'."\n"; 
-	echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
+	echo '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
 	echo '<language>fr</language>'."\n"; 
 	echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
 	$int_code = 0;   // chmod-like CODE
@@ -98,8 +98,12 @@ if (!empty($_GET['mode'])) {
 		$int_code = 1;
 		$str_code .= '1.';
 	}
+
+	$invert = (isset($_GET['invertlinks'])) ? '_I' : '';
+
+
 	// get cached files by code
-	if (@filemtime($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.'.dat')<time()-(1800))
+	if (@filemtime($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.$invert.'.dat')<time()-(1800))
 		$cache = FALSE;
 	else {
 		$cache = TRUE;
@@ -109,9 +113,15 @@ if (!empty($_GET['mode'])) {
 
 		// on liste les éléments qu'on veut, en fonction du choix qu'on a dans le $str_code, donc dans le $GET[mode]
 		$all1 = array(); $all2 = array(); $all4 = array();
-		if ( preg_match('#.1.#', $str_code)) $all1 = liste_base_articles('', '', 'public', '1', 0, 20);
-		if ( preg_match('#.2.#', $str_code)) $all2 = liste_base_comms('', '', 'public', '1', 0, 20);
-		if ( preg_match('#.4.#', $str_code)) $all4 = liste_base_liens('', '', 'public', '1', 0, 20);
+
+		$query = "SELECT * FROM articles WHERE bt_statut='1' AND bt_date <= ".date('YmdHis')." ORDER BY bt_date DESC LIMIT 0, 20";
+		if ( preg_match('#.1.#', $str_code)) $all1 = liste_elements($query, array(), 'articles');
+
+		$query = "SELECT * FROM commentaires WHERE bt_statut='1' AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
+		if ( preg_match('#.2.#', $str_code)) $all2 = liste_elements($query, array(), 'commentaires');
+
+		$query = "SELECT * FROM links WHERE bt_statut='1' AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
+		if ( preg_match('#.4.#', $str_code)) $all4 = liste_elements($query, array(), 'links');
 
 		// fusionne les tableaux
 		$all = array_merge($all1, $all2, $all4);
@@ -139,13 +149,25 @@ if (!empty($_GET['mode'])) {
 				} else {
 					$xml .= '<title>'.$elem['bt_author'].'</title>'."\n";
 				}
-				$xml .= '<link>'.$elem['bt_link'].'</link>'."\n";
+
+				if ($elem['bt_type'] == 'link' and isset($_GET['invertlinks'])) {
+					$xml .= '<link>'.$GLOBALS['racine'].'index.php?mode=links&amp;id='.$elem['bt_id'].'</link>'."\n";
+				} else {
+					$xml .= '<link>'.$elem['bt_link'].'</link>'."\n";
+				}
 				$xml .= '<guid isPermaLink="false">'.$GLOBALS['racine'].'index.php?mode=links&amp;id='.$elem['bt_id'].'</guid>'."\n";
 				$xml .= '<pubDate>'.date('r', mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee'])).'</pubDate>'."\n";
 
 
 				if ($elem['bt_type'] == 'link') {
-					$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']). '<br/><span style="font-style:italic;font-size:80%;">(par '.$elem['bt_author'].')</span>]]></description>'."\n";
+					if (isset($_GET['invertlinks'])) {
+						$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']). '<br/> — (<a href="'.$elem['bt_link'].'">link</a>)]]></description>'."\n";
+
+					} else {
+
+						$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']). '<br/> — (<a href="'.$GLOBALS['racine'].'index.php?mode=links&amp;id='.$elem['bt_id'].'">permalink</a>)]]></description>'."\n";
+					}
+
 				} else {
 					$xml .= '<description><![CDATA['.rel2abs($elem['bt_content']).']]></description>'."\n";
 				}
@@ -153,11 +175,11 @@ if (!empty($_GET['mode'])) {
 			$xml .= '</item>'."\n";
 		}
 		// on crée le fichier cache correspondant
-		cache_file($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.'.dat', $xml); // rss en fonction du numéro.
+		cache_file($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.$invert.'.dat', $xml); // rss en fonction du numéro.
 		echo $xml; // pas oublier de l'afficher
 
 	} else { // autrement, le fichier trouvé dans le cache est OK, on en récupère le contenu qu'on affiche :
-		readfile($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.'.dat');
+		readfile($GLOBALS['dossier_cache'].'/'.'cache_rss_'.$int_code.$invert.'.dat');
 	}
 }
 
@@ -168,13 +190,17 @@ else {
 	/* si y'a un ID en paramètre : rss sur fil commentaires de l'article "ID" */
 	if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
 		$article_id = htmlspecialchars($_GET['id']);
-		$billet = liste_base_articles('id', $article_id, 'public', '1', 0, '');
+
+		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date<=".date('YmdHis')." AND bt_statut='1'";
+		$billet = liste_elements($query, array($article_id), 'articles');
+
 		echo '<title>Fil des commentaires sur "'.$billet[0]['bt_title'].'" - '.$GLOBALS['nom_du_site'].'</title>'."\n";
 		echo '<link>'.$billet[0]['bt_link'].'</link>'."\n"; 
-		echo '<description>'.$GLOBALS['description'].'</description>'."\n"; 
+		echo '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
 		echo '<language>fr</language>'."\n"; 
 		echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
-		$liste = liste_base_comms('assos_art', $article_id, 'public', '1', 0, '');
+		$liste = liste_elements("SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut='1' ORDER BY bt_id", array($article_id), 'commentaires');
+
 		if (!empty($liste)) {
 			foreach ($liste as $comment) {
 				$dec = decode_id($comment['bt_id']);
@@ -207,11 +233,11 @@ else {
 			// génération de la page, que l'on placera dans un fichier statique
 			$xml = '<title>'.$GLOBALS['nom_du_site'].'</title>'."\n";
 			$xml .= '<link>'.$GLOBALS['racine'].'</link>'."\n"; 
-			$xml .= '<description>'.$GLOBALS['description'].'</description>'."\n"; 
+			$xml .= '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
 			$xml .= '<language>fr</language>'."\n"; 
 			$xml .= '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
 			$xml_full = $xml;
-			$liste = liste_base_articles('', '', 'public', '1', 0, 20);
+			$liste = liste_elements("SELECT * FROM articles WHERE bt_statut='1' ORDER BY bt_date DESC LIMIT 0, 20", array(), 'articles');
 			foreach ($liste as $billet) {
 				$time = (isset($billet['bt_date'])) ? $billet['bt_date'] : $billet['bt_id'];
 				$dec = decode_id($time);

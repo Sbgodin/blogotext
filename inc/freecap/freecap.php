@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -12,15 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-//error_reporting(-1);
+//error_reporting($GLOBALS['show_errors']);
 session_start();
 
-$use_dict = 1; // 0 = generate pseudo-random string // 1 = use dictionary
-$dict_location = ".ht_freecap_words_rand";
-
-// list of fonts to use
 // the GDFontGenerator @ http://www.philiplb.de is excellent for convering ttf to GD
-$font_locations = "./.ht_freecap_font1.gdf";
+$font_locations = "ht_freecap_font1.gdf";
 
 // used to calculate image width, for non-dictionary word generation
 $width = 280;
@@ -41,13 +37,9 @@ function open_font($font) {
 	return $font_widths;
 }
 
-function make_seed() {
-    list($usec, $sec) = explode(' ', microtime());
-    return (float) $sec + ((float) $usec * 100000);
-}
 
 function rand_color() {
-	return mt_rand(60,170);
+	return mt_rand(50,230);
 }
 
 function myImageBlur($im) {
@@ -90,25 +82,14 @@ function sendImage($pic) {
 ////// Choose Word:
 //////////////////////////////////////////////////////
 
-if ($use_dict == 1) {
-	// load dictionary and choose random word
-	$words = @file($dict_location);
-	$word = strtolower($words[mt_rand(0,sizeof($words)-1)]);
-	// cut off line endings/other possible odd chars
-	$word = preg_replace("#[^a-z]#","",$word);
-	// might be large file so forget it now (frees memory)
-	$words = "";
-	unset($words);
-} else {
-	$consonants = 'bcdghklmnpqrsvwxyz';
-	$vowels = 'aeuo';
-	$word = "";
-	for ($i = 0; $i < 6; $i++) { // 6 ltr in wrd
-		if (mt_rand(0,4) >= 2) { // and $i != 0) { //-> disallow word begin with vowel
-			$word .= $vowels{mt_rand(0,strlen($vowels)-1)};
-		} else {
-			$word .= $consonants{mt_rand(0,strlen($consonants)-1)};
-		}
+$consonants = 'bcdghklmnpqrsvwxyz';
+$vowels = 'aeuo';
+$word = "";
+for ($i = 0; $i < 5; $i++) { // 5 ltr in wrd
+	if ($i % 2 == 0) { // begin with consonant, then alterns
+		$word .= $consonants[mt_rand(0,strlen($consonants)-1)];
+	} else {
+		$word .= $vowels[mt_rand(0,strlen($vowels)-1)];
 	}
 }
 
@@ -185,7 +166,7 @@ $word_start_y = 15;
 // write each char in different color
 $font = ImageLoadFont($font_locations);
 $font_width = open_font($font_locations);
-for ($i=0 ; $i<strlen($word) ; $i++) {
+for ($i=0 ; $i < strlen($word) ; $i++) {
 	$text_r = rand_color();
 	$text_g = rand_color();
 	$text_b = rand_color();
@@ -252,7 +233,7 @@ $c_fade_pct = 50;
 ImageCopyMerge($im3, $im, 0, 0, 0, 0, $width, $height, 100);
 ImageCopy($im, $im3, 0, 0, 0, 0, $width, $height);
 
-unset($word, $use_dict, $dict_location, $bg_images);
+unset($word, $bg_images);
 
 sendImage($im);
 

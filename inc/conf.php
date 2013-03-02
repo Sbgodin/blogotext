@@ -12,7 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way BEFORE the download.
 # *** LICENSE ***
 
-if ($GLOBALS['urlRewriting']['enabled']) {
+if (@$GLOBALS['urlRewriting']['enabled']) {
     $GLOBALS['urlPasRécrit'] = 'x'; // @FIXME: un inclus surcharge cette affectation
 } else {
     $GLOBALS['urlPasRécrit'] = '?d=';
@@ -26,7 +26,7 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version'] = '2.0.0.3';
+$GLOBALS['version'] = '2.0.0.4';
 $GLOBALS['last-online-file'] = '../config/version.txt';
 // MINIMAL REQUIRED PHP VERSION
 $GLOBALS['minimal_php_version'] = '5.1.2';
@@ -35,7 +35,6 @@ $GLOBALS['minimal_php_version'] = '5.1.2';
 $GLOBALS['nom_application']= 'BlogoText';
 $GLOBALS['charset']= 'UTF-8';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
-$GLOBALS['ext_data']= 'php';
 $GLOBALS['date_premier_message_blog'] = '199701';
 $GLOBALS['show_errors'] = -1; // -1 = all (for dev) ; 0 = none (recommended)
 
@@ -112,8 +111,7 @@ $GLOBALS['files_ext'] = array(
 
 
 // from an array given by SQLite's requests, this function adds some more stuf to data stored by DB.
-function init_list_articles($list, $mode, $chapo) {
-	$statut = ($mode == 'public') ? '1' : '';
+function init_list_articles($list, $chapo) {
 	if (!empty($list)) {
 		foreach($list as $item => $article) {
 			// pour ne plus rendre obligatoire le chapô : s'il est vide, on le recrée à partir du début du bt_content (peu recommandé, mais disponible)
@@ -122,6 +120,7 @@ function init_list_articles($list, $mode, $chapo) {
 				$abstract = explode("|", wordwrap($list[$item]['bt_content'], 250, "|"), 2);
 				$list[$item]['bt_abstract'] = strip_tags($abstract[0])."…";
 			}
+
 			$dec = decode_id($article['bt_date']);
 			$dec_id = decode_id($article['bt_id']);
 			$list[$item]['annee'] = $dec['annee'];
@@ -167,11 +166,13 @@ function init_list_comments($list) {
  * an array
  *
  */
+
 function init_post_article() { //no $mode : it's always admin.
+	$formated = formatage_wiki(protect_markup(clean_txt($_POST['contenu'])));
 	if ($GLOBALS['automatic_keywords'] == '0') {
 		$keywords = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['mots_cles']))));
 	} else {
-		$keywords = extraire_mots($_POST['titre'].' '.$_POST['chapo'].' '.$_POST['contenu']);
+		$keywords = extraire_mots($_POST['titre'].' '.$formated);
 	}
 
 	$date = str4($_POST['annee']).str2($_POST['mois']).str2($_POST['jour']).str2($_POST['heure']).str2($_POST['minutes']).str2($_POST['secondes']);
@@ -183,7 +184,7 @@ function init_post_article() { //no $mode : it's always admin.
 		'bt_title' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['titre'])))),
 		'bt_abstract' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['chapo'])))),
 		'bt_notes' => htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['notes'])))),
-		'bt_content' => formatage_wiki(protect_markup(clean_txt($_POST['contenu']))),
+		'bt_content' => $formated,
 		'bt_wiki_content' => stripslashes(protect_markup(clean_txt($_POST['contenu']))),
 		'bt_link' => '', // this one is not needed yet. Maybe in the futur. I dunno why it is still in the DB…
 		'bt_keywords' => $keywords,
@@ -248,7 +249,9 @@ function init_post_link2() { // second init : the whole link data needs to be st
 	} else {
 		$url = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['url']))));
 	}
-	$statut = (isset($_POST['bt_statut'])) ? 0 : 1;
+	$statut = (isset($_POST['statut'])) ? 0 : 1;
+
+
 	$link = array (
 		'bt_id' => $id,
 		'bt_type' => htmlspecialchars($_POST['type']),

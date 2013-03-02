@@ -41,16 +41,15 @@ function fichier_user() {
 		$longueur = 28; // 128 bits d'entropie, solution de : ln2(26^longueur)=128
 		for($i=0;$i<$longueur;$i++)
 			$salt .= chr(ord('a')+mt_rand(0,ord('z')-ord('a')));
-	} else {
-		$salt = $GLOBALS['salt'];
+		$GLOBALS['salt'] = $salt;
 	}
-	assert('!empty($salt)');
+	assert('!empty($GLOBALS["salt"])');
 	$fichier_user = '../config/user.php';
 	$user='';
 	if (strlen(trim($_POST['mdp'])) == 0) {
 		$new_mdp = $GLOBALS['mdp']; 
 	} else {
-		$new_mdp = ww_hach_sha($_POST['mdp_rep'], $salt);
+		$new_mdp = hash_password($_POST['mdp_rep'], $GLOBALS['salt']);
 	}
 	$user .= "<?php\n";
 	$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
@@ -92,6 +91,7 @@ function fichier_prefs() {
 		// linx
 //		$autoriser_liens_public = $_POST['allow_public_linx'];
 //		$linx_defaut_status = $_POST['linx_defaut_status'];
+		$auto_dl_liens_fichiers = $_POST['dl_link_to_files'];
 		$nombre_liens_admin = $_POST['nb_list_linx'];
 	} else {
 		$auteur = $GLOBALS['identifiant'];
@@ -117,6 +117,7 @@ function fichier_prefs() {
 		// linx
 //		$autoriser_liens_public = '0';
 //		$linx_defaut_status = '1';
+		$auto_dl_liens_fichiers = '0';
 		$nombre_liens_admin = '50';
 	}
 	switch(true) {
@@ -147,10 +148,11 @@ function fichier_prefs() {
 	$prefs .= "\$GLOBALS['comm_defaut_status']= '".$comm_defaut_status."';\n";
 	$prefs .= "\$GLOBALS['automatic_keywords']= '".$automatic_keywords."';\n";
 	$prefs .= "\$GLOBALS['require_email']= '".$require_email."';\n";
-	$prefs .= "\$GLOBALS['max_linx_admin']= '".$nombre_liens_admin."';\n";
 	$prefs .= "\$GLOBALS['urlRewriting']['enabled']= '".$urlrewriting_enabled."';\n";
 //	$prefs .= "\$GLOBALS['allow_public_linx']= '".$autoriser_liens_public."';\n";
 //	$prefs .= "\$GLOBALS['linx_defaut_status']= '".$linx_defaut_status."';\n";
+	$prefs .= "\$GLOBALS['max_linx_admin']= '".$nombre_liens_admin."';\n";
+	$prefs .= "\$GLOBALS['dl_link_to_files']= '".$auto_dl_liens_fichiers."';\n";
 	$prefs .= "?>";
 	if (file_put_contents($fichier_prefs, $prefs) === FALSE) {
 		return FALSE;
@@ -294,7 +296,7 @@ function open_file_db_fichiers($fichier) {
 
 function get_external_file($url, $timeout) {
 	$context = stream_context_create(array('http'=>array('timeout' => $timeout))); // Timeout : time until we stop waiting for the response.
-	$data = @file_get_contents($url, false, $context, -1, 1000000); // We download at most 1 Mb from source.
+	$data = @file_get_contents($url, false, $context, -1, 4000000); // We download at most 4 Mb from source.
 	if (isset($data) and isset($http_response_header[0]) and (strpos($http_response_header[0], '200 OK') !== FALSE) ) {
 		return $data;
 	}

@@ -12,7 +12,7 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-if ($GLOBALS['urlRewriting']['enabled']) {
+if (@$GLOBALS['urlRewriting']['enabled']) {
     $GLOBALS['urlPasRécrit'] = '';
 } else {
     $GLOBALS['urlPasRécrit'] = '?d=';
@@ -274,7 +274,9 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 }
 
 function encart_commentaires() {
-	$tableau = liste_base_comms('', '', 'public', '1', 0, 5);
+	$query = "SELECT * FROM commentaires WHERE bt_statut ='1' ORDER BY bt_id DESC LIMIT 0, 5";
+	$tableau = liste_elements($query, array(), 'commentaires');
+
 	if (isset($tableau)) {
 		$listeLastComments = '<ul class="encart_lastcom">';
 		foreach ($tableau as $i => $comment) {

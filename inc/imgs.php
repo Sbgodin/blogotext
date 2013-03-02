@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -59,12 +59,16 @@ function afficher_liste_images($images) {
 				$img_src = $dossier_relatif.'/'.$image['bt_filename'];
 			}
 
-			$out .= '<div class="image_bloc">'."\n";
+			$out .= '<div class="image_bloc" id="bloc_'.$image['bt_id'].'">'."\n";
 				$description = (empty($image['bt_content'])) ? $image['bt_filename'] : $image['bt_content'];
 				$out .= "\t".'<span class="spantop black">';
-					$out .= '<a class="lien lien-edit" href="fichiers.php?file_id='.$image['bt_id'].'&amp;edit">&nbsp;</a>';
-					$out .= '<a class="lien lien-voir" href="'.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
-					$out .= '<a class="lien lien-supr" href="fichiers.php?file_id='.$image['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
+					$out .= '<a title="'.$GLOBALS['lang']['partager']. '" class="lien lien-shar" href="links.php?url='.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
+					$out .= '<a title="'.$GLOBALS['lang']['voir'].     '" class="lien lien-voir" href="'.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
+					$out .= '<a title="'.$GLOBALS['lang']['editer'].   '" class="lien lien-edit" href="fichiers.php?file_id='.$image['bt_id'].'&amp;edit">&nbsp;</a>';
+//					$out .= '<a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="fichiers.php?file_id='.$image['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
+
+					$out .= '<a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="#" onclick="request_delete_form(\''.$image['bt_id'].'\'); return false;" >&nbsp;</a>';
+
 				$out .= '</span>'."\n";
 				$out .= "\t".'<span class="spanmiddle black"><span> '.date_formate($image['bt_id'], '0').', '.heure_formate($image['bt_id']).' </span></span>'."\n";
 				$out .= "\t".'<span class="spanbottom black"><span> '.$description.' </span></span>'."\n";
@@ -124,12 +128,13 @@ function traiter_form_fichier($fichier) {
 	if ( isset($_POST['upload']) ) {
 		// par $_FILES
 		if (isset($_FILES['fichier'])) {
-			bdd_fichier($fichier, 'ajout-nouveau', 'upload', $_FILES['fichier']);
+			$new_fichier = bdd_fichier($fichier, 'ajout-nouveau', 'upload', $_FILES['fichier']);
 		}
 		// par $_POST d’une url
-		if (isset($_POST['fichier-url'])) {
-			bdd_fichier($fichier, 'ajout-nouveau', 'download', $_POST['fichier-url']);
+		if (isset($_POST['url'])) {
+			$new_fichier = bdd_fichier($fichier, 'ajout-nouveau', 'download', $_POST['url']);
 		}
+		$fichier = (is_null($new_fichier)) ? $fichier : $new_fichier;
 		redirection($_SERVER['PHP_SELF'].'?file_id='.$fichier['bt_id'].'&msg=confirm_fichier_ajout');
 	}
 	// édition d’une entrée d’un fichier
@@ -138,141 +143,155 @@ function traiter_form_fichier($fichier) {
 		bdd_fichier($fichier, 'editer-existant', '', $old_file_name);
 	}
 	// suppression d’un fichier
-	elseif ( (isset($_POST['supprimer']) and preg_match('/^\d{14}$/', $_POST['file_id'])) xor (isset($_GET['suppr']) and preg_match('/^\d{14}$/', $_GET['file_id'])) ) {
-		$id = (isset($_POST['file_id'])) ? $_POST['file_id'] : $_GET['file_id'];
-		bdd_fichier($fichier, 'supprimer-existant', '', $id);
+	elseif ( (isset($_POST['supprimer']) and preg_match('#^\d{14}$#', $_POST['file_id'])) ) {
+		$response = bdd_fichier($fichier, 'supprimer-existant', '', $_POST['file_id']);
+		if ($response == 'error_suppr_file_suppr_error') {
+			redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_suppr&what=file_suppr_error');
+		} elseif ($response == 'no_such_file_on_disk') {
+			redirection($_SERVER['PHP_SELF'].'?msg=error_fichier_suppr&what=but_no_such_file_on_disk2');
+		} elseif ($response == 'success') {
+			redirection($_SERVER['PHP_SELF'].'?msg=confirm_fichier_suppr');
+		}
 	}
 
 }
 
 // TRAITEMENT DU FORMULAIRE DE FICHIER, CÔTÉ BDD
+// Retourne le $fichier de l’entrée (après avoir possiblement changé des trucs, par ex si le fichier existait déjà, l’id retourné change)
 function bdd_fichier($fichier, $quoi, $comment, $sup_var) {
 	if ($fichier['bt_type'] == 'image') {
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'];
 	} else {
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers'];
 	}
-	if (!is_dir($dossier)) {
-		if (FALSE === creer_dossier($dossier, 0)) die($GLOBALS['lang']['err_file_write']);
+	if (FALSE === creer_dossier($dossier, 0)) {
+		die($GLOBALS['lang']['err_file_write']);
 	}
 	// ajout d’un nouveau fichier
 	if ($quoi == 'ajout-nouveau') {
-		$prefix = '';
-		while (file_exists($dossier.'/'.$prefix.$fichier['bt_filename'])) { // éviter d’écraser un fichier existant
-			$prefix .= rand(0,9);
-		}
-		$dest = $prefix.$fichier['bt_filename'];
-		$fichier['bt_filename'] = $dest; // redéfinit le nom du fichier.
+			$prefix = '';
 
-		// copie du fichier physique
-			// Fichier uploadé s’il y a (sinon fichier téléchargé depuis l’URL)
-		$new_file = $sup_var['tmp_name'];
-		if ( $comment == 'upload' ) {
-			if (!move_uploaded_file($new_file, $dossier.'/'. $dest) ) {
-				redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_ajout_2');
+			foreach($GLOBALS['liste_fichiers'] as $files) {
+				if (($fichier['bt_checksum'] == $files['bt_checksum'])) {
+					$fichier['bt_id'] = $files['bt_id'];
+					return $fichier;
+
+				}
+			}
+
+			while (file_exists($dossier.'/'.$prefix.$fichier['bt_filename'])) { // éviter d’écraser un fichier existant
+				$prefix .= rand(0,9);
+			}
+			$dest = $prefix.$fichier['bt_filename'];
+			$fichier['bt_filename'] = $dest; // redéfinit le nom du fichier.
+
+			// copie du fichier physique
+				// Fichier uploadé s’il y a (sinon fichier téléchargé depuis l’URL)
+			if ( $comment == 'upload' ) {
+				$new_file = $sup_var['tmp_name'];
+				if (move_uploaded_file($new_file, $dossier.'/'. $dest) ) {
+					$fichier['bt_checksum'] = sha1_file($dossier.'/'. $dest);
+				} else {
+					redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_ajout_2');
+					exit;
+				}
+			}
+				// fichier spécifié par URL
+			elseif ( $comment == 'download' and copy($sup_var, $dossier.'/'. $dest) ) {
+				$fichier['bt_filesize'] = filesize($dossier.'/'. $dest);
+			} else {
+
+				redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_ajout');
 				exit;
 			}
-			else {
-				$fichier['bt_checksum'] = sha1_file($dossier.'/'. $dest);
-			}
-		}
-			// fichier spécifié par URL
-		elseif ( $comment == 'download' and copy($sup_var, $dossier.'/'. $dest) ) {
-			$fichier['bt_checksum'] = sha1_file($dossier.'/'. $dest);
-			$fichier['bt_filesize'] = filesize($dossier.'/'. $dest);
-		} else {
-			redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_ajout');
-			exit;
-		}
 
-		// si fichier par POST ou par URL == OK, on l’ajoute à la base. (si pas OK, on serai déjà sorti par le else { redirection() }.
-		if ($fichier['bt_type'] == 'image') { // miniature si c’est une image
-			create_thumbnail($dossier.'/'. $dest);
-		}
-		// ajout à la base.
-		$GLOBALS['liste_fichiers'][] = $fichier;
-		$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
-		file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */');
+			// si fichier par POST ou par URL == OK, on l’ajoute à la base. (si pas OK, on serai déjà sorti par le else { redirection() }.
+			if ($fichier['bt_type'] == 'image') { // miniature si c’est une image
+				create_thumbnail($dossier.'/'. $dest);
+			}
+			// ajout à la base.
+			$GLOBALS['liste_fichiers'][] = $fichier;
+			$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
+			file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */');
 	}
 
 	// modification d’un fichier déjà existant
 	elseif ($quoi == 'editer-existant') {
-		$new_filename = $fichier['bt_filename'];
-		$old_filename = $sup_var;
+			$new_filename = $fichier['bt_filename'];
+			$old_filename = $sup_var;
 
-		if ($new_filename != $old_filename) { // nom du fichier a changé ? on déplace le fichier.
-			$prefix = '';
-			while (file_exists($dossier.'/'.$prefix.$new_filename)) { // évite d’avoir deux fichiers de même nom
-				$prefix .= rand(0,9);
-			}
-			$new_filename = $prefix.$fichier['bt_filename'];
-			$fichier['bt_filename'] = $new_filename; // update file name in $fichier array(), with the new prefix.
+			if ($new_filename != $old_filename) { // nom du fichier a changé ? on déplace le fichier.
+				$prefix = '';
+				while (file_exists($dossier.'/'.$prefix.$new_filename)) { // évite d’avoir deux fichiers de même nom
+					$prefix .= rand(0,9);
+				}
+				$new_filename = $prefix.$fichier['bt_filename'];
+				$fichier['bt_filename'] = $new_filename; // update file name in $fichier array(), with the new prefix.
 
-			// rename file on disk
-			if (!rename($dossier.'/'.$old_filename, $dossier.'/'.$new_filename)) {
-				redirection($_SERVER['PHP_SELF'].'?file_id='.$fichier['bt_id'].'&errmsg=error_fichier_rename');
-			} else {
-				// si c’est une image : renome la miniature si elle existe, sinon la crée
-				if ($fichier['bt_type'] == 'image') {
-					if (file_exists(chemin_thb_img($dossier.'/'.$old_filename) )) {
-						$old_thb_name = chemin_thb_img($dossier.'/'.$old_filename);
-						$new_thb_name = chemin_thb_img($dossier.'/'.$new_filename);
-						rename($old_thb_name, $new_thb_name);
-					} else {
-						create_thumbnail($dossier.'/'.$new_filename);
+				// rename file on disk
+				if (rename($dossier.'/'.$old_filename, $dossier.'/'.$new_filename)) {
+					// si c’est une image : renome la miniature si elle existe, sinon la crée
+					if ($fichier['bt_type'] == 'image') {
+						if (file_exists(chemin_thb_img($dossier.'/'.$old_filename) )) {
+							rename(chemin_thb_img($dossier.'/'.$old_filename), chemin_thb_img($dossier.'/'.$new_filename));
+						} else {
+							create_thumbnail($dossier.'/'.$new_filename);
+						}
 					}
+				// error rename ficher
+				} else {
+					redirection($_SERVER['PHP_SELF'].'?file_id='.$fichier['bt_id'].'&errmsg=error_fichier_rename');
 				}
 			}
-		}
 
-		// modifie le fichier dans la BDD des fichiers.
-		foreach ($GLOBALS['liste_fichiers'] as $key => $entry) {
-			if ($entry['bt_id'] == $fichier['bt_id']) { 
-				$GLOBALS['liste_fichiers'][$key] = $fichier; // trouve la bonne entrée dans la base.
+			// modifie le fichier dans la BDD des fichiers.
+			foreach ($GLOBALS['liste_fichiers'] as $key => $entry) {
+				if ($entry['bt_id'] == $fichier['bt_id']) { 
+					$GLOBALS['liste_fichiers'][$key] = $fichier; // trouve la bonne entrée dans la base.
+				}
 			}
-		}
 
-		$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
-		file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // écrit dans le fichier, la liste
-		redirection($_SERVER['PHP_SELF'].'?file_id='.$fichier['bt_id'].'&edit&msg=confirm_fichier_edit');
+			$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
+			file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // écrit dans le fichier, la liste
+			redirection($_SERVER['PHP_SELF'].'?file_id='.$fichier['bt_id'].'&edit&msg=confirm_fichier_edit');
 	}
 
 	// suppression d’un fichier (de la BDD et du disque)
 	elseif ( $quoi == 'supprimer-existant' ) {
-		$id = $sup_var;
-		// FIXME ajouter un test de vérification de session (security coin)
-		foreach ($GLOBALS['liste_fichiers'] as $fid => $fich) {
-			if ($id == $fich['bt_id']) {
-				$tbl_id = $fid;
-				break;
-			}
-		}
-		// remove physical file on disk if it exists
-		if (is_file($dossier.'/'.$fichier['bt_filename']) and isset($tbl_id)) {
-			$liste_fichiers = scandir($dossier); // liste les fichiers réels dans le dossier
-			if (in_array($fichier['bt_filename'], $liste_fichiers) and !($fichier['bt_filename'] == '..' or $fichier['bt_filename'] == '.')) {
-				if (TRUE === unlink($dossier.'/'.$fichier['bt_filename'])) { // fichier physique effacé
-					if ($fichier['bt_type'] == 'image' and file_exists(chemin_thb_img($dossier.'/'.$fichier['bt_filename']) )) { // supprimer aussi la miniature si elle existe.
-						unlink(chemin_thb_img($dossier.'/'.$fichier['bt_filename']));
-					}
-					unset($GLOBALS['liste_fichiers'][$tbl_id]); // efface le fichier dans la liste des fichiers.
-					$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
-					file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // enregistre la liste
-					redirection($_SERVER['PHP_SELF'].'?msg=confirm_fichier_suppr');
-
-				} else { // erreur effacement fichier physique
-					redirection($_SERVER['PHP_SELF'].'?errmsg=error_fichier_suppr&what=file_suppr_error');
+			$id = $sup_var;
+			// FIXME ajouter un test de vérification de session (security coin)
+			foreach ($GLOBALS['liste_fichiers'] as $fid => $fich) {
+				if ($id == $fich['bt_id']) {
+					$tbl_id = $fid;
+					break;
 				}
 			}
-		}
+			// remove physical file on disk if it exists
+			if (is_file($dossier.'/'.$fichier['bt_filename']) and isset($tbl_id)) {
+				$liste_fichiers = scandir($dossier); // liste les fichiers réels dans le dossier
+				if (in_array($fichier['bt_filename'], $liste_fichiers) and !($fichier['bt_filename'] == '..' or $fichier['bt_filename'] == '.')) {
+					if (TRUE === unlink($dossier.'/'.$fichier['bt_filename'])) { // fichier physique effacé
+						if ($fichier['bt_type'] == 'image') { // supprimer aussi la miniature si elle existe.
+							@unlink(chemin_thb_img($dossier.'/'.$fichier['bt_filename'])); // supprime la thumbnail. Si absente, unlink se tait
+						}
+						unset($GLOBALS['liste_fichiers'][$tbl_id]); // efface le fichier dans la liste des fichiers.
+						$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
+						file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // enregistre la liste
+						return 'success';
 
-		// the file in DB does not exists on disk => remove entry from DB
-		if (isset($tbl_id)) {
-			unset($GLOBALS['liste_fichiers'][$tbl_id]); // remove entry from files-list.
-		}
-		$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
-		file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // enregistre la liste
-		redirection($_SERVER['PHP_SELF'].'?msg=error_fichier_suppr&what=but_no_such_file_on_disk2');
+					} else { // erreur effacement fichier physique
+						return 'error_suppr_file_suppr_error';
+					}
+				}
+			}
+
+			// the file in DB does not exists on disk => remove entry from DB
+			if (isset($tbl_id)) {
+				unset($GLOBALS['liste_fichiers'][$tbl_id]); // remove entry from files-list.
+			}
+			$GLOBALS['liste_fichiers'] = tri_selon_sous_cle($GLOBALS['liste_fichiers'], 'bt_id');
+			file_put_contents($GLOBALS['fichier_liste_fichiers'], '<?php /* '.chunk_split(base64_encode(serialize($GLOBALS['liste_fichiers']))).' */'); // enregistre la liste
+			return 'no_such_file_on_disk';
 	}
 }
 
@@ -303,10 +322,10 @@ function init_post_fichier() { //no $mode : it's always admin.
 				$checksum = sha1_file($_FILES['fichier']['tmp_name']);
 				$size = $_FILES['fichier']['size'];
 				$type = detection_type_fichier($ext);
-			} elseif ( !empty($_POST['fichier-url']) ) { // ajout par une URL d’un fichier distant
-				$filename = pathinfo(parse_url($_POST['fichier-url'], PHP_URL_PATH), PATHINFO_FILENAME);
-				$ext = strtolower(pathinfo(parse_url($_POST['fichier-url'], PHP_URL_PATH), PATHINFO_EXTENSION));
-				$checksum = '';// is calculated further in the process
+			} elseif ( !empty($_POST['url']) ) { // ajout par une URL d’un fichier distant
+				$filename = pathinfo(parse_url($_POST['url'], PHP_URL_PATH), PATHINFO_FILENAME);
+				$ext = strtolower(pathinfo(parse_url($_POST['url'], PHP_URL_PATH), PATHINFO_EXTENSION));
+				$checksum = sha1_file($_POST['url']); // works with URL files
 				$size = '';// same (even if we could use "filesize" with the URL, it would over-use data-transfer)
 				$type = detection_type_fichier($ext);
 			} else {
@@ -319,11 +338,11 @@ function init_post_fichier() { //no $mode : it's always admin.
 		if (!empty($_POST['nom_entree'])) {
 			// on supprimme les caractères spéciaux du nom donné
 			$filename = diacritique(htmlspecialchars($_POST['nom_entree']), '' , '0').'.'.$ext;
-		} else {
+		} else { // FIXME : faire ça plus haut
 			// on supprimme les caractères spéciaux du nom du fichier
 			$filename = diacritique(htmlspecialchars($filename), '' , '0').'.'.$ext;
 		}
-		$statut = (isset($_POST['statut'])) ? '0' : '1';
+		$statut = (isset($_POST['statut']) and $_POST['statut'] == 'on') ? '0' : '1';
 		$fichier = array (
 			'bt_id' => $file_id,
 			'bt_type' => $type,
@@ -359,8 +378,8 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 		$form .= "\t".'<br/><a class="specify-link" onclick="switchUploadForm(\'to_drag\'); return false;" href="#">'.$GLOBALS['lang']['img_use_dragndrop'].'</a>'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p class="gray-section" id="alternate-form-url">'."\n";
-		$form .= "\t".'<label for="fichier-url">'.ucfirst($GLOBALS['lang']['label_link']).' :</label>'."\n";
-		$form .= "\t".'<input name="fichier-url" id="fichier-url" required="" placeholder="'.$GLOBALS['lang']['label_link'].'" type="text" class="text" disabled="" />'."\n";
+		$form .= "\t".'<label for="url">'.ucfirst($GLOBALS['lang']['label_link']).' :</label>'."\n";
+		$form .= "\t".'<input name="url" id="url" required="" placeholder="'.$GLOBALS['lang']['label_link'].'" type="text" class="text" disabled="" />'."\n";
 		$form .= "\t".'<br/><a class="specify-link" onclick="switchUploadForm(\'to_file\'); return false;" href="#">'.$GLOBALS['lang']['img_upload_un_fichier'].'</a>'."\n";
 		$form .= "\t".'<br/><a class="specify-link" onclick="switchUploadForm(\'to_drag\'); return false;" href="#">'.$GLOBALS['lang']['img_use_dragndrop'].'</a>'."\n";
 		$form .= '</p>'."\n";
@@ -478,11 +497,8 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 		$form .= hidden_input('sha1_file', $fichiers[0]['bt_checksum']);
 		$form .= hidden_input('filesize', $fichiers[0]['bt_filesize']);
 		$form .= '</fieldset>';
-		$form .= js_select_text_on_focus(1);
 	}
 	$form .= '</form>'."\n";
-	$form .= js_switch_upload_form(1);
-	$form .= js_drag_n_drop_handle(1);
 
 	echo $form;
 }
@@ -543,7 +559,8 @@ function afficher_liste_fichiers($tableau, $modele='') {
 				$description = (empty($file['bt_content'])) ? '' : ' ('.$file['bt_content'].')';
 				$out .= "\t".'<span class="spantop black">';
 				$out .= '<a class="lien lien-edit" href="fichiers.php?file_id='.$file['bt_id'].'&amp;edit">&nbsp;</a>';
-				$out .= '<a class="lien lien-supr" href="fichiers.php?file_id='.$file['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
+//				$out .= '<a class="lien lien-supr" href="fichiers.php?file_id='.$file['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
+				$out .= '<a class="lien lien-supr" href="#" onclick="request_delete_form(\''.$file['bt_id'].'\'); return false;" >&nbsp;</a>';
 				$out .= '</span>'."\n";
 				$out .= "\t".'<a class="lien" href="'.$dossier.'/'.$file['bt_filename'].'"><img src="'.$icon_src.'" id="'.$file['bt_id'].'" alt="'.$file['bt_filename'].'" /></a><br/><span class="description">'.$file['bt_filename']."</span>\n";
 			$out .= '</div>'."\n\n";

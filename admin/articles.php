@@ -23,31 +23,36 @@ $GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
 
 $tableau = array();
 if (!empty($_GET['q'])) {
-	$tableau = liste_base_articles('recherche', urldecode($_GET['q']), 'admin', '', 0, '');
+	$query = "SELECT * FROM articles WHERE ( bt_content LIKE ? OR bt_title LIKE ? ) ORDER BY bt_date DESC";
+	$tableau = liste_elements($query, array('%'.urldecode($_GET['q']).'%', '%'.urldecode($_GET['q']).'%'), 'articles');
 }
+
 elseif ( !empty($_GET['filtre']) ) {
 	// for "tags" the requests is "tag.$search" : here we split the type of search and what we search.
 	$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
 	$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
 
 	if ( preg_match('#^\d{6}(\d{1,8})?$#', $_GET['filtre']) ) {
-		$tableau = liste_base_articles('date', $_GET['filtre'], 'admin', '', 0, '');
+		$query = "SELECT * FROM articles WHERE bt_date LIKE ? ORDER BY bt_date DESC";
+		$tableau = liste_elements($query, array($_GET['filtre'].'%'), 'articles');
 	}
-	elseif ($_GET['filtre'] == 'draft') {
-		$tableau = liste_base_articles('statut', '0', 'admin', '0', 0, '');
-	}
-	elseif ($_GET['filtre'] == 'pub') {
-		$tableau = liste_base_articles('statut', '1', 'admin', '1', 0, '');
+	elseif ($_GET['filtre'] == 'draft' or $_GET['filtre'] == 'pub') {
+		$query = "SELECT * FROM articles WHERE bt_statut=? ORDER BY bt_date DESC";
+		$tableau = liste_elements($query, array((($_GET['filtre'] == 'draft') ? 0 : 1)), 'articles');
 	}
 	elseif ($type == 'tag' and $search != '') {
-		$tableau = liste_base_articles('tags', $search, 'admin', '', 0, ''); 
+		$query = "SELECT * FROM articles WHERE bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? ORDER BY bt_date DESC";
+
+		$tableau = liste_elements($query, array($search, $search.',%', '%, '.$search, '%, '.$search.', %'), 'articles');
 	}
 	else {
-		$tableau = liste_base_articles('', '', 'admin', '', 0, $GLOBALS['max_bill_admin']);
+		$query = "SELECT * FROM articles ORDER BY bt_date DESC LIMIT 0, ".$GLOBALS['max_bill_admin'];
+		$tableau = liste_elements($query, array(), 'articles');
 	}
 }
 else {
-	$tableau = liste_base_articles('', '', 'admin', '', 0, $GLOBALS['max_bill_admin']);
+		$query = "SELECT * FROM articles ORDER BY bt_date DESC LIMIT 0, ".$GLOBALS['max_bill_admin'];
+		$tableau = liste_elements($query, array(), 'articles');
 }
 
 afficher_top($GLOBALS['lang']['mesarticles']);
@@ -63,7 +68,7 @@ echo '<div id="axe">'."\n";
 echo '<div id="subnav">'."\n";
 
 echo '<p id="mode">'."\n";
-	echo '<span id="lien-comments">'.ucfirst(nombre_articles(count($tableau))).' '.$GLOBALS['lang']['sur'].' '.liste_base_articles('nb', '', 'admin', '', '0', '').'</span>';
+	echo '<span id="lien-comments">'.ucfirst(nombre_articles(count($tableau))).' '.$GLOBALS['lang']['sur'].' '.liste_elements_count("SELECT count(*) AS nbr FROM articles", array()).'</span>';
 echo '</p>'."\n";
 
 
