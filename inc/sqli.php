@@ -12,12 +12,11 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
+
 /*  Creates a new BlogoText base.
     if file does not exists, it is created, as well as the tables.
     if file does exists, tables are checked and created if not exists
 */
-
-
 function create_tables() {
 	if (file_exists($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php')) {
 		include($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'mysql.php');
@@ -37,7 +36,7 @@ function create_tables() {
 			bt_tags TEXT,
 			bt_link LONGTEXT,
 			bt_statut INTEGER
-		);";
+		)";
 
 	$GLOBALS['dbase_structure']['commentaires'] = "CREATE TABLE ".$if_not_exists." commentaires
 		(
@@ -53,7 +52,7 @@ function create_tables() {
 			bt_email LONGTEXT,
 			bt_subscribe INTEGER,
 			bt_statut INTEGER
-		);";
+		)";
 
 
 	$GLOBALS['dbase_structure']['articles'] = "CREATE TABLE ".$if_not_exists." articles
@@ -73,7 +72,7 @@ function create_tables() {
 			bt_nb_comments INTEGER,
 			bt_allow_comments INTEGER,
 			bt_statut INTEGER
-		);";
+		)";
 
 
 	/*
@@ -122,12 +121,11 @@ function create_tables() {
 				try {
 
 					$options_pdo[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-					$db_handle = new PDO('mysql:host='.$GLOBALS['mysql_host'].';dbname='.$GLOBALS['mysql_db'], $GLOBALS['mysql_login'], $GLOBALS['mysql_passwd'], $options_pdo);
-
+					$db_handle = new PDO('mysql:host='.$GLOBALS['mysql_host'].';dbname='.$GLOBALS['mysql_db'].";charset=utf8", $GLOBALS['mysql_login'], $GLOBALS['mysql_passwd'], $options_pdo);
 					// check each wanted table 
 					$wanted_tables = array('commentaires', 'articles', 'links');
 					foreach ($wanted_tables as $i => $name) {
-							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]);
+							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]."DEFAULT CHARSET=utf8");
 					}
 
 			
@@ -141,263 +139,48 @@ function create_tables() {
 }
 
 
-/* Open a base
- */
+/* Open a base */
 function open_base() {
 	$handle = create_tables();
 	return $handle;
 }
 
-/* // to determine the first entry of callender
-function oldest($table) {
+
+/* lists articles with search criterias given in $array. Returns an array containing the data*/ 
+function liste_elements($query, $array, $data_type) {
 	try {
-		$query = "SELECT min(bt_id) FROM $table"; // for public : only allows non draft|futur articles
+		$req = $GLOBALS['db_handle']->prepare($query);
+		$req->execute($array);
+		$result = $req->fetchAll();
+		$chapo = (sizeof($result) == 1) ? 1 : 0;
 
-		$res = $GLOBALS['db_handle']->query($query);
-		$result = $res->fetch();
-	} catch (Exception $e) {
-		die('Erreur : '.$e->getMessage());
-	}
-
-}*/
-
-
-
-/* Fully list the articles DB. Returns a big Array (with array of comments for each article) */
-
-function liste_base_articles($tri_selon, $motif, $mode, $statut, $offset, $nombre_voulu) {
-	$chapo = 0;
-	$and_statut = ( ($statut != '') or ($mode == "public") ) ? 'AND bt_statut='.$statut : '';
-	$where_stat = ($statut != '') ? 'WHERE bt_statut='.$statut : '';
-
-	if ($mode == 'public') { // si public, ajout de la condition sur la date
-		$and_statut .= ' AND bt_date <= '.date('YmdHis');
-
-		if ($where_stat != '') {
-			$where_stat .= ' AND bt_date <= '.date('YmdHis');
-		} else {
-			$where_stat .= 'WHERE bt_date <= '.date('YmdHis');
+		switch ($data_type) {
+			case 'articles':
+				$result = init_list_articles($result, $chapo);
+				break;
+			case 'commentaires':
+				$result = init_list_comments($result);
+				break;
+			default:
+				break;
 		}
+		return $result;
+	} catch (Exception $e) {
+		die('Erreur 89208 : '.$e->getMessage());
 	}
+}
 
-	$limite = (is_numeric($offset) and is_numeric($nombre_voulu)) ? 'LIMIT '.$offset.', '.$nombre_voulu : '';
-
-	switch($tri_selon) {
-
-		case 'nb': // simple le nombre d’articles
-			$query = "SELECT count(*) AS nbr FROM articles $where_stat";
-			try {
-				$req = $GLOBALS['db_handle']->prepare($query);
-				$req->execute();
-				$result = $req->fetchAll();
-				return $result[0]['nbr'];
-			} catch (Exception $e) {
-				die('Erreur : '.$e->getMessage());
-			}
-			break;
-			exit;
-
-		case 'statut':
-			$query = "SELECT * FROM articles WHERE bt_statut=? ORDER BY bt_date DESC $limite";
-			$array = array($motif);
-			break;
-
-		case 'tags':
-			$query = "SELECT * FROM articles WHERE bt_categories LIKE ? $and_statut ORDER BY bt_date DESC $limite";
-			$array = array('%'.$motif.'%');
-			break;
-
-		case 'date':
-		  	$query = "SELECT * FROM articles WHERE bt_date LIKE ? $and_statut ORDER BY bt_date DESC $limite";
-			$array = array($motif.'%');
-			break;
-
-		case 'id':
-		  	$query = "SELECT * FROM articles WHERE bt_id=?";
-			$array = array($motif);
-			$chapo = 1;
-			break;
-
-		case 'recherche':
-			$query = "SELECT * FROM articles WHERE ( bt_content LIKE ? OR bt_title LIKE ? ) $and_statut ORDER BY bt_date DESC $limite";
-			$array = array('%'.$motif.'%', '%'.$motif.'%');
-			break;
-
-		case 'random': // always on public side
-			$om = ($GLOBALS['sgdb'] == 'sqlite') ? 'om' : '';
-			$query = "SELECT * FROM articles $where_stat ORDER BY rand$om() LIMIT 0, 1";
-			$array = array();
-			break;
-
-		default : // only on statut and limite
-		  	$query = "SELECT * FROM articles $where_stat ORDER BY bt_date DESC $limite";
-			$array = array();
-	}
-
+/* same as above, but return the amount of entries */
+function liste_elements_count($query, $array) {
 	try {
 		$req = $GLOBALS['db_handle']->prepare($query);
 		$req->execute($array);
 		$result = $req->fetchAll();
-		$result = init_list_articles($result, $mode, $chapo);
-		return $result;
+		return $result[0]['nbr'];
 	} catch (Exception $e) {
-		die('Erreur : '.$e->getMessage());
+		die('Erreur 0003: '.$e->getMessage());
 	}
-
 }
-
-
-
-/* Fully list the comments DB. Returns an Array
- */
-
-function liste_base_comms($tri_selon, $motif, $mode, $statut, $offset, $nombre_voulu) {
-	$and_statut = ( ($statut != '') or ($mode == "public") ) ? 'AND bt_statut='.$statut : '';
-	$where_stat = ($statut != '') ? 'WHERE bt_statut='.$statut : '';
-	$limite = (is_numeric($offset) and is_numeric($nombre_voulu)) ? 'LIMIT '.$offset.', '.$nombre_voulu : '';
-
-	switch($tri_selon) {
-
-		case 'nb': // simple le nombre de commentaires (selon article, ou pas)
-			$where_art_id = (preg_match('#\d{14}#', $motif)) ? ($statut != '') ? "AND bt_article_id=?" : "WHERE bt_article_id=?" : '' ;
-
-			$query = "SELECT count(*) AS nbr FROM commentaires $where_stat $where_art_id";
-			$array = (preg_match('#\d{14}#', $motif)) ? array($motif) : array() ;
-			try {
-				$req = $GLOBALS['db_handle']->prepare($query);
-				$req->execute($array);
-				$result = $req->fetchAll();
-				return $result[0]['nbr'];
-			} catch (Exception $e) {
-				die('Erreur : '.$e->getMessage());
-			}
-			break;
-			exit;
-		
-		case 'statut':
-			$query = "SELECT * FROM commentaires WHERE bt_statut=? ORDER BY bt_id DESC $limite";
-			$array = array($motif);
-			break;
-
-		case 'auteur':
-			$query = "SELECT * FROM commentaires WHERE bt_author=? $and_statut ORDER BY bt_id $limite";
-			$array = array($motif);
-			break;
-
-		case 'date':
-		  	$query = "SELECT * FROM commentaires WHERE bt_id LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array($motif.'%');
-			break;
-
-		case 'id':
-		  	$query = "SELECT * FROM commentaires WHERE bt_id=?";
-			$array = array($motif);
-			break;
-
-		case 'recherche':
-			$query = "SELECT * FROM commentaires WHERE bt_content LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array('%'.$motif.'%');
-			break;
-
-		case 'assos_art':
-			$query = "SELECT * FROM commentaires WHERE bt_article_id=? $and_statut ORDER BY bt_id $limite";
-			$array = array($motif);
-			break;
-
-		default : // only on statut and limite
-		  	$query = "SELECT * FROM commentaires $where_stat ORDER BY bt_id DESC $limite";
-			$array = array();
-	}
-
-	try {
-		$req = $GLOBALS['db_handle']->prepare($query);
-		$req->execute($array);
-		$result = $req->fetchAll();
-		$result = init_list_comments($result);
-		return $result;
-	} catch (Exception $e) {
-		die('Erreur : '.$e->getMessage());
-	}
-
-}
-
-
-/* LISTE BASE LIENS ====================================--------------------=
- * This big function for the links
- * this is the one that uses SQL
- *
- * It returns an PHP array, not an object.
- *
-*/
-
-function liste_base_liens($tri_selon, $motif, $mode, $statut, $offset, $nombre_voulu) {
-	$and_statut = ($statut != '') ? 'AND bt_statut='.$statut : '';
-	$where_stat = ($statut != '') ? 'WHERE bt_statut='.$statut : '';
-	$limite = (is_numeric($offset) and is_numeric($nombre_voulu)) ? 'LIMIT '.$offset.', '.$nombre_voulu : '';
-
-	switch($tri_selon) {
-
-		case 'nb': // simple le nombre de liens
-			$query = "SELECT count(*) AS nbr FROM links $where_stat";
-			$array = array();
-			try {
-				$req = $GLOBALS['db_handle']->prepare($query);
-				$req->execute($array);
-				$result = $req->fetchAll();
-				return $result[0]['nbr'];
-			} catch (Exception $e) {
-				die('Erreur : '.$e->getMessage());
-			}
-			break;
-			exit;
-		
-		case 'statut':
-			$query = "SELECT * FROM links WHERE bt_statut=? ORDER BY bt_id DESC $limite";
-			$array = array($motif);
-			break;
-
-		case 'auteur':
-			$query = "SELECT * FROM links WHERE bt_author=? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array($motif);
-			break;
-
-		case 'tags':
-			$query = "SELECT * FROM links WHERE bt_tags LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array('%'.$motif.'%');
-			break;
-
-		case 'date':
-		  	$query = "SELECT * FROM links WHERE bt_id LIKE ? $and_statut ORDER BY bt_id DESC $limite";
-			$array = array($motif.'%');
-			break;
-
-		case 'id':
-		  	$query = "SELECT * FROM links WHERE bt_id=?";
-			$array = array($motif);
-			break;
-
-		case 'recherche':
-			$query = "SELECT * FROM links WHERE ( bt_content LIKE ? OR bt_title LIKE ? ) $and_statut ORDER BY bt_id DESC $limite";
-			$array = array('%'.$motif.'%', '%'.$motif.'%');
-			break;
-
-		default : // only on statut and limite
-		  	$query = "SELECT * FROM links $where_stat ORDER BY bt_id DESC $limite";
-			$array = array();
-	}
-
-	try {
-		$req = $GLOBALS['db_handle']->prepare($query);
-		$req->execute($array);
-		$result = $req->fetchAll();
-
-		return $result;
-	} catch (Exception $e) {
-		die('Erreur 966785 : '.$e->getMessage());
-	}
-
-}
-
 
 // returns or prints an entry of some element of some table (very basic)
 function get_entry($base_handle, $table, $entry, $id, $retour_mode) {
@@ -714,7 +497,8 @@ function bdd_commentaire($commentaire, $what) {
 			));
 
 			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
+			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
+
 			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
 			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
 			return TRUE;
@@ -750,7 +534,8 @@ function bdd_commentaire($commentaire, $what) {
 			));
 
 			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
+			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
+
 			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
 			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
 			return TRUE;
@@ -766,8 +551,9 @@ function bdd_commentaire($commentaire, $what) {
 			$req->execute(array($commentaire['ID']));
 
 			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_base_comms('nb', $commentaire['bt_article_id'], 'public', '1', '', '');
+			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
 			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
+
 			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
 			return TRUE;
 		} catch (Exception $e) {

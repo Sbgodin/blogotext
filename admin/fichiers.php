@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -20,25 +20,6 @@ operate_session();
 $begin = microtime(TRUE);
 
 $GLOBALS['liste_fichiers'] = open_file_db_fichiers($GLOBALS['fichier_liste_fichiers']);
-
-// suppression directe d’un fichier (FIXME: ajouter une sécurité)
-if (isset($_GET['file_id']) and preg_match('#\d{14}#',($_GET['file_id'])) and isset($_GET['suppr']) and isset($_GET['type']) ) {
-	// test sur la durée de la session
-	if ( isset($_GET['av']) and $_GET['av'] <= time() and $_GET['av'] > time()-600 ) {
-		foreach ($GLOBALS['liste_fichiers'] as $fich) {
-			if ($fich['bt_id'] == $_GET['file_id']) {
-				$fichier = $fich;
-				break;
-			}
-		}
-		traiter_form_fichier($fichier);
-	}
-	// temps de session probablement expiré...
-	else {
-		redirection('fichiers.php?errmsg=error_fichier_suppr&what=session_expire');
-	}
-}
-
 
 // recherche / tri
 if ( !empty($_GET['filtre']) ) {
@@ -147,8 +128,18 @@ else {
 	}
 
 	afficher_liste_images($images);
-	afficher_liste_fichiers($fichiers);
+	if (isset($_GET['modele']) and $_GET['modele'] == 'tableau') {
+		afficher_liste_fichiers($fichiers, 'tableau');
+	} else {
+		afficher_liste_fichiers($fichiers);
+	}
 }
+
+
+echo js_select_text_on_focus(1);
+echo js_switch_upload_form(1);
+echo js_drag_n_drop_handle(1);
+echo js_button_request_delete(1);
 
 footer('', $begin);
 ?>

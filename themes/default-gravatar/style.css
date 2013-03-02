@@ -238,7 +238,6 @@ h3 img {
 	padding: 0 4px 2px 4px;
 	border: 1px solid silver;
 	border-radius: 10px;
-	// box-shadow: 0px 0px 2px #fff, 1px 1px 2px #cde6ff;
 	border-width: 1px 0 0 1px;
 	color: inherit;
 }
@@ -543,9 +542,90 @@ blockquote, q {
 }
 
 
-/*
-	 to delete afterwards...
-*/
+@media (max-width: 799px) {
 
-.one { float: right; margin: 15px; }
+	body {
+		width: 98%;
+		padding: 5px 1%;
+		margin: 0;
+		font-size: 1.1em;
+	}
 
+	#top {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	#top h1 {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: 0;
+		text-align: center;
+	}
+	#top h2 {
+		text-align: center;
+	}
+
+	#contenu {
+		padding: 5px 0px 15px;
+		margin-right: 0;
+	}
+
+	#sidebar {
+		float: none;
+		position: relative;
+		padding: 0;
+		width: 100%;
+		font-size: 0.8em;
+	}
+
+	nav {
+		margin: 10px auto;
+		width: 250px;
+	}
+
+	#tags, #tags, #last_comments {
+		display: none;
+	}
+
+	#navigate {
+		width: 350px;
+	}
+
+	#search {
+		width: 350px;
+	}
+	#input-rechercher, #search {
+		height: 40px;
+		font-size: 120%;
+	}
+	#input-rechercher {
+		width: 120px;
+	}
+
+	#calendrier td {
+		color: #555;
+		text-align: center;
+		width: 50px;
+		line-height: 3em;
+	}
+	#calendrier {
+		font-size: 1.4em;
+	}
+
+	#form-commentaire .infos input, #form-commentaire .infos label {
+		display: block;
+		width: 100%;
+	}
+
+	#form-commentaire .infos input {
+		width: 90%;
+		margin-left: 10%;
+	}
+	#form-commentaire .infos {
+		text-align: left;
+		width: 100%;
+		margin: 10px auto;
+	}
+
+}

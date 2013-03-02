@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -53,18 +53,12 @@ if (isset($_POST['nom_utilisateur'])) {
 // Auth checking :
 if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting in.
 	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
-	$_SESSION['rand_sess_id'] = $_POST['nom_utilisateur'].ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).md5($_SERVER['HTTP_USER_AGENT'].$ip); // set special hash
+	$_SESSION['user_id'] = $_POST['nom_utilisateur'].hash_password($_POST['mot_de_passe'], $GLOBALS['salt']).md5($_SERVER['HTTP_USER_AGENT'].$ip); // set special hash
 	usleep(100000); // 100ms sleep to avoid bruteforce
 
 	if (!empty($_POST['stay_logged'])) { // if user wants to stay logged
-// first method : uses only server sessions, but may not work every where
-//		$_SESSION['stay_logged_mode'] = 1; // if user wants to stay logged : 1
-//		session_set_cookie_params(365*24*60*60); // Set session cookie expiration on client side (one year)
-//		session_regenerate_id(true);  // Send cookie with new expiration date to browser.
-// secondth method : uses a cookie. A bit less safe.
-		setcookie('BT-admin-stay-logged', '1', time()+365*42*60*60, null, null, false, true);
-		$uuid = ww_hach_sha($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
-		setcookie('BT-admin-uuid', $uuid, time()+365*42*60*60, null, null, false, true);
+		$user_id = hash_password($GLOBALS['mdp'].$GLOBALS['identifiant'].$GLOBALS['salt'], md5($_SERVER['HTTP_USER_AGENT'].$ip.$GLOBALS['salt']));
+		setcookie('BT-admin-stay-logged', $user_id, time()+365*42*60*60, null, null, false, true);
 
 	} else {
 		$_SESSION['stay_logged_mode'] = 0;
@@ -102,32 +96,20 @@ if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting
 
 function valider_form() {
 	$mot_de_passe_ok = $GLOBALS['mdp'].$GLOBALS['identifiant'];
-	$mot_de_passe_essai = ww_hach_sha($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
+	$mot_de_passe_essai = hash_password($_POST['mot_de_passe'], $GLOBALS['salt']).$_POST['nom_utilisateur'];
 	// first test password
-	if ($mot_de_passe_essai == $mot_de_passe_ok and $_POST['nom_utilisateur'] == $GLOBALS['identifiant']) { // avoids "string a + string bc" to be equal to "string ab + string c"
-		$passwd_is_ok = 1;
-	} else {
-		$passwd_is_ok = 0;
+	if ($mot_de_passe_essai != $mot_de_passe_ok) {
+		return FALSE;
 	}
 	// then test captcha
 	if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) { // si captcha activé
-		if (!empty($_SESSION['freecap_word_hash']) and !empty($_POST['word']) and (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) ) {
-			$captcha_is_ok = 1;
-		} else {
-			$captcha_is_ok = 0;
+		if ( empty($_SESSION['freecap_word_hash']) or empty($_POST['word']) or (sha1(strtolower($_POST['word'])) != $_SESSION['freecap_word_hash']) ) {
+			return FALSE;
 		}
-		if (sha1(strtolower($_POST['word'])) == $_SESSION['freecap_word_hash']) {
-			$_SESSION['freecap_word_hash'] = FALSE;
-		}
-	} else { // si captcha pas activé
-		$captcha_is_ok = 1;
+		$_SESSION['freecap_word_hash'] = FALSE; // reset captcha word
 	}
-	// then return : is both captcha and password are ok.
-	if ($passwd_is_ok == 1 and $captcha_is_ok == 1) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
+
+	return TRUE;
 }
 
 footer();

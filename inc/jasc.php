@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -32,7 +32,7 @@ function new_freecap() {
 }';
 
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -54,7 +54,7 @@ function resize(id, dht) {
 }';
 
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -89,7 +89,7 @@ function insertTag(startTag, endTag, tag) {
 }';
 
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -109,7 +109,7 @@ function unfold(button) {
 	}
 }';
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }	
@@ -126,7 +126,7 @@ function SelectAllText(id) {
 	document.getElementById(id).select();
 }';
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -149,7 +149,7 @@ function hideimages() {
 	}
 }';
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -176,7 +176,7 @@ function switchUploadForm(where) {
 		document.getElementById(\'img-submit\').style.display = "block";
 
 		document.getElementById(\'fichier\').disabled = "";
-		document.getElementById(\'fichier-url\').disabled = "0";
+		document.getElementById(\'url\').disabled = "0";
 	}
 
 	if (where == \'to_link\') {
@@ -188,7 +188,7 @@ function switchUploadForm(where) {
 		document.getElementById(\'img-submit\').style.display = "block";
 
 		document.getElementById(\'fichier\').disabled = "0";
-		document.getElementById(\'fichier-url\').disabled = "";
+		document.getElementById(\'url\').disabled = "";
 	}
 
 	if (where == \'to_drag\') {
@@ -200,11 +200,11 @@ function switchUploadForm(where) {
 		document.getElementById(\'img-submit\').style.display = "none";
 
 		document.getElementById(\'fichier\').disabled = "0";
-		document.getElementById(\'fichier-url\').disabled = "0";
+		document.getElementById(\'url\').disabled = "0";
 	}
 }';
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -225,10 +225,54 @@ function insertCatTag(inputId, tag) {
 }';
 
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
+
+/*
+ * JS AJAX for remove a file in the list directly, w/o reloading the whole page
+*
+*/
+
+function js_button_request_delete($a) {
+	$sc = '
+
+// supprimer fichier
+function request_delete(id) {
+
+
+}
+
+// create and send form
+function request_delete_form(id) {
+	// prepare XMLHttpRequest
+		//document.getElementById(id).src += \'style/loading.gif\';
+	var xhr = new XMLHttpRequest();
+	xhr.open(\'POST\', \'_rmfichier.ajax.php\');
+	xhr.onload = function() {
+
+		if (this.responseText == \'success\') {
+			document.getElementById(\'bloc_\'.concat(id)).style.display = "none";
+		} else {
+			alert(this.responseText);
+		}
+	};
+
+	// prepare and send FormData
+	var formData = new FormData();  
+	formData.append(\'supprimer\', \'1\');
+	formData.append(\'file_id\', id);
+	xhr.send(formData);
+}
+';
+
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	}
+	return $sc;
+}
+
 
 /*
  * JS to handle drag-n-drop : it listens to the event of draging files on a <div> and
@@ -263,7 +307,6 @@ var nbDone = 0; // initialisation of nb files already uploaded during the proces
 function initHandlers() {
 	dropArea.addEventListener(\'drop\', handleDrop, false);
 	dropArea.addEventListener(\'dragover\', handleDragOver, false);
-	dropArea.addEventListener(\'mouseout\', handleMouseOut, false);
 }
 
 // drag over
@@ -293,19 +336,20 @@ function processFiles(filelist) {
 function uploadFile(file, status) {
 	// prepare XMLHttpRequest
 	var xhr = new XMLHttpRequest();
-	xhr.open(\'POST\', \'_dragndrop.php\');
+	xhr.open(\'POST\', \'_dragndrop.ajax.php\');
 	xhr.onload = function() {
-		result.innerHTML += this.responseText;
+		result.innerHTML = this.responseText+result.innerHTML;
 		uploadNext();
 	};
 	xhr.onerror = function() {
-		result.innerHTML += this.responseText;
+		result.innerHTML = this.responseText+result.innerHTML;
 		uploadNext();
 	};
 	// prepare and send FormData
 	var formData = new FormData();  
 	formData.append(\'fichier\', file);
 	formData.append(\'statut\', status);
+	formData.append(\'description\', \'\');
 
 	xhr.send(formData);
 }
@@ -332,7 +376,7 @@ initHandlers();
 ';
 	
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 }
@@ -349,7 +393,7 @@ function padz(field) {
 }
 ';
 	if ($a == 1) {
-		$sc = '<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}
 	return $sc;
 

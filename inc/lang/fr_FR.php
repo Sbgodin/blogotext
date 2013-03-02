@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -46,6 +46,8 @@ $lang_fr = array(
 'mesliens'	 						=> 'Mes liens',
 'nouveau' 							=> 'Nouvel article',
 'supprimer' 						=> 'Supprimer',
+'voir'		 						=> 'Voir',
+'partager' 							=> 'Partager',
 'deconnexion' 						=> 'Déconnexion',
 'rechercher' 						=> 'Rechercher',
 'filtrer' 							=> 'Filtrer',
@@ -143,6 +145,7 @@ $lang_fr = array(
 'label_taille_fichier'			=> 'Taille',
 'label_precedent'					=> 'élements plus récents',
 'label_suivant'					=> 'élements plus anciens',
+'label_dl_fichier'				=> 'Également importer le fichier&thinsp;?',
 // Commentaire
 'aucun'								=> 'aucun',
 'comment_ajout'					=> 'Ajouter un commentaire',
@@ -244,6 +247,7 @@ $lang_fr = array(
 'err_comm_webpage'				=> 'L’URL n’est pas valide',
 'err_comm_article_id'			=> 'L’ID Article n’est pas valide',
 'err_lien_vide'					=> 'L’URL est vide',
+'err_wrong_token'					=> 'Le jeton de sécurité est expiré ou invalide.',
 // problems
 'prob_no_img_folder'				=> 'Il n’y a pas de dossier pour les images',
 'prob_img_folder_chmod'			=> 'Le dossier des images n’est pas accessible en écriture',
@@ -343,6 +347,8 @@ $lang_fr = array(
 'pref_go_to_mainteance'			=> 'Accéder à la page de maintenance.',
 'pref_label_bookmark_lien'		=> 'Gardez ce lien en favori. Cliquez ensuite dessus pour sauver n’importe quelle page dans Blogotext.',
 'pref_alert_bookmark_link'		=> 'Gardez ce lien en favoris : glissez-le sur la barre des favoris ou faites un clic droit et choissez Marque Page sur ce lien.',
+'pref_linx_dl_auto'				=> 'Ajouter automatiquement les fichiers partagés à vos fichiers&nbsp;?',
+'pref_ask_everytime'				=> 'Demander à chaque fois',
 'legend_what_doyouwant'			=> 'Backup des messages - Que voulez vous faire ?',
 'legend_what_doyouwant_optim'	=> 'Nettoyer la base de données ?',
 // Notes

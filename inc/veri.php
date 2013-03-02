@@ -14,39 +14,38 @@
 
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode) {
 	$erreurs = array();
-	if (isset($_GET['post_id'])) {
+	if (isset($_GET['post_id'])) { // admin side
 		if (!strlen(trim($commentaire['bt_author'])))  {
 				$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 		}
 	}
-	if (!isset($_GET['post_id'])) {
+	if (!isset($_GET['post_id'])) { // public side (author may not be admin’s name
 		if (!strlen(trim($commentaire['bt_author']))) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 		}
-		if ($commentaire['bt_author'] == $GLOBALS['auteur'] and empty($_SESSION['rand_sess_id'])) {
+		if ($commentaire['bt_author'] == $GLOBALS['auteur'] and empty($_SESSION['user_id'])) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
 		}
 	}
 
-	if (!empty($commentaire['bt_email']) or $GLOBALS['require_email'] == 1) {
+	if (!empty($commentaire['bt_email']) or $GLOBALS['require_email'] == 1) { // if email is required, or is given, it must be valid
 		if (!preg_match('#^[-_a-zA-Z0-9!%+~\'*"\[\]{}.=]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire['bt_email'])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
 		}
 	}
-	if (!strlen(trim($commentaire['bt_content'])) or $commentaire['bt_content'] == "<p></p>") {
+	if (!strlen(trim($commentaire['bt_content'])) or $commentaire['bt_content'] == "<p></p>") { // comment may not be empty
 		$erreurs[] = $GLOBALS['lang']['err_comm_contenu'];
 	}
-	if ( (!preg_match('/\d{14}/',$commentaire['bt_article_id']))
-		or !is_numeric($commentaire['bt_article_id']) ) {
+	if ( !preg_match('/\d{14}/',$commentaire['bt_article_id']) ) { // comment has to be on a valid article_id
 		$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
 	}
 
-	if (trim($commentaire['bt_webpage']) != "") {
+	if (trim($commentaire['bt_webpage']) != "") { // given url has to be valid
 		if (!preg_match('#^(https?://[\S]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($commentaire['bt_webpage'])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
 		}
 	}
-	if ($mode != 'admin') {
+	if ($mode != 'admin') { // if public : tests captcha aswell
 		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha)) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
 		}
@@ -57,12 +56,12 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 function valider_form_billet($billet) {
 	$date = decode_id($billet['bt_id']);
 	$erreurs = array();
+	if (!( isset($_POST['token']) and check_token($_POST['token']) === TRUE) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
 	if (!strlen(trim($billet['bt_title']))) {
 		$erreurs[] = $GLOBALS['lang']['err_titre'];
 	}
-//	if (!strlen(trim($billet['bt_abstract']))) {
-//		$erreurs[] = $GLOBALS['lang']['err_chapo'];
-//	}
 	if (!strlen(trim($billet['bt_content']))) {
 		$erreurs[] = $GLOBALS['lang']['err_contenu'];
 	}
@@ -106,7 +105,7 @@ function valider_form_preferences() {
 	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	}
-	if ( (strlen(trim($_POST['mdp']))) and (ww_hach_sha($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
+	if ( (strlen(trim($_POST['mdp']))) and (hash_password($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_oldmdp'];
 	}
 	if ( (strlen($_POST['mdp'])) and (strlen($_POST['mdp_rep']) < '6') ) {
@@ -114,41 +113,6 @@ function valider_form_preferences() {
 	}
 	if ( (strlen($_POST['mdp_rep'])) and (!strlen($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_newmdp'] ;
-	}
-	return $erreurs;
-}
-
-function valider_form_image($image) {
-	$erreurs = array();
-	if (!isset($_POST['is_it_edit'])) { // si nouveau fichier, test sur fichier entrant
-
-		if (isset($_FILES['fichier'])) { // new file provided by upload
-
-			if (($_FILES['fichier']['error'] == UPLOAD_ERR_INI_SIZE) or ($_FILES['fichier']['error'] == UPLOAD_ERR_FORM_SIZE)) {
-				$erreurs[] = 'Fichier trop gros';
-			} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_PARTIAL) {
-				$erreurs[] = 'dépot interrompu';
-			} elseif ($_FILES['fichier']['error'] == UPLOAD_ERR_NO_FILE) {
-				$erreurs[] = 'aucun fichier déposé';
-			} if (!in_array(strtolower(pathinfo($_FILES['fichier']['name'], PATHINFO_EXTENSION)), $GLOBALS['files_ext']['image'])) {
-				$erreurs[] = 'Ce n’est pas une image. Pour des fichiers autres, utilisez le <a href="fichiers.php">formulaire des fichiers</a>.';
-			}
-		}
-		elseif (isset($_POST['fichier-url']) ) { // new image provided by URL download
-			if ( !empty($_POST['fichier-url']) ) {
-				$erreurs[] = 'aucun fichier déposé';
-			}
-			if (preg_match('#(\.png|\.gif|\.jpeg|\.jpg)$#i', $_POST['fichier-url'])) {
-				$erreurs[] = 'Ce n’est pas une image. Pour des fichiers autres, utilisez le <a href="fichiers.php">formulaire des fichiers</a>.';
-			}
-		}
-
-
-	} else { // on edit
-		if ($image['bt_filename'] == '') {
-			$erreurs[] = 'nom de fichier invalide';
-		}
-
 	}
 	return $erreurs;
 }
@@ -166,9 +130,9 @@ function valider_form_fichier($fichier) {
 				$erreurs[] = 'aucun fichier déposé';
 			}
 		}
-		elseif (isset($_POST['ficheir-url'])) {
-			if ( !empty($_POST['fichier-url']) ) {
-				$erreurs[] = 'aucun fichier déposé';
+		elseif (isset($_POST['url'])) {
+			if ( empty($_POST['url']) ) {
+				$erreurs[] = 'aucune url spécifiée';
 			}
 		}
 
@@ -182,7 +146,7 @@ function valider_form_fichier($fichier) {
 
 function valider_form_link() {
 	$erreurs = array();
-	if (!preg_match('#\d{14}#', $_POST['bt_id'])) {
+	if (!preg_match('#^\d{14}$#', $_POST['bt_id'])) {
 		$erreurs[] = 'Erreur id.';
 	}
 	return $erreurs;

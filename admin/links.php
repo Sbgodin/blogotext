@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -50,7 +50,7 @@ function afficher_liens($link) {
 	$list .= '<hr style="clear:both; border: none;margin:0;"/></div>'."\n";
 	// si ID est dans l'url, alors on affiche le formulaire d'édition
 	if (!empty($_GET['id']) and preg_match('#\d{14}#' ,$_GET['id'])) {
-		$list .= afficher_form_link('edit', '', $link);
+		$list .= afficher_form_link($step = 'edit', '', $link);
 	}
 	echo $list;
 }
@@ -65,9 +65,27 @@ if (!isset($_GET['url'])) { // rien : on affiche le premier FORM
 }
 if (isset($_POST['_verif_envoi'])) {
 	$link = init_post_link2();
+
+	
 	$erreurs_form = valider_form_link($link);
 	$step = 1;
 	if (empty($erreurs_form)) {
+
+		// URL est un fichier !html !js !css !php ![vide] && téléchargement de fichiers activé :
+		if (!isset($_POST['is_it_edit']) and $GLOBALS['dl_link_to_files'] >= 1) {
+
+			// dl_link_to_files : 0 = never ; 1 = always ; 2 = ask with checkbox
+			if ( ($GLOBALS['dl_link_to_files'] == 1) or ($GLOBALS['dl_link_to_files'] == 2 and isset($_POST['add_to_files'])) ) {
+				//echo 'ok';die;
+				$fichier = init_post_fichier();
+				$erreurs = valider_form_fichier($fichier);
+				if (empty($erreurs)) {
+					$GLOBALS['liste_fichiers'] = open_file_db_fichiers($GLOBALS['fichier_liste_fichiers']);
+					bdd_fichier($fichier, 'ajout-nouveau', 'download', $link['bt_link']);
+				}
+			}				
+		}
+
 		traiter_form_link($link);
 	}
 }
@@ -81,28 +99,31 @@ if (!isset($_GET['url']) and !isset($_GET['ajout'])) {
 		// for "tags" & "author" the requests is "tag.$search" : here we split the type of search and what we search.
 		$type = substr($_GET['filtre'], 0, -strlen(strstr($_GET['filtre'], '.')));
 		$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
-
 		if ( preg_match('#^\d{6}(\d{1,8})?$#', $_GET['filtre']) ) { // date
-			$tableau = liste_base_liens('date', $_GET['filtre'], 'admin', '', 0, '');
-		} elseif ($_GET['filtre'] == 'draft') { //brouillons
-			$tableau = liste_base_liens('statut', '0', 'admin', '', 0, '');
-		} elseif ($_GET['filtre'] == 'pub') { // visibles
-			$tableau = liste_base_liens('statut', '1', 'admin', '', 0, '');
-
+			$query = "SELECT * FROM links WHERE bt_id LIKE ? ORDER BY bt_id DESC";
+			$tableau = liste_elements($query, array($_GET['filtre'].'%'), 'links');
+		} elseif ($_GET['filtre'] == 'draft' or $_GET['filtre'] == 'pub') { // visibles & brouillons
+			$query = "SELECT * FROM links WHERE bt_statut=? ORDER BY bt_id DESC";
+			$tableau = liste_elements($query, array((($_GET['filtre'] == 'draft') ? 0 : 1)), 'links');
 		} elseif ($type == 'tag' and $search != '') { // tags
-			$tableau = liste_base_liens('tags', $search, 'admin', '', 0, ''); 
+			$query = "SELECT * FROM links WHERE bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ? OR bt_tags LIKE ? ORDER BY bt_id DESC";
+			$tableau = liste_elements($query, array($search, $search.',%', '%, '.$search, '%, '.$search.', %'), 'links');
 		} elseif ($type == 'auteur' and $search != '') { // auteur
-			$tableau = liste_base_liens('auteur', $search, 'admin', '', 0, ''); 
+			$query = "SELECT * FROM links WHERE bt_author=? ORDER BY bt_id DESC";
+			$tableau = liste_elements($query, array($search), 'links');
 		} else {
-			$tableau = liste_base_liens('', '', 'admin', '', 0, $GLOBALS['max_linx_admin']);
+			$query = "SELECT * FROM links ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_linx_admin'];
+			$tableau = liste_elements($query, array(), 'links');
 		}
-
 	} elseif (!empty($_GET['q'])) { // mot clé
-			$tableau = liste_base_liens('recherche', htmlspecialchars($_GET['q']), 'admin', '', 0, '');
+		$query = "SELECT * FROM links WHERE ( bt_content LIKE ? OR bt_title LIKE ? OR bt_link LIKE ? ) ORDER BY bt_id DESC";
+		$tableau = liste_elements($query, array('%'.$_GET['q'].'%', '%'.$_GET['q'].'%', '%'.$_GET['q'].'%'), 'links');
 	} elseif (!empty($_GET['id']) and is_numeric($_GET['id'])) { // édition d’un lien spécifique
-			$tableau = liste_base_liens('id', htmlspecialchars($_GET['id']), 'admin', '', 0, '');
+		$query = "SELECT * FROM links WHERE bt_id=?";
+		$tableau = liste_elements($query, array($_GET['id']), 'links');
 	} else { // aucun filtre : affiche TOUT
-			$tableau = liste_base_liens('', '', 'admin', '', 0, $GLOBALS['max_linx_admin']);
+		$query = "SELECT * FROM links ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_linx_admin'];
+		$tableau = liste_elements($query, array(), 'links');
 	}
 }
 
@@ -121,7 +142,7 @@ echo '<div id="axe">'."\n";
 
 // SUBNAV
 echo '<div id="subnav">'."\n";
-echo '<p id="mode"><span id="lien-comments">'.ucfirst(nombre_liens($nb_links_displayed)).' '.$GLOBALS['lang']['sur'].' '.liste_base_liens('nb', '', 'admin', '', '0', '').'</span></p>';
+echo '<p id="mode"><span id="lien-comments">'.ucfirst(nombre_liens($nb_links_displayed)).' '.$GLOBALS['lang']['sur'].' '.liste_elements_count("SELECT count(*) AS nbr FROM links", array(), 'links').'</span></p>'."\n";
 
 // Affichage formulaire filtrage liens
 if (isset($_GET['filtre'])) {

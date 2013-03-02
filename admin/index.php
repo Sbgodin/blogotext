@@ -36,20 +36,21 @@ echo moteur_recherche($GLOBALS['lang']['search_everywhere']);
 afficher_menu(pathinfo($_SERVER['PHP_SELF'], PATHINFO_BASENAME));
 echo '</div>'."\n";
 
-$total_artic     = liste_base_articles('nb', '', 'admin', '', '0', '');
-$total_links     = liste_base_liens('nb', '', 'admin', '', '0', '');
-$total_comms     = liste_base_comms('nb', '', 'admin', '', '0', '');
-//
+$total_artic = liste_elements_count("SELECT count(*) AS nbr FROM articles", array());
+$total_links = liste_elements_count("SELECT count(*) AS nbr FROM links", array());
+$total_comms = liste_elements_count("SELECT count(*) AS nbr FROM commentaires", array());
+
 $total_nb_fichiers = sizeof($GLOBALS['liste_fichiers']);
-//
+
 
 echo '<div id="axe">'."\n";
 echo '<div id="mainpage">'."\n";
 
 if (!empty($_GET['q'])) {
-	$nb_commentaires = sizeof(liste_base_comms('recherche', htmlspecialchars($_GET['q']), 'admin', '', 0, ''));
-	$nb_articles = sizeof(liste_base_articles('recherche', urldecode($_GET['q']), 'admin', '', 0, ''));
-	$nb_liens = sizeof(liste_base_liens('recherche', urldecode($_GET['q']), 'admin', '', 0, ''));
+	$q = htmlspecialchars($_GET['q']);
+	$nb_commentaires = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_content LIKE ?", array('%'.$q.'%'));
+	$nb_articles = liste_elements_count("SELECT count(*) AS nbr FROM articles WHERE ( bt_content LIKE ? OR bt_title LIKE ? )", array('%'.$q.'%', '%'.$q.'%'));
+	$nb_liens = liste_elements_count("SELECT count(*) AS nbr FROM links WHERE ( bt_content LIKE ? OR bt_title LIKE ? OR bt_link LIKE ? )", array('%'.$q.'%','%'.$q.'%', '%'.$q.'%'));
 	$nb_files = sizeof(liste_base_files('recherche', urldecode($_GET['q']), ''));
 
 
@@ -61,12 +62,6 @@ if (!empty($_GET['q'])) {
 	echo "\t".'<li><a href="fichiers.php?q='.htmlspecialchars($_GET['q']).'">'.nombre_fichiers($nb_files).'</a></li>';
 	echo '</ul>';
 }
-
-
-
-
-
-
 
 function brute_size($filtre, $data_type) {
 	return $nb;

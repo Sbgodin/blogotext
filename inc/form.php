@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -37,7 +37,7 @@ function form_text($id, $defaut, $label) {
 function form_password($id, $defaut, $label) {
 	$form = '<p>'."\n";
 	$form .= '<label for="'.$id.'">'.$label.'</label>'."\n";
-	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" class="text" />'."\n";
+	$form .= '<input type="password" id="'.$id.'" name="'.$id.'" size="30" value="'.$defaut.'" class="text" autocomplete="off" />'."\n";
 	$form .= '</p>'."\n";
 	return $form;
 }
@@ -210,7 +210,7 @@ function liste_themes($chemin) {
 // formulaires ARTICLES //////////
 
 function afficher_form_filtre($type, $filtre) {
-	echo '<form method="get" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
+	echo '<form method="get" action="'.$_SERVER['PHP_SELF'].'">'."\n";
 	echo '<div id="form-filtre">'."\n";
 		filtre($type, $filtre);
 	echo '</div>'."\n";
@@ -366,8 +366,14 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= '<form method="post" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'">'."\n";
 		$form .= '<fieldset>'."\n";
 
+		$url = htmlspecialchars($_GET['url']);
+		$type = 'url';
+		$title = $url;
 		$new_id = date('YmdHis');
-		if (empty($_GET['url'])) { // URL vide : on ajoute une "note" (le champ de l’URL est masqué)
+
+		// URL vide : c’est une "note" et on masque le champ du lien
+		if (empty($url)) {
+			$type = 'note';
 			$title = 'Note';
 			$url = $GLOBALS['racine'].'?mode=links&amp;id='.$new_id;
 
@@ -378,24 +384,46 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 
 			$form .= '</p>'."\n";
 
+		// URL non vide
 		} else {
-			$url = htmlspecialchars($_GET['url']);
-			$titre = $url;
-			if ($ext_file = get_external_file($url, 15) ) {
+
+			$form .= legend($GLOBALS['lang']['label_nouv_lien'], 'legend-link');
+			$form .= '<p>'."\n";
+			$form .= "\t".'<label for="lien">'.ucfirst($GLOBALS['lang']['label_link']).' : </label>'."\n";
+			$form .= "\t".'<input type="text" id="lien" name="url" value="'.$url.'" size="50" class="text readonly-like" />'."\n";
+			$form .= hidden_input('type', 'link');
+			$form .= '</p>'."\n";
+
+			// URL est une image
+			if (preg_match('#(jpe?g|png|gif)$#', strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION)), $matchs)) {
+				$title = $GLOBALS['lang']['label_image'];
+				if (list($width, $height) = @getimagesize($url)) {
+					$fdata = 'data:image/'.$matchs[1].';base64,'.chunk_split(base64_encode(get_external_file($url, 1)));
+					$type = 'image';
+					$title .= ' - '.$width.'x'.$height.'px ';
+				}
+			}
+/*
+			// URL est un fichier !html !js !css !php ![vide] && téléchargement de fichiers activé :
+			if (!preg_match('#^(html|css|php|xhtml|xml|txt||)^$#', strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION))) ) {
+				if ($GLOBALS['dl_link_to_files'] == 2) {
+					//$form .= hidden_input('type', 'link');
+				}				
+			}
+*/
+			// URL est un lien normal
+			elseif ($ext_file = get_external_file($url, 15) ) {
 				// cherche le charset spécifié dans le code HTML.
-				// récupère la balise méta tout entière, dans $meta
 				preg_match('#<meta .*charset=.*>#Usi', $ext_file, $meta);
 
-				// si la balise a été trouvée, on tente d’isoler l’encodage.
+				// si la balise a été trouvée, on isole l’encodage.
 				if (!empty($meta[0])) {
-
-					// récupère juste l’encodage utilisé, dans $enc
-					preg_match('#charset="?(.*)"#si', $meta[0], $enc);
-
-					// regarde si le charset a été trouvé, sinon le fixe à UTF-8
-					$html_charset = (!empty($enc[1])) ? strtolower($enc[1]) : 'utf-8';
+					preg_match('#charset="?(.*)"#si', $meta[0], $enc); // récupère juste l’encodage utilisé, dans $enc
+					$html_charset = (!empty($enc[1])) ? strtolower($enc[1]) : 'utf-8'; // trouve le charset, sinon UTF-8
 				}
-				else { $html_charset = 'utf-8'; }
+				else {
+					$html_charset = 'utf-8';
+				}
 
 				// récupère le titre, dans le tableau $titles, rempli par preg_match()
 				preg_match('#<title>(.*)</title>#Usi', $ext_file, $titles);
@@ -407,17 +435,10 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 				} else {
 					$title = $url;
 				}
-			} else {
-				$title = $url;
 			}
-
-			$form .= legend($GLOBALS['lang']['label_nouv_lien'], 'legend-link');
-			$form .= '<p>'."\n";
-			$form .= "\t".'<label for="url">'.ucfirst($GLOBALS['lang']['label_link']).' : </label>'."\n";
-			$form .= "\t".'<input type="text" id="lien" name="url" value="'.$url.'" size="50" class="text readonly-like" />'."\n";
-			$form .= hidden_input('type', 'link');
-			$form .= '</p>'."\n";
 		}
+
+
 		$link = array('title' => $title, 'url' => $url);
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="title">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
@@ -425,16 +446,30 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="description">'.ucfirst($GLOBALS['lang']['pref_desc']).' : </label>'."\n";
-		$form .= "\t".'<textarea class="description" name="description" id="description" cols="40" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" class="text" tabindex="2"></textarea>'."\n";
+		if ($type == 'image') { // si le lien est une image, on ajoute une miniature de l’image;
+			$form .= "\t".'<span id="description-box" class="space-left">'."\n";
+			$form .= '<img src="'.$fdata.'" alt="img" class="preview-img" />';
+		} else {
+			$form .= "\t".'<span id="description-box">'."\n";
+		}
+		$form .= "\t\t".'<textarea class="description" name="description" id="description" cols="40" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" tabindex="2"></textarea>'."\n";
+		$form .= "\t".'</span>'."\n";
 		$form .= '</p>'."\n";
-		$form .= '<p>'."\n";
+
+
 		$form .= form_categories('links');
+		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
 		$form .= "\t".'<input type="text" id="categories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="" size="50" class="text" tabindex="3" />'."\n";
 		$form .= '</p>'."\n";
-		$form .= '<p class="sinline">';
-		$form .= "\t".'<input type="checkbox" id="bt_statut" name="bt_statut" tabindex="4" />' . '<label for="bt_statut">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
+		$form .= '<p class="sinline">'."\n";
+		$form .= "\t".'<input type="checkbox" id="statut" name="statut" tabindex="4" />' . '<label for="statut">'.$GLOBALS['lang']['label_lien_priv'].'</label>'."\n";
 		$form .= '</p>'."\n";
+		if ($type == 'image' and $GLOBALS['dl_link_to_files'] == 2) {
+			$form .= '<p class="sinline">'."\n";
+			$form .= "\t".'<input type="checkbox" id="add_to_files" name="add_to_files" tabindex="4" />' . '<label for="add_to_files">'.$GLOBALS['lang']['label_dl_fichier'].'</label>'."\n";
+			$form .= '</p>'."\n";
+		}
 		$form .= '<input class="submit blue-square" type="submit" name="enregistrer" id="valid-link" value="'.$GLOBALS['lang']['envoyer'].'" tabindex="5" />'."\n";
 		$form .= hidden_input('_verif_envoi', '1');
 		$form .= hidden_input('bt_id', $new_id);
@@ -455,11 +490,13 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="title'.$rand.'">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
-		$form .= "\t".'<input type="text" id="title'.$rand.'" name="title" placeholder="'.$GLOBALS['lang']['label_titre'].'" required="" value="'.$editlink['bt_title'].'" size="70" class="text" />'."\n";
+		$form .= "\t".'<input type="text" id="title'.$rand.'" name="title" placeholder="'.$GLOBALS['lang']['label_titre'].'" required="" value="'.$editlink['bt_title'].'" size="70" class="text" tabindex="1" />'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="description'.$rand.'">'.ucfirst($GLOBALS['lang']['pref_desc']).' : </label>'."\n";
-		$form .= "\t".'<textarea class="description text" id="description'.$rand.'" name="description" cols="70" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" >'.$editlink['bt_wiki_content'].'</textarea>'."\n";
+		$form .= "\t".'<span id="description-box">'."\n";
+		$form .= "\t\t".'<textarea class="description text" id="description'.$rand.'" name="description" cols="70" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" tabindex="2" >'.$editlink['bt_wiki_content'].'</textarea>'."\n";
+		$form .= "\t".'</span>'."\n";
 		$form .= '</p>'."\n";
 		$form .= '<p>'."\n";
 		$form .= form_categories('links');
@@ -468,7 +505,7 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= '</p>'."\n";
 		$checked = ($editlink['bt_statut'] == 0) ? 'checked ' : '';
 		$form .= '<p class="sinline">';
-		$form .= "\t".'<input type="checkbox" id="bt_statut'.$rand.'" name="bt_statut" '.$checked.'/>' . '<label for="bt_statut'.$rand.'">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
+		$form .= "\t".'<input type="checkbox" id="statut'.$rand.'" name="statut" '.$checked.'/>' . '<label for="statut'.$rand.'">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
 		$form .= '</p>'."\n";
 		$form .= "\t".'<input class="submit blue-square" type="submit" name="editer" value="'.$GLOBALS['lang']['envoyer'].'" />'."\n";
 		$form .= "\t".'<input class="submit red-square" type="submit" name="supprimer" value="'.$GLOBALS['lang']['supprimer'].'" onclick="return window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')" />'."\n";
@@ -551,7 +588,7 @@ function afficher_form_billet($article, $erreurs) {
 	} else {
 		echo '<form id="form-ecrire" method="post" action="'.$_SERVER['PHP_SELF'].'" >'."\n";
 	}
-		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" title="'.$GLOBALS['lang']['label_titre'].'" tabindex="30" class="text" />'."\n" ;
+		echo '<input id="titre" name="titre" type="text" size="50" value="'.$titredefaut.'" required="" placeholder="'.$GLOBALS['lang']['label_titre'].'" title="'.$GLOBALS['lang']['label_titre'].'" tabindex="30" class="text" spellcheck="true" />'."\n" ;
 	echo '<div id="chapo_note">'."\n";
 	echo '<div id="blocchapo">'."\n";
 		echo '<textarea id="chapo" name="chapo" rows="5" cols="60" placeholder="'.$GLOBALS['lang']['label_chapo'].'" title="'.$GLOBALS['lang']['label_chapo'].'" tabindex="35" class="text" >'.$chapodefaut.'</textarea>'."\n" ;
@@ -666,6 +703,7 @@ function afficher_form_billet($article, $erreurs) {
 		}
 	echo '</div>';
 	echo hidden_input('_verif_envoi', '1');
+	echo hidden_input('token', new_token());
 	echo '<br style="clear:both;"/>'."\n";
 
 	echo '</form>'."\n";

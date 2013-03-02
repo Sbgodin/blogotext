@@ -38,8 +38,11 @@ $post = '';
 $article_id = '';
 if (isset($_GET['post_id'])) {
 	$article_id = htmlspecialchars($_GET['post_id']);
-	$posts = liste_base_articles('id', $article_id, 'admin', '', 0, '');
-//	echo '<pre>'; print_r($posts); die();
+
+	$query = "SELECT * FROM articles WHERE bt_id LIKE ?";
+	$posts = liste_elements($query, array($article_id), 'articles');
+
+	//echo '<pre>'; print_r($posts); die();
 	if (isset($posts[0])) $post = $posts[0];
 }
 

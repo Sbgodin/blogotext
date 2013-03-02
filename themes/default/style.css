@@ -11,7 +11,6 @@ html, body {
 	color: #333;
 	font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,Arial,sans-serif; 
 	font-size:13px;
-	background: ;
 	background: url(diamondplate.png) repeat white;
 }
 
@@ -33,7 +32,7 @@ p {
 }
 
 h1 {
-	font-size: 34px;
+	font-size: 4em;
 }
 
 a {
@@ -84,7 +83,7 @@ input[type="text"], input[type="url"], input[type="search"], input[type="email"]
 	margin-left: 20%;
 	text-shadow: 1px 1px 2px rgba(100, 100, 100, .4);
 	letter-spacing: -1px;
-	font-size: 30px;
+	font-size: 3em;
 }
 
 #top h2 {
@@ -95,7 +94,6 @@ input[type="text"], input[type="url"], input[type="search"], input[type="email"]
 }
 
 #top h1 a {
-	font-size: 36px;
 	text-decoration: none;
 	color: inherit;
 }
@@ -150,7 +148,7 @@ h3.date {
 }
 
 h2 {
-	font-size: 17px;
+	font-size: 1.4em;
 	margin: 0;
 	padding: 0;
 }
@@ -192,7 +190,7 @@ h3 img {
 }
 
 .news h3, .lien h3 {
-	font-size: 12px;
+	font-size: 1em;
 }
 
 .chapo {
@@ -201,7 +199,7 @@ h3 img {
 
 .permalien {
 	color: gray;
-	font-size: 60%;
+	font-size: 0.7em;
 	text-align: right;
 }
 
@@ -214,7 +212,7 @@ h3 img {
 }
 
 .comment h3 {
-	font-size : 12px;
+	font-size : 1.05em;
 	margin-bottom: 15px;
 }
 
@@ -227,7 +225,6 @@ h3 img {
 	padding: 0 4px 2px 4px;
 	border: 1px solid silver;
 	border-radius: 10px;
-	// box-shadow: 0px 0px 2px #fff, 1px 1px 2px #cde6ff;
 	border-width: 1px 0 0 1px;
 	color: inherit;
 }
@@ -520,7 +517,7 @@ blockquote, q {
 
 #nombre_comment {
 	font-weight: bold;
-	font-size: 110%;
+	font-size: 1.10em;
 }
 
 .pagination a:visited {
@@ -532,9 +529,90 @@ blockquote, q {
 }
 
 
-/*
-	 to delete afterwards...
-*/
+@media (max-width: 799px) {
 
-.one { float: right; margin: 15px; }
+	body {
+		width: 98%;
+		padding: 5px 1%;
+		margin: 0;
+		font-size: 1.1em;
+	}
 
+	#top {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	#top h1 {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: 0;
+		text-align: center;
+	}
+	#top h2 {
+		text-align: center;
+	}
+
+	#contenu {
+		padding: 5px 0px 15px;
+		margin-right: 0;
+	}
+
+	#sidebar {
+		float: none;
+		position: relative;
+		padding: 0;
+		width: 100%;
+		font-size: 0.8em;
+	}
+
+	nav {
+		margin: 10px auto;
+		width: 250px;
+	}
+
+	#tags, #tags, #last_comments {
+		display: none;
+	}
+
+	#navigate {
+		width: 350px;
+	}
+
+	#search {
+		width: 350px;
+	}
+	#input-rechercher, #search {
+		height: 40px;
+		font-size: 120%;
+	}
+	#input-rechercher {
+		width: 120px;
+	}
+
+	#calendrier td {
+		color: #555;
+		text-align: center;
+		width: 50px;
+		line-height: 3em;
+	}
+	#calendrier {
+		font-size: 1.4em;
+	}
+
+	#form-commentaire .infos input, #form-commentaire .infos label {
+		display: block;
+		width: 100%;
+	}
+
+	#form-commentaire .infos input {
+		width: 90%;
+		margin-left: 10%;
+	}
+	#form-commentaire .infos {
+		text-align: left;
+		width: 100%;
+		margin: 10px auto;
+	}
+
+}

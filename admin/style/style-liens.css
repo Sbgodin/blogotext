@@ -17,9 +17,30 @@
 	background-color: #e8e8e8;
 }
 
-#post-lien input.text, #post-lien textarea {
+#post-lien #description-box {
+	display: inline-block;
+}
+
+#description-box .preview-img {
+	width: 26%;
+	height: 114px;
+	float:right;
+	border: 1px solid #9999A3;
+	border-radius: 4px;
+}
+
+#post-lien input.text, #post-lien #description-box {
 	min-width: 400px;
 	width: 50%;
+}
+
+#post-lien textarea {
+	width: 100%;
+	height: 110px;
+}
+
+#post-lien #description-box.space-left textarea {
+	width: 70%;
 }
 
 #post-lien fieldset label {

@@ -85,12 +85,6 @@ function afficher_form_prefs($erreurs = '') {
 		$fld_apparence .= '<p>'."\n";
 		$fld_apparence .= form_select('nb_maxi', array('5'=>'5', '10'=>'10', '15'=>'15', '20'=>'20', '25'=>'25', '50'=>'50'), $GLOBALS['max_bill_acceuil'],$GLOBALS['lang']['pref_nb_maxi']);
 		$fld_apparence .= '</p>'."\n";
-//		$fld_apparence .= '<p>'."\n";
-//		$fld_apparence .= form_select('nb_maxi_linx', array('20'=>'20', '50'=>'50', '100'=>'100', '150'=>'150'), $GLOBALS['max_linx_acceuil'],$GLOBALS['lang']['pref_nblinx_maxi']);
-//		$fld_apparence .= '</p>'."\n";
-//		$fld_apparence .= '<p>'."\n";
-//		$fld_apparence .= form_select('nb_maxi_comm', array('3'=>'3', '4'=>'4', '5'=>'5', '6'=>'6', '10'=>'10', '15'=>'15', '20'=>'20'), $GLOBALS['max_comm_encart'],$GLOBALS['lang']['pref_nb_maxi_comm']);
-//		$fld_apparence .= '</p>'."\n";
 		$fld_apparence .= '<p>'."\n";
 		$fld_apparence .= form_select('theme', liste_themes($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_themes']), $GLOBALS['theme_choisi'],$GLOBALS['lang']['pref_theme']);
 		$fld_apparence .= '</p>'."\n";
@@ -141,6 +135,11 @@ function afficher_form_prefs($erreurs = '') {
 		$fld_cfg_linx .= '<p>'."\n";
 		$fld_cfg_linx .= form_select('nb_list_linx', $nbs, $GLOBALS['max_linx_admin'], $GLOBALS['lang']['pref_nb_list_linx']);
 		$fld_cfg_linx .= '</p>'."\n";
+		// partage de fichiers !pages : télécharger dans fichiers automatiquement ?
+		$nbs = array('0'=> $GLOBALS['lang']['non'], '1'=> $GLOBALS['lang']['oui'], '2' => $GLOBALS['lang']['pref_ask_everytime']);
+		$fld_cfg_linx .= '<p>'."\n";
+		$fld_cfg_linx .= form_select('dl_link_to_files', $nbs, $GLOBALS['dl_link_to_files'], $GLOBALS['lang']['pref_linx_dl_auto']);
+		$fld_cfg_linx .= '</p>'."\n";
 		// lien à glisser sur la barre des favoris
 		$fld_cfg_linx .= '<p>'."\n";
 		$fld_cfg_linx .= '<label>'.$GLOBALS['lang']['pref_label_bookmark_lien'].'</label>'."\n";
@@ -168,15 +167,16 @@ function afficher_form_prefs($erreurs = '') {
 	// Get latest version number at most once a day.
 	if ( !is_file($GLOBALS['last-online-file']) or (filemtime($GLOBALS['last-online-file']) < time()-(24*60*60)) ) {
 		$last_version = get_external_file('http://lehollandaisvolant.net/blogotext/version.php', 6);
+		if (empty($last_version)) { $last_version = $GLOBALS['version']; }
 		// If failed, nevermind. We don't want to bother the user with that.
-		file_put_contents($GLOBALS['last-online-file'], $GLOBALS['version']); // touch file date
+		file_put_contents($GLOBALS['last-online-file'], $last_version); // touch file date
 	}
 	// Compare versions:
 	$newestversion = file_get_contents($GLOBALS['last-online-file']);
-	if (version_compare($newestversion, $GLOBALS['version']) == 1) { // does this work :o ? That function initialy works for PHP versions only...
+	if (version_compare($newestversion, $GLOBALS['version']) == 1) {
 			$fld_update = '<fieldset class="pref">';
 			$fld_update .= legend($GLOBALS['lang']['maint_chk_update'], 'legend-update');
-			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$last_version.')<br/>'."\n";
+			$fld_update .= '<p style="font-weight: bold;">'.$GLOBALS['lang']['maint_update_youisbad'].' ('.$newestversion.')<br/>'."\n";
 			$fld_update .= $GLOBALS['lang']['maint_update_go_dl_it'].' <a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.</p>';
 			$fld_update .= '</fieldset></div>'."\n";
 		echo $fld_update;
@@ -214,7 +214,7 @@ function afficher_form_captcha() {
 		$word_ok = FALSE;
 	}
 	echo js_reload_captcha(1);
-	echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post" class="bordered-formbloc" >'."\n";
+	echo '<form action="'.$_SERVER['PHP_SELF'].'?test_captcha" method="post" class="bordered-formbloc" >'."\n";
 	echo '<fieldset class="pref">';
 	echo legend('Captcha', 'legend-config');
 	echo '<p>';

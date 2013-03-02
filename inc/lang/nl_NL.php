@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -47,6 +47,8 @@ $lang_nl = array(
 'nouveau' 							=> 'Nieuw bericht',
 'supprimer' 						=> 'Verweideren',
 'deconnexion' 						=> 'Afmelden',
+'voir'		 						=> 'Zien',
+'partager' 							=> 'Delen',
 'rechercher' 						=> 'Zoek',
 'filtrer' 							=> 'Filter',
 'oui' 								=> 'Ja',
@@ -143,6 +145,7 @@ $lang_nl = array(
 'label_taille_fichier'			=> 'Groote',
 'label_precedent'					=> 'ouwderen items',
 'label_suivant'					=> 'nieuweren items',
+'label_dl_fichier'				=> 'Dit bestand importeeren?', ////////
 // Commentaire
 'aucun'								=> 'geen',
 'comment_ajout'					=> 'Reageren',
@@ -244,6 +247,7 @@ $lang_nl = array(
 'err_comm_webpage'				=> 'Het URL is niet correct',
 'err_comm_article_id'			=> 'Het article ID is niet geldig',
 'err_lien_vide'					=> 'Het URL is leeg',
+'err_wrong_token'					=> 'Het veilegheits "token" is ongeldig.',
 // problems
 'prob_no_img_folder'				=> 'Er is geen map voor de afbeeldingen',
 'prob_img_folder_chmod'			=> 'De map voor afbeeldingen is niet herschrijfbaar',
@@ -343,6 +347,8 @@ $lang_nl = array(
 'pref_go_to_mainteance'			=> 'Blogotext opruimen',
 'pref_label_bookmark_lien'		=> 'Bookmark this link. Then click "Save link" button in any page you want to share.', ////////////////////////
 'pref_alert_bookmark_link'		=> 'Bookmark this link : drag it to your bookmarks toolbar, or right-click it and choose Bookmark This Link.',
+'pref_linx_dl_auto'				=> 'Automatically add shared links that are files at your files?',
+'pref_ask_everytime'				=> 'Ask me every time',
 'legend_what_doyouwant'			=> 'Wat wilt u doen?',
 'legend_what_doyouwant_optim'	=> 'De database opruimen?',
 // Notes
