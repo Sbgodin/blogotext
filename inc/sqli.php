@@ -633,7 +633,7 @@ function list_all_tags($table) {
 		array_shift($tab_tags);
 	}
 
-	// compte le nombre d’occurences de chaque tags
+	// compte le nombre d’occurences de chaque tag
 	$return = array();
 	foreach($tab_tags as $i => $tag) {
 		$return[] = array('tag' => $tag, 'nb' => substr_count($liste_tags, $tag));
