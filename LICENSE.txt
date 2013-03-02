@@ -10,7 +10,7 @@
 | Creative Commons Attribution-NonCommercial 2.0 France Licence
 |
 | Blogotext V2 uses PHP 5.1+ with PDO support & SQLite (GD and MySQL
-| might be needed for some additionnal stuff aswell).
+| might be needed for some additionnal stuff as well).
 |
 | This software is provided as-is, without any warranty.
 | In no event will the authors be held liable for any damages arising
@@ -60,7 +60,7 @@
 +------------------------------------------------------------------------
 | http://www.script-tutorials.com/html5-drag-and-drop-multiple-file-uploader
 |
-| "HTML5 Drag and Drop Multiple File Uploader" is a file uploade script.
+| "HTML5 Drag and Drop Multiple File Uploader" is a file upload script.
 |
 | 2012 - Script-Tutorials.com
 |
