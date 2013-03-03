@@ -55,7 +55,7 @@ function fichier_user() {
 	$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
 	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
 	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
-	$user .= "\$GLOBALS['salt'] = '".$salt."';\n";
+	$user .= "\$GLOBALS['salt'] = '".$GLOBALS['salt']."';\n";
 	$user .= "?>";
 	if (file_put_contents($fichier_user, $user) === FALSE) {
 		return FALSE;
