@@ -23,20 +23,16 @@ error_reporting($GLOBALS['show_errors']);
 $max_attemps = 10; // max attempts before blocking login page
 $wait_time = 30;   // time to wait before unblocking login page, in minutes
 
-if (check_session() === TRUE) { // return to index if session is already open.
-	header('Location: index.php');
-}
-
 // Acces LOG
 if (isset($_POST['nom_utilisateur'])) {
 	// IP
 	$ip = htmlspecialchars($_SERVER["REMOTE_ADDR"]);
 	// Proxy IPs, if exists.
 	$ip .= (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? '_'.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : '';
-	$browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '' ; // navigateur
-	$referer = (isset($_SERVER['HTTP_REFERER'])) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'none'; // url d'origine
+	$browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? htmlspecialchars(str_replace($_SERVER['HTTP_USER_AGENT'], '\\', '')) : '' ; // navigateur
+	$referer = (isset($_SERVER['HTTP_REFERER'])) ? htmlspecialchars(str_replace($_SERVER['HTTP_REFERER'], '\\', '')) : 'none'; // url d'origine
 	$curent_time = date('r'); // heure selon RFC 2822 : Wed, 18 Jan 2012 20:42:12 +0100
-	$username = htmlspecialchars($_POST['nom_utilisateur']); // nom de login tenté.
+	$username = htmlspecialchars(str_replace($_POST['nom_utilisateur'], '\\', '')); // nom de login tenté.
 
 	$data = "\n\n\n".'<?php'."\n";
 	$data .= '	// '.$curent_time . "\n";
@@ -46,8 +42,13 @@ if (isset($_POST['nom_utilisateur'])) {
 	$data .= '	// '.'LOGIN   : ' . $username . "\n";
 	$data .= '?>';
 
-	file_put_contents('xauthlog.php', $data, FILE_APPEND);
+	file_put_contents($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'xauthlog.php', $data, FILE_APPEND);
 }// end log
+
+if (check_session() === TRUE) { // return to index if session is already open.
+	header('Location: index.php');
+	exit;
+}
 
 
 // Auth checking :

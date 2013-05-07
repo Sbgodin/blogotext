@@ -224,6 +224,7 @@ $lang_nl = array(
 'err_minutes' 						=> 'De minuten zijn niet correct',
 'err_secondes' 					=> 'De seconden zijn niet correct',
 'err_file_write'					=> 'Kan het bestand niet maken',
+'err_theme_introuvable'			=> 'Het thema bestand kan niet gevonden voorden.',
 'err_prefs_write'					=> 'Kan het bestand met instellingen niet schrijven',
 'err_prefs_auteur'				=> 'Auteur\'s naam is leeg',
 'err_prefs_email'					=> 'E-mailadres is ongeldig',
@@ -258,6 +259,8 @@ $lang_nl = array(
 'prob_user_file_chmod'			=> 'Het bestand « user.php » is in alleenlezen',
 'prob_pref_file_chmod'			=> 'Het bestand « pref.php » is in alleenlezen',
 'prob_tags_file_chmod'			=> 'Het bestand « tags.php » is in alleenlezen',
+'prob_no_db_folder'				=> 'Er is geen map voor de database',
+'prob_db_folder_chmod'			=> 'De map voor database is niet herschrijfbaar',
 // Questions
 'question_suppr_article'		=> 'Bent u zeker dat u deze artikel wilt verwijderen?',
 'question_suppr_image'			=> 'Bent u zeker dat u deze afbeelding wilt verwijderen?',

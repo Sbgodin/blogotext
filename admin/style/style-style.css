@@ -1,28 +1,3 @@
-
-/* FOR MAINTAINANCE : CSS FILES ARE SPLITED IN MULTIPLE FILES
--------------------------------------------------------------*/
-
-/* Résumé page : for the graphs and the thumbnails */
-@import url(style-graphs.css);
-
-/* Écrire page : for the new article form page */
-@import url(style-ecrire.css);
-
-/* Images and files : miniatures blocs + formulaires */
-@import url(style-miniatures-files.css);
-
-/* Page des liens : formulaire + blocs. */
-@import url(style-liens.css);
-
-/* Page d’authentification */
-@import url(style-auth.css);
-
-/* Page des commentaires : formualires + blocs */
-@import url(style-commentaires.css);
-
-/* Page des articles : liste sous la forme d’un tableau */
-@import url(style-articles.css);
-
 /* GENERAL PAGE LAYOUT
 ------------------------------------------------------------ */
 html, body {

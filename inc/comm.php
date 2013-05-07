@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -36,8 +36,6 @@ function protect($text) {
 	return $return;
 }
 
-
-// FIXME : ajouter security coin.
 
 /* generates the comment form, with params from the admin-side and the visiter-side */
 function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='') {
@@ -86,10 +84,11 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 		$comm['bt_author'] = protect($_POST['auteur']);
 		$comm['bt_webpage'] = protect($_POST['webpage']);
 		$comm['anchor'] = article_anchor($comm['bt_id']);
+		$comm['bt_link'] = '';
 		$comm['auteur_lien'] = ($comm['bt_webpage'] != '') ? '<a href="'.$comm['bt_webpage'].'" class="webpage">'.$comm['bt_author'].'</a>' : $comm['bt_author'];
 		$GLOBALS['form_commentaire'] .= '<div id="erreurs"><ul><li>Prévisualisation&nbsp;:</li></ul></div>'."\n";
 		$GLOBALS['form_commentaire'] .= '<div id="previsualisation">'."\n";
-		$GLOBALS['form_commentaire'] .= conversions_theme_commentaire(charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'liste'), $comm);
+		$GLOBALS['form_commentaire'] .= conversions_theme_commentaire(file_get_contents($GLOBALS['theme_post_comm']), $comm);
 		$GLOBALS['form_commentaire'] .= '</div>'."\n";
 	} else {
 		if (isset($_POST['_verif_envoi'])) {
@@ -115,7 +114,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 
 	// COMMENT FORM ON ADMIN SIDE : +edit +always_open –captcha –previsualisation –verif
 	if ($mode == 'admin') {
-		$rand = ($mode == 'admin') ? substr(md5(rand(1000,9999)),0,5) : '';
+		$rand = ($mode == 'admin') ? substr(md5(rand(100,999)),0,5) : '';
 		// begin with some additional stuff on comment "edit".
 		if (isset($actual_comment)) { // edit
 			$form = "\n".'<form id="form-commentaire-'.$actual_comment['bt_id'].'" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" style="display:none;">'."\n";
@@ -124,6 +123,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 			$form .= "\t\t".hidden_input('comment_id', $actual_comment['bt_id']);
 			$form .= "\t\t".hidden_input('status', $actual_comment['bt_statut']);
 			$form .= "\t\t".hidden_input('ID', $actual_comment['ID']);
+			$form .= "\t\t".hidden_input('token', $actual_comment['comm-token']);
 			$form .= "\t".'</fieldset><!--end syst-->'."\n";
 		} else {
 			$form = "\n".'<form id="form-commentaire" class="form-commentaire" method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'#erreurs" >'."\n";
@@ -156,6 +156,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 		$form .= ($mode != 'admin') ? "\t\t".label('captcha', $GLOBALS['lang']['comment_captcha'].' <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?') : '';
 		$form .= ($mode != 'admin') ? "\t\t".'<input type="text" id="captcha'.$rand.'" name="captcha" placeholder="'.$GLOBALS['lang']['comment_captcha_usenumbers'].'" value="" size="25" tabindex="2" class="text" /><br/>'."\n" : '';
 		$form .= "\t\t".hidden_input('_verif_envoi', '1');
+		$form .= "\t\t".hidden_input('token', new_token());
 		if (isset($actual_comment)) { // edit
 			$checked = ($actual_comment['bt_statut'] == '0') ? 'checked ' : '';
 			$form .= "\t".'<label for="activer_comm'.$rand.'">'.$GLOBALS['lang']['label_comm_priv'].'</label>'.'<input type="checkbox" id="activer_comm'.$rand.'" name="activer_comm" '.$checked.'/>';
@@ -204,7 +205,7 @@ function afficher_form_commentaire($article_id, $mode, $erreurs='', $comm_id='')
 		$form .= "\t\t".label('webpage', $GLOBALS['lang']['comment_webpage'].' :');
 		$form .= "\t\t".'<input type="text" name="webpage" placeholder="'.$GLOBALS['lang']['comment_webpage'].'" id="webpage" value="'.$defaut['webpage'].'" size="25"  tabindex="2"/><br/>'."\n";
 		$form .= "\t\t".label('captcha', $GLOBALS['lang']['comment_captcha'].' <b>'.en_lettres($_SESSION['captx']).'</b> + <b>'.en_lettres($_SESSION['capty']).'</b> ?');
-		$form .= "\t\t".'<input type="text" id="captcha" name="captcha" placeholder="'.$GLOBALS['lang']['comment_captcha_usenumbers'].'" value="" size="25" tabindex="2" class="text" /><br/>'."\n";
+		$form .= "\t\t".'<input type="text" id="captcha" name="captcha" autocomplete="off" placeholder="'.$GLOBALS['lang']['comment_captcha_usenumbers'].'" value="" size="25" tabindex="2" class="text" /><br/>'."\n";
 		$form .= "\t\t".hidden_input('_verif_envoi', '1');
 		$form .= "\t".'</fieldset><!--end info-->'."\n";
 		$form .= "\t".'<fieldset class="cookie"><!--begin cookie asking -->'."\n";

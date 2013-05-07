@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -20,14 +20,13 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version'] = '2.0.0.4';
+$GLOBALS['version'] = '2.0.1.0';
 $GLOBALS['last-online-file'] = '../config/version.txt';
 // MINIMAL REQUIRED PHP VERSION
 $GLOBALS['minimal_php_version'] = '5.1.2';
 
 // GENERAL
 $GLOBALS['nom_application']= 'BlogoText';
-$GLOBALS['charset']= 'UTF-8';
 $GLOBALS['appsite']= 'http://lehollandaisvolant.net/blogotext/';
 $GLOBALS['date_premier_message_blog'] = '199701';
 $GLOBALS['salt']= '123456'; // if changed : delete /config/user.php file and proceed to a re-installation. No data loss.
@@ -58,8 +57,8 @@ if (is_file($mysql_file) and is_readable($mysql_file) and file_get_contents($mys
 
 // CAPTCHA
 function mk_captcha() {
-	$captcha['x'] = rand(rand(1,5),rand(6,9));
-	$captcha['y'] = rand(rand(1,rand(3,7)),9);
+	$captcha['x'] = rand(4, 9);
+	$captcha['y'] = rand(1, 6);
 	return $captcha;
 }
 
@@ -79,7 +78,6 @@ if ( isset($GLOBALS['theme_choisi']) ) {
 	$GLOBALS['theme_style'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'];
 	$GLOBALS['theme_article'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/post.html';
 	$GLOBALS['theme_liste'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/list.html';
-
 	$GLOBALS['theme_post_artc'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/article.html';
 	$GLOBALS['theme_post_comm'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/commentaire.html';
 	$GLOBALS['theme_post_link'] = $GLOBALS['dossier_themes'].'/'.$GLOBALS['theme_choisi'].'/template/link.html';
@@ -106,51 +104,28 @@ $GLOBALS['files_ext'] = array(
 
 
 // from an array given by SQLite's requests, this function adds some more stuf to data stored by DB.
-function init_list_articles($list, $chapo) {
-	if (!empty($list)) {
-		foreach($list as $item => $article) {
-			// pour ne plus rendre obligatoire le chapô : s'il est vide, on le recrée à partir du début du bt_content (peu recommandé, mais disponible)
-			if ($chapo == '1' and trim($list[$item]['bt_abstract']) == '') {
-				$abstract = array();
-				$abstract = explode("|", wordwrap($list[$item]['bt_content'], 250, "|"), 2);
-				$list[$item]['bt_abstract'] = strip_tags($abstract[0])."…";
-			}
-
-			$dec = decode_id($article['bt_date']);
-			$dec_id = decode_id($article['bt_id']);
-			$list[$item]['annee'] = $dec['annee'];
-			$list[$item]['mois'] = $dec['mois'];
-			$list[$item]['jour'] = $dec['jour'];
-			$list[$item]['heure'] = $dec['heure'];
-			$list[$item]['minutes'] = $dec['minutes'];
-			$list[$item]['secondes'] = $dec['secondes'];
-			$list[$item]['lien'] = $_SERVER['PHP_SELF'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
-			$list[$item]['bt_link'] = $GLOBALS['racine'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
-			$list[$item]['bt_url_rss_comments'] = 'rss.php?id='.$article['bt_id'];
+function init_list_articles($article) {
+	if (!empty($article)) {
+		// pour ne plus rendre obligatoire le chapô : s'il est vide, on le recrée à partir du début du bt_content
+		if (isset($article['bt_abstract']) and empty($article['bt_abstract'])) {
+			$abstract = array();
+			$abstract = explode("|", wordwrap($article['bt_content'], 250, "|"), 2);
+			$article['bt_abstract'] = strip_tags($abstract[0])."…";
 		}
-
-		// si un seul article, on affiche cet article et le flux RSS doit se trouver dans le <head>, et il doit être en GLOBAL.
-		if (count($list) == 1) {
-			$GLOBALS['rss_comments'] = $list[0]['bt_url_rss_comments'];
-		}
+		$dec_id = decode_id($article['bt_id']);
+		$article = array_merge($article, decode_id($article['bt_date']));
+		$article['lien'] = $_SERVER['PHP_SELF'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
+		$article['bt_link'] = $GLOBALS['racine'].'?d='.$dec_id['annee'].'/'.$dec_id['mois'].'/'.$dec_id['jour'].'/'.$dec_id['heure'].'/'.$dec_id['minutes'].'/'.$dec_id['secondes'].'-'.titre_url($article['bt_title']);
 	}
-	return $list;
+	return $article;
 }
 
-function init_list_comments($list) {
-	foreach ($list as $item => $comm) {
-		$dec = decode_id($comm['bt_id']);
-		$list[$item]['auteur_lien'] = (!empty($comm['bt_webpage'])) ? '<a href="'.$comm['bt_webpage'].'" class="webpage">'.$comm['bt_author'].'</a>' : $comm['bt_author'] ;
-		$list[$item]['anchor'] = article_anchor($comm['bt_id']);
-		$list[$item]['bt_link'] = get_blogpath($comm['bt_article_id'], '0').'#'.$list[$item]['anchor'];
-		$list[$item]['annee'] = $dec['annee'];
-		$list[$item]['mois'] = $dec['mois'];
-		$list[$item]['jour'] = $dec['jour'];
-		$list[$item]['heure'] = $dec['heure'];
-		$list[$item]['minutes'] = $dec['minutes'];
-		$list[$item]['secondes'] = $dec['secondes'];
-	}
-	return $list;
+function init_list_comments($comment) {
+		$comment['auteur_lien'] = (!empty($comment['bt_webpage'])) ? '<a href="'.$comment['bt_webpage'].'" class="webpage">'.$comment['bt_author'].'</a>' : $comment['bt_author'] ;
+		$comment['anchor'] = article_anchor($comment['bt_id']);
+		$comment['bt_link'] = get_blogpath($comment['bt_article_id'], '').'#'.$comment['anchor'];
+		$comment = array_merge($comment, decode_id($comment['bt_id']));
+	return $comment;
 }
 
 
@@ -245,8 +220,6 @@ function init_post_link2() { // second init : the whole link data needs to be st
 		$url = htmlspecialchars(stripslashes(protect_markup(clean_txt($_POST['url']))));
 	}
 	$statut = (isset($_POST['statut'])) ? 0 : 1;
-
-
 	$link = array (
 		'bt_id' => $id,
 		'bt_type' => htmlspecialchars($_POST['type']),

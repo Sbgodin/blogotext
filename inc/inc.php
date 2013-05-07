@@ -12,9 +12,9 @@
 # Also, any distributors of non-official releases MUST warn the final user of it, by any visible way before the download.
 # *** LICENSE ***
 
-require_once 'lang.php';
 require_once '../config/user.php';
 require_once '../config/prefs.php';
+require_once 'lang.php';
 require_once 'conf.php';
 require_once 'them.php' ;
 require_once 'html.php' ;

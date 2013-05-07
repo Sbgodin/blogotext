@@ -65,8 +65,6 @@ function afficher_liste_images($images) {
 					$out .= '<a title="'.$GLOBALS['lang']['partager']. '" class="lien lien-shar" href="links.php?url='.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
 					$out .= '<a title="'.$GLOBALS['lang']['voir'].     '" class="lien lien-voir" href="'.$dossier.'/'.$image['bt_filename'].'">&nbsp;</a>';
 					$out .= '<a title="'.$GLOBALS['lang']['editer'].   '" class="lien lien-edit" href="fichiers.php?file_id='.$image['bt_id'].'&amp;edit">&nbsp;</a>';
-//					$out .= '<a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="fichiers.php?file_id='.$image['bt_id'].'&amp;suppr&amp;av='.time().'&amp;type=img">&nbsp;</a>';
-
 					$out .= '<a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="#" onclick="request_delete_form(\''.$image['bt_id'].'\'); return false;" >&nbsp;</a>';
 
 				$out .= '</span>'."\n";
@@ -362,7 +360,7 @@ function init_post_fichier() { //no $mode : it's always admin.
 function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fichier
 	$max_file_size = taille_formate(return_bytes(ini_get('upload_max_filesize')));
 	if ($erreurs) {
-		erreurs($erreurs);
+		echo erreurs($erreurs);
 	}
 	$form = '<form id="form-image" class="bordered-formbloc" enctype="multipart/form-data" method="post" action="'.$_SERVER['PHP_SELF'].'">'."\n";
 	
@@ -385,7 +383,7 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 		$form .= '</p>'."\n";
 
 		$form .= '<div id="alternate-form-dragndrop">'."\n";
-		$form .= '<p class="gray-section" id="dragndrop-area">'."\n";
+		$form .= '<p class="gray-section" id="dragndrop-area" ondragenter="return false;" ondragover="return false;" ondrop="return handleDrop(event);">'."\n";
 		$form .= "\t".'<span id="dragndrop-mssg">'.$GLOBALS['lang']['img_drop_files_here'].'</span>'."\n";
 		$form .= "\t".'<br/><a class="specify-link" onclick="switchUploadForm(\'to_file\'); return false;" href="#">'.$GLOBALS['lang']['img_upload_un_fichier'].'</a>'."\n";
 		$form .= "\t".'<br/><a class="specify-link" onclick="switchUploadForm(\'to_link\'); return false;" href="#">'.$GLOBALS['lang']['img_specifier_url'].'</a>'."\n";
@@ -413,6 +411,7 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 
 		$form .= '<div id="img-submit">'."\n";
 		$form .= '<input class="submit blue-square" type="submit" name="upload" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
+		$form .= hidden_input('token', new_token(), 'id');
 		$form .= hidden_input('_verif_envoi', '1');
 		$form .= '</div>'."\n";
 
@@ -496,6 +495,7 @@ function afficher_form_fichier($erreurs, $fichiers, $what) { // ajout d’un fic
 		$form .= hidden_input('filename', $fichiers[0]['bt_filename']);
 		$form .= hidden_input('sha1_file', $fichiers[0]['bt_checksum']);
 		$form .= hidden_input('filesize', $fichiers[0]['bt_filesize']);
+		$form .= hidden_input('token', new_token());
 		$form .= '</fieldset>';
 	}
 	$form .= '</form>'."\n";

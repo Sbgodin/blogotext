@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -19,9 +19,9 @@ $GLOBALS['BT_ROOT_PATH'] = '';
 error_reporting(-1);
 $begin = microtime(TRUE);
 
-require_once 'inc/lang.php';
 require_once 'config/user.php';
 require_once 'config/prefs.php';
+require_once 'inc/lang.php';
 require_once 'inc/conf.php';
 require_once 'inc/fich.php';
 require_once 'inc/html.php';
@@ -31,8 +31,6 @@ require_once 'inc/conv.php';
 require_once 'inc/util.php';
 require_once 'inc/veri.php';
 require_once 'inc/sqli.php';
-
-$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
 
 echo '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">'."\n";
 echo '<channel>'."\n";
@@ -71,10 +69,12 @@ echo '<channel>'."\n";
  */
 
 
-
 if (!empty($_GET['mode'])) {
-	echo '<title>Rss sur "'.$GLOBALS['nom_du_site'].'"</title>'."\n";
-	echo '<link>'.$GLOBALS['racine'].'index.php'.'</link>'."\n"; 
+
+	$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
+
+	echo '<title>'.$GLOBALS['nom_du_site'].'</title>'."\n";
+	echo '<link>'.$GLOBALS['racine'].'index.php?mode='.htmlspecialchars($_GET['mode']).'</link>'."\n"; 
 	echo '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
 	echo '<language>fr</language>'."\n"; 
 	echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
@@ -114,13 +114,13 @@ if (!empty($_GET['mode'])) {
 		// on liste les éléments qu'on veut, en fonction du choix qu'on a dans le $str_code, donc dans le $GET[mode]
 		$all1 = array(); $all2 = array(); $all4 = array();
 
-		$query = "SELECT * FROM articles WHERE bt_statut='1' AND bt_date <= ".date('YmdHis')." ORDER BY bt_date DESC LIMIT 0, 20";
+		$query = "SELECT * FROM articles WHERE bt_statut=1 AND bt_date <= ".date('YmdHis')." ORDER BY bt_date DESC LIMIT 0, 20";
 		if ( preg_match('#.1.#', $str_code)) $all1 = liste_elements($query, array(), 'articles');
 
-		$query = "SELECT * FROM commentaires WHERE bt_statut='1' AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
+		$query = "SELECT * FROM commentaires WHERE bt_statut=1 AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
 		if ( preg_match('#.2.#', $str_code)) $all2 = liste_elements($query, array(), 'commentaires');
 
-		$query = "SELECT * FROM links WHERE bt_statut='1' AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
+		$query = "SELECT * FROM links WHERE bt_statut=1 AND bt_id <= ".date('YmdHis')." ORDER BY bt_id DESC LIMIT 0, 20";
 		if ( preg_match('#.4.#', $str_code)) $all4 = liste_elements($query, array(), 'links');
 
 		// fusionne les tableaux
@@ -189,19 +189,20 @@ if (!empty($_GET['mode'])) {
 else {
 	/* si y'a un ID en paramètre : rss sur fil commentaires de l'article "ID" */
 	if (isset($_GET['id']) and preg_match('#^[0-9]{14}$#', $_GET['id'])) {
+		$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
+
 		$article_id = htmlspecialchars($_GET['id']);
 
-		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date<=".date('YmdHis')." AND bt_statut='1'";
-		$billet = liste_elements($query, array($article_id), 'articles');
-
-		echo '<title>Fil des commentaires sur "'.$billet[0]['bt_title'].'" - '.$GLOBALS['nom_du_site'].'</title>'."\n";
-		echo '<link>'.$billet[0]['bt_link'].'</link>'."\n"; 
-		echo '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
-		echo '<language>fr</language>'."\n"; 
-		echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
-		$liste = liste_elements("SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut='1' ORDER BY bt_id", array($article_id), 'commentaires');
+		$liste = liste_elements("SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut=1 ORDER BY bt_id", array($article_id), 'commentaires');
 
 		if (!empty($liste)) {
+			$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date<=".date('YmdHis')." AND bt_statut=1";
+			$billet = liste_elements($query, array($article_id), 'articles');
+			echo '<title>Commentaires sur '.$billet[0]['bt_title'].' - '.$GLOBALS['nom_du_site'].'</title>'."\n";
+			echo '<link>'.$billet[0]['bt_link'].'</link>'."\n"; 
+			echo '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
+			echo '<language>fr</language>'."\n"; 
+			echo '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
 			foreach ($liste as $comment) {
 				$dec = decode_id($comment['bt_id']);
 				echo '<item>'."\n";
@@ -224,20 +225,20 @@ else {
 	}
 	/* sinon, fil rss sur les articles (par défaut) */
 	/* Ceci se fait toujours à partir d'un fichier que l'on place en cache. */
+
 	else {
-		// Mise en cache des fichiers (rss.php et rss.php?full) : évite les surcharges serveur.
+		// Mise en cache des fichiers : évite les surcharges serveur.
 		$fichierCache = $GLOBALS['dossier_cache'].'/'.'cache_rss.dat';
-		$fichierCacheFull = $GLOBALS['dossier_cache'].'/'.'cache_rss_full.dat';
 		// si la page n'existe pas dans le cache ou si elle a expiré (30 minutes)
-		if (@filemtime($fichierCache)<time()-(1800)) {
+		if (@filemtime($fichierCache)<time()-1800) {
+			$GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
 			// génération de la page, que l'on placera dans un fichier statique
 			$xml = '<title>'.$GLOBALS['nom_du_site'].'</title>'."\n";
 			$xml .= '<link>'.$GLOBALS['racine'].'</link>'."\n"; 
 			$xml .= '<description><![CDATA['.$GLOBALS['description'].']]></description>'."\n";
 			$xml .= '<language>fr</language>'."\n"; 
 			$xml .= '<copyright>'.$GLOBALS['auteur'].'</copyright>'."\n";
-			$xml_full = $xml;
-			$liste = liste_elements("SELECT * FROM articles WHERE bt_statut='1' ORDER BY bt_date DESC LIMIT 0, 20", array(), 'articles');
+			$liste = liste_elements("SELECT * FROM articles WHERE bt_statut=1 AND bt_date<=".date('YmdHis')." ORDER BY bt_date DESC LIMIT 0, 20", array(), 'articles');
 			foreach ($liste as $billet) {
 				$time = (isset($billet['bt_date'])) ? $billet['bt_date'] : $billet['bt_id'];
 				$dec = decode_id($time);
@@ -246,27 +247,13 @@ else {
 				 $item .= '<guid isPermaLink="false">'.$billet['bt_link'].'</guid>'."\n";
 				 $item .= '<link>'.$billet['bt_link'].'</link>'."\n";
 				 $item .= '<pubDate>'.date('r', mktime($dec['heure'], $dec['minutes'], $dec['secondes'], $dec['mois'], $dec['jour'], $dec['annee'])).'</pubDate>'."\n";
-				 $iitem = $item;
-				 $item .= '<description><![CDATA['.nl2br($billet['bt_abstract']).']]></description>'."\n";
-					// on génère du même coup le fichier RSS avec les articles complets
-					$item_full = $iitem.'<description><![CDATA[<b>'.nl2br($billet['bt_abstract']).'</b><br/>'.rel2abs($billet['bt_content']).']]></description>'."\n";
-					$xml_full .= $item_full.'</item>'."\n";
+				 $item .= '<description><![CDATA[<b>'.nl2br($billet['bt_abstract']).'</b><br/>'.rel2abs($billet['bt_content']).']]></description>'."\n";
 				$xml .= $item.'</item>'."\n";
 			}
 			cache_file($fichierCache, $xml); // rss
-			cache_file($fichierCacheFull, $xml_full); // rss_full
-
-			if (isset($_GET['full'])) { //on l'affiche
-				echo $xml_full;
-			} else {
-				echo $xml;
-			}
+			echo $xml;
 		} else {
-			if (isset($_GET['full'])) { //on l'affiche
-				readfile($fichierCacheFull);
-			} else {
-				readfile($fichierCache);
-			}
+			readfile($fichierCache);
 		}
 	}
 }

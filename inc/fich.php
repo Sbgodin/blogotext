@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -16,8 +16,6 @@
 // 
 // This file contains functions relative to search and list data posts.
 // It also contains functions about files : creating, deleting files, etc.
-
-
 
 function creer_dossier($dossier, $make_htaccess='') {
 	if ( !is_dir($dossier) ) {
@@ -42,8 +40,7 @@ function fichier_user() {
 		$new_mdp = hash_password($_POST['mdp_rep'], $GLOBALS['salt']);
 	}
 	$user .= "<?php\n";
-	$user .= "\$GLOBALS['lang']=\$lang_".$_POST['langue'].";\n";
-	$user .= "\$GLOBALS['identifiant'] = '".clean_txt($_POST['identifiant'])."';\n";
+	$user .= "\$GLOBALS['identifiant'] = '".addslashes(clean_txt(htmlspecialchars($_POST['identifiant'])))."';\n";
 	$user .= "\$GLOBALS['mdp'] = '".$new_mdp."';\n";
 	$user .= "?>";
 	if (file_put_contents($fichier_user, $user) === FALSE) {
@@ -57,11 +54,12 @@ function fichier_user() {
 function fichier_prefs() {
 	$fichier_prefs = '../config/prefs.php';
 	if(!empty($_POST['_verif_envoi'])) {
-		$auteur = clean_txt($_POST['auteur']);
-		$email = clean_txt($_POST['email']);
-		$nomsite = clean_txt($_POST['nomsite']);
-		$description = clean_txt($_POST['description']);
-		$racine = trim($_POST['racine']);
+		$lang = (isset($_POST['langue']) and preg_match('#^[a-z]{2}$#', $_POST['langue'])) ? $_POST['langue'] : 'fr';
+		$auteur = addslashes(clean_txt($_POST['auteur']));
+		$email = addslashes(clean_txt($_POST['email']));
+		$nomsite = addslashes(clean_txt($_POST['nomsite']));
+		$description = addslashes(clean_txt($_POST['description']));
+		$racine = addslashes(trim($_POST['racine']));
 		$max_bill_acceuil = $_POST['nb_maxi'];
 //		$max_linx_accueil = $_POST['nb_maxi_linx'];
 //		$max_comm_encart = $_POST['nb_maxi_comm'];
@@ -69,11 +67,11 @@ function fichier_prefs() {
 		$max_comm_admin = $_POST['nb_list_com'];
 		$format_date = $_POST['format_date'];
 		$format_heure = $_POST['format_heure'];
-		$fuseau_horaire = $_POST['fuseau_horaire'];
+		$fuseau_horaire = addslashes(clean_txt($_POST['fuseau_horaire']));
 		$global_com_rule = $_POST['global_comments'];
 		$connexion_captcha = $_POST['connexion_captcha'];
 		$activer_categories = $_POST['activer_categories'];
-		$theme_choisi = $_POST['theme'];
+		$theme_choisi = addslashes(clean_txt($_POST['theme']));
 		$comm_defaut_status = $_POST['comm_defaut_status'];
 		$automatic_keywords = $_POST['auto_keywords'];
 		$require_email = $_POST['require_email'];
@@ -83,11 +81,12 @@ function fichier_prefs() {
 		$auto_dl_liens_fichiers = $_POST['dl_link_to_files'];
 		$nombre_liens_admin = $_POST['nb_list_linx'];
 	} else {
-		$auteur = $GLOBALS['identifiant'];
+		$lang = (isset($_POST['langue']) and preg_match('#^[a-z]{2}$#', $_POST['langue'])) ? $_POST['langue'] : 'fr';
+		$auteur = addslashes($GLOBALS['identifiant']);
 		$email = 'mail@example.com';
 		$nomsite = 'Blogotext';
-		$description = $GLOBALS['lang']['go_to_pref'];
-		$racine = trim($_POST['racine']);
+		$description = addslashes($GLOBALS['lang']['go_to_pref']);
+		$racine = addslashes(trim($_POST['racine']));
 		$max_bill_acceuil = '10';
 //		$max_linx_accueil = '50';
 //		$max_comm_encart = '5';
@@ -110,6 +109,7 @@ function fichier_prefs() {
 		$nombre_liens_admin = '50';
 	}
 	$prefs = "<?php\n";
+	$prefs .= "\$GLOBALS['lang'] = '".$lang."';\n";	
 	$prefs .= "\$GLOBALS['auteur'] = '".$auteur."';\n";	
 	$prefs .= "\$GLOBALS['email'] = '".$email."';\n";
 	$prefs .= "\$GLOBALS['nom_du_site'] = '".$nomsite."';\n";

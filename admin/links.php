@@ -20,7 +20,7 @@ operate_session();
 $begin = microtime(TRUE);
 
 $GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
-
+$step = 0;
 
 // modèle d'affichage d'un div pour un lien (avec un formaulaire d'édition par lien).
 function afficher_liens($link) {
@@ -31,16 +31,16 @@ function afficher_liens($link) {
 	} else { // lien public
 		$list .= '<div class="linkbloc">'."\n";
 	}
-	$list .= "\t".'<h3 class="titre-lien"><a href="'.$_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'">'.$link['ID'].'</a> - <a href="'.$link['bt_link'].'">'.$link['bt_title'].'</a></h3>'."\n";
+	$list .= "\t".'<h3 class="titre-lien"><a href="'.$link['bt_link'].'">'.$link['bt_title'].'</a></h3>'."\n";
 	$list .= "\t".'<p class="lien_editer"><span>';
 	$list .= '<a href="'.$GLOBALS['racine'].'?mode=links&amp;id='.$link['bt_id'].'" >'.$GLOBALS['lang']['voir_sur_le_blog'].'</a>';
-	if (empty($_GET['id']) or !is_numeric($_GET['id'])) {
+	if (empty($_GET['id'])) {
 		$list .= ' - <a href="'.$_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'" class="submit-like-link">'.$GLOBALS['lang']['editer'].'</a></span>';
 	}
 	if ($link['bt_statut'] == '1') {
-		$list .= '<img src="style/lock2.png" title="'.$GLOBALS['lang']['link_is_public'].'"/>';
+		$list .= '<img src="style/lock2.png" title="'.$GLOBALS['lang']['link_is_public'].'" alt="public-icon" />';
 	} elseif ($link['bt_statut'] == '0') {
-		$list .= '<img src="style/lock.png" title="'.$GLOBALS['lang']['link_is_private'].'"/>';
+		$list .= '<img src="style/lock.png" title="'.$GLOBALS['lang']['link_is_private'].'" alt="private-icon" />';
 	}
 	$list .= '</p>'."\n";
 	$list .= "\t".'<p class="date">'.date_formate($link['bt_id']).', '.heure_formate($link['bt_id']).' '.$GLOBALS['lang']['par'].' <a href="'.$_SERVER['PHP_SELF'].'?filtre='.urlencode($link['bt_author']).'">'.$link['bt_author'].'</a></p>'."\n";
@@ -48,10 +48,6 @@ function afficher_liens($link) {
 	$list .= "\t".'<p class="link_no_clic">'.$link['bt_link'].'</p>'."\n";
 	$list .= (!empty($link['bt_tags'])) ? "\t".'<p class="link-tags">'.'<span class="tag">'.str_replace(', ', '</span> <span class="tag">', $link['bt_tags']).'</span>'.'</p>'."\n" : '';
 	$list .= '<hr style="clear:both; border: none;margin:0;"/></div>'."\n";
-	// si ID est dans l'url, alors on affiche le formulaire d'édition
-	if (!empty($_GET['id']) and preg_match('#\d{14}#' ,$_GET['id'])) {
-		$list .= afficher_form_link($step = 'edit', '', $link);
-	}
 	echo $list;
 }
 
@@ -60,15 +56,17 @@ function afficher_liens($link) {
 $erreurs_form = array();
 if (!isset($_GET['url'])) { // rien : on affiche le premier FORM
 	$step = 1;
-} else { // l’url est donné (peut-être vide aussi)
+} else { // URL donné dans le $_GET
 	$step = 2;
 }
+if (isset($_GET['id']) and preg_match('#\d{14}#', $_GET['id'])) {
+	$step = 'edit';
+}
+
 if (isset($_POST['_verif_envoi'])) {
 	$link = init_post_link2();
-
-	
 	$erreurs_form = valider_form_link($link);
-	$step = 1;
+	$step = 'edit';
 	if (empty($erreurs_form)) {
 
 		// URL est un fichier !html !js !css !php ![vide] && téléchargement de fichiers activé :
@@ -155,20 +153,24 @@ echo '</div>'."\n";
 
 echo '<div id="page">'."\n";
 
-if (isset($_GET['ajout'])) {
-	echo afficher_form_link(1, '');
-}
-elseif (!isset($_GET['id'])) {
+if ($step == 'edit' and !empty($tableau[0]) ) { // edit un lien : affiche le lien au dessus du champ d’édit
+	afficher_liens($tableau[0]);
+	echo afficher_form_link($step, $erreurs_form, $tableau[0]);
+} 
+elseif ($step == 2) { // lien donné dans l’URL
 	echo afficher_form_link($step, $erreurs_form);
 }
-
+else { // aucun lien à ajouter ou éditer : champ nouveau lien + listage des liens en dessus.
+	echo afficher_form_link($step, $erreurs_form);
+	foreach ($tableau as $link) {
+		afficher_liens($link);
+	}
+}
 // affichage
 
-foreach ($tableau as $link) {
-	afficher_liens($link);
-}
 
-echo js_addcategories(1);
+
+echo js_addcategories_links(1);
 
 footer('', $begin);
 ?>

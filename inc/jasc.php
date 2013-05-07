@@ -230,6 +230,62 @@ function insertCatTag(inputId, tag) {
 	return $sc;
 }
 
+function js_addcategories_links($a) {
+	$sc = '
+function insertCatTagLink(inputId, tag) {
+	var field = document.getElementById(inputId);
+	if (field.value !== \'\') {
+		field.value += \', \';
+	}
+	field.value += tag;
+}
+
+// globals
+var iField = document.getElementById(\'type_tags\');
+var oField = document.getElementById(\'selected\');
+var fField = document.getElementById(\'categories\');
+
+// si on presse Enter, on ajoute le tag courant à la liste <ul>
+
+function chkHit(e) {
+	var unicode = (e.keyCode) ? e.keyCode : e.charCode;
+	if (unicode == 13) {
+		moveTag;
+	}
+}
+
+function moveTag() {
+	// if something in the input field : enter == add word to list of tags.
+	if (iField.value.length != 0) {
+		oField.innerHTML += \'<li class="tag"><span>\'+iField.value+\'</span><a href="javascript:void(0)" onclick="removeTag(this.parentNode)">×</a></li>\';
+		iField.value = \'\';
+		return false;
+	}
+	// else : real submit : seek in the list of tags, extract the tags and submit these.
+	else {
+		var liste = oField.getElementsByTagName(\'li\');
+		var len = liste.length;
+		var iTag = \'\';
+		for (var i = 0 ; i<len ; i++) { iTag += liste[i].getElementsByTagName(\'span\')[0].innerHTML+", "; }
+		fField.value = iTag.substr(0, iTag.length-2);
+		iField.parentNode.removeChild(iField);
+		return true;
+	}
+}
+
+//	removes the <li> tag that is clicked
+function removeTag(tag) {
+	oField.removeChild(tag);
+	return false;
+}';
+
+
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	}
+	return $sc;
+}
+
 /*
  * JS AJAX for remove a file in the list directly, w/o reloading the whole page
 *
@@ -238,12 +294,6 @@ function insertCatTag(inputId, tag) {
 function js_button_request_delete($a) {
 	$sc = '
 
-// supprimer fichier
-function request_delete(id) {
-
-
-}
-
 // create and send form
 function request_delete_form(id) {
 	// prepare XMLHttpRequest
@@ -251,9 +301,8 @@ function request_delete_form(id) {
 	var xhr = new XMLHttpRequest();
 	xhr.open(\'POST\', \'_rmfichier.ajax.php\');
 	xhr.onload = function() {
-
 		if (this.responseText == \'success\') {
-			document.getElementById(\'bloc_\'.concat(id)).style.display = "none";
+			document.getElementById(\'bloc_\'.concat(id)).parentNode.removeChild(document.getElementById(\'bloc_\'.concat(id)));
 		} else {
 			alert(this.responseText);
 		}
@@ -275,65 +324,39 @@ function request_delete_form(id) {
 
 
 /*
- * JS to handle drag-n-drop : it listens to the event of draging files on a <div> and
- * opens web sockets with POST requests individualy for each file (in case many are draged-n-droped)
+ * JS to handle drag-n-drop : ondraging files on a <div> opens web request with POST individualy for each file (in case many are draged-n-droped)
 *
 */
 function js_drag_n_drop_handle($a) {
 	$max_file_size = return_bytes(ini_get('upload_max_filesize'));
 	$sc = '
 
-// pour le input des fichiers publics ou privés.
-function statut_image() {
-	var val = document.getElementById(\'statut-drag\').checked;
-	if (val === false) {
-		var al = \'\';
-	}
-	else {
-		var al = \'on\';
-	}
-	return al;
-}
-
 // variables
-var dropArea = document.getElementById(\'dragndrop-area\'); // drop area zone JS object
-var count = document.getElementById(\'count\'); // text zone to display nb files done/remaining
 var result = document.getElementById(\'result\'); // text zone where informations about uploaded files are displayed
 var list = []; // file list
 var nbDone = 0; // initialisation of nb files already uploaded during the process.
 
-
-// init handlers
-function initHandlers() {
-	dropArea.addEventListener(\'drop\', handleDrop, false);
-	dropArea.addEventListener(\'dragover\', handleDragOver, false);
-}
-
-// drag over
-function handleDragOver(event) {
-	event.stopPropagation();
-	event.preventDefault();
-}
-
-// drag drop
-function handleDrop(event) {
-	event.stopPropagation();
-	event.preventDefault();
-	processFiles(event.dataTransfer.files);
+// pour le input des fichiers publics ou privés.
+function statut_image() {
+	var val = document.getElementById(\'statut-drag\').checked;
+	return (val === false) ? \'\' : \'on\';
 }
 
 // process bunch of files
-function processFiles(filelist) {
+function handleDrop(event) {
+	filelist = event.dataTransfer.files;
 	if (!filelist || !filelist.length || list.length) return;
 	result.innerHTML += \'\';
-	for (var i = 0; i < filelist.length && i < 500; i++) { // limit is 500 files (only for not having an infinite loop)
+	for (var i = 0; i < filelist.length && i < 500; i++) { // limit is for not having an infinite loop
 		list.push(filelist[i]);
 	}
 	uploadNext();
+
+	return false;
 }
 
 // upload file
-function uploadFile(file, status) {
+function uploadFile(file) {
 	// prepare XMLHttpRequest
 	var xhr = new XMLHttpRequest();
 	xhr.open(\'POST\', \'_dragndrop.ajax.php\');
@@ -348,7 +371,9 @@ function uploadFile(file, status) {
 	// prepare and send FormData
 	var formData = new FormData();  
 	formData.append(\'fichier\', file);
-	formData.append(\'statut\', status);
+	formData.append(\'token\', document.getElementById(\'token\').value);
+	document.getElementById(\'token\').parentNode.removeChild(document.getElementById(\'token\'));
+	formData.append(\'statut\', statut_image());
 	formData.append(\'description\', \'\');
 
 	xhr.send(formData);
@@ -359,22 +384,20 @@ function uploadNext() {
 	if (list.length) {
 		var nb = list.length - 1;
 		nbDone +=1;
-		count.innerHTML = \'Files done: \'+nbDone+\' ; \'+\'Files left: \'+nb;
 
 		var nextFile = list.shift();
 		if (nextFile.size >= '.$max_file_size.') {
 			result.innerHTML += \'<div class="f">File too big</div>\';
 			uploadNext();
 		} else {
-			var status = statut_image();
-			uploadFile(nextFile, status);
+			uploadFile(nextFile);
+			document.getElementById(\'count\').innerHTML = \'Files done: \'+nbDone+\' ; \'+\'Files left: \'+nb;
 		}
 	}
 }
 
-initHandlers();
 ';
-	
+
 	if ($a == 1) {
 		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
 	}

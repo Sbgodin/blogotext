@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="{charset}" />
-	<title>{blog_nom}</title>
+	<meta charset="UTF-8" />
+	<title>{article_titre_page}{blog_nom}</title>
 	<meta name="generator" content="BlogoText" />
 	<meta name="robots" content="all" />
 	<meta name="author" content="{blog_auteur}" />
 	<meta name="description" content="{blog_description}" />
 	<link type="text/css" rel="stylesheet" href="{style}/style.css" />
 	<meta name="viewport" content="width=device-width, user-scalable=yes" />
-	<link type="application/rss+xml" rel="alternate" title="RSS 2.0 - Articles Résumés" href="{rss}" />
-	<link type="application/rss+xml" rel="alternate" title="RSS 2.0 - Articles Complets" href="{rss}?full" />
+	<link type="application/rss+xml" rel="alternate" title="RSS 2.0 - Articles" href="{rss}" />
 </head>
 
 <body>
@@ -59,7 +58,7 @@
 			<h4>Fils RSS</h4>
 			<ul>
 				<li><a href="rss.php"><img src="themes/default-gravatar/feed.png" alt="icon" /> RSS</a> : Blog</li>
-				<li><a href="rss.php?full"><img src="themes/default-gravatar/feed.png" alt="icon" /> RSS</a> : Blog (articles complets)</li>
+				<li><a href="rss.php?mode=links"><img src="themes/default/feed.png" alt="icon" /> RSS</a> : Liens</li>
 			</ul>
 			<hr/>
 		</nav>
@@ -83,7 +82,7 @@
 </div> <!-- einde #wrapper -->
 
 
-<footer><b>{blog_auteur}</b>, tout droits réservés – Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText</a> – Thème par <a href="http://lehollandaisvolant.net/">Timo van Neerden</a></footer>
+<footer><b>{blog_auteur}</b>, tous droits réservés – Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText</a> – Thème par <a href="http://lehollandaisvolant.net/">Timo van Neerden</a></footer>
 
 
 </body>

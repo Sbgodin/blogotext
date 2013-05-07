@@ -37,9 +37,9 @@ function decode_id($id) {
 }
 
 // used sometimes, like in the email that is send.
-function get_blogpath($id) {
+function get_blogpath($id, $titre) {
 	$date = decode_id($id);
-	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url(get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $id, 'return'));
+	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url($titre);
 	return $path;
 }
 
@@ -104,7 +104,7 @@ function operate_session() {
 }
 
 function fermer_session() {
-	unset($_SESSION['nom_utilisateur'],$_SESSION['user_id']);
+	unset($_SESSION['nom_utilisateur'], $_SESSION['user_id']);
 	setcookie('BT-admin-stay-logged', NULL);
 	session_destroy(); // destroy session
 	session_regenerate_id(true); // change l'ID au cas ou
@@ -123,7 +123,7 @@ function new_token() {
 // true=token is ok.
 function check_token($token) {
 	if (isset($_SESSION['tokens'][$token])) {
-		unset($_SESSION['tokens'][$token]); // Token is used: destroy it.
+	unset($_SESSION['tokens'][$token]); // Token is used: destroy it.
 		return true; // Token is ok.
 	}
 	return false; // Wrong token, or already used.
@@ -149,10 +149,10 @@ function send_emails($id_comment) {
 	// puis la liste de tous les commentaires de cet article
 	$liste_commentaires = array();
 	try {
-		$query = "SELECT bt_email,bt_subscribe,bt_id FROM commentaires WHERE bt_statut='1' AND bt_article_id=? ORDER BY bt_id";
+		$query = "SELECT bt_email,bt_subscribe,bt_id FROM commentaires WHERE bt_statut=1 AND bt_article_id=? ORDER BY bt_id";
 		$req = $GLOBALS['db_handle']->prepare($query);
 		$req->execute(array($article));
-		$liste_commentaires = $req->fetchAll();
+		$liste_commentaires = $req->fetchAll(PDO::FETCH_ASSOC);
 	} catch (Exception $e) {
 		die('Erreur : '.$e->getMessage());
 	}
@@ -186,11 +186,11 @@ function send_emails($id_comment) {
 	// envoi les emails.
 	foreach ($to_send_mail as $mail => $is_subscriben) {
 		$comment = substr($is_subscriben, -14);
-		$unsublink = get_blogpath($article).'&amp;unsub=1&amp;comment='.$comment.'&amp;mail='.sha1($mail);
+		$unsublink = get_blogpath($article, '').'&amp;unsub=1&amp;comment='.$comment.'&amp;mail='.sha1($mail);
 		$message = '<html>';
 		$message .= '<head><title>'.$subject.'</title></head>';
 		$message .= '<body><p>A new comment by <b>'.$comm_author.'</b> has been posted on <b>'.$article_title.'</b> form '.$GLOBALS['nom_du_site'].'.<br/>';
-		$message .= 'You can see it by following <a href="'.get_blogpath($article).'#'.article_anchor($id_comment).'">this link</a>.</p>';
+		$message .= 'You can see it by following <a href="'.get_blogpath($article, '').'#'.article_anchor($id_comment).'">this link</a>.</p>';
 		$message .= '<p>To unsubscribe from the comments on that post, you can follow this link: <a href="'.$unsublink.'">'.$unsublink.'</a>.</p>';
 		$message .= '<p>To unsubscribe from the comments on all the posts, follow this link: <a href="'.$unsublink.'&amp;all=1">'.$unsublink.'&amp;all=1</a>.</p>';
 		$message .= '<p>Also, do not reply to this email, since it is an automatic generated email.</p><p>Regards.</p></body>';
@@ -207,7 +207,7 @@ function unsubscribe($file_id, $email_sha, $all) {
 		$query = "SELECT bt_email,bt_subscribe,bt_id FROM commentaires WHERE bt_id=?";
 		$req = $GLOBALS['db_handle']->prepare($query);
 		$req->execute(array($file_id));
-		$result = $req->fetchAll();
+		$result = $req->fetchAll(PDO::FETCH_ASSOC);
 
 	} catch (Exception $e) {
 		die ('Erreur BT #12725 : '. $e->getMessage());

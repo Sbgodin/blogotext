@@ -143,8 +143,8 @@ $lang_fr = array(
 'label_type'						=> 'Type',
 'label_extension'					=> 'Extention',
 'label_taille_fichier'			=> 'Taille',
-'label_precedent'					=> 'élements plus récents',
-'label_suivant'					=> 'élements plus anciens',
+'label_precedent'					=> 'éléments plus récents',
+'label_suivant'					=> 'éléments plus anciens',
 'label_dl_fichier'				=> 'Également importer le fichier&thinsp;?',
 // Commentaire
 'aucun'								=> 'aucun',
@@ -224,6 +224,7 @@ $lang_fr = array(
 'err_minutes' 						=> 'Les minutes sont incorrectes',
 'err_secondes' 					=> 'Les secondes sont incorrectes',
 'err_file_write'					=> 'Impossible de créer le fichier',
+'err_theme_introuvable'			=> 'Le fichier thème est introuvable, incomplet ou illisible.',
 'err_prefs_write'					=> 'Écriture impossible du fichier des préférences',
 'err_prefs_auteur'				=> 'Le nom de l’auteur est vide',
 'err_prefs_email'					=> 'L’adresse e-mail n’est pas valide',
@@ -258,6 +259,8 @@ $lang_fr = array(
 'prob_user_file_chmod'			=> 'Le fichier des « user.php » n’est pas accessible en écriture',
 'prob_pref_file_chmod'			=> 'Le fichier des « pref.php » n’est pas accessible en écriture',
 'prob_tags_file_chmod'			=> 'Le fichier des « tags.php » n’est pas accessible en écriture',
+'prob_no_db_folder'				=> 'Il n’y a pas de dossier pour la base de données',
+'prob_db_folder_chmod'			=> 'Le dossier de la base de données n’est pas accessible en écriture',
 // Questions
 'question_suppr_article'		=> 'Cet article sera définitivement supprimé !',
 'question_suppr_image'			=> 'Cette image sera définitivement supprimée !',

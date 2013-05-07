@@ -14,6 +14,8 @@
 
 $begin = microtime(TRUE);
 $GLOBALS['BT_ROOT_PATH'] = '../';
+
+
 require_once '../inc/inc.php';
 error_reporting($GLOBALS['show_errors']);
 
@@ -38,18 +40,17 @@ if (isset($_POST['_verif_envoi'])) {
 	}
 }
 
+
 $tableau = array();
 // if article ID is given in query string
+
 if ( isset($_GET['post_id']) and preg_match('#\d{14}#', $_GET['post_id']) )  {
 	$param_makeup['menu_theme'] = 'for_article';
 	$article_id = $_GET['post_id'];
 
-	$query = "SELECT * FROM articles WHERE bt_id=?";
-	$post = liste_elements($query, array($article_id), 'articles');
-
-	$article_title = $post[0]['bt_title'];
-
+	$article_title = get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $article_id, 'return');
 	$query = "SELECT * FROM commentaires WHERE bt_article_id=? ORDER BY bt_id";
+
 	$commentaires = liste_elements($query, array($article_id), 'commentaires');
 
 	$param_makeup['show_links'] = '0';
@@ -64,35 +65,36 @@ else {
 		$search = htmlspecialchars(ltrim(strstr($_GET['filtre'], '.'), '.'));
 		// filter for date
 		if (preg_match('#^\d{6}(\d{1,8})?$#', ($_GET['filtre'])) ) {
-			$query = "SELECT * FROM commentaires WHERE bt_id LIKE ? ORDER BY bt_id DESC";
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id = c.bt_article_id WHERE c.bt_id LIKE ? ORDER BY c.bt_id DESC";
 			$commentaires = liste_elements($query, array($_GET['filtre'].'%'), 'commentaires');
 		}
 		// filter for statut
 		elseif ($_GET['filtre'] == 'draft') {
-			$query = "SELECT * FROM commentaires WHERE bt_statut=0 ORDER BY bt_id DESC";
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_statut=0 ORDER BY c.bt_id DESC";
 			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 		elseif ($_GET['filtre'] == 'pub') {
-			$query = "SELECT * FROM commentaires WHERE bt_statut =1 ORDER BY bt_id DESC";
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_statut=1 ORDER BY c.bt_id DESC";
 			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 		// filter for author
 		elseif ($type == 'auteur' and $search != '') {
-			$query = "SELECT * FROM commentaires WHERE bt_author=? ORDER BY bt_id DESC";
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_author=? ORDER BY c.bt_id DESC";
 			$commentaires = liste_elements($query, array($search), 'commentaires');
 		}
 		// no filter
 		else {
-			$query = "SELECT * FROM commentaires ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_comm_admin'];
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id ORDER BY c.bt_id DESC LIMIT ".$GLOBALS['max_comm_admin'];
 			$commentaires = liste_elements($query, array(), 'commentaires');
 		}
 	}
 	elseif (!empty($_GET['q'])) {
-			$query = "SELECT * FROM commentaires WHERE bt_content LIKE ? ORDER BY bt_id DESC";
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_content LIKE ? ORDER BY c.bt_id DESC";
 			$commentaires = liste_elements($query, array('%'.htmlspecialchars($_GET['q']).'%'), 'commentaires');
 	}
 	else { // no filter, so list'em all
-			$query = "SELECT * FROM commentaires ORDER BY bt_id DESC LIMIT 0, ".$GLOBALS['max_comm_admin'];
+			$query = "SELECT c.*, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id ORDER BY c.bt_id DESC LIMIT ".$GLOBALS['max_comm_admin'];
+//			die($query);
 			$commentaires = liste_elements($query, array(), 'commentaires');
 	}
 	$nb_total_comms = liste_elements_count("SELECT count(*) AS nbr FROM commentaires", array());
@@ -112,13 +114,13 @@ function afficher_commentaire($comment, $with_link) {
 	echo '<h3 class="titre-commentaire">'.$comment['auteur_lien'].'</h3>'."\n";
 	echo '<p class="email"><a href="mailto:'.$comment['bt_email'].'">'.$comment['bt_email'].'</a></p>'."\n";
 	echo '<p class="lien_article_de_com">';
-	if ($with_link == 1) {
-		echo $GLOBALS['lang']['sur'].' <a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['bt_article_id'].'">'.get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $comment['bt_article_id'], 'return').'</a>';
+	if ($with_link == 1 and !empty($comment['bt_title'])) {
+		echo $GLOBALS['lang']['sur'].' <a href="'.$_SERVER['PHP_SELF'].'?post_id='.$comment['bt_article_id'].'">'.$comment['bt_title'].'</a>';
 	}
 	if ($comment['bt_statut'] == '1') {
-		echo '<img src="style/accept.png" title="'.$GLOBALS['lang']['comment_is_visible'].'"/>';
+		echo '<img src="style/accept.png" title="'.$GLOBALS['lang']['comment_is_visible'].'" alt="icon"/>';
 	} elseif ($comment['bt_statut'] == '0') {
-		echo '<img src="style/deny.png" title="'.$GLOBALS['lang']['comment_is_invisible'].'"/>';
+		echo '<img src="style/deny.png" title="'.$GLOBALS['lang']['comment_is_invisible'].'" alt="icon"/>';
 	}
 	echo '</p>'."\n";
 
@@ -148,7 +150,6 @@ echo '<div id="axe">'."\n";
 
 // SUBNAV
 echo '<div id="subnav">'."\n";
-
 echo '<p id="mode">'."\n";
 if ($param_makeup['menu_theme'] == 'for_article') {
 	echo '<a id="lien-edit" href="ecrire.php?post_id='.$article_id.'">'.$GLOBALS['lang']['ecrire'].' : '.$article_title.'</a> &nbsp; – &nbsp; <span id="lien-comments">'.ucfirst(nombre_commentaires(count($commentaires))).'</span>';
@@ -158,18 +159,24 @@ if ($param_makeup['menu_theme'] == 'for_article') {
 echo '</p>'."\n";
 
 // Affichage formulaire filtrage commentaires
+
 if (isset($_GET['filtre'])) {
 	afficher_form_filtre('commentaires', htmlspecialchars($_GET['filtre']));
 } else {
 	afficher_form_filtre('commentaires', '');
 }
+
 echo '</div>'."\n";
- 	
+
+echo erreurs($erreurs_form);
+
 echo '<div id="page">'."\n";
 
 // COMMENTAIRES
 if (count($commentaires) > 0) {
+	$token = new_token();
 	foreach ($commentaires as $content) {
+		$content['comm-token'] = $token;
 		afficher_commentaire($content, $param_makeup['show_links']);
 	}
 } else {

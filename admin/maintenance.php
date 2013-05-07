@@ -18,8 +18,8 @@ $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 error_reporting($GLOBALS['show_errors']);
 
-ini_set('pcre.backtrack_limit', 1000000); // pcre limit : limit of preg_* string sizes. If some articles are too big, pcre won't match them
-ini_set('pcre.recursion_limit', 500000); // same
+ini_set('pcre.backtrack_limit', 1000000); // pcre limit : limit of preg_* string sizes.
+ini_set('pcre.recursion_limit', 500000);  // same
 
 operate_session();
 
@@ -110,7 +110,6 @@ echo '<div id="axe">'."\n";
 echo '<div id="page">'."\n";
 
 /* #################################################################### MAKE BACKUP FILE ####################################### */
-// structure of output file : documentation at http://lehollandaisvolant.net/blogotext/backupdoc.php (in french)
 
 
 // misc funtions
@@ -118,17 +117,8 @@ echo '<div id="page">'."\n";
 // gets a text/xml file and returns the content of a tag
 function parse_xml($fichier, $balise) {
 	if (is_file($fichier)) {
-		if ($openfile = file_get_contents($fichier)) {
-				$sizeitem = strlen('<'.$balise.'>');
-				$debut = strpos($openfile, '<'.$balise.'>') + $sizeitem;
-				$fin = strpos($openfile, '</'.$balise.'>');
-			if (($debut and $fin) !== FALSE) {
-				$lenght = $fin - $debut;
-				$return = substr($openfile, $debut, $lenght);
-				return $return;
-			} else {
-				return '';
-			}
+		if ($string = file_get_contents($fichier)) {
+			return parse_xml_str($string, $balise);
 		} else {
 			erreur('Impossible de lire le fichier '.$fichier);
 		}
@@ -143,11 +133,11 @@ function parse_xml_str($string, $balise) {
 	$fin = strpos($string, '</'.$balise.'>');
 	if (($debut and $fin) !== FALSE) {
 		$lenght = $fin - $debut;
-		$return = substr($string, $debut, $lenght); 
+		$return = substr($string, $debut, $lenght);
+		return $return;
 	} else {
-		$return = '';
+		return '';
 	}
-	return $return;
 }
 
 // Base64 to file converter.
@@ -159,18 +149,13 @@ function base642file($file) {
 		$dossier = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers'];
 	}
 	if (creer_dossier($dossier, 0) === FALSE) return FALSE;
-	$bin_data_target = base64_decode($file['bt_backup_img_base64']);
+	$bin_data = base64_decode($file['bt_backup_img_base64']);
 	$file_target_name = $dossier.'/'.$file['bt_filename'];
-	if ($file_target_name != $dossier.'/') {
-		$file_target = fopen($file_target_name, 'wb');
-		if ( ($file_target !== FALSE) and (fwrite($file_target, $bin_data_target) !== FALSE) ) {	// writing
-			fclose($file_target);
-			if ($file['bt_checksum'] == sha1_file($file_target_name)) { // integrity test
-				return TRUE;
-			} else {
-				unlink($file_target_name);
-				return FALSE;
-			}
+	if ($file_target_name != $dossier.'/' and FALSE !== file_put_contents($file_target_name, $bin_data) ) {
+		if ($file['bt_checksum'] == sha1_file($file_target_name)) { // integrity test
+			return TRUE;
+		} else {
+			unlink($file_target_name);
 		}
 	}
 	return FALSE;
@@ -192,14 +177,12 @@ function creer_fich_xml() {
 	}
 	$fichier = 'backup-'.date('Ymd').'-'.substr(md5(rand(100,999)),3,5).'.xml';
 	$path = $dossier_backup.'/'.$fichier;
-	$new_file = fopen($path,'wb+');
 
 	$data = creer_xml(); // XML creation
-	if (fwrite($new_file, $data) === FALSE) {
+	if (file_put_contents($path, $data) === FALSE) {
 		echo $GLOBALS['lang']['err_file_write'];
 		return FALSE;
 	} else {
-		fclose($new_file);
 		chmod($path, 0666);
 		echo '<form method="post" action="maintenance.php" class="bordered-formbloc"><div>'."\n";
 			echo '<fieldset class="pref">';
@@ -288,7 +271,6 @@ function creer_fich_html() {
 	// nom du fichier de sortie
 	$fichier = 'backup-links-'.date('Ymd').'-'.substr(md5(rand(100,999)),3,5).'.html';
 	$path = $dossier_backup.'/'.$fichier;
-	$new_file = fopen($path,'wb+');
 
 	// génération du code HTML.
 	$final_html = '<!DOCTYPE NETSCAPE-Bookmark-file-1>'."\n";
@@ -312,11 +294,10 @@ function creer_fich_html() {
 	}
 
 	// écriture du fichier
-	if (fwrite($new_file, $final_html) === FALSE) {
+	if (file_put_contents($new_file, $final_html) === FALSE) {
 		echo $GLOBALS['lang']['err_file_write'];
 		return FALSE;
 	} else {
-		fclose($new_file);
 		// affichage d’un formulaire indiquant que tout s’est bien passé, et demande si (une fois le fichier sauvé par l’user) il faut le supprimer du server.
 		echo '<form method="post" action="maintenance.php" class="bordered-formbloc"><div>'."\n";
 			echo '<fieldset class="pref">';
@@ -585,49 +566,20 @@ function importer_blogotext($content_xml) {
 
 			/*
 			 * POUR CHAQUE ARTICLE : COMPTE LE NOMBRE DE COMMENTAIRES ASSOCIÉS
-			 * maintenant que les nouveaux commentaires et les nouveaux articles sont dans la base,
-			 * on met à jour le nombre de commentaires par articles (le nombre de commentaires est stoqué en dur dans la table des articles).
 			*/
-			$art_nbcom = array();
-			$query = "SELECT count(*) AS nb, bt_article_id FROM commentaires WHERE bt_statut=1 GROUP BY bt_article_id";
+
+			if ($GLOBALS['sgdb'] == 'sqlite') {
+				$query = "UPDATE articles SET bt_nb_comments = (SELECT count(a.bt_id) FROM articles a INNER JOIN commentaires c ON (c.bt_article_id = a.bt_id) WHERE articles.bt_id = a.bt_id GROUP BY a.bt_id)";
+			}
+			if ($GLOBALS['sgdb'] == 'mysql') {
+				$query = "UPDATE articles SET bt_nb_comments = (SELECT count(articles.bt_id) FROM commentaires WHERE commentaires.bt_article_id = articles.bt_id)";
+			}
 			try {
 				$req = $GLOBALS['db_handle']->prepare($query);
 				$req->execute();
-				while ($ligne = $req->fetch()) {
-					$art_nbcom[$ligne['bt_article_id']] = $ligne['nb'];
-				}
-			} catch (Exception $e) {
-				die('Erreur comptage du nombre de commentaires par articles : '.$e->getMessage());
 			}
-
-			// liste tous les articles
-			$tab_nbcom_all = array();
-			$query = "SELECT bt_id FROM articles";
-			try {
-				$req = $GLOBALS['db_handle']->prepare($query);
-				$req->execute();
-				while ($result2 = $req->fetch()) {
-					$tab_nbcom_all[] = array('bt_id' => $result2['bt_id'], 'nb' => (array_key_exists($result2['bt_id'], $art_nbcom)) ? $art_nbcom[$result2['bt_id']] : 0);
-				}
-
-			} catch (Exception $e) {
-				die('Erreur listage des articles après compatage nombre commentaires par articles (Maintenance): '.$e->getMessage());
-			}
-
-			if (!empty($tab_nbcom_all)) {
-				try {
-					$GLOBALS['db_handle']->beginTransaction();
-
-					foreach($tab_nbcom_all as $value) {
-						$query = 'UPDATE articles SET bt_nb_comments=? WHERE bt_id=? ';
-						$req = $GLOBALS['db_handle']->prepare($query);
-						$req->execute(array($value['nb'], $value['bt_id']));
-					}
-					$GLOBALS['db_handle']->commit();
-				} catch (Exception $e) {
-					$req->rollBack();
-					die('Erreur 5794 : '.$e->getMessage());
-				}
+			catch(Exception $e) {
+				die('Erreur 11111: '.$e->getMessage());
 			}
 		}
 
@@ -990,7 +942,7 @@ if (!isset($_GET['quefaire'])) {
 	if (!empty($erreurs)) {
 		echo '<div class="bordered-formbloc"><fieldset class="pref valid-center">';
 			echo legend($GLOBALS['lang']['erreurs'], 'legend-tic');
-				erreurs($erreurs);
+			echo erreurs($erreurs);
 		echo '</fieldset></div>'."\n";
 	}
 
@@ -1161,7 +1113,6 @@ else {
 			}
 			// si pas erreurs, on enregistre chaque entrée (art. ou comm. ou image) du fichier, et on affiche des remarques à l'écran
 			else {
-
 				$content_xml = file_get_contents($_FILES['xml_file']['tmp_name']);
 
 				// ON A DONNÉ UN FICHIER BLOGOTEXT
@@ -1215,7 +1166,6 @@ else {
 			echo '<input type="file" name="xml_file" id="xml_file" /><br />'."\n";
 
 			echo '<input class="submit blue-square" type="submit" name="upload" value="'.$GLOBALS['lang']['img_upload'].'" />'."\n";
-			///echo hidden_input('quefaire','restore');
 			echo '</p>'."\n";
 			echo '</fieldset>'."\n";
 			echo '</form>'."\n";
@@ -1247,51 +1197,21 @@ else {
 
 			// recomptage des commentaires
 			if ($_POST['recount']) {
-					// liste nb commentaires par article
-					$art_nbcom = array();
-					$query = "SELECT count(*) AS nb,bt_article_id FROM commentaires WHERE bt_statut=1 GROUP BY bt_article_id";
-					try {
-						$req = $GLOBALS['db_handle']->prepare($query);
-						$req->execute();
-						while ($ligne = $req->fetch()) {
-							$art_nbcom[$ligne['bt_article_id']] = $ligne['nb'];
-						}
-					} catch (Exception $e) {
-						die('Erreur comptage du nombre de commentaires par articles : '.$e->getMessage());
-					}
-					// liste tous les articles
-					$tab_nbcom_all = array();
-					try {
-						$req = $GLOBALS['db_handle']->prepare("SELECT bt_id FROM articles");
-						$req->execute();
-						while ($ligne = $req->fetch()) {
-							$tab_nbcom_all[] = array('bt_id' => $ligne['bt_id'], 'nb' => (array_key_exists($ligne['bt_id'], $art_nbcom)) ? $art_nbcom[$ligne['bt_id']] : 0);
-						}
+				if ($GLOBALS['sgdb'] == 'sqlite') {
+					$query = "UPDATE articles SET bt_nb_comments = (SELECT count(a.bt_id) FROM articles a INNER JOIN commentaires c ON (c.bt_article_id = a.bt_id) WHERE articles.bt_id = a.bt_id GROUP BY a.bt_id)";
+				}
+				if ($GLOBALS['sgdb'] == 'mysql') {
+					$query = "UPDATE articles SET bt_nb_comments = (SELECT count(articles.bt_id) FROM commentaires WHERE commentaires.bt_article_id = articles.bt_id)";
+				}
+				try {
+					$req = $GLOBALS['db_handle']->prepare($query);
+					$req->execute();
+				}
+				catch(Exception $e) {
+					die('Erreur 11111: '.$e->getMessage());
+				}
 
-					} catch (Exception $e) {
-						die('Erreur listage des articles après compatage nombre commentaires par articles (Maintenance): '.$e->getMessage());
-					}
-
-					/* construit et applique les changements dans la BDD */
-					$tab = array_chunk($tab_nbcom_all, 499);unset($art_nbcom_all);
-					foreach($tab as $i => $tableau_articles) {
-							// constuit la $query et le array()
-							$array = array();
-							$query = "UPDATE articles SET bt_nb_comments = (CASE ";
-							foreach ($tableau_articles as $value) {
-								$query .= "WHEN bt_id=? THEN ? ";
-								$array[] = $value['bt_id'];
-								$array[] = $value['nb'];
-							}
-							$query .= "ELSE bt_nb_comments END) ";
-							try {
-								$req = $GLOBALS['db_handle']->prepare($query);
-								$req->execute($array);
-							} catch (Exception $e) {
-								die('Erreur MAJ comptage commentaires (Maintenance, après optimise) : '.$e->getMessage());
-							}
-					}
-					echo '<p>'.$GLOBALS['lang']['bak_opti_recountcomm'].' : OK.'.'<p>'."\n";
+				echo '<p>'.$GLOBALS['lang']['bak_opti_recountcomm'].' : OK.'.'<p>'."\n";
 			}
 
 			// reconstruction de la BDD (ceci la défragmente, etc). Également reconstruit la BDD des fichiers
@@ -1303,8 +1223,9 @@ else {
 				} catch (Exception $e) {
 					die('Erreur vacuum (Maintenance) : '.$e->getMessage());
 				}
-				// Fichiers
+				echo '<p>Vacuum : OK.'.'<p>'."\n";
 
+				// Fichiers
 				// vérification que les fichiers dans la base sont bien sur le disque.
 				$new_table = array();
 				$liste_files = array();
@@ -1331,6 +1252,7 @@ else {
 				// vérification que les fichiers sur le disque sont bien dans la base.
 				// s’ils n’y sont pas, on l’ajoute en prennant comme bt_id la date de création du fichier
 
+
 					// Cas des images
 					$images_sur_disque = scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']);
 					// supprime les entrés "." et ".." de la liste.
@@ -1341,6 +1263,11 @@ else {
 							unset($images_sur_disque[$i]);
 						}
 					}
+
+					// Cas des fichiers 
+					$fichiers_sur_disque = scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers']);
+					// supprime les entrés "." et ".." de la liste.
+					unset($fichiers_sur_disque[0], $fichiers_sur_disque[1]);
 
 					foreach ($images_sur_disque as $i => $image) {
 						// si l’image du disque n’est pas dans la base, on l’ajoute.
@@ -1370,10 +1297,6 @@ else {
 						}
 					}
 
-				// Cas des fichiers 
-					$fichiers_sur_disque = scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers']);
-					// supprime les entrés "." et ".." de la liste.
-					unset($fichiers_sur_disque[0], $fichiers_sur_disque[1]);
 					foreach ($fichiers_sur_disque as $i => $fichier) {
 						// si le fichier du disque n’est pas dans la base, on l’ajoute.
 						if (!in_array($fichier, $liste_files)) {
@@ -1412,7 +1335,6 @@ else {
 			echo '<input class="submit blue-square" type="submit" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
 			echo '</fieldset>'."\n";
 			echo '</div></form>'."\n";
-
 		}
 
 		// demande ce qu’il faut optimiser

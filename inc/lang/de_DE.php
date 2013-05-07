@@ -28,8 +28,8 @@ $lang_de = array(
 'install_err_mysql_pss_empty'	=> 'Angesichts MySQL-password ist leer.',
 'install_err_mysql_hst_empty'	=> 'Angesichts MySQL-hostname ist leer.',
 'install_err_mysql_dba_empty'	=> 'Angesichts MySQL-database-name ist leer.',
-'install_err_mysql_connect'	=> 'Failed to connect to Mysql host with these informations.',
-'first_titre' 						=> 'Keine Verbindung zum MySQL-Host mit diesen Informationen verbinden.',
+'install_err_mysql_connect'	=> 'Keine Verbindung zum MySQL-Host mit diesen Informationen verbinden.',
+'first_titre' 						=> 'Eersten Artikel.',
 'first_edit' 						=> 'Editieren-Sie mir',
 // Navigation
 'remarque'							=> 'Anmerkung',
@@ -224,6 +224,7 @@ $lang_de = array(
 'err_minutes' 						=> 'Die Minuten sind ungültig',
 'err_secondes' 					=> 'Die Sekunden sind fasch',
 'err_file_write'					=> 'Es ist unmöglich, die Datei zu erstellen',
+'err_theme_introuvable'			=> 'Das theme Feil ist unzugänglich oder unleserlich.',
 'err_prefs_write'					=> 'Unmöglich des Präferenzen zu erstellen',
 'err_prefs_auteur'				=> 'Der Name des Autoren ist leer',
 'err_prefs_email'					=> 'Die e-mail adresse ist ungültig',
@@ -258,6 +259,8 @@ $lang_de = array(
 'prob_user_file_chmod'			=> 'Die Datei « user.php » ist schreibgeschützt',
 'prob_pref_file_chmod'			=> 'Die Datei « pref.php » ist schreibgeschützt',
 'prob_tags_file_chmod'			=> 'Die Datei « Tags.php » ist schreibgeschützt',
+'prob_no_db_folder'				=> 'Es gibt keinen Ordner für die Database',
+'prob_db_folder_chmod'			=> 'Der Ordner für die Database ist schreibgeschützt',
 // Questions
 'question_suppr_article'		=> 'Sind Sie sicher diesen Artikel löschen zu wollen?',
 'question_suppr_image'			=> 'Sind Sie sicher diesen Bilder löschen zu wollen?',

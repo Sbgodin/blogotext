@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -24,7 +24,6 @@ $GLOBALS['boucles'] = array(
 );
 
 $GLOBALS['balises'] = array(
-	'charset' => '{charset}',
 	'version' => '{version}',
 	'app_name' => '{app_name}',
 	'style' => '{style}',
@@ -48,6 +47,8 @@ $GLOBALS['balises'] = array(
 
 	// Article
 	'article_titre' => '{article_titre}',
+	'article_titre_page' => '{article_titre_page}',
+	'article_titre_echape' => '{article_titre_echape}',
 	'article_chapo' => '{article_chapo}',
 	'article_contenu' => '{article_contenu}',
 	'article_heure' => '{article_heure}',
@@ -68,7 +69,7 @@ $GLOBALS['balises'] = array(
 	'commentaire_webpage' => '{commentaire_webpage}',
 	'commentaire_anchor' => '{commentaire_ancre}', // the id="" content
 	'commentaire_lien' => '{commentaire_lien}',
-	'commentaire_gravatar' => '{commentaire_gravatar_link}', // only contains http://2.gravatar.com/avatar/md5($email)
+	'commentaire_gravatar' => '{commentaire_gravatar_link}', // http://2.gravatar.com/avatar/md5($email)
 
 	// Liens
 	'lien_auteur' => '{lien_auteur}',
@@ -81,30 +82,41 @@ $GLOBALS['balises'] = array(
 	'lien_id' => '{lien_id}',
 );
 
-function conversions_theme($texte) {
-	if (isset($GLOBALS['charset'])) {			$texte = str_replace($GLOBALS['balises']['charset'], $GLOBALS['charset'], $texte); }
-	if (isset($GLOBALS['version'])) {			$texte = str_replace($GLOBALS['balises']['version'], $GLOBALS['version'], $texte); }
-	if (isset($GLOBALS['nom_application'])) {	$texte = str_replace($GLOBALS['balises']['app_name'], $GLOBALS['nom_application'], $texte); }
-	if (isset($GLOBALS['nom_du_site'])) {		$texte = str_replace($GLOBALS['balises']['blog_nom'], $GLOBALS['nom_du_site'], $texte); }
-	if (isset($GLOBALS['theme_style'])) {		$texte = str_replace($GLOBALS['balises']['style'], $GLOBALS['theme_style'], $texte); }
-	if (isset($GLOBALS['description'])) {		$texte = str_replace($GLOBALS['balises']['blog_description'], $GLOBALS['description'], $texte); }
-	if (isset($GLOBALS['racine'])) {				$texte = str_replace($GLOBALS['balises']['racine_du_site'], $GLOBALS['racine'], $texte); }
-	if (isset($GLOBALS['auteur'])) {				$texte = str_replace($GLOBALS['balises']['blog_auteur'], $GLOBALS['auteur'], $texte); }
-	if (isset($GLOBALS['email'])) {				$texte = str_replace($GLOBALS['balises']['blog_email'], $GLOBALS['email'], $texte); }
+function conversions_theme($texte, $solo_art) {
+	$texte = str_replace($GLOBALS['balises']['version'], $GLOBALS['version'], $texte);
+	$texte = str_replace($GLOBALS['balises']['app_name'], $GLOBALS['nom_application'], $texte);
+	$texte = str_replace($GLOBALS['balises']['style'], $GLOBALS['theme_style'], $texte);
+	$texte = str_replace($GLOBALS['balises']['blog_description'], $GLOBALS['description'], $texte);
+	$texte = str_replace($GLOBALS['balises']['racine_du_site'], $GLOBALS['racine'], $texte);
+	$texte = str_replace($GLOBALS['balises']['blog_auteur'], $GLOBALS['auteur'], $texte);
+	$texte = str_replace($GLOBALS['balises']['blog_email'], $GLOBALS['email'], $texte);
+	$texte = str_replace($GLOBALS['balises']['blog_nom'], $GLOBALS['nom_du_site'], $texte);
 
-	if ( !isset($_GET['d']) and !isset($_GET['id']) ) { $texte = str_replace($GLOBALS['balises']['pagination'], lien_pagination(), $texte); }
-		else { $texte = str_replace($GLOBALS['balises']['pagination'], '', $texte); }
+
+	if (isset($solo_art['bt_title'])) {
+		$texte = str_replace($GLOBALS['balises']['article_titre_page'], $solo_art['bt_title'].' - ', $texte);
+	} else {
+		$texte = str_replace($GLOBALS['balises']['article_titre_page'], '', $texte);
+	}
+
+
+	$texte = str_replace($GLOBALS['balises']['pagination'], lien_pagination(), $texte);
+
+	if (strpos($texte, $GLOBALS['balises']['form_recherche']) !== FALSE) {
+		$texte = str_replace($GLOBALS['balises']['form_recherche'], moteur_recherche(''), $texte) ;
+	}
+	if (strpos($texte, $GLOBALS['balises']['form_calendrier']) !== FALSE) {
+		$texte = str_replace($GLOBALS['balises']['form_calendrier'], afficher_calendrier(), $texte) ;
+	}
 
 	// Formulaires
-	$texte = str_replace($GLOBALS['balises']['form_recherche'], moteur_recherche(''), $texte) ;
-	if (isset($GLOBALS['calendrier'])) {				$texte = str_replace($GLOBALS['balises']['form_calendrier'], $GLOBALS['calendrier'], $texte); }
-	if (isset($GLOBALS['form_commentaire'])) {		$texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['form_commentaire'], $texte); }
-		else {													$texte = str_replace($GLOBALS['balises']['form_commentaire'], '', $texte);}
-	if (isset($GLOBALS['rss'])) {							$texte = str_replace($GLOBALS['balises']['rss'], $GLOBALS['rss'], $texte) ; }
-		else {													$texte = str_replace($GLOBALS['balises']['rss'], '', $texte); }
-	if (isset($GLOBALS['balises']['comm_encart'])) {$texte = str_replace($GLOBALS['balises']['comm_encart'], encart_commentaires(), $texte);}
-	if (isset($GLOBALS['balises']['cat_encart'])) {	$texte = str_replace($GLOBALS['balises']['cat_encart'], encart_categories(), $texte);}
-	if (isset($GLOBALS['rss_comments'])) {				$texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
+	if (isset($GLOBALS['form_commentaire'])) { $texte = str_replace($GLOBALS['balises']['form_commentaire'], $GLOBALS['form_commentaire'], $texte); }
+		else { $texte = str_replace($GLOBALS['balises']['form_commentaire'], '', $texte); }
+
+	$texte = str_replace($GLOBALS['balises']['rss'], $GLOBALS['rss'], $texte);
+	$texte = str_replace($GLOBALS['balises']['comm_encart'], encart_commentaires(), $texte);
+	$texte = str_replace($GLOBALS['balises']['cat_encart'], encart_categories(), $texte);
+	if (isset($GLOBALS['rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $GLOBALS['rss_comments'], $texte);}
 
 	return $texte;
 }
@@ -112,185 +124,181 @@ function conversions_theme($texte) {
 
 // Commentaire
 function conversions_theme_commentaire($texte, $commentaire) {
-	if (isset($commentaire['bt_content'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_contenu'], $commentaire['bt_content'], $texte); }
-	if (isset($commentaire['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['commentaire_date'], date_formate($commentaire['bt_id']), $texte); }
-	if (isset($commentaire['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['commentaire_heure'], heure_formate($commentaire['bt_id']), $texte); }
-	if (isset($commentaire['bt_email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['bt_email'], $texte); }
-	if (isset($commentaire['bt_email'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_gravatar'], 'http://2.gravatar.com/avatar/'.md5($commentaire['bt_email']), $texte); }
-	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur_lien'], $commentaire['auteur_lien'], $texte); }
-	if (isset($commentaire['bt_author'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], str_replace("'", "\\'", $commentaire['bt_author']), $texte); }
-	if (isset($commentaire['bt_webpage'])) {	$texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['bt_webpage'], $texte); }
-	if (isset($commentaire['anchor'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_anchor'], $commentaire['anchor'], $texte); }
-	if (isset($commentaire['bt_link'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_lien'], $commentaire['bt_link'], $texte); }
+	$texte = str_replace($GLOBALS['balises']['commentaire_contenu'], $commentaire['bt_content'], $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_date'], date_formate($commentaire['bt_id']), $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_heure'], heure_formate($commentaire['bt_id']), $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_email'], $commentaire['bt_email'], $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_gravatar'], 'http://2.gravatar.com/avatar/'.md5($commentaire['bt_email']), $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_auteur_lien'], $commentaire['auteur_lien'], $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], str_replace("'", "\\'", $commentaire['bt_author']), $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_webpage'], $commentaire['bt_webpage'], $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_anchor'], $commentaire['anchor'], $texte);
+	$texte = str_replace($GLOBALS['balises']['commentaire_lien'], $commentaire['bt_link'], $texte);
 	return $texte;
 }
 
 // Article
 function conversions_theme_article($texte, $billet) {
-	if (isset($billet['bt_url_rss_comments'])) { $texte = str_replace($GLOBALS['balises']['rss_comments'], $billet['bt_url_rss_comments'], $texte); }
-	if (isset($billet['bt_title'])) {		$texte = str_replace($GLOBALS['balises']['article_titre'], $billet['bt_title'], $texte); }
-	if (isset($billet['bt_abstract'])) {	$texte = str_replace($GLOBALS['balises']['article_chapo'], $billet['bt_abstract'], $texte); }
-	if (isset($billet['bt_content'])) {		$texte = str_replace($GLOBALS['balises']['article_contenu'], $billet['bt_content'], $texte); }
-	if (isset($billet['bt_date'])) {			$texte = str_replace($GLOBALS['balises']['article_date'], date_formate($billet['bt_date']), $texte); }
-	if (isset($billet['bt_date'])) {			$texte = str_replace($GLOBALS['balises']['article_heure'], heure_formate($billet['bt_date']), $texte); }
-	if (isset($billet['bt_keywords'])) {	$texte = str_replace($GLOBALS['balises']['article_motscles'], $billet['bt_keywords'], $texte); }
+	/*
+	if (!empty($_GET['q'])) {
+		$q = htmlspecialchars($_GET['q']); // FIXME : remplacer uniquement dans le texte, pas les liens.
+		$billet['bt_content'] = str_replace($q, '<mark>'.$q.'</mark>', $billet['bt_content']);
+	}
+	*/
+
+	$texte = str_replace($GLOBALS['balises']['blog_auteur'], $GLOBALS['auteur'], $texte);
+	$texte = str_replace($GLOBALS['balises']['style'], $GLOBALS['theme_style'], $texte);
+	$texte = str_replace($GLOBALS['balises']['rss_comments'], 'rss.php?id='.$billet['bt_id'], $texte);
+	$texte = str_replace($GLOBALS['balises']['article_titre'], $billet['bt_title'], $texte);
+	$texte = str_replace($GLOBALS['balises']['article_titre_echape'], urlencode($billet['bt_title']), $texte);
+	$texte = str_replace($GLOBALS['balises']['article_chapo'], $billet['bt_abstract'], $texte);
+	$texte = str_replace($GLOBALS['balises']['article_contenu'], $billet['bt_content'], $texte);
+	$texte = str_replace($GLOBALS['balises']['article_date'], date_formate($billet['bt_date']), $texte);
+	$texte = str_replace($GLOBALS['balises']['article_heure'], heure_formate($billet['bt_date']), $texte);
+	$texte = str_replace($GLOBALS['balises']['article_motscles'], $billet['bt_keywords'], $texte);
 	// comments closed (globally or only for this article) and no comments => say « comments closed »
 	if ( ($billet['bt_allow_comments'] == 0 or $GLOBALS['global_com_rule'] == 1 ) and $billet['bt_nb_comments'] == 0 ) { $texte = str_replace($GLOBALS['balises']['nb_commentaires'], $GLOBALS['lang']['note_comment_closed'], $texte); }
 	// comments open OR ( comments closed AND comments exists ) => say « nb comments ».
 	if ( !($billet['bt_allow_comments'] == 0 or $GLOBALS['global_com_rule'] == 1 ) or $billet['bt_nb_comments'] != 0 ) { $texte = str_replace($GLOBALS['balises']['nb_commentaires'], nombre_commentaires($billet['bt_nb_comments']), $texte); }
-	if (isset($billet['bt_auteur'])) {		$texte = str_replace($GLOBALS['balises']['commentaire_auteur'], $billet['bt_auteur'], $texte); }
-	if (isset($billet['lien'])) {				$texte = str_replace($GLOBALS['balises']['article_lien'], $billet['lien'], $texte); }
-	if (isset($billet['bt_categories'])) {	$texte = str_replace($GLOBALS['balises']['article_tags'], liste_tags_article($billet, '1'), $texte); }
-	if (isset($billet['bt_categories'])) {	$texte = str_replace($GLOBALS['balises']['article_tags_plain'], liste_tags_article($billet, '0'), $texte); }
+	$texte = str_replace($GLOBALS['balises']['article_lien'], $billet['lien'], $texte);
+	$texte = str_replace($GLOBALS['balises']['article_tags'], liste_tags_article($billet, '1'), $texte);
+	$texte = str_replace($GLOBALS['balises']['article_tags_plain'], liste_tags_article($billet, '0'), $texte);
 	return $texte;
 }
 
 // Liens
 function conversions_theme_lien($texte, $lien) {
-	if (isset($GLOBALS['rss_links'])) {	$texte = str_replace($GLOBALS['balises']['rss_links'], $GLOBALS['rss_links'], $texte); }
-	if (isset($lien['bt_author'])) {		$texte = str_replace($GLOBALS['balises']['lien_auteur'], $lien['bt_author'], $texte); }
-	if (isset($lien['bt_title'])) {		$texte = str_replace($GLOBALS['balises']['lien_titre'], $lien['bt_title'], $texte); }
-	if (isset($lien['bt_link'])) {		$texte = str_replace($GLOBALS['balises']['lien_url'], $lien['bt_link'], $texte); }
-	if (isset($lien['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['lien_date'], date_formate($lien['bt_id']), $texte); }
-	if (isset($lien['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['lien_heure'], heure_formate($lien['bt_id']), $texte); }
-	if (isset($lien['bt_id'])) {			$texte = str_replace($GLOBALS['balises']['lien_permalink'], $lien['bt_id'], $texte); }
-	if (isset($lien['bt_content'])) {	$texte = str_replace($GLOBALS['balises']['lien_description'], $lien['bt_content'], $texte); }
-	if (isset($lien['ID'])) {				$texte = str_replace($GLOBALS['balises']['lien_id'], $lien['ID'], $texte); }
+	$texte = str_replace($GLOBALS['balises']['article_titre'], $lien['bt_title'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_auteur'], $lien['bt_author'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_titre'], $lien['bt_title'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_url'], $lien['bt_link'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_date'], date_formate($lien['bt_id']), $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_heure'], heure_formate($lien['bt_id']), $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_permalink'], $lien['bt_id'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_description'], $lien['bt_content'], $texte);
+	$texte = str_replace($GLOBALS['balises']['lien_id'], $lien['ID'], $texte);
 	return $texte;
 }
 
 
-function charger_template($fichier_theme, $balise, $renvoi) {
+// récupère le bout du fichier thème contenant une boucle comme {BOUCLE_commentaires}
+//  soit le morceau de HTML retourné est parsé à son tour pour crée le HTML de chaque commentaire ou chaque article.
+//  soit le morceau de HTML retourné sert à se faire remplacer par l’ensemble des commentaires constitués
+function replace_boucles($fichier_theme, $balise, $incl) {
 	if ($theme_page = file_get_contents($fichier_theme)) {
-		if ($renvoi == 'liste') {
-			$template_liste = parse_theme($theme_page, $balise);
-			return $template_liste;
-		} elseif ($renvoi == 'debut') {
-			$balise_debut = strpos($theme_page, '{'.$balise.'}');
-			$debut = conversions_theme(substr($theme_page, 0, $balise_debut));
-			return $debut;
-		} elseif ($renvoi == 'fin') {
-			$balise_fin = strpos($theme_page, '{/'.$balise.'}') + strlen($balise) + 3;
-			$fin = conversions_theme(substr($theme_page, $balise_fin));
-			return $fin;
+		$len_balise_d = 0 ; $len_balise_f = 0;
+		if ($incl == 'excl') { // la $balise est exclue : bli{p}blabla{/p}blo => blabla
+			$len_balise_d = strlen('{'.$balise.'}');
 		}
+		else {// la $balise est inclue : bli{p}blabla{/p}blo => {p}blabla{/p}
+			$len_balise_f = strlen('{/'.$balise.'}');
+		}
+		$debut = strpos($theme_page, '{'.$balise.'}') + $len_balise_d;
+		$fin = strpos($theme_page, '{/'.$balise.'}') + $len_balise_f;
+		$lenght = $fin - $debut;
+		$return = substr($theme_page, $debut, $lenght); 
+		return $return;
 	} else {
-		echo 'Fichier theme liste introuvable ou illisible';
+		die($GLOBALS['lang']['err_theme_introuvable']);
 	}
 }
 
-
-function parse_theme($fichier, $balise) {
-	if (isset($fichier)) {
-		if (strpos($fichier, '{'.$balise.'}') !== FALSE) {
-			$sizeitem = strlen('{'.$balise.'}');
-			$debut = strpos($fichier, '{'.$balise.'}') + $sizeitem;
-			$fin = strpos($fichier, '{/'.$balise.'}');
-			$lenght = $fin - $debut;
-			$return = substr($fichier, $debut, $lenght); 
-			return $return;
-		} else {
-			return '';
-		}
-	} else {
-		erreur('Impossible de lire le fichier');
-	}
-}
-
-
-function afficher_index($tableau) {
-	if ($debut = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'debut') and
-		($fin = charger_template($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'fin')) ) {
-		echo $debut; // affichage du début
-		if (!empty($tableau)) {
-			liste_post($tableau); // affichage des boucles
-		} else {
-			erreur($GLOBALS['lang']['note_no_article']);
-		}
-	echo $fin; // affichage de la fin
-	}
-}
-
-
-function liste_post($liste) { // la liste contenir soit des articles, soit des liens, bref n'importe quoi, ou un mix de tout ça.
-	foreach ($liste as $cle => $post) {
-		switch($post['bt_type']) {
-			case 'article':
-				$template = file_get_contents($GLOBALS['theme_post_artc']);
-				$liste_posts = conversions_theme_article($template, $post);
-				break;
-			case 'link':
-			case 'note':
-				$template = file_get_contents($GLOBALS['theme_post_link']);
-				$liste_posts = conversions_theme_lien($template, $post);
-				break;
-			case 'comment':
-				$template = file_get_contents($GLOBALS['theme_post_comm']);
-				$liste_posts = conversions_theme_commentaire($template, $post);
-				break;
-			default:
-				$liste_posts = ' [nothing-them.php l.243.]  ';
-		}
-		echo $liste_posts;
-	}
-}
-
-
-// only used by the main page of the blog (not on admin)
+// only used by the main page of the blog (not on admin) : shows ONE article and its comments.
 function afficher_article($id) {
 	// 'admin' connected is allowed to see draft articles, but not 'public'. Same for article posted with a date in the future.
-	if (!empty($_SESSION['user_id'])) {
-		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date <=? AND bt_statut='1'";
+	if (empty($_SESSION['user_id'])) {
+		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date <=? AND bt_statut=1";
 		$billets = liste_elements($query, array($id, date('YmdHis')), 'articles');
-
 	} else {
 		$query = "SELECT * FROM articles WHERE bt_id=?";
 		$billets = liste_elements($query, array($id), 'articles');
-
 	}
-	if (isset($billets[0])) {
-		$billet = $billets[0];
-	} else {
-		$billet = NULL;
-	}
-
-	if ( !empty($billet) ) {
-		// TRAITEMENT
+	if ( !empty($billets[0]) ) {
+		// TRAITEMENT new commentaire
 		$erreurs_form = array();
-		if (isset($_POST['_verif_envoi']) and ($billet['bt_allow_comments'] == '1' )) {
+		if (isset($_POST['_verif_envoi']) and ($billets[0]['bt_allow_comments'] == '1' )) {
 			// COMMENT POST INIT
 			$comment = init_post_comment($id, 'public');
 			if (isset($_POST['enregistrer'])) {
 				$erreurs_form = valider_form_commentaire($comment, $_POST['captcha'], ($_SESSION['captx']+$_SESSION['capty']), 'public');
 			}
 		}
-		if (empty($erreurs_form)) {
-			afficher_form_commentaire($id, 'public');
-			if (isset($_POST['enregistrer']) and empty($_POST['email-adress'])) {
-				traiter_form_commentaire($comment, 'public');
-			}
-		} else {
-			afficher_form_commentaire($id, 'public', $erreurs_form);
+		afficher_form_commentaire($id, 'public', $erreurs_form);
+		if (empty($erreurs_form) and isset($_POST['enregistrer']) and empty($_POST['email-adress'])) {
+			traiter_form_commentaire($comment, 'public');
 		}
-		$theme_page = file_get_contents($GLOBALS['theme_article']);
-		$debut = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'debut');
-		$template_comments = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'liste');
-		$fin = charger_template($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'fin');
-		echo conversions_theme_article($debut, $billet);
-
-		$query = "SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut='1' ORDER BY bt_id";
+		if (!($theme_page = file_get_contents($GLOBALS['theme_article']))) die($GLOBALS['lang']['err_theme_introuvable']);	
+		$HTML_article = conversions_theme($theme_page, $billets[0]);
+		$HTML_article = conversions_theme_article($HTML_article, $billets[0]);
+		$query = "SELECT * FROM commentaires WHERE bt_article_id=? AND bt_statut=1 ORDER BY bt_id";
 		$commentaires = liste_elements($query, array($id), 'commentaires');
-
+		$HTML_comms = '';
 		if (!empty($commentaires)) {
+			$template_comments = replace_boucles($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'excl');
 			foreach ($commentaires as $element) {
-				$comm = conversions_theme_commentaire($template_comments, $element);
-				echo $comm;
+				$HTML_comms .=  conversions_theme_commentaire($template_comments, $element);
 			}
 		}
-		echo conversions_theme($fin);
+		$HTML = str_replace(replace_boucles($GLOBALS['theme_article'], $GLOBALS['boucles']['commentaires'], 'incl'), $HTML_comms, $HTML_article);
 
-	} else {
+		echo $HTML;
+	}
+	else {
 		afficher_index(NULL);
 	}
+}
+
+
+
+// only used by the main page of the blog (not on admin) : shows main blog page : or articles, or comments, or…
+function afficher_index($tableau) {
+	$HTML_elmts = '';
+	$data = array();
+	if (!($theme_page = file_get_contents($GLOBALS['theme_liste']))) die($GLOBALS['lang']['err_theme_introuvable']);
+	if (!empty($tableau)) {
+		if (count($tableau)==1 and !empty($tableau[0]['bt_title'])) $data = $tableau[0];
+		$HTML_article = conversions_theme($theme_page, $data);
+		if ($tableau[0]['bt_type'] == 'article') {
+			if (!($theme_article = file_get_contents($GLOBALS['theme_post_artc']))) die($GLOBALS['lang']['err_theme_introuvable']);
+			$conversion_theme_fonction = 'conversions_theme_article';
+		}
+		if ($tableau[0]['bt_type'] == 'comment') {
+			if (!($theme_article = file_get_contents($GLOBALS['theme_post_comm']))) die($GLOBALS['lang']['err_theme_introuvable']);
+			$conversion_theme_fonction = 'conversions_theme_commentaire';
+		}
+		if ($tableau[0]['bt_type'] == 'link' or $tableau[0]['bt_type'] == 'note') {
+			if (!($theme_article = file_get_contents($GLOBALS['theme_post_link']))) die($GLOBALS['lang']['err_theme_introuvable']);
+			$conversion_theme_fonction = 'conversions_theme_lien';
+		}
+		foreach ($tableau as $element) {
+			$HTML_elmts .=  $conversion_theme_fonction($theme_article, $element);
+		}
+		$HTML = str_replace(replace_boucles($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'incl'), $HTML_elmts, $HTML_article);
+	}
+	else {
+		$HTML_article = conversions_theme($theme_page, $data);
+		$HTML = str_replace(replace_boucles($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'incl'), $GLOBALS['lang']['note_no_article'], $HTML_article);
+	}
+	echo $HTML;
+}
+
+function afficher_liste($tableau) {
+	$HTML_elmts = '';
+	$data = array();
+	if (!($theme_page = file_get_contents($GLOBALS['theme_liste']))) die($GLOBALS['lang']['err_theme_introuvable']);
+	$HTML_article = conversions_theme($theme_page, $data);
+	if (!empty($tableau)) {
+		$HTML_elmts .= '<ul>'."\n";
+		foreach ($tableau as $e) {
+			$short_date = substr($e['bt_date'], 0, 4).'/'.substr($e['bt_date'], 4, 2).'/'.substr($e['bt_date'], 6, 2);
+			$HTML_elmts .= "\t".'<li>'.$short_date.' - <a href="'.$e['bt_link'].'">'.$e['bt_title'].'</a></li>'."\n";
+		}
+		$HTML_elmts .= '</ul>'."\n";
+		$HTML = str_replace(replace_boucles($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'incl'), $HTML_elmts, $HTML_article);
+	}
+	else {
+		$HTML = str_replace(replace_boucles($GLOBALS['theme_liste'], $GLOBALS['boucles']['posts'], 'incl'), $GLOBALS['lang']['note_no_article'], $HTML_article);
+	}
+	echo $HTML;
 }
 

@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -231,6 +231,7 @@ function formatage_commentaires($texte) {
 		'#\[quote\](.+?)\[/quote\]#s',									// citation } les citation imbriquées marchent pour **deux niveaux** seulement, 
 		'#\[quote\](.+?)\[/quote\]#s',									//          } [quote][quote]bla[/quote][quote]bla[/quote][/quote] marchent et donnent le résultat attendu.
 																					//				} !!!! : [quote*][quote**][quote]bla[/quote**][/quote*][/quote] fait que les balises avec *, ** matchent.
+		'#<p>(\r|\n)+#s',										// code
 		'#\[code\](.+?)\[/code\]#s',										// code
 		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s\)\(]+))#i',	// Regex URL
 		'#\[([^[]+)\|([^[]+)\]#',											// a href
@@ -245,8 +246,10 @@ function formatage_commentaires($texte) {
 		'# ;#',																	// ;
 	);
 	$toreplacec = array(
-		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
-		'</p>'."\n".'<blockquote>$1</blockquote>'."\n".'<p>',		// citation (</p> and <p> needed for W3C)
+		'</p><blockquote>$1</blockquote><p>',		// citation (</p> and <p> needed for W3C)
+		'</p><blockquote>$1</blockquote><p>',		// citation (</p> and <p> needed for W3C)
+		'<p>',																// removes unwanted \n
+
 		'<code>$1</code>',													// code
 		'$1<a href="$2">$2</a>',												// url
 		'<a href="$2">$1</a>',												// a href
@@ -269,12 +272,14 @@ function formatage_commentaires($texte) {
 	$texte = stripslashes($texte);
 	$texte = str_replace(array("\\"), array("&#92;"), $texte);
 	$texte = '<p>'.trim(nl2br($texte)).'</p>';
+	$texte = str_replace('<p></p>', '', $texte);
 	return $texte;
 }
 
 function formatage_links($texte) {
 	$tofind = array(
 		'#([^"\[\]])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',			// Regex URL /((http|ftp)+(s)?:\/\/[^<>\s]+)/i",
+		'#\[([^[]+)\|([^[]+)\]#',											// a href
 		'#\[b\](.*?)\[/b\]#s',												// strong
 		'#\[i\](.*?)\[/i\]#s',												// italic
 		'#\[s\](.*?)\[/s\]#s',												// strike
@@ -283,6 +288,7 @@ function formatage_links($texte) {
 	);
 	$toreplace = array(
 		'$1<a href="$2">$2</a>',											// url
+		'<a href="$2">$1</a>',												// a href
 		'<span style="font-weight: bold;">$1</span>',				// strong
 		'<span style="font-style: italic;">$1</span>',				// italic
 		'<span style="text-decoration: line-through;">$1</span>',// barre

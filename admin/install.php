@@ -24,6 +24,22 @@ if ( (file_exists('../config/user.php')) and (file_exists('../config/prefs.php')
 }
 $GLOBALS['BT_ROOT_PATH'] = '../';
 
+if (isset($_GET['l'])) {
+	$lang = $_GET['l'];
+	if ($lang == 'fr') {
+		$GLOBALS['lang'] = $lang;
+	} elseif ($lang == 'en') {
+		$GLOBALS['lang'] = $lang;
+	} elseif ($lang == 'nl') {
+		$GLOBALS['lang'] = $lang;
+	} elseif ($lang == 'de') {
+		$GLOBALS['lang'] = $lang;
+	} else {
+		$GLOBALS['lang'] = 'fr';
+	}
+
+}
+
 require_once '../inc/conf.php';
 error_reporting($GLOBALS['show_errors']); // MUST be after including "conf.php"...
 require_once '../inc/lang.php';
@@ -36,26 +52,14 @@ require_once '../inc/util.php';
 require_once '../inc/jasc.php';
 require_once '../inc/sqli.php';
 
-if (isset($_GET['l'])) {
-	$lang = $_GET['l'];
-	if ($lang == $lang_fr['id']) {
-		$GLOBALS['lang'] = $lang_fr;
-	} elseif ($lang == $lang_en['id']) {
-		$GLOBALS['lang'] = $lang_en;
-	} elseif ($lang == $lang_nl['id']) {
-		$GLOBALS['lang'] = $lang_nl;
-	} elseif ($lang == $lang_de['id']) {
-		$GLOBALS['lang'] = $lang_de;
-	}
-}
 
-if (isset($_GET['s'])) {
-	$step = $_GET['s'];
+if (isset($_GET['s']) and is_numeric($_GET['s'])) {
+	$GLOBALS['step'] = $_GET['s'];
 } else { 
-	$step = '1';
+	$GLOBALS['step'] = '1';
 }
 
-if ($step == '1') {
+if ($GLOBALS['step'] == '1') {
 	// LANGUE
 	if (isset($_POST['verif_envoi_1'])) {
 		if ($err_1 = valid_install_1()) {
@@ -66,7 +70,7 @@ if ($step == '1') {
 	} else {
 		afficher_form_1();
 	}
-} elseif ($step == '2') {
+} elseif ($GLOBALS['step'] == '2') {
 	// ID + MOT DE PASSE
 	if (isset($_POST['verif_envoi_2'])) {
 		if ($err_2 = valid_install_2()) {
@@ -88,7 +92,7 @@ if ($step == '1') {
 		afficher_form_2();
 	}
 
-} elseif ($step == '3') {
+} elseif ($GLOBALS['step'] == '3') {
 	// CHOIX DB
 	if (isset($_POST['verif_envoi_3'])) {
 		if ($err_3 = valid_install_3()) {
@@ -100,6 +104,7 @@ if ($step == '1') {
 			else {
 				fichier_mysql('sqlite');
 			}
+//die();
 			traiter_install_3();
 			redirection('auth.php');
 		}
@@ -115,7 +120,7 @@ function afficher_form_1($erreurs='') {
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 	echo '<h1 id="step">Bienvenue / Welcome</h1>'."\n";
-	erreurs($erreurs);
+	echo erreurs($erreurs);
 
 	$conferrors = array();
 	// check PHP version
@@ -139,7 +144,7 @@ function afficher_form_1($erreurs='') {
 		die;
 	}
 
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
+	echo '<form method="post" action="install.php" >' ;
 	form_langue_install('Choisissez votre langue / Choose your language');
 	echo hidden_input('verif_envoi_1', '1');
 	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />';
@@ -153,8 +158,8 @@ function afficher_form_2($erreurs='') {
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 	echo '<h1 id="step">'.$GLOBALS['lang']['install'].'</h1>'."\n";
-	erreurs($erreurs);
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" onsubmit="return verifForm2(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
+	echo erreurs($erreurs);
+	echo '<form method="post" action="install.php?s='.$GLOBALS['step'].'&amp;l='.$GLOBALS['lang']['id'].'" onsubmit="return verifForm2(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
 	echo form_text('identifiant', '', $GLOBALS['lang']['install_id']);
 	echo form_password('mdp', '', $GLOBALS['lang']['install_mdp']);
 	echo form_password('mdp_rep', '', $GLOBALS['lang']['install_remdp']);
@@ -163,7 +168,7 @@ function afficher_form_2($erreurs='') {
 	echo form_text('racine', $lien, $GLOBALS['lang']['pref_racine']);
 
 	echo hidden_input('comm_defaut_status', '1');
-	echo hidden_input('langue', $_GET['l']);
+	echo hidden_input('langue', $GLOBALS['lang']['id']);
 	echo hidden_input('verif_envoi_2', '1');
 	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />'."\n";
 	echo '</form>'."\n";
@@ -178,7 +183,7 @@ function afficher_form_3($erreurs='') {
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 	echo '<h1 id="step">'.$GLOBALS['lang']['install'].'</h1>'."\n";
-	erreurs($erreurs);
+	echo erreurs($erreurs);
 	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">'."\n";
 
 	
@@ -207,8 +212,7 @@ function afficher_form_3($erreurs='') {
 	echo $GLOBALS['lang']['install_sqlite_no_more_todo'];
 	echo '</div>'."\n";
 
-
-
+	echo hidden_input('langue', $GLOBALS['lang']['id']);
 	echo hidden_input('verif_envoi_3', '1');
 	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />'."\n";
 
@@ -223,10 +227,11 @@ function traiter_install_2() {
 }
 
 function traiter_install_3() {
-	include ('../config/prefs.php');
+	//include ('../config/prefs.php');
 	$GLOBALS['db_handle'] = open_base();
 	$time = time();
 	if ($GLOBALS['db_handle']) {
+		//print_r($GLOBALS['lang']);die();
 		$first_post = array (
 			'bt_id' => date('YmdHis', $time),
 			'bt_date' => date('YmdHis', $time),

@@ -14,22 +14,11 @@
 
 function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode) {
 	$erreurs = array();
-	if (isset($_GET['post_id'])) { // admin side
-		if (!strlen(trim($commentaire['bt_author'])))  {
-				$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
-		}
+	if (!strlen(trim($commentaire['bt_author']))) {
+		$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
 	}
-	if (!isset($_GET['post_id'])) { // public side (author may not be admin’s name
-		if (!strlen(trim($commentaire['bt_author']))) {
-			$erreurs[] = $GLOBALS['lang']['err_comm_auteur'];
-		}
-		if ($commentaire['bt_author'] == $GLOBALS['auteur'] and empty($_SESSION['user_id'])) {
-			$erreurs[] = $GLOBALS['lang']['err_comm_auteur_name'];
-		}
-	}
-
 	if (!empty($commentaire['bt_email']) or $GLOBALS['require_email'] == 1) { // if email is required, or is given, it must be valid
-		if (!preg_match('#^[-_a-zA-Z0-9!%+~\'*"\[\]{}.=]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire['bt_email'])) ) {
+		if (!preg_match('#^[-\w!%+~\'*"\[\]{}.=]+@[\w.-]+\.[a-zA-Z]{2,6}$#i', trim($commentaire['bt_email'])) ) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_email'] ;
 		}
 	}
@@ -48,6 +37,10 @@ function valider_form_commentaire($commentaire, $captcha, $valid_captcha, $mode)
 	if ($mode != 'admin') { // if public : tests captcha aswell
 		if ( $captcha != $valid_captcha or $captcha != is_numeric($captcha)) {
 			$erreurs[] = $GLOBALS['lang']['err_comm_captcha'];
+		}
+	} else { // mode admin : test token
+		if (!( isset($_POST['token']) and check_token($_POST['token']) === TRUE) ) {
+			$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
 		}
 	}
 	return $erreurs;
@@ -88,6 +81,9 @@ function valider_form_billet($billet) {
 
 function valider_form_preferences() {
 	$erreurs = array();
+	if (!( isset($_POST['token']) and check_token($_POST['token']) === TRUE) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
 	if (!strlen(trim($_POST['auteur']))) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_auteur'];
 	}
@@ -105,13 +101,13 @@ function valider_form_preferences() {
 	if ( ($_POST['identifiant']) !=$GLOBALS['identifiant'] and (!strlen($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_id_mdp'];
 	}
-	if ( (strlen(trim($_POST['mdp']))) and (hash_password($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
+	if ( (!empty($_POST['mdp'])) and (hash_password($_POST['mdp'], $GLOBALS['salt']) != $GLOBALS['mdp']) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_oldmdp'];
 	}
-	if ( (strlen($_POST['mdp'])) and (strlen($_POST['mdp_rep']) < '6') ) {
+	if ( (!empty($_POST['mdp'])) and (strlen($_POST['mdp_rep']) < '6') ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_mdp'];
 	}
-	if ( (strlen($_POST['mdp_rep'])) and (!strlen($_POST['mdp'])) ) {
+	if ( (empty($_POST['mdp_rep'])) xor (empty($_POST['mdp'])) ) {
 		$erreurs[] = $GLOBALS['lang']['err_prefs_newmdp'] ;
 	}
 	return $erreurs;
@@ -119,6 +115,9 @@ function valider_form_preferences() {
 
 function valider_form_fichier($fichier) {
 	$erreurs = array();
+	if (!( isset($_POST['token']) and check_token($_POST['token']) === TRUE) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
 	if (!isset($_POST['is_it_edit'])) { // si nouveau fichier, test sur fichier entrant
 
 		if (isset($_FILES['fichier'])) {
@@ -146,6 +145,10 @@ function valider_form_fichier($fichier) {
 
 function valider_form_link() {
 	$erreurs = array();
+	if (!( isset($_POST['token']) and check_token($_POST['token']) === TRUE) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
+
 	if (!preg_match('#^\d{14}$#', $_POST['bt_id'])) {
 		$erreurs[] = 'Erreur id.';
 	}

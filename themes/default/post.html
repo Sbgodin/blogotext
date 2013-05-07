@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="{charset}" />
-	<title>{article_titre} - {blog_nom}</title>
+	<meta charset="UTF-8" />
+	<title>{article_titre_page}{blog_nom}</title>
 	<meta name="generator" content="BlogoText" />
 	<meta name="robots" content="all" />
 	<meta name="author" content="{blog_auteur}" />
@@ -10,8 +10,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=yes" />
 	<meta name="keywords" content="{article_motscles}" />
 	<link type="text/css" rel="stylesheet" href="{style}/style.css" />
-	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles Résumés" href="{rss}" />
-	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles Complets" href="{rss}?full" />
+	<link type="application/rss+xml" rel="alternate" title="RSS-2.0 - Articles" href="{rss}" />
 	<link rel="alternate" type="application/rss+xml" title="RSS-2.0 - Commentaires pour cet article" href="{rss_comments}" />
 <style type="text/css">
 #email-adress {
@@ -113,7 +112,7 @@ function resize(id, dht) {
 			<h4>Fils RSS</h4>
 			<ul>
 				<li><a href="rss.php"><img src="themes/default/feed.png" alt="icon" /> RSS</a> : Blog</li>
-				<li><a href="rss.php?full"><img src="themes/default/feed.png" alt="icon" /> RSS</a> : Blog (articles complets)</li>
+				<li><a href="rss.php?mode=links"><img src="themes/default/feed.png" alt="icon" /> RSS</a> : Liens</li>
 			</ul>
 			<hr/>
 		</nav>
@@ -123,7 +122,7 @@ function resize(id, dht) {
 	<section id="contenu">
 		<article class="news news-alone">
 			<header class="titre">
-				<h2 title="{article_chapo}" class="{article_tags_plain}"><a href="{article_lien}">{article_titre}</a></h2>
+				<h2 title="{article_chapo}"><a href="{article_lien}">{article_titre}</a></h2>
 				<h3 class="date"><img src="themes/default/icon_date.png" alt="icon" /> {article_date}</h3>
 			</header>
 			<!--<p class="chapo">{article_chapo}</p>-->
@@ -153,7 +152,7 @@ function resize(id, dht) {
 </div> <!-- end #wrapper -->
 
 
-<footer><b>{blog_auteur}</b>, tout droits réservés – Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText</a> – Thème par <a href="http://lehollandaisvolant.net/">Timo van Neerden</a></footer>
+<footer><b>{blog_auteur}</b>, tous droits réservés – Publié avec <a href="http://lehollandaisvolant.net/blogotext/">BlogoText</a> – Thème par <a href="http://lehollandaisvolant.net/">Timo van Neerden</a></footer>
 
 
 </body>

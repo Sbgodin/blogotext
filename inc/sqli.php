@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -27,52 +27,52 @@ function create_tables() {
 	$GLOBALS['dbase_structure']['links'] = "CREATE TABLE ".$if_not_exists." links
 		(
 			ID INTEGER PRIMARY KEY $auto_increment,
-			bt_type TEXT,
+			bt_type CHAR(20),
 			bt_id BIGINT, 
-			bt_content LONGTEXT,
-			bt_wiki_content LONGTEXT,
+			bt_content TEXT,
+			bt_wiki_content TEXT,
 			bt_author TEXT,
 			bt_title TEXT,
 			bt_tags TEXT,
-			bt_link LONGTEXT,
-			bt_statut INTEGER
-		)";
+			bt_link TEXT,
+			bt_statut TINYINT
+		); CREATE INDEX dateL ON links ( bt_id );";
 
 	$GLOBALS['dbase_structure']['commentaires'] = "CREATE TABLE ".$if_not_exists." commentaires
 		(
 			ID INTEGER PRIMARY KEY $auto_increment,
-			bt_type TEXT,
+			bt_type CHAR(20),
 			bt_id BIGINT, 
 			bt_article_id BIGINT,
-			bt_content LONGTEXT,
-			bt_wiki_content LONGTEXT,
+			bt_content TEXT,
+			bt_wiki_content TEXT,
 			bt_author TEXT,
 			bt_link TEXT,
-			bt_webpage LONGTEXT,
-			bt_email LONGTEXT,
-			bt_subscribe INTEGER,
-			bt_statut INTEGER
-		)";
+			bt_webpage TEXT,
+			bt_email TEXT,
+			bt_subscribe TINYINT,
+			bt_statut TINYINT
+		); CREATE INDEX dateC ON commentaires ( bt_id );";
 
 
 	$GLOBALS['dbase_structure']['articles'] = "CREATE TABLE ".$if_not_exists." articles
 		(
 			ID INTEGER PRIMARY KEY $auto_increment,
-			bt_type TEXT,
+			bt_type CHAR(20),
 			bt_id BIGINT, 
 			bt_date BIGINT, 
 			bt_title TEXT,
 			bt_abstract TEXT,
 			bt_notes TEXT,
 			bt_link TEXT,
-			bt_content LONGTEXT,
-			bt_wiki_content LONGTEXT,
+			bt_content TEXT,
+			bt_wiki_content TEXT,
 			bt_categories TEXT,
-			bt_keywords LONGTEXT,
+			bt_keywords TEXT,
 			bt_nb_comments INTEGER,
-			bt_allow_comments INTEGER,
-			bt_statut INTEGER
-		)";
+			bt_allow_comments TINYINT,
+			bt_statut TINYINT
+		); CREATE INDEX dateidA ON articles (bt_date, bt_id );";
 
 
 	/*
@@ -92,7 +92,7 @@ function create_tables() {
 				try {
 					$db_handle = new PDO('sqlite:'.$file);
 					$db_handle->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-					$db_handle->query("PRAGMA temp_store=MEMORY; PRAGMA synchronous=OFF;");
+					$db_handle->query("PRAGMA temp_store=MEMORY; PRAGMA synchronous=OFF; PRAGMA journal_mode=WAL;");
 					// list tables
 					$list_tbl = $db_handle->query("SELECT name FROM sqlite_master WHERE type='table'");
 					// make an normal array, need for "in_array()"
@@ -151,20 +151,29 @@ function liste_elements($query, $array, $data_type) {
 	try {
 		$req = $GLOBALS['db_handle']->prepare($query);
 		$req->execute($array);
-		$result = $req->fetchAll();
-		$chapo = (sizeof($result) == 1) ? 1 : 0;
+		$return = array();
 
 		switch ($data_type) {
 			case 'articles':
-				$result = init_list_articles($result, $chapo);
+				while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
+					$return[] = init_list_articles($row);
+				}
 				break;
 			case 'commentaires':
-				$result = init_list_comments($result);
+				while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
+					$return[] = init_list_comments($row);
+				}
+				break;
+			case 'links':
+				while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
+					$return[] = $row;
+				}
 				break;
 			default:
 				break;
 		}
-		return $result;
+
+		return $return;
 	} catch (Exception $e) {
 		die('Erreur 89208 : '.$e->getMessage());
 	}
@@ -175,8 +184,8 @@ function liste_elements_count($query, $array) {
 	try {
 		$req = $GLOBALS['db_handle']->prepare($query);
 		$req->execute($array);
-		$result = $req->fetchAll();
-		return $result[0]['nbr'];
+		$result = $req->fetch();
+		return $result['nbr'];
 	} catch (Exception $e) {
 		die('Erreur 0003: '.$e->getMessage());
 	}
@@ -187,46 +196,42 @@ function get_entry($base_handle, $table, $entry, $id, $retour_mode) {
 	$query = "SELECT $entry FROM $table WHERE bt_id=?";
 	try {
 		$req = $base_handle->prepare($query);
-		$req->execute(array($id)); // Y U NO work ? 
-		$result = $req->fetchAll();
+		$req->execute(array($id)); 
+		$result = $req->fetch();
+		//echo '<pre>';print_r($result);
 	} catch (Exception $e) {
 		die('Erreur : '.$e->getMessage());
 	}
 
-	if ($retour_mode == 'return' and !empty($result[0][$entry])) {
-		return $result[0][$entry];
+	if ($retour_mode == 'return' and !empty($result[$entry])) {
+		return $result[$entry];
 	}
-	if ($retour_mode == 'echo' and !empty($result[0][$entry])) {
-		echo $result[0][$entry];
+	if ($retour_mode == 'echo' and !empty($result[$entry])) {
+		echo $result[$entry];
 	}
 	return '';
 }
 
-// LORS DU POSTAGE D'UN ARTICLE : FIXME : ajouter jeton de sécurité
 function traiter_form_billet($billet) {
-
 	if ( isset($_POST['enregistrer']) and !isset($billet['ID']) ) {
 		$result = bdd_article($billet, 'enregistrer-nouveau');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj');
-		}
-		else { die($result); }
+		$redir = $_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj';
 	}
-
 	elseif ( isset($_POST['enregistrer']) and isset($billet['ID']) ) {
 		$result = bdd_article($billet, 'modifier-existant');
-		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout');
-		}
-		else { die($result); }
+		$redir = $_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout';
 	}
 	elseif ( isset($_POST['supprimer']) and isset($_POST['ID']) and is_numeric($_POST['ID']) ) {
 		$result = bdd_article($billet, 'supprimer-existant');
-		if ($result === TRUE) {
-			redirection('articles.php?msg=confirm_article_suppr');
-		}
-		else { die($result); }
+		$redir = 'articles.php?msg=confirm_article_suppr';
 	}
+
+	if ($result === TRUE) {
+		//raffraichir_cache(); FIXME
+		redirection($redir);
+	}
+	else { die($result); }
+
 }
 
 function bdd_article($billet, $what) {
@@ -318,17 +323,17 @@ function bdd_article($billet, $what) {
 
 
 
-// traiter un ajout de lien prend deux étapes : 1) on donne le lien > il donne un form avec lien+titre 2) après ajout d'une description, on clic pour l'ajouter à la bdd.
+// traiter un ajout de lien prend deux étapes :
+//  1) on donne le lien > il donne un form avec lien+titre
+//  2) après ajout d'une description, on clic pour l'ajouter à la bdd.
 // une fois le lien donné (étape 1) et les champs renseignés (étape 2) on traite dans la BDD
 function traiter_form_link($link) {
-	// redirection : conserve les param dans l'URL mais supprime le 'msg' (pour pas qu'il y soit plusieurs fois, après les redirections.
-//	$msg_param_to_trim = ((isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '');
-	$query_string = str_replace(/*$msg_param_to_trim*/((isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : ''), '', $_SERVER['QUERY_STRING']);
+	$query_string = str_replace(((isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : ''), '', $_SERVER['QUERY_STRING']);
 
 	if ( isset($_POST['enregistrer'])) {
 		$result = bdd_lien($link, 'enregistrer-nouveau');
 		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
+			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_link_edit');
 		}
 		else { die($result); }
 	}
@@ -336,7 +341,7 @@ function traiter_form_link($link) {
 	elseif (isset($_POST['editer'])) {
 		$result = bdd_lien($link, 'modifier-existant');
 		if ($result === TRUE) {
-			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_lien_edit');
+			redirection($_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_link_edit');
 		}
 		else { die($result); }
 	}
@@ -352,7 +357,6 @@ function traiter_form_link($link) {
 
 
 function bdd_lien($link, $what) {
-	// ajout d'un nouveau lien
 	if ($what == 'enregistrer-nouveau') {
 		try {
 			$req = $GLOBALS['db_handle']->prepare('INSERT INTO links
@@ -383,7 +387,6 @@ function bdd_lien($link, $what) {
 			return 'Erreur 5867 : '.$e->getMessage();
 		}
 
-	// Édition d'un lien existant
 	} elseif ($what == 'modifier-existant') {
 		try {
 			$req = $GLOBALS['db_handle']->prepare('UPDATE links SET
@@ -410,7 +413,7 @@ function bdd_lien($link, $what) {
 			return 'Erreur 435678 : '.$e->getMessage();
 		}
 	}
-	// Suppression d'un lien
+
 	elseif ($what == 'supprimer-existant') {
 		try {
 			$req = $GLOBALS['db_handle']->prepare('DELETE FROM links WHERE ID=?');
@@ -423,7 +426,6 @@ function bdd_lien($link, $what) {
 }
 
 
-// ceci est traité coté Admin seulement car c'est appellé lors de l'édition ou la suppression d'un commentaire:
 function traiter_form_commentaire($commentaire, $admin) {
 	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
 	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
@@ -432,7 +434,7 @@ function traiter_form_commentaire($commentaire, $admin) {
 	if (isset($_POST['enregistrer']) and empty($_POST['is_it_edit'])) {
 		$result = bdd_commentaire($commentaire, 'enregistrer-nouveau');
 		if ($result === TRUE) {
-			send_emails($commentaire['bt_id']); // send emails new comment posted
+			send_emails($commentaire['bt_id']); // send emails new comment posted to people that are subscriben
 			if ($admin == 'admin') {
 				redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_ajout');
 			}
@@ -496,11 +498,25 @@ function bdd_commentaire($commentaire, $what) {
 				$commentaire['bt_statut']
 			));
 
-			// remet à jour le nombre de commentaires associés à l’article.
-			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
 
-			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
-			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
+
+			// remet à jour le nombre de commentaires associés à l’article.
+			if ($GLOBALS['sgdb'] == 'sqlite') {
+				$query = "UPDATE articles SET bt_nb_comments = (SELECT count(a.bt_id) FROM articles a INNER JOIN commentaires c ON (c.bt_article_id = a.bt_id) WHERE articles.bt_id = a.bt_id GROUP BY a.bt_id) WHERE articles.bt_id=? ";
+			}
+			if ($GLOBALS['sgdb'] == 'mysql') {
+				$query = "UPDATE articles SET bt_nb_comments = (SELECT count(articles.bt_id) FROM commentaires WHERE commentaires.bt_article_id = articles.bt_id) WHERE bt_id=?";
+			}
+
+
+			$req2 = $GLOBALS['db_handle']->prepare($query);
+			$req2->execute( array($commentaire['bt_article_id']) );
+
+
+
+
+
+
 			return TRUE;
 		} catch (Exception $e) {
 			return 'Erreur : '.$e->getMessage();
@@ -565,10 +581,9 @@ function bdd_commentaire($commentaire, $what) {
 /* FOR COMMENTS : RETUNS nb_com per author */
 function nb_entries_as($table, $what) {
 	$result = array();
-	$query = "SELECT count($what) AS nb,$what FROM $table GROUP BY $what ORDER BY nb DESC";
-
+	$query = "SELECT count($what) AS nb, $what FROM $table GROUP BY $what ORDER BY nb DESC";
 	try {
-		$result = $GLOBALS['db_handle']->query($query)->fetchAll();
+		$result = $GLOBALS['db_handle']->query($query)->fetchAll(PDO::FETCH_ASSOC);
 		return $result;
 	} catch (Exception $e) {
 		die('Erreur 0349 : '.$e->getMessage());
@@ -577,19 +592,19 @@ function nb_entries_as($table, $what) {
 
 
 // retourne la liste les jours d’un mois que le calendrier doit afficher.
-function table_list_date($date, $statut, $mode, $table) {
+function table_list_date($date, $statut, $table) {
 	$return = array();
 	$and_statut = (!empty($statut)) ? 'AND bt_statut=\''.$statut.'\'' : '';
+	$bt_ = ($table == 'articles') ? 'bt_date' : 'bt_id';
+	$and_date = 'AND '.$bt_.' <= '.date('YmdHis');
 
-	if ($table == 'articles') {
-		$and_date = ($mode == 'admin') ? '' : 'AND bt_date <= '.date('YmdHis');
-		$query = "SELECT bt_date FROM $table WHERE bt_date LIKE '$date%' $and_statut $and_date";
-	} else {
-		$and_date = ($mode == 'admin') ? '' : 'AND bt_id <= '.date('YmdHis');
-		$query = "SELECT bt_id FROM $table WHERE bt_id LIKE '$date%' $and_statut $and_date";
-	}
+	$query = "SELECT DISTINCT substr($bt_, 7, 2) AS date FROM $table WHERE $bt_ LIKE '$date%' $and_statut $and_date";
+
 	try {
-		$return = $GLOBALS['db_handle']->query($query)->fetchAll();
+		$req = $GLOBALS['db_handle']->query($query);
+		while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
+			$return[] = $row['date'];
+		}
 		return $return;
 	} catch (Exception $e) {
 		die('Erreur 21436 : '.$e->getMessage());
@@ -616,17 +631,12 @@ function list_all_tags($table) {
 	}
 
 	// en crée un tableau
+	$liste_tags = str_replace(', ', ',', $liste_tags);
+	$liste_tags = str_replace(' ,', ',', $liste_tags);
+
 	$tab_tags = explode(',', $liste_tags);
 	// les déboublonne
-	// c'est environ 100 fois plus rapide de faire un array_unique() avant ET un après de faire le trim() sur les cases.
 	$tab_tags = array_unique($tab_tags);
-	foreach($tab_tags as $i => $tag) {
-		if (trim($tag) != '') {
-			$tab_tags[$i] = trim($tag);
-		}
-	}
-	$tab_tags = array_unique($tab_tags);
-	// parfois le explode laisse une case vide en fin de tableau. Le sort() le place alors au début.
 	// si la premiere case est vide, on la vire.
 	sort($tab_tags);
 	if ($tab_tags[0] == '') {
@@ -640,4 +650,13 @@ function list_all_tags($table) {
 	}
 	return $return;
 }
+
+
+function save_file_db() {
+	$liste = liste_elements("SELECT * FROM commentaires ORDER BY bt_id DESC", array(), 'commentaires');
+	$liste = tri_selon_sous_cle($liste, 'bt_id');
+	file_put_contents('dat.php', '<?php /* '.chunk_split(base64_encode(serialize($liste))).' */');
+	return true;
+}
+
 

@@ -46,7 +46,7 @@ function afficher_form_prefs($erreurs = '') {
 
 	echo '<div id="axe">'."\n";
 	echo '<div id="page">'."\n";
-	erreurs($erreurs);
+	echo erreurs($erreurs);
 
 	echo '<form id="preferences" class="bordered-formbloc" method="post" action="'.$_SERVER['PHP_SELF'].'" >' ;
 		$fld_user = '<fieldset class="pref">';
@@ -145,15 +145,6 @@ function afficher_form_prefs($erreurs = '') {
 		$fld_cfg_linx .= '<label>'.$GLOBALS['lang']['pref_label_bookmark_lien'].'</label>'."\n";
 		$fld_cfg_linx .= '<a class="dnd-to-favs" onclick="alert(\''.$GLOBALS['lang']['pref_alert_bookmark_link'].'\');return false;" href="javascript:javascript:(function(){window.open(\''.$GLOBALS['racine'].'admin/links.php?url=\'+encodeURIComponent(location.href));})();"><b>Save link</b></a>';
 		$fld_cfg_linx .= '</p>'."\n";
-
-		// publication de lien côté visiteur autorisé
-//		$fld_cfg_linx .= '<p>'."\n";
-//		$fld_cfg_linx .= select_yes_no('allow_public_linx', $GLOBALS['allow_public_linx'], $GLOBALS['lang']['pref_allow_global_linx']);
-//		$fld_cfg_linx .= '</p>'."\n";
-		// les liens publiés côté public doivent être validés par l’admin avant d’être visibles ?
-//		$fld_cfg_linx .= '<p>'."\n";
-//		$fld_cfg_linx .= form_select('linx_defaut_status', array('1' => $GLOBALS['lang']['pref_comm_black_list'], '0' => $GLOBALS['lang']['pref_comm_white_list']), $GLOBALS['linx_defaut_status'], $GLOBALS['lang']['pref_linx_BoW_list']);
-//		$fld_cfg_linx .= '</p>'."\n";
 		$fld_cfg_linx .= '</fieldset>';
 	echo $fld_cfg_linx;
 
@@ -184,6 +175,7 @@ function afficher_form_prefs($erreurs = '') {
 
 	echo '<div class="submit">';
 	echo hidden_input('_verif_envoi', '1');
+	echo hidden_input('token', new_token());
 	echo '<input class="submit blue-square" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
 	echo '</div>';
 	echo '</form>';

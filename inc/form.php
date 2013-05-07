@@ -51,8 +51,9 @@ function form_radio($name, $id, $value, $label, $checked='') {
 	return $form;
 }
 
-function hidden_input($nom, $valeur) {
-	$form = '<input type="hidden" class="nodisplay" name="'.$nom.'" value="'.$valeur.'" />'."\n";
+function hidden_input($nom, $valeur, $id=0) {
+	$id = ($id === 0) ? '' : ' id="'.$nom.'"';
+	$form = '<input type="hidden" class="nodisplay" name="'.$nom.'"'.$id.' value="'.$valeur.'" />'."\n";
 	return $form;
 }
 
@@ -192,7 +193,7 @@ function form_langue_install($label) {
 
 function liste_themes($chemin) {
 	if ( $ouverture = opendir($chemin) ) { 
-		while ($dossiers=readdir($ouverture) ) {
+		while ($dossiers = readdir($ouverture) ) {
 			if ( file_exists($chemin.'/'.$dossiers.'/list.html') ) {
 				$themes[$dossiers] = $dossiers;
 			}
@@ -201,8 +202,6 @@ function liste_themes($chemin) {
 	}
 	if (isset($themes)) {
 		return $themes;
-	} else {
-		return '';
 	}
 }
 
@@ -217,29 +216,27 @@ function afficher_form_filtre($type, $filtre) {
 	echo '</form>'."\n";
 }
 
-function filtre($type, $filtre) {
+function filtre($type, $filtre) { // cette fonction est très gourmande en ressources.
 	echo "\n".'<select name="filtre">'."\n" ;
 	// Articles
 	if ($type == 'articles') {
 		echo '<option value="">'.$GLOBALS['lang']['label_article_derniers'].'</option>'."\n";
-		$query = "SELECT bt_id FROM articles";
+		$query = "SELECT DISTINCT substr(bt_date, 1, 6) AS date FROM articles ORDER BY bt_id DESC";
 		$tab_tags = list_all_tags('articles');
 		$BDD = 'sqlite';
 	// Commentaires
 	} elseif ($type == 'commentaires') {
 		echo '<option value="">'.$GLOBALS['lang']['label_comment_derniers'].'</option>'."\n";
 		$tab_auteur = nb_entries_as('commentaires', 'bt_author');
-		$query = "SELECT bt_id FROM commentaires";
+		$query = "SELECT DISTINCT substr(bt_id, 1, 6) AS date FROM commentaires ORDER BY bt_id DESC";
 		$BDD = 'sqlite';
 	// Liens
 	} elseif ($type == 'links') {
 		echo '<option value="">'.$GLOBALS['lang']['label_link_derniers'].'</option>'."\n";
 		// $tab_auteur = nb_entries_as('links', 'bt_author'); // uncomment when readers will be able to post links
 		$tab_tags = list_all_tags('links');
-		$query = "SELECT bt_id FROM links";
+		$query = "SELECT DISTINCT substr(bt_id, 1, 6) AS date FROM links ORDER BY bt_id DESC";
 		$BDD = 'sqlite';
-
-
 	// Fichiers
 	} elseif ($type == 'fichiers') {
 
@@ -267,21 +264,22 @@ function filtre($type, $filtre) {
 		try {
 			$req = $GLOBALS['db_handle']->prepare($query);
 			$req->execute(array());
-			$tableau = $req->fetchAll();
-
+			while ($row = $req->fetch()) {
+				$tableau_mois[$row['date']] = mois_en_lettres(substr($row['date'], 4, 2)).' '.substr($row['date'], 0, 4);
+			}
 		} catch (Exception $x) {
 			die('Erreur affichage form_filtre() : '.$x->getMessage());
 		}
 	} elseif ($BDD == 'fichier_txt_files') {
-		$tableau = $GLOBALS['liste_fichiers'];
+		foreach ($GLOBALS['liste_fichiers'] as $e) {
+			if (!empty($e['bt_id'])) {
+				// mk array[201005] => "May 2010", uzw
+				$tableau_mois[substr($e['bt_id'], 0, 6)] = mois_en_lettres(substr($e['bt_id'], 4, 2)).' '.substr($e['bt_id'], 0, 4);
+			}
+		}
+		krsort($tableau_mois);
 	}
 
-	foreach ($tableau as $e) {
-		if (!empty($e['bt_id'])) {
-			// mk array[201005] => "May 2010", uzw
-			$tableau_mois[substr($e['bt_id'], 0, 6)] = mois_en_lettres(substr($e['bt_id'], 4, 2)).' '.substr($e['bt_id'], 0, 4);
-		}
-	}
 	/// BROUILLONS
 	echo '<option value="draft"';
 	echo ($filtre == 'draft') ? ' selected="selected"' : '';
@@ -294,7 +292,6 @@ function filtre($type, $filtre) {
 
 	/// PAR DATE
 	if (isset($tableau_mois)) {
-		krsort($tableau_mois);
 		echo '<optgroup label="'.$GLOBALS['lang']['label_date'].'">'."\n";
 		foreach ($tableau_mois as $mois => $label) {
 			echo '<option value="' . htmlentities($mois) . '"';
@@ -350,20 +347,21 @@ function filtre($type, $filtre) {
 
 /// Formulaire pour ajouter un lien dans Links côté Admin
 function afficher_form_link($step, $erreurs, $editlink='') {
+	if ($erreurs) {
+		echo erreurs($erreurs);
+	}
 	$form = '';
-	if ($step == 1) { // postage de l'URL : un champ affiché en GET
-		if ($erreurs) {
-			erreurs($erreurs);
-		}
+	if ($step == 1) {// postage de l'URL : un champ affiché en GET
 		$form .= '<form method="get" class="bordered-formbloc" id="post-new-lien" action="'.'links.php'.'">'."\n"; // not using PHP_SELF because of if the form is loaded on index.php
 		$form .= '<fieldset>'."\n";
 		$form .= legend($GLOBALS['lang']['label_nouv_lien'], 'legend-link');
-		$form .= "\t".'<input type="text" name="url" id="lien" value="" size="70" placeholder="http://" class="text" tabindex="1" autofocus="" /><input type="submit" id="valid-link" value="'.$GLOBALS['lang']['envoyer'].'" class="submit blue-square" tabindex="1" />'."\n";
+		$form .= "\t".'<input type="text" name="url" id="lien" value="" size="70" placeholder="http://" class="text" tabindex="1" autofocus="" />'."\n";
+		$form .= "\t".'<input type="submit" id="valid-link" value="'.$GLOBALS['lang']['envoyer'].'" class="submit blue-square" tabindex="1" />'."\n";
 		$form .= '</fieldset>'."\n";
 		$form .= '</form>'."\n\n";
 
 	} elseif ($step == 2) { // Form de l'URL, avec titre, description, en POST cette fois, et qu'il faut vérifier avant de stoquer dans la BDD.
-		$form .= '<form method="post" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'">'."\n";
+		$form .= '<form method="post" onsubmit="return moveTag();" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'">'."\n";
 		$form .= '<fieldset>'."\n";
 
 		$url = htmlspecialchars($_GET['url']);
@@ -376,12 +374,10 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 			$type = 'note';
 			$title = 'Note';
 			$url = $GLOBALS['racine'].'?mode=links&amp;id='.$new_id;
-
 			$form .= legend($GLOBALS['lang']['label_nouv_note'], 'legend-note');
 			$form .= '<p>'."\n";
 			$form .= hidden_input('url', $url);
 			$form .= hidden_input('type', 'note');
-
 			$form .= '</p>'."\n";
 
 		// URL non vide
@@ -394,6 +390,13 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 			$form .= hidden_input('type', 'link');
 			$form .= '</p>'."\n";
 
+			// URL est un fichier !html !js !css !php ![vide] && téléchargement de fichiers activé :
+			$ext = trim(strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION)));
+			if (!empty($ext) and !preg_match('#^(html|css|php|xhtml|xml|txt)$#', $ext) ) {
+				if ($GLOBALS['dl_link_to_files'] == 2) {
+					$type = 'file';
+				}				
+			}
 			// URL est une image
 			if (preg_match('#(jpe?g|png|gif)$#', strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION)), $matchs)) {
 				$title = $GLOBALS['lang']['label_image'];
@@ -403,14 +406,6 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 					$title .= ' - '.$width.'x'.$height.'px ';
 				}
 			}
-/*
-			// URL est un fichier !html !js !css !php ![vide] && téléchargement de fichiers activé :
-			if (!preg_match('#^(html|css|php|xhtml|xml|txt||)^$#', strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION))) ) {
-				if ($GLOBALS['dl_link_to_files'] == 2) {
-					//$form .= hidden_input('type', 'link');
-				}				
-			}
-*/
 			// URL est un lien normal
 			elseif ($ext_file = get_external_file($url, 15) ) {
 				// cherche le charset spécifié dans le code HTML.
@@ -438,7 +433,6 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 			}
 		}
 
-
 		$link = array('title' => $title, 'url' => $url);
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="title">'.ucfirst($GLOBALS['lang']['label_titre']).' : </label>'."\n";
@@ -456,16 +450,25 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= "\t".'</span>'."\n";
 		$form .= '</p>'."\n";
 
+		$form .= form_categories_links();
 
-		$form .= form_categories('links');
+		$form .= '<div id="wrap">'."\n";
+		$form .= "\t".'<ul id="selected"></ul>'."\n";
+		$form .= '</div>'."\n";
+
 		$form .= '<p>'."\n";
 		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
-		$form .= "\t".'<input type="text" id="categories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="" size="50" class="text" tabindex="3" />'."\n";
+//		$form .= "\t".'<input type="text" id="dcategories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="" size="50" class="text" tabindex="3" /></p>'."\n";
+
+		$form .= "\t".'<input list="htmlListTags" type="text" class="text" id="type_tags" name="tags" onkeydown="chkHit(event);" placeholder="'.$GLOBALS['lang']['label_categories'].'" tabindex="3"/>'."\n";
+		$form .= "\t".'<input type="hidden" id="categories" name="categories" value="" />'."\n";
+
 		$form .= '</p>'."\n";
+
 		$form .= '<p class="sinline">'."\n";
 		$form .= "\t".'<input type="checkbox" id="statut" name="statut" tabindex="4" />' . '<label for="statut">'.$GLOBALS['lang']['label_lien_priv'].'</label>'."\n";
 		$form .= '</p>'."\n";
-		if ($type == 'image' and $GLOBALS['dl_link_to_files'] == 2) {
+		if ( ($type == 'image' or $type == 'file') and $GLOBALS['dl_link_to_files'] == 2) {
 			$form .= '<p class="sinline">'."\n";
 			$form .= "\t".'<input type="checkbox" id="add_to_files" name="add_to_files" tabindex="4" />' . '<label for="add_to_files">'.$GLOBALS['lang']['label_dl_fichier'].'</label>'."\n";
 			$form .= '</p>'."\n";
@@ -474,13 +477,14 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= hidden_input('_verif_envoi', '1');
 		$form .= hidden_input('bt_id', $new_id);
 		$form .= hidden_input('bt_author', $GLOBALS['auteur']);
+		$form .= hidden_input('token', new_token());
 		$form .= '</fieldset>'."\n";
 		$form .= '</form>'."\n\n";
 
 	} elseif ($step == 'edit') { // Form pour l'édition d'un lien : les champs sont remplis avec le "wiki_content" et il y a les boutons suppr/activer en plus.
 		$form = '<hr/>'."\n";
 		$rand = substr(md5(rand(1000,9999)),0,5); 
-		$form .= '<form method="post" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'?'.str_replace('&', '&amp;', $_SERVER['QUERY_STRING']).'">'."\n";
+		$form .= '<form method="post"  onsubmit="return moveTag();" class="bordered-formbloc" id="post-lien" action="'.$_SERVER['PHP_SELF'].'?id='.$editlink['bt_id'].'">'."\n";
 		$form .= "\t".'<fieldset class="pref">'."\n";
 		$form .= legend($GLOBALS['lang']['label_edit_lien'], 'legend-link');
 
@@ -498,11 +502,37 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= "\t\t".'<textarea class="description text" id="description'.$rand.'" name="description" cols="70" rows="7" placeholder="'.$GLOBALS['lang']['pref_desc'].'" tabindex="2" >'.$editlink['bt_wiki_content'].'</textarea>'."\n";
 		$form .= "\t".'</span>'."\n";
 		$form .= '</p>'."\n";
+
+
+/*
 		$form .= '<p>'."\n";
-		$form .= form_categories('links');
+		$form .= form_categories_links();
 		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
 		$form .= "\t".'<input type="text" id="categories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="'.$editlink['bt_tags'].'" size="50" class="text" tabindex="3" />'."\n";
 		$form .= '</p>'."\n";
+*/
+
+		$form .= form_categories_links();
+
+		$form .= '<div id="wrap">'."\n";
+		$form .= "\t".'<ul id="selected">'."\n";
+		$list_tags = explode(',', $editlink['bt_tags']);
+		foreach ($list_tags as $mytag => $mtag) {
+			if (!empty($mtag)) {
+				$form .= "\t".'<li class="tag"><span>'.trim($mtag).'</span>';
+				$form .= "\t".'<a href="javascript:void(0)" onclick="removeTag(this.parentNode)">×</a></li>'."\n";
+			}
+		}
+		$form .= "\t".'</ul>'."\n";
+		$form .= '</div>'."\n";
+
+		$form .= '<p>'."\n";
+		$form .= "\t".'<label for="categories">'.ucfirst($GLOBALS['lang']['label_categories']).' : </label>'."\n";
+		//$form .= "\t".'<input type="text" id="dcategories" name="categories" placeholder="'.$GLOBALS['lang']['label_categories'].'" value="" size="50" class="text" tabindex="3" /></p>'."\n";
+		$form .= "\t".'<input list="htmlListTags" type="text" class="text" id="type_tags" name="tags" onkeydown="chkHit(event);" placeholder="'.$GLOBALS['lang']['label_categories'].'" tabindex="3"/>'."\n";
+		$form .= "\t".'<input type="hidden" id="categories" name="categories" value="" tabindex="3" />'."\n";
+		$form .= '</p>'."\n";
+
 		$checked = ($editlink['bt_statut'] == 0) ? 'checked ' : '';
 		$form .= '<p class="sinline">';
 		$form .= "\t".'<input type="checkbox" id="statut'.$rand.'" name="statut" '.$checked.'/>' . '<label for="statut'.$rand.'">'.$GLOBALS['lang']['label_lien_priv'].'</label>';
@@ -514,6 +544,7 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 		$form .= hidden_input('bt_author', $editlink['bt_author']);
 		$form .= hidden_input('_verif_envoi', '1');
 		$form .= hidden_input('is_it_edit', 'yes');
+		$form .= hidden_input('token', new_token());
 		$form .= hidden_input('type', $editlink['bt_type']);
 		$form .= "\t".'</fieldset>'."\n";
 		$form .= '</form>'."\n\n";
@@ -522,21 +553,13 @@ function afficher_form_link($step, $erreurs, $editlink='') {
 }
 
 
-
-
 /*
-
 /// Formulaire link public
 function afficher_form_link_public($step, $erreurs) {
 	$form = '';
-
 	return $form;
 }
-
-
 */
-
-
 
 
 /// formulaires BILLET //////////
@@ -581,7 +604,7 @@ function afficher_form_billet($article, $erreurs) {
 		$allowcommentdefaut = '1';
 	}
 	if ($erreurs) {
-		erreurs($erreurs);
+		echo erreurs($erreurs);
 	}
 	if (isset($article['bt_id'])) {
 		echo '<form id="form-ecrire" method="post" action="'.$_SERVER['PHP_SELF'].'?post_id='.$article['bt_id'].'" >'."\n";
@@ -634,7 +657,6 @@ function afficher_form_billet($article, $erreurs) {
 			.s_list_size_botton('20')
 			.'</span></span>'."\n";
 
-
 	echo "\t".'<span class="spacer"></span>'."\n";
 	echo "\t".'<button id="button05" class="but" type="button" title="'.$GLOBALS['lang']['bouton-left'].'" onclick="insertTag(\'[left]\',\'[/left]\',\'contenu\');"><span class="c"></span></button>'."\n";
 	echo "\t".'<button id="button06" class="but" type="button" title="'.$GLOBALS['lang']['bouton-center'].'" onclick="insertTag(\'[center]\',\'[/center]\',\'contenu\');"><span class="c"></span></button>'."\n";
@@ -659,37 +681,23 @@ function afficher_form_billet($article, $erreurs) {
 	echo '<div id="date-and-opts">'."\n";
 	echo '<div id="opts">'."\n";
 		echo '<span id="formstatut">'."\n";
-		form_statut($statutdefaut);
+			form_statut($statutdefaut);
 		echo '</span>'."\n";
 		echo '<span id="formallowcomment">'."\n";
-		form_allow_comment($allowcommentdefaut);
+			form_allow_comment($allowcommentdefaut);
 		echo '</span>'."\n";
 	echo '</div>'."\n";
 
-	if ($statutdefaut == 0 or !$article) {
-		echo '<div id="date">'."\n";
+	echo '<div id="date">'."\n";
 		echo '<span id="formdate">'."\n";
-		form_annee($defaut_annee);
-		form_mois($defaut_mois);
-		form_jour($defaut_jour);
+			form_annee($defaut_annee);
+			form_mois($defaut_mois);
+			form_jour($defaut_jour);
 		echo '</span>'."\n\n";
 		echo '<span id="formheure">';
-		form_heure($defaut_heure, $defaut_minutes, $defaut_secondes);
+			form_heure($defaut_heure, $defaut_minutes, $defaut_secondes);
 		echo '</span>'."\n";
 		echo '</div>'."\n";
-	}
-	else {
-		echo '<div id="date">'."\n";
-		echo "\t".'<span id="formdate">'.date_formate($article['bt_date']).'</span>'."\n";
-		echo "\t".'<span id="formheure">'.heure_formate($article['bt_date']).'</span>'."\n";
-		echo '</div>'."\n";
-		echo hidden_input('annee', $article['annee']);
-		echo hidden_input('mois', $article['mois']);
-		echo hidden_input('jour', $article['jour']);
-		echo hidden_input('heure', $article['heure']);
-		echo hidden_input('minutes', $article['minutes']);
-		echo hidden_input('secondes', $article['secondes']);
-	}
 	echo '</div>'."\n";
 
 	echo '<div>';
@@ -765,9 +773,9 @@ function form_annee($annee_affiche) {
 }
 
 function form_heure($heureaffiche, $minutesaffiche, $secondesaffiche) {
-	echo '<input name="heure" onblur="padz(this)" type="text" size="2" value="'.$heureaffiche.'" required="" class="text" /> : ';
-	echo '<input name="minutes" onblur="padz(this)" type="text" size="2" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
-	echo '<input name="secondes" onblur="padz(this)" type="text" size="2" value="'.$secondesaffiche.'" required="" class="text" />' ;
+	echo '<input name="heure" type="text" size="2" value="'.$heureaffiche.'" required="" class="text" /> : ';
+	echo '<input name="minutes" type="text" size="2" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
+	echo '<input name="secondes" type="text" size="2" value="'.$secondesaffiche.'" required="" class="text" />' ;
 //	echo '<input name="heure" onblur="padz(this)" type="number" size="3" step="1" min="0" max="23" value="'.$heureaffiche.'" required="" class="text" /> : ';
 //	echo '<input name="minutes" onblur="padz(this)" type="number" size="3" step="1" min="0" max="59" value="'.$minutesaffiche.'" required="" class="text" /> : ' ;
 //	echo '<input name="secondes" onblur="padz(this)" type="number" size="3" step="1" min="0" max="59" value="'.$secondesaffiche.'" required="" class="text" />' ;
@@ -804,6 +812,19 @@ function form_categories($table) {
 		$html .= '</p>'."\n";
 	}
 
+	return $html;
+}
+
+function form_categories_links() {
+	$tags = list_all_tags('links');
+	$html = '';
+	if (!empty($tags)) {
+		$html = '<datalist id="htmlListTags">';
+		foreach ($tags as $i => $tag) {
+			$html .= "\t".'<option value="'.addslashes($tag['tag']).'"/>'."\n";
+		}
+		$html .= '</datalist>';
+	}
 	return $html;
 }
 

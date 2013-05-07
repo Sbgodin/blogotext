@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -23,7 +23,7 @@ if (extension_loaded('zlib')) {
 else {
 	ob_start("ob_gzhandler");
 }
-
+header('Content-Type: text/html; charset=UTF-8');
 
 $begin = microtime(TRUE);
 error_reporting(-1);
@@ -44,9 +44,9 @@ if ( !file_exists('config/user.php') or !file_exists('config/prefs.php') ) {
 
 $GLOBALS['BT_ROOT_PATH'] = '';
 
-require_once 'inc/lang.php';
 require_once 'config/user.php';
 require_once 'config/prefs.php';
+require_once 'inc/lang.php';
 require_once 'inc/conf.php';
 require_once 'inc/them.php';
 require_once 'inc/fich.php';
@@ -60,26 +60,20 @@ require_once 'inc/jasc.php';
 require_once 'inc/sqli.php';
 
 $GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
-
 /*****************************************************************************
  some misc requests
 ******************************************************************************/
 
 // anti XSS : /index.php/%22onmouseover=prompt(971741)%3E or /index.php/ redirects all on index.php
 // if there is a slash after the "index.php", the file is considered as a folder, but the code inside it still executed…
-// You can also put escape with HTMLSPECIALCHARS the server[php_self] variable each time (less efficient…).
 if ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME']) {
 	header('Location: '.$_SERVER['SCRIPT_NAME']);
 }
-/* this-one bugs with the forward/backward link...
-foreach ($_SERVER as $i => $var) { $_SERVER[$i] = htmlspecialchars($_SERVER[$i]); }
-*/
-
 
 // Random article :-)
 if (isset($_GET['random'])) {
 	$om = ($GLOBALS['sgdb'] == 'sqlite') ? 'om' : '';
-	$query = "SELECT * FROM articles WHERE bt_date <= ".date('YmdHis')." AND bt_statut='1' ORDER BY rand$om() LIMIT 0, 1";
+	$query = "SELECT * FROM articles WHERE bt_date <= ".date('YmdHis')." AND bt_statut=1 ORDER BY rand$om() LIMIT 0, 1";
 	$tableau = liste_elements($query, array(), 'articles');
 
 	header('Location: '.$tableau[0]['bt_link']);
@@ -88,13 +82,11 @@ if (isset($_GET['random'])) {
 
 // unsubscribe from comments-newsletter and redirect on main page
 if ((isset($_GET['unsub']) and $_GET['unsub'] == 1) and (isset($_GET['comment']) and preg_match('#\d{14}#',($_GET['comment']))) and isset($_GET['mail']) ) {
-
 	if (isset($_GET['all'])) {
 		$res = unsubscribe(htmlspecialchars($_GET['comment']), $_GET['mail'], 1);
 	} else {
 		$res = unsubscribe(htmlspecialchars($_GET['comment']), $_GET['mail'], 0);
 	}
-
 	if ($res == TRUE) {
 		header('Location: '.$_SERVER['PHP_SELF'].'?unsubsribe=yes');
 	} else {
@@ -108,26 +100,24 @@ if ((isset($_GET['unsub']) and $_GET['unsub'] == 1) and (isset($_GET['comment'])
 ******************************************************************************/
 // Single Blog Post
 if ( isset($_GET['d']) and preg_match('#^\d{4}/\d{2}/\d{2}/\d{2}/\d{2}/\d{2}#', $_GET['d']) ) {
-	$article_id = $_GET['d'];
-	$tab = explode('/', $article_id);
+	$tab = explode('/', $_GET['d']);
 	$id = substr($tab['0'].$tab['1'].$tab['2'].$tab['3'].$tab['4'].$tab['5'], '0', '14');
-	$article_date = get_entry($GLOBALS['db_handle'], 'articles', 'bt_date', $id, 'return');
-	afficher_calendrier(substr($article_date, 0, 4), substr($article_date, 4, 2), substr($article_date, 6, 2));
-	echo afficher_article($id);
+
+	afficher_article($id);
 }
 
 // single link post
-elseif ( isset($_GET['id']) and is_numeric($_GET['id']) ) {
-	$link_id = $_GET['id'];
-
-	$tableau = liste_elements("SELECT * FROM links WHERE bt_id=? AND bt_statut='1'", array($link_id), 'links');
-	if (!empty($tableau[0]['bt_id']) and preg_match('/\d{14}/', $tableau[0]['bt_id'])) {
-		$tab = decode_id($tableau[0]['bt_id']);
-		afficher_calendrier($tab['annee'], $tab['mois'], $tab['jour']);
-	} else {
-		afficher_calendrier(date('Y'), date('m'));
-	}
+elseif ( isset($_GET['id']) and preg_match('#\d{14}#', $_GET['id']) ) {
+	$tableau = liste_elements("SELECT * FROM links WHERE bt_id=? AND bt_statut=1", array($_GET['id']), 'links');
 	afficher_index($tableau);
+}
+
+
+// List of all articles
+elseif (isset($_GET['liste'])) {
+	$query = "SELECT bt_date,bt_id,bt_title,bt_nb_comments,bt_link FROM articles WHERE bt_date <= ".date('YmdHis')." AND bt_statut=1 ORDER BY bt_date DESC";
+	$tableau = liste_elements($query, array(), 'articles');
+	afficher_liste($tableau);
 }
 
 /*****************************************************************************
@@ -159,6 +149,9 @@ else {
 	}
 	$query .= $where.' ';
 
+	// paramètre de recherche uniquement dans les articles publiés :
+	$query .= 'WHERE bt_statut=1 ';
+
 
 	// paramètre de date "d"
 	if (isset($_GET['d']) and preg_match('#^\d{4}/\d{2}(/\d{2})?#', $_GET['d'])) {
@@ -184,7 +177,6 @@ else {
 		}
 	}
 
-
 	// paramètre de recherche "q"
 	if (isset($_GET['q'])) {
 		switch ($where) {
@@ -207,16 +199,15 @@ else {
 				$sql_q = "";
 				break;
 		}
-
 	}
 
 	// paramètre de tag "tag"
 	if (isset($_GET['tag'])) {
 		switch ($where) {
 			case 'articles' :
-				$sql_tag = "bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? ";
+				$sql_tag = "( bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? ) ";
 				$array[] = $_GET['tag'];
-				$array[] = $_GET['tag'].', ';
+				$array[] = $_GET['tag'].', %';
 				$array[] = '%, '.$_GET['tag'].', %';
 				$array[] = '%, '.$_GET['tag'];
 				break;
@@ -228,7 +219,6 @@ else {
 				$sql_tag = "";
 				break;
 		}
-
 	}
 
 	// paramètre d’auteur "author" FIXME !
@@ -244,52 +234,44 @@ else {
 	}
 
 	// paramètre de filtrage admin/public (pas un paramètre, mais ajouté quand même)
-
 	switch ($where) {
 		case 'articles' :
-			$sql_a_p = "bt_date <= ".date('YmdHis')." AND bt_statut='1' ";
+			$sql_a_p = "bt_date <= ".(int)date('YmdHis')." AND bt_statut=1 ";
 			break;
 		default:
-			$sql_a_p = "bt_id <= ".date('YmdHis')." AND bt_statut='1' ";
+			$sql_a_p = "bt_id <= ".(int)date('YmdHis')." AND bt_statut=1 ";
 			break;
 	}
-
 	
 	// paramètre de page "p"
 	if (isset($_GET['p']) and is_numeric($_GET['p']) and $_GET['p'] >= 1) {
 		$sql_p = 'LIMIT '.$GLOBALS['max_bill_acceuil'] * $_GET['p'].', '.$GLOBALS['max_bill_acceuil'];
+	} elseif (!isset($_GET['d'])) {
+		$sql_p = 'LIMIT '.$GLOBALS['max_bill_acceuil'];
 	} else {
-		$sql_p = 'LIMIT 0, '.$GLOBALS['max_bill_acceuil'];
+		$sql_p = '';
 	}
 
 	// Concaténation de tout ça.
-	$glue = 'WHERE ';
+	$glue = 'AND ';
 	if (!empty($sql_date)) {
 		$query .= $glue.$sql_date;
-		$glue = 'AND ';
 	}
 	if (!empty($sql_q)) {
 		$query .= $glue.$sql_q;
-		$glue = 'AND ';
 	}
 	if (!empty($sql_tag)) {
 		$query .= $glue.$sql_tag;
-		$glue = 'AND ';
 	}
 
 	$query .= $glue.$sql_a_p.$sql_order.$sql_p;
 
-
 	$tableau = liste_elements($query, $array, $where);
-	afficher_calendrier($annee, $mois, $jour);
-	$GLOBALS['nb_elements_client_side'] = array('nb' => count($tableau), 'nb_page' => $GLOBALS['max_bill_acceuil']);
+	$GLOBALS['param_pagination'] = array('nb' => count($tableau), 'nb_par_page' => $GLOBALS['max_bill_acceuil']);
 	afficher_index($tableau);
-
-
 }
 
-
  $end = microtime(TRUE);
- echo '<!-- Rendered in '.round(($end - $begin),6).' seconds -->';
+// echo ' Rendered in '.round(($end - $begin),6).' seconds ';
 
 ?>

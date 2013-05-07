@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2012 Timo Van Neerden <ti-mo@myopera.com>
+# 2010-2013 Timo Van Neerden <ti-mo@myopera.com>
 #
 # BlogoText is free software, you can redistribute it under the terms of the
 # Creative Commons Attribution-NonCommercial 2.0 France Licence
@@ -59,7 +59,7 @@ function erreurs($erreurs) {
 	} else {
 		$texte_erreur = '';
 	}
-	echo $texte_erreur; 
+	return $texte_erreur; 
 }
 
 function erreur($message) {
@@ -119,8 +119,8 @@ function afficher_top($titre) {
 	}
 	$txt = '<!DOCTYPE html>'."\n";
 	$txt .= '<head>'."\n";
-	$txt .= '<meta charset="'.$GLOBALS['charset'].'" />'."\n";
-	$txt .= '<link type="text/css" rel="stylesheet" href="style/style-style.css" />'."\n";
+	$txt .= '<meta charset="UTF-8" />'."\n";
+	$txt .= '<link type="text/css" rel="stylesheet" href="style/style.css.php" />'."\n";
 	$txt .= '<title> '.$GLOBALS['nom_application'].' | '.$titre.'</title>'."\n";
 	$txt .= '</head>'."\n";
 	$txt .= '<body>'."\n\n";
@@ -160,14 +160,28 @@ function footer($index='', $begin_time='') {
 	echo '</html>'."\n";
 }
 
-// needs to generate a GLOBALS[] because function is called in index.php, and calender displayed further in the process
-// $tableau here is needed to match cells of the calender where articles were posted
-function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
-	if (isset($_GET['mode']) and !empty($_GET['mode'])) {
-		$qstring = 'mode='.htmlspecialchars($_GET['mode']).'&amp;';
+// returns HTML <table> calender
+function afficher_calendrier() {
+	// article
+	if ( isset($_GET['d']) and preg_match('#^\d{4}(/\d{2}){5}#', $_GET['d'])) {
+		$id = substr(str_replace('/', '', $_GET['d']), 0, 14);
+		$date = substr(get_entry($GLOBALS['db_handle'], 'articles', 'bt_date', $id, 'return'), 0, 8);
+		$date = (preg_match('#^\d{4}(/\d{2}){5}#', $date) and $date <= date('Y/m/d/H/i/s')) ? $date : date('Ym');
+	} elseif ( isset($_GET['d']) and preg_match('#^\d{4}/\d{2}(/\d{2})?#', $_GET['d']) ) {
+		$date = str_replace('/', '', $_GET['d']);
+		$date = (preg_match('#^\d{6}\d{2}#', $date)) ? substr($date, 0, 8) : substr($date, 0, 6); // avec jour ?
+	} elseif (isset($_GET['id']) and preg_match('#^\d{14}#', $_GET['id']) ) {
+		$date = substr($_GET['id'], 0, 8);
 	} else {
-		$qstring = '';
+		$date = date('Ym');
 	}
+
+	$annee = substr($date, 0, 4);
+	$ce_mois = substr($date, 4, 2);
+	$ce_jour = (strlen(substr($date, 6, 2)) == 2) ? substr($date, 6, 2) : '';
+
+	$qstring = (isset($_GET['mode']) and !empty($_GET['mode'])) ? 'mode='.htmlspecialchars($_GET['mode']).'&amp;' : '';
+
 	$jours_semaine = array(
 		$GLOBALS['lang']['lu'],
 		$GLOBALS['lang']['ma'],
@@ -189,48 +203,41 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 		$next_mois =   $_SERVER['PHP_SELF'].'?'.$qstring.'d='.($annee+'1').'/'.'01';
 	}
 
-	// On verifie si il y a un ou des articles du jour dans le mois courant
-	// $tableau contient les articles/comm/liens du mois. Il contient seulent un ID, donc un "oui" ou un "non" pour chaque jour.
-	$tableau = array(); $all1 = array(); $all2 = array(); $all3 = array();
-	$where = (!empty($_GET['mode'])) ? $_GET['mode'] : 'blog';
-	if ( preg_match(   '#links#', $where) ) { $all1 = table_list_date($annee.$ce_mois, 1, 'public', 'links');}
-	if ( preg_match(    '#blog#', $where) ) { $all2 = table_list_date($annee.$ce_mois, 1, 'public', 'articles'); }
-	if ( preg_match('#comments#', $where) ) { $all3 = table_list_date($annee.$ce_mois, 1, 'public', 'commentaires'); }
-
-	$tableau = (array_merge($all1, $all2, $all3));
-	$jour_fichier = array();
-	if (!empty($tableau)) {
-		foreach ($tableau as $article) {
-			if (substr($article[0], 0, 6) == $annee.$ce_mois) {
-				$jour_fichier[]= substr($article[0], 6, 2);
-			}
-		}
-		$jour_fichier = array_unique($jour_fichier);
+	// On verifie si il y a un ou des articles/liens/commentaire du jour dans le mois courant
+	$tableau = array();
+	$mode = ( !empty($_GET['mode']) ) ? $_GET['mode'] : 'blog';
+	switch($mode) {
+		case 'comments':
+			$where = 'commentaires'; break;
+		case 'links':
+			$where = 'links'; break;
+		case 'blog':
+		default:
+			$where = 'articles'; break;
 	}
-	$GLOBALS['calendrier'] = '<table id="calendrier">'."\n";
-	$GLOBALS['calendrier'].= '<caption>';
+
+	$tableau = table_list_date($annee.$ce_mois, 1, $where);
+
+	$html = '<table id="calendrier">'."\n";
+	$html .= '<caption>';
 	if ( $annee.$ce_mois > $GLOBALS['date_premier_message_blog']) {
-		$GLOBALS['calendrier'].= '<a href="'.$prev_mois.'">&#171;</a>&nbsp;';
+		$html .= '<a href="'.$prev_mois.'">&#171;</a>&nbsp;';
 	}
 
 
 	// Si on affiche un jour on ajoute le lien sur le mois
-	if ($ce_jour) {
-		$GLOBALS['calendrier'].= '<a href="'.$_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.$ce_mois.'">'.mois_en_lettres($ce_mois).' '.$annee.'</a>';
-	} else {
-		$GLOBALS['calendrier'].= mois_en_lettres($ce_mois).' '.$annee;
-	}
+	$html .= '<a href="'.$_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.$ce_mois.'">'.mois_en_lettres($ce_mois).' '.$annee.'</a>';
 	// On ne peut pas aller dans le futur
 	if ( ($ce_mois != date('m')) || ($annee != date('Y')) ) {
-		$GLOBALS['calendrier'].= '&nbsp;<a href="'.$next_mois.'">&#187;</a>';
+		$html .= '&nbsp;<a href="'.$next_mois.'">&#187;</a>';
 	}
-	$GLOBALS['calendrier'].= '</caption>'."\n";
-	$GLOBALS['calendrier'].= '<tr><th><abbr>';
-	$GLOBALS['calendrier'].= implode('</abbr></th><th><abbr>', $jours_semaine);
-	$GLOBALS['calendrier'].= '</abbr></th></tr><tr>';
+	$html .= '</caption>'."\n";
+	$html .= '<tr><th><abbr>';
+	$html .= implode('</abbr></th><th><abbr>', $jours_semaine);
+	$html .= '</abbr></th></tr><tr>';
 	if ($decalage_jour > 0) {
 		for ($i = 0; $i < $decalage_jour; $i++) {
-			$GLOBALS['calendrier'].=  '<td></td>';
+			$html .=  '<td></td>';
 		}
 	}
 	// Indique le jour consulte
@@ -240,47 +247,45 @@ function afficher_calendrier($annee, $ce_mois, $ce_jour='') {
 		} else {
 			$class = '';
 		}
-		if ( (isset($jour_fichier)) and in_array($jour, $jour_fichier) ) {
+		if ( in_array($jour, $tableau) ) {
 			$lien = '<a href="'.$_SERVER['PHP_SELF'].'?'.$qstring.'d='.$annee.'/'.$ce_mois.'/'.str2($jour).'">'.$jour.'</a>';
 		} else {
 			$lien = $jour;
 		}
-		$GLOBALS['calendrier'].= '<td'.$class.'>';
-		$GLOBALS['calendrier'].= $lien;
-		$GLOBALS['calendrier'].= '</td>';
+		$html .= '<td'.$class.'>';
+		$html .= $lien;
+		$html .= '</td>';
 		$decalage_jour++;
 		if ($decalage_jour == 7) {
 			$decalage_jour = 0;
-			$GLOBALS['calendrier'].=  '</tr>';
+			$html .=  '</tr>';
 			if ($jour < $jours_dans_mois) {
-				$GLOBALS['calendrier'].= '<tr>';
+				$html .= '<tr>';
 			}
 		}
 	}
 	if ($decalage_jour > 0) {
 		for ($i = $decalage_jour; $i < 7; $i++) {
-			$GLOBALS['calendrier'].= '<td> </td>';
+			$html .= '<td> </td>';
 		}
-		$GLOBALS['calendrier'].= '</tr>';
+		$html .= '</tr>';
 	}
-	$GLOBALS['calendrier'].= '</table>';
+	$html .= '</table>';
+	return $html;
 }
 
 function encart_commentaires() {
-	$query = "SELECT * FROM commentaires WHERE bt_statut ='1' ORDER BY bt_id DESC LIMIT 0, 5";
+	$query = "SELECT c.bt_author, c.bt_id, c.bt_article_id, c.bt_content, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_statut=1 ORDER BY c.bt_id DESC LIMIT 5";
 	$tableau = liste_elements($query, array(), 'commentaires');
-
 	if (isset($tableau)) {
 		$listeLastComments = '<ul class="encart_lastcom">';
 		foreach ($tableau as $i => $comment) {
 			$comment['contenu_abbr'] = strip_tags($comment['bt_content']);
-			$comment['article_titre'] = get_entry($GLOBALS['db_handle'], 'articles', 'bt_title', $comment['bt_article_id'], 'return');
 			if (strlen($comment['contenu_abbr']) >= 60) {
 				$abstract = explode("|", wordwrap($comment['contenu_abbr'], 60, "|"), 2);
 				$comment['contenu_abbr'] = $abstract[0]."…";
 			}
-			$comment['article_lien'] = get_blogpath($comment['bt_article_id']).'#'.article_anchor($comment['bt_id']);
-			$listeLastComments .= '<li title="'.date_formate($comment['bt_id']).'"><b>'.$comment['bt_author'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['article_titre'].'</b><br/><a href="'.$comment['article_lien'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
+			$listeLastComments .= '<li title="'.date_formate($comment['bt_id']).'"><b>'.$comment['bt_author'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['bt_title'].'</b><br/><a href="'.$comment['bt_link'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
 		}
 		$listeLastComments .= '</ul>';
 		return $listeLastComments;
@@ -295,7 +300,7 @@ function encart_categories() {
 		$uliste = '<ul>'."\n";
 		foreach($liste as $tag) {
 			$tagurl = urlencode(trim($tag['tag']));
-			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.ucfirst($tag['tag']).'</a></li>'."\n";
+			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'" rel="tag">'.ucfirst($tag['tag']).'</a></li>'."\n";
 		}
 		$uliste .= '</ul>'."\n";
 		return $uliste;
@@ -303,38 +308,37 @@ function encart_categories() {
 }
 
 function lien_pagination() {
-	if (isset($GLOBALS['nb_elements_client_side'])) {
-		$nb = $GLOBALS['nb_elements_client_side']['nb'];
-		$nb_page = $GLOBALS['nb_elements_client_side']['nb_page'];
-
-	} else {
-		$nb = 1;
-		$nb_page = 1;
+	if (!isset($GLOBALS['param_pagination']) or isset($_GET['d']) or isset($_GET['liste']) or isset($_GET['id']) ) {
+		return '';
+	}
+	else {
+		$nb = $GLOBALS['param_pagination']['nb'];
+		$nb_par_page = $GLOBALS['param_pagination']['nb_par_page'];
 	}
 	$page_courante = (isset($_GET['p']) and is_numeric($_GET['p'])) ? $_GET['p'] : 0;
 	$qstring = remove_url_param('p');
 
 	if ($page_courante <=0) {
-		$lien_precede = '&#8826; '.$GLOBALS['lang']['label_precedent'];
-		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p=1">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
-		if ($nb < $nb_page) { // évite de pouvoir aller dans la passé s’il y a moins de 10 posts
-			$lien_suivant = $GLOBALS['lang']['label_suivant'].' &#8827;';
+		$lien_precede = '';
+		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p=1" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
+		if ($nb < $nb_par_page) { // évite de pouvoir aller dans la passé s’il y a moins de 10 posts
+			$lien_suivant = '';
 		}
-
 	}
-	elseif ($nb < $nb_page) { // évite de pouvoir aller dans l’infini en arrière dans les pages, nottament pour les robots.
-		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
-		$lien_suivant = $GLOBALS['lang']['label_suivant'].' &#8827;';
-	}
-	else {
-		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
-		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante+1).'">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
+	elseif ($nb < $nb_par_page) { // évite de pouvoir aller dans l’infini en arrière dans les pages, nottament pour les robots.
+		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
+		$lien_suivant = '';
+	} else {
+		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
+		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante+1).'" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
 	}
 
+	$glue = ' – ';
+	if (empty($lien_precede) or empty($lien_suivant)) $glue = ' ';
 
-	return '<p class="pagination">'.$lien_precede.' – '.$lien_suivant.'</p>';
-
+	return '<p class="pagination">'.$lien_precede.$glue.$lien_suivant.'</p>';
 }
+
 
 function liste_tags_article($billet, $html_link) {
 	if (!empty($billet['bt_categories'])) {
@@ -345,7 +349,7 @@ function liste_tags_article($billet, $html_link) {
 			foreach($tag_list as $tag) {
 				$tag = trim($tag);
 				$tagurl = urlencode(trim($tag));
-				$liste .= '<a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'">'.$tag.'</a>, ';
+				$liste .= '<a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.'" rel="tag">'.$tag.'</a>, ';
 			}
 			$liste = trim($liste, ', ');
 		} else {
