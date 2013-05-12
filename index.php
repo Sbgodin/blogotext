@@ -216,7 +216,7 @@ else {
 			case 'articles' :
 				$sql_tag = "bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? OR bt_categories LIKE ? ";
 				$array[] = $_GET['tag'];
-				$array[] = $_GET['tag'].', ';
+				$array[] = $_GET['tag'].', %';
 				$array[] = '%, '.$_GET['tag'].', %';
 				$array[] = '%, '.$_GET['tag'];
 				break;

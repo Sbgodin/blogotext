@@ -239,7 +239,7 @@ function liste_post($liste) { // la liste contenir soit des articles, soit des l
 // only used by the main page of the blog (not on admin)
 function afficher_article($id) {
 	// 'admin' connected is allowed to see draft articles, but not 'public'. Same for article posted with a date in the future.
-	if (!empty($_SESSION['user_id'])) {
+	if (empty($_SESSION['user_id'])) {
 		$query = "SELECT * FROM articles WHERE bt_id=? AND bt_date <=? AND bt_statut='1'";
 		$billets = liste_elements($query, array($id, date('YmdHis')), 'articles');
 

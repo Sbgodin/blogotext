@@ -18,7 +18,7 @@ $GLOBALS['BT_ROOT_PATH'] = '../';
 require_once '../inc/inc.php';
 error_reporting($GLOBALS['show_errors']);
 
-ini_set('pcre.backtrack_limit', 1000000); // pcre limit : limit of preg_* string sizes. If some articles are too big, pcre won't match them
+ini_set('pcre.backtrack_limit', 1000000); // pcre limit: limit of preg_* string sizes. If some articles are too big, pcre won't match them
 ini_set('pcre.recursion_limit', 500000); // same
 
 operate_session();
