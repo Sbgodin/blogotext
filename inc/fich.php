@@ -55,10 +55,10 @@ function fichier_prefs() {
 	$fichier_prefs = '../config/prefs.php';
 	if(!empty($_POST['_verif_envoi'])) {
 		$lang = (isset($_POST['langue']) and preg_match('#^[a-z]{2}$#', $_POST['langue'])) ? $_POST['langue'] : 'fr';
-		$auteur = addslashes(clean_txt($_POST['auteur']));
-		$email = addslashes(clean_txt($_POST['email']));
-		$nomsite = addslashes(clean_txt($_POST['nomsite']));
-		$description = addslashes(clean_txt($_POST['description']));
+		$auteur = clean_txt($_POST['auteur']);
+		$email = clean_txt($_POST['email']);
+		$nomsite = clean_txt($_POST['nomsite']);
+		$description = clean_txt($_POST['description']);
 		$racine = addslashes(trim($_POST['racine']));
 		$max_bill_acceuil = $_POST['nb_maxi'];
 //		$max_linx_accueil = $_POST['nb_maxi_linx'];
@@ -71,7 +71,7 @@ function fichier_prefs() {
 		$global_com_rule = $_POST['global_comments'];
 		$connexion_captcha = $_POST['connexion_captcha'];
 		$activer_categories = $_POST['activer_categories'];
-		$theme_choisi = addslashes(clean_txt($_POST['theme']));
+		$theme_choisi = clean_txt($_POST['theme']);
 		$comm_defaut_status = $_POST['comm_defaut_status'];
 		$automatic_keywords = $_POST['auto_keywords'];
 		$require_email = $_POST['require_email'];
