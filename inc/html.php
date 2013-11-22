@@ -155,7 +155,8 @@ function footer($index='', $begin_time='') {
 
 	echo '</div>'."\n";
 	echo '</div>'."\n";
-	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg2.$msg.'</p>'."\n";
+	//echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].' '.$GLOBALS['version'].'</a>'.$msg2.$msg.'</p>'."\n";
+	echo '<p id="footer"><a href="'.$GLOBALS['appsite'].'">'.$GLOBALS['nom_application'].'</a>'.$msg2.$msg.'</p>'."\n";
 	echo '</body>'."\n";
 	echo '</html>'."\n";
 }

@@ -349,9 +349,12 @@ function valid_install_3() {
 		if (!strlen(trim($_POST['mysql_user']))) {
 			$erreurs[] = $GLOBALS['lang']['install_err_mysql_usr_empty'];
 		}	
+		/** Quelques cas particuliers justifient un mot de passe vide. */
+		/*
 		if (!strlen(trim($_POST['mysql_passwd']))) {
 			$erreurs[] = $GLOBALS['lang']['install_err_mysql_pss_empty'];
 		}
+		*/
 		if (!strlen(trim($_POST['mysql_db']))) {
 			$erreurs[] = $GLOBALS['lang']['install_err_mysql_dba_empty'];
 		}	
