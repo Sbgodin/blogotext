@@ -36,7 +36,7 @@ function decode_id($id) {
 	return $retour;
 }
 
-// used sometimes, like in the email that is send.
+// used sometimes, like in the email that is sent.
 function get_blogpath($id, $titre) {
 	$date = decode_id($id);
 	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url($titre);
