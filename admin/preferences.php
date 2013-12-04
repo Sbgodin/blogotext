@@ -216,6 +216,7 @@ function afficher_form_prefs($erreurs = '') {
 
 	// check if a new Blogotext version is available (code from Shaarli, by Sebsauvage).
 	// Get latest version number at most once a day.
+	/* DEACTIVATED TO PREVENT CONNECTION OUTSIDE THE SERVER
 	if ( !is_file($GLOBALS['last-online-file']) or (filemtime($GLOBALS['last-online-file']) < time()-(24*60*60)) ) {
 		$last_version = get_external_file('http://lehollandaisvolant.net/blogotext/version.php', 6);
 		if (empty($last_version)) { $last_version = $GLOBALS['version']; }
@@ -234,6 +235,16 @@ function afficher_form_prefs($erreurs = '') {
 			$fld_update .= '</fieldset></div>'."\n";
 		echo $fld_update;
 	}
+
+	*/
+	$fld_update = '<fieldset class="pref">';
+	$fld_update .= legend($GLOBALS['lang']['maint_chk_update'], 'legend-update');
+	$fld_update .= "<p class='erreurs'>{$GLOBALS['lang']['aucun']}</p>\n";
+	$fld_update .= "<p><label>{$GLOBALS['lang']['maint_update_go_dl_it']}</label>\n";
+	$fld_update .= '<a href="http://lehollandaisvolant.net/blogotext/">lehollandaisvolant.net/blogotext/</a>.';
+	$fld_update .= '<p>'."\n";
+	$fld_update .= '</fieldset></div>'."\n";
+	echo $fld_update;
 
 	echo '<div class="submit centrer">';
 	echo hidden_input('_verif_envoi', '1');
