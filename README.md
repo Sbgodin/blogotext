@@ -7,6 +7,12 @@ This is Blogotext, the lightweight SQLite Blog-Engine.
 
 ---
 
+This is a (gentle) fork of Timo's project:
+* removal of external leaks: gravatar, update check
+* and some other to come
+
+---
+
 ![alt tag](http://lehollandaisvolant.net/blogotext/blogotext-screen.png)
 
 ---
