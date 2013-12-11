@@ -20,7 +20,6 @@ function afficher_menu($active) {
 	echo "\t".'<a href="ecrire.php" id="lien-nouveau"', ($active == 'ecrire.php') ? ' class="current"' : '', '>'.$GLOBALS['lang']['nouveau'].'</a>'."\n";
 	echo "\t".'<a href="commentaires.php" id="lien-lscom"', ($active == 'commentaires.php') ? ' class="current"' : '', '>'.$GLOBALS['lang']['titre_commentaires'].'</a>'."\n";
 	echo "\t".'<a href="fichiers.php" id="lien-fichiers"', ($active == 'fichiers.php') ? ' class="current"' : '', '>'.ucfirst($GLOBALS['lang']['label_fichiers']).'</a>'."\n";
-	echo "\t".'<a href="links.php" id="lien-links"', ($active == 'links.php') ? ' class="current"' : '', '>'.ucfirst($GLOBALS['lang']['label_links']).'</a>'."\n";
 	echo "\t".'<div id="nav-top">'."\n";
 	echo "\t\t".'<a href="preferences.php" id="lien-preferences">'.$GLOBALS['lang']['preferences'].'</a>'."\n";
 	echo "\t\t".'<a href="'.$GLOBALS['racine'].'" id="lien-site">'.$GLOBALS['lang']['lien_blog'].'</a>'."\n";
