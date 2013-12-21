@@ -274,19 +274,23 @@ function afficher_calendrier() {
 }
 
 function encart_commentaires() {
+	mb_internal_encoding('UTF-8');
 	$query = "SELECT c.bt_author, c.bt_id, c.bt_article_id, c.bt_content, a.bt_title FROM commentaires c LEFT JOIN articles a ON a.bt_id=c.bt_article_id WHERE c.bt_statut=1 AND a.bt_statut=1 ORDER BY c.bt_id DESC LIMIT 5";
 	$tableau = liste_elements($query, array(), 'commentaires');
 	if (isset($tableau)) {
-		$listeLastComments = '<ul class="encart_lastcom">';
+		$listeLastComments = '<ul class="encart_lastcom">'."\n";
 		foreach ($tableau as $i => $comment) {
 			$comment['contenu_abbr'] = strip_tags($comment['bt_content']);
+			// limits length of comment abbreviation and name 
 			if (strlen($comment['contenu_abbr']) >= 60) {
-				$abstract = explode("|", wordwrap($comment['contenu_abbr'], 60, "|"), 2);
-				$comment['contenu_abbr'] = $abstract[0]."…";
+				$comment['contenu_abbr'] = mb_substr($comment['contenu_abbr'], 0, 59).'…';
 			}
-			$listeLastComments .= '<li title="'.date_formate($comment['bt_id']).'"><b>'.$comment['bt_author'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['bt_title'].'</b><br/><a href="'.$comment['bt_link'].'">'.$comment['contenu_abbr'].'</a>'.'</li>';
+			if (strlen($comment['bt_author']) >= 30) {
+				$comment['bt_author'] = mb_substr($comment['bt_author'], 0, 29).'…';
+			}
+			$listeLastComments .= '<li title="'.date_formate($comment['bt_id']).'"><b>'.$comment['bt_author'].'</b> '.$GLOBALS['lang']['sur'].' <b>'.$comment['bt_title'].'</b><br/><a href="'.$comment['bt_link'].'">'.$comment['contenu_abbr'].'</a>'.'</li>'."\n";
 		}
-		$listeLastComments .= '</ul>';
+		$listeLastComments .= '</ul>'."\n";
 		return $listeLastComments;
 	} else {
 		return $GLOBALS['lang']['no_comments'];
@@ -322,17 +326,17 @@ function lien_pagination() {
 
 	if ($page_courante <=0) {
 		$lien_precede = '';
-		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p=1" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
+		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p=1" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#187;</a>';
 		if ($nb < $nb_par_page) { // évite de pouvoir aller dans la passé s’il y a moins de 10 posts
 			$lien_suivant = '';
 		}
 	}
 	elseif ($nb < $nb_par_page) { // évite de pouvoir aller dans l’infini en arrière dans les pages, nottament pour les robots.
-		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
+		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#171; '.$GLOBALS['lang']['label_precedent'].'</a>';
 		$lien_suivant = '';
 	} else {
-		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#8826; '.$GLOBALS['lang']['label_precedent'].'</a>';
-		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante+1).'" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#8827;</a>';
+		$lien_precede = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante-1).'" rel="prev">&#171; '.$GLOBALS['lang']['label_precedent'].'</a>';
+		$lien_suivant = '<a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?'.$qstring.'&amp;p='.($page_courante+1).'" rel="next">'.$GLOBALS['lang']['label_suivant'].' &#187;</a>';
 	}
 
 	$glue = ' – ';
