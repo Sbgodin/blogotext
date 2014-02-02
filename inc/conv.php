@@ -140,10 +140,8 @@ function formatage_wiki($texte) {
 		'#\[justify\](.*?)\[/justify\]#s',	// justifier
 
 		// misc
-		'#([^"\[\]|])((http|ftp)s?://([^"\'\[\]<>\s]+))#i',	// Regex URL
 		'#(.*?)\r#',																// br : retour à la ligne sans saut de ligne
 		'#\[([^[]+)\|([^[]+)\]#',												// a href
-		'#\[(https?://)([^[]+)\]#',											// url
 		'#\[img\](.*?)(\|(.*?))?\[/img\]#s',								// [img]
 		'#\[b\](.*?)\[/b\]#s',													// strong
 		'#\[i\](.*?)\[/i\]#s',													// italic
@@ -176,10 +174,8 @@ function formatage_wiki($texte) {
 		'<div style="text-align:justify;">$1</div>',	// justifier
 
 		// misc
-		'$1<a href="$2">$2</a>',												// url regex
 		'$1<br/>'."\n",															// br : retour à la ligne sans saut de ligne
 		'<a href="$2">$1</a>',													// a href
-		'<a href="$1$2">$2</a>',												// url
 		'<img src="$1" alt="$3" />',														// img
 		'<span style="font-weight: bold;">$1</span>',					// strong
 		'<span style="font-style: italic;">$1</span>',					// italic
