@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -476,7 +476,11 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 	echo '</form>'."\n";
 
 	// Form import
-	$importformats = array('jsonbak'=>$GLOBALS['lang']['bak_import_btjson'], 'xmlwp'=>$GLOBALS['lang']['bak_import_wordpress'], 'htmllinks'=>$GLOBALS['lang']['bak_import_netscape'] );
+	$importformats = array(
+			'jsonbak' => $GLOBALS['lang']['bak_import_btjson'],
+			'xmlwp' => $GLOBALS['lang']['bak_import_wordpress'],
+			'htmllinks' => $GLOBALS['lang']['bak_import_netscape'] );
+
 	echo '<form action="maintenance.php" method="post" enctype="multipart/form-data" class="bordered-formbloc" id="form_import">'."\n";
 		echo '<fieldset class="pref valid-center">';
 		echo legend($GLOBALS['lang']['maintenance_import'], 'legend-backup');
@@ -589,9 +593,11 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 				}
 
 			} elseif ($_GET['do'] == 'optim') {
+					// recount files DB
 					if ($_GET['opti-file'] == 1) {
 						rebuilt_file_db();
 					}
+					// vacuum SQLite DB
 					if ($_GET['opti-vacu'] == 1) {
 						try {
 							$req = $GLOBALS['db_handle']->prepare('VACUUM');
@@ -600,7 +606,8 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 							die('Erreur 1429 vacuum : '.$e->getMessage());
 						}
 					}
-					if ($_GET['opti-comm'] == 1) { // recount comms/articles
+					// recount comms/articles
+					if ($_GET['opti-comm'] == 1) {
 						recompte_commentaires();
 					}
 					echo '<form action="maintenance.php" method="get" class="bordered-formbloc">'."\n";

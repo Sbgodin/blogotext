@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -273,20 +273,79 @@ function open_serialzd_file($fichier) {
 	return $liste;
 }
 
-function get_external_file($url, $timeout) {
-	$context = stream_context_create(array('http'=>array(
-			'user_agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:26.0 BlogoText-UA) Gecko/20100101 Firefox/26.0',
-			'timeout' => $timeout
-		))); // Timeout : time until we stop waiting for the response.
+
+function get_external_file($url, $timeout=10) {
+	$headers = array(
+		'user_agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:29.0 BlogoText-UA) Gecko/20100101 Firefox/29.0',
+		'timeout' => $timeout,
+		'header'=> "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n",
+		'connection' => 'close',
+		'ignore_errors' => TRUE);
+
+	$context = stream_context_create(array('http'=> $headers));
 	$data = @file_get_contents($url, false, $context, -1, 4000000); // We download at most 4 Mb from source.
-	if (isset($data) and isset($http_response_header[0]) and (strpos($http_response_header[0], '200 OK') !== FALSE) ) {
-		//debug($http_response_header[0]);
+	if (isset($data) and isset($http_response_header[0]) and ( strpos($http_response_header[0], '200 OK') | (strpos($http_response_header[0], '302 Found') ) | (strpos($http_response_header[0], '301 Moved') | (strpos($http_response_header[0], '302 Moved')) ) !== FALSE ) ) {
 		return $data;
-	}
-	else {
+	} else {
 		return array();
 	}
 }
+
+
+
+
+function c_get_external_file($feeds) {
+	// uses chunks of 40 feeds because Curl has problems with too big (~150) "multi" requests.
+	// $feeds = array_splice($feeds, 60, 20);
+	$chunks = array_chunk($feeds, 40, true);
+	$results = array();
+	$total_feed = count($feeds);
+	echo '0/'.$total_feed.' '; ob_flush(); flush(); // for Ajax
+
+	foreach ($chunks as $chunk) {
+		set_time_limit (20);
+		$curl_arr = array();
+		$master = curl_multi_init();
+		$total_feed_chunk = count($chunk)+count($results);
+
+		// init each url
+		foreach ($chunk as $i => $feed) {
+			$curl_arr[$i] = curl_init(trim($i));
+			curl_setopt_array($curl_arr[$i], array(
+					CURLOPT_RETURNTRANSFER => TRUE,
+					CURLOPT_FOLLOWLOCATION => TRUE,
+					CURLOPT_CONNECTTIMEOUT => 0, // 0 = indefinately
+					CURLOPT_TIMEOUT => 15,
+					CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'],
+					CURLOPT_SSL_VERIFYPEER => FALSE,
+					CURLOPT_SSL_VERIFYHOST => FALSE,
+				));
+			curl_multi_add_handle($master, $curl_arr[$i]);
+		}
+
+		// exec connexions
+		$running = $oldrunning = 0;
+
+		do {
+			curl_multi_exec($master, $running);
+			echo ($total_feed_chunk-$running).'/'.$total_feed.' '; ob_flush(); flush();
+			usleep(100000);
+		} while ($running > 0);
+
+
+		// multi select contents
+		foreach ($chunk as $url => $feed) {
+			$results[$url] = curl_multi_getcontent($curl_arr[$url]);
+		}
+
+
+		// Ferme les gestionnaires
+		curl_multi_close($master);
+	}
+
+	return $results;
+}
+
 
 function rafraichir_cache() {
 	creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_cache'], 1);

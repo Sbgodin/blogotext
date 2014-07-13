@@ -263,6 +263,8 @@ $GLOBALS['lang'] = array(
 'err_comm_article_id'			=> 'L’ID Article n’est pas valide',
 'err_lien_vide'					=> 'L’URL est vide',
 'err_wrong_token'					=> 'Le jeton de sécurité est expiré ou invalide.',
+'err_feed_exists'					=> 'Le flux existe déjà.',
+'err_feed_wrong_param'			=> 'Mauvaise requête.',
 // Questions
 'question_suppr_article'		=> 'Cet article et ses commentaires seront définitivement supprimés !',
 'question_suppr_image'			=> 'Cette image sera définitivement supprimée !',

@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -231,9 +231,9 @@ function afficher_calendrier() {
 		$html .= '&nbsp;<a href="'.$next_mois.'">&#187;</a>';
 	}
 	$html .= '</caption>'."\n";
-	$html .= '<tr><th><abbr>';
-	$html .= implode('</abbr></th><th><abbr>', $jours_semaine);
-	$html .= '</abbr></th></tr><tr>';
+	//$html .= '<tr><th><abbr>';
+	//$html .= implode('</abbr></th><th><abbr>', $jours_semaine);
+	//$html .= '</abbr></th></tr><tr>';
 	if ($decalage_jour > 0) {
 		for ($i = 0; $i < $decalage_jour; $i++) {
 			$html .=  '<td></td>';
@@ -302,11 +302,19 @@ function encart_categories($mode) {
 		$where = ($mode == 'links') ? 'links' : 'articles';
 		$ampmode = ($mode == 'links') ? '&amp;mode=links' : '';
 
-		$liste = list_all_tags($where);
+		$liste = list_all_tags($where, '1');
+
+
+		// remove diacritics, so that "ééé" does not passe after "zzz" and re-indexes
+		foreach ($liste as $i => $tag) {
+			$liste[$i]['diac'] = diacritique(trim($tag['tag']), FALSE, FALSE);
+		}
+		$liste = array_reverse(tri_selon_sous_cle($liste, 'diac'));
+
 		$uliste = '<ul>'."\n";
 		foreach($liste as $tag) {
 			$tagurl = urlencode(trim($tag['tag']));
-			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.$ampmode.'" rel="tag">'.ucfirst($tag['tag']).'</a></li>'."\n";
+			$uliste .= "\t".'<li><a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.$ampmode.'" rel="tag">'.ucfirst($tag['tag']).' ('.$tag['nb'].')</a></li>'."\n";
 		}
 		$uliste .= '</ul>'."\n";
 		return $uliste;
@@ -351,12 +359,22 @@ function liste_tags($billet, $html_link) {
 	$mode = ($billet['bt_type'] == 'article') ? '' : '&amp;mode=links';
 	if (!empty($tags)) {
 		$tag_list = explode(',', $tags);
+		// remove diacritics, so that "ééé" does not passe after "zzz" and re-indexes
+		foreach ($tag_list as $i => $tag) {
+			$tag_list[$i] = array('t' => trim($tag), 'tt' => diacritique(trim($tag), FALSE, FALSE));
+		}
+		$tag_list = array_reverse(tri_selon_sous_cle($tag_list, 'tt'));
+
+		foreach ($tag_list as $i => $tag) {
+			$tag_list[$i] = $tag['t'];
+		}
+
 		$nb_tags = sizeof($tag_list);
 		$liste = '';
 		if ($html_link == 1) {
 			foreach($tag_list as $tag) {
 				$tag = trim($tag);
-				$tagurl = urlencode(trim($tag));
+				$tagurl = urlencode($tag);
 				$liste .= '<a href="'.$_SERVER['PHP_SELF'].'?tag='.$tagurl.$mode.'" rel="tag">'.$tag.'</a>, ';
 			}
 			$liste = trim($liste, ', ');

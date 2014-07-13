@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -46,8 +46,8 @@ function handleDrop(event) {
 
 	if (nbDraged !== false) { nbDraged = false; nbDone = 0; }
 
-	filelist = event.dataTransfer.files;
-	if (!filelist || !filelist.length || list.length) return;
+	var filelist = event.dataTransfer.files;
+	if (!filelist || !filelist.length || list.length) return false;
 	result.innerHTML += \'\';
 	for (var i = 0; i < filelist.length && i < 500; i++) { // limit is for not having an infinite loop
 		list.push(filelist[i]);
@@ -167,7 +167,7 @@ function js_folder_sort_img($a) {
 $sc = '
 
 // begins with the first 25 images
-curr_img = imgs.list.slice(0, 25);
+var curr_img = imgs.list.slice(0, 25);
 var counter = 0;
 var curr_max = curr_img.length-1;
 
@@ -178,7 +178,7 @@ function image_vignettes() {
 	for (var i = 0, len = curr_img.length ; i < len ; i++) {
 		var img = curr_img[i];
 		var div = document.createElement("div");
-		div.className = \'image_bloc\';
+		div.classList.add(\'image_bloc\');
 		div.id = \'bloc_\'+img.id;
 		div.innerHTML = \'<span class="spantop black"><a title="'.$GLOBALS['lang']['partager'].'" class="lien lien-shar" href="links.php?url=\'+img.filename[0]+\'">&nbsp;</a><a title="'.$GLOBALS['lang']['voir'].'" class="lien lien-voir" href="\'+img.filename[0]+\'">&nbsp;</a><a title="'.$GLOBALS['lang']['editer'].'" class="lien lien-edit" href="fichiers.php?file_id=\'+img.id+\'&amp;edit">&nbsp;</a><a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="#" onclick="request_delete_form(\'+img.id+\'); return false;" >&nbsp;</a></span><span class="spanbottom black"><span onclick="slideshow(\\\'start\\\', \'+i+\');"></span></span><img src="\'+img.filename[2]+\'" id="\'+img.id+\'" alt="\'+img.filename[1]+\'" />\';
 		wall.appendChild(div);

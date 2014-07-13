@@ -180,7 +180,7 @@ function filtre($type, $filtre) { // cette fonction est très gourmande en resso
 	if ($type == 'articles') {
 		echo '<option value="">'.$GLOBALS['lang']['label_article_derniers'].'</option>'."\n";
 		$query = "SELECT DISTINCT substr(bt_date, 1, 6) AS date FROM articles ORDER BY bt_id DESC";
-		$tab_tags = list_all_tags('articles');
+		$tab_tags = list_all_tags('articles', FALSE);
 		$BDD = 'sqlite';
 	// Commentaires
 	} elseif ($type == 'commentaires') {
@@ -192,7 +192,7 @@ function filtre($type, $filtre) { // cette fonction est très gourmande en resso
 	} elseif ($type == 'links') {
 		echo '<option value="">'.$GLOBALS['lang']['label_link_derniers'].'</option>'."\n";
 		// $tab_auteur = nb_entries_as('links', 'bt_author'); // uncomment when readers will be able to post links
-		$tab_tags = list_all_tags('links');
+		$tab_tags = list_all_tags('links', FALSE);
 		$query = "SELECT DISTINCT substr(bt_id, 1, 6) AS date FROM links ORDER BY bt_id DESC";
 		$BDD = 'sqlite';
 	// Fichiers
@@ -699,7 +699,7 @@ function form_allow_comment($etat) {
 }
 
 function form_categories_links($where, $tags_post) {
-	$tags = list_all_tags($where);
+	$tags = list_all_tags($where, FALSE);
 	$html = '';
 	if (!empty($tags)) {
 		$html = '<datalist id="htmlListTags">'."\n";
@@ -708,6 +708,18 @@ function form_categories_links($where, $tags_post) {
 	}
 	$html .= '<ul id="selected">'."\n";
 	$list_tags = explode(',', $tags_post);
+
+
+	// remove diacritics, so that "ééé" does not passe after "zzz" and reindexes
+	foreach ($list_tags as $i => $tag) {
+		$list_tags[$i] = array('t' => trim($tag), 'tt' => diacritique(trim($tag), FALSE, FALSE));
+	}
+	$list_tags = array_reverse(tri_selon_sous_cle($list_tags, 'tt'));
+
+	foreach ($list_tags as $i => $tag) {
+		$list_tags[$i] = $tag['t'];
+	}
+
 	foreach ($list_tags as $mytag => $mtag) {
 		if (!empty($mtag)) {
 			$html .= "\t".'<li><span>'.trim($mtag).'</span><a href="javascript:void(0)" onclick="removeTag(this.parentNode)">×</a></li>'."\n";

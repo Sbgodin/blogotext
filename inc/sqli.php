@@ -125,8 +125,6 @@ function create_tables() {
 					foreach ($wanted_tables as $i => $name) {
 							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]."DEFAULT CHARSET=utf8");
 					}
-
-
 				} catch (Exception $e) {
 					die('Erreur 2: '.$e->getMessage());
 				}
@@ -597,10 +595,14 @@ function table_list_date($date, $statut, $table) {
 	}
 }
 
-function list_all_tags($table) {
+function list_all_tags($table, $statut) {
 	$col = ($table == 'articles') ? 'bt_categories' : 'bt_tags';
 	try {
-		$res = $GLOBALS['db_handle']->query("SELECT $col FROM $table");
+		if ($statut !== FALSE) {
+			$res = $GLOBALS['db_handle']->query("SELECT $col FROM $table WHERE bt_statut = $statut");
+		} else {
+			$res = $GLOBALS['db_handle']->query("SELECT $col FROM $table");
+		}
 		$liste_tags = '';
 		// met tous les tags de tous les articles bout à bout
 		while ($entry = $res->fetch()) {

@@ -19,7 +19,7 @@ if (!empty($GLOBALS['fuseau_horaire'])) {
 }
 
 // BLOGOTEXT VERSION (do not change it)
-$GLOBALS['version'] = '2.0.2.6';
+$GLOBALS['version'] = '2.0.9.9';
 $GLOBALS['last-online-file'] = '../config/version.txt';
 
 // MINIMAL REQUIRED PHP VERSION
@@ -53,6 +53,7 @@ if (is_file($mysql_file) and is_readable($mysql_file) and file_get_contents($mys
 } else {
 	$GLOBALS['sgdb'] = 'sqlite';
 }
+
 
 
 // regenerate captcha (always)
