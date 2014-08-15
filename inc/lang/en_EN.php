@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -303,7 +303,7 @@ $GLOBALS['lang'] = array(
 'prefs_legend_apparence'		=> 'Appearance',
 'prefs_legend_securite'			=> 'Security',
 'prefs_legend_langdateheure'	=> 'Language, date and time',
-'prefs_legend_configblog'		=> 'Blog settings',
+'prefs_legend_configblog'		=> 'Blog &amp; comments settings',
 'prefs_legend_configlinx'		=> 'Links settings',
 'prefs_legend_image'				=> 'Send an image',
 'pref_auteur'						=> 'Author: ',
@@ -328,6 +328,8 @@ $GLOBALS['lang'] = array(
 'pref_automatic_keywords'		=> 'Let BlogoText select keywords: ',
 'pref_force_email'				=> 'Email is required to comment: ',
 'pref_theme'						=> 'Theme: ',
+'pref_afficher_rss'				=> 'Show RSS tabs:',
+'pref_afficher_liens'			=> 'Show links tab:',
 'pref_categories'					=> 'Use tags for articles: ',
 'pref_commentaires'				=> 'Use comments: ',
 'pref_allow_global_coms'		=> 'Close comments on every article: ',
@@ -391,6 +393,7 @@ $GLOBALS['lang'] = array(
 'bak_export_json'					=> 'Create a JSON file with various data',
 'bak_export_netscape'			=> 'Create a Netscape export file with links',
 'bak_export_zip'					=> 'Create a ZIP archive with database and other files',
+'bak_export_opml'					=> 'Create an OPML file with a list of RSS feeds',
 'bak_incl_sqlit'					=> 'Include SQLite file',
 'bak_incl_confi'					=> 'Include configuration files',
 'bak_incl_files'					=> 'Include images and files',

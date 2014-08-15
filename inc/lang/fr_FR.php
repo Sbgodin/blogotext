@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2014 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -305,7 +305,7 @@ $GLOBALS['lang'] = array(
 'prefs_legend_apparence'		=> 'Apparence',
 'prefs_legend_securite'			=> 'Sécurité',
 'prefs_legend_langdateheure'	=> 'Langue, date et heure',
-'prefs_legend_configblog'		=> 'Options pour le blog',
+'prefs_legend_configblog'		=> 'Options pour le blog et les commentaires',
 'prefs_legend_configlinx'		=> 'Options pour les liens',
 'prefs_legend_image'				=> 'Envoyer une image',
 'pref_auteur'						=> 'Auteur&thinsp;: ',
@@ -319,7 +319,7 @@ $GLOBALS['lang'] = array(
 'pref_format_date'				=> 'Format de la date&thinsp;: ',
 'pref_format_heure'				=> 'Format de l’heure&thinsp;: ',
 'pref_racine'						=> 'Adresse du blog (URL)&thinsp;: ',
-'pref_nb_maxi'						=> 'Nombre d’articles sur l’accueil&thinsp;: ',
+'pref_nb_maxi'						=> 'Nombre d’articles sur le blog&thinsp;: ',
 'pref_nb_list'						=> 'Nombre d’articles dans la liste admin&thinsp;: ',
 'pref_nb_list_com'				=> 'Nombre de commentaires dans la liste admin&thinsp;: ',
 'pref_nb_list_linx'				=> 'Nombre de liens dans la liste admin&thinsp;: ',
@@ -329,7 +329,9 @@ $GLOBALS['lang'] = array(
 'pref_comm_black_list'			=> 'Dés qu’ils sont postés.',
 'pref_automatic_keywords'		=> 'Laisser Blogotext choisir les mots-clés meta&thinsp;: ',
 'pref_force_email'				=> 'L’email est exigée pour commenter&thinsp;: ',
-'pref_theme'						=> 'Thème&thinsp;: ',
+'pref_theme'						=> 'Thème du blog&thinsp;: ',
+'pref_afficher_rss'				=> 'Afficher l’onglet des RSS&thinsp;:',
+'pref_afficher_liens'			=> 'Afficher l’onglet des liens&thinsp;:',
 'pref_categories'					=> 'Classement des billets par catégories&thinsp;: ',
 'pref_commentaires'				=> 'Utiliser les commentaires&thinsp;: ',
 'pref_allow_global_coms'		=> 'Fermeture des commentaires sur tous les articles&thinsp;: ',
@@ -393,6 +395,7 @@ $GLOBALS['lang'] = array(
 'bak_export_json'					=> 'Créer un fichier JSON contenant diverses données',
 'bak_export_netscape'			=> 'Exporter les liens sous forme de favoris Netscape',
 'bak_export_zip'					=> 'Créer un ZIP de la base de données et des fichiers',
+'bak_export_opml'					=> 'Exporter la liste des flux RSS dans un fichier OPML',
 'bak_incl_sqlit'					=> 'Inclure la base SQLite',
 'bak_incl_confi'					=> 'Inclure les fichier de config',
 'bak_incl_files'					=> 'Inclure les images et les fichiers',
