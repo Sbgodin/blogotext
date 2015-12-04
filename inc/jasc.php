@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2014 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -17,87 +17,33 @@
  * JS to handle drag-n-drop : ondraging files on a <div> opens web request with POST individually for each file (in case many are draged-n-droped)
 *
 */
+
 function js_drag_n_drop_handle($a) {
-	$max_file_size = return_bytes(ini_get('upload_max_filesize'));
+	$max_file_size = min(return_bytes(ini_get('upload_max_filesize')), return_bytes(ini_get('post_max_size')));
+
 	$sc = '
-
-// variables
-var result = document.getElementById(\'result\'); // text zone where informations about uploaded files are displayed
-var list = []; // file list
-
-// pour le input des fichiers publics ou privés.
-function statut_image() {
-	var val = document.getElementById(\'statut\').checked;
-	return (val === false) ? \'\' : \'on\';
-}
-function folder_image() {
-	return document.getElementById(\'dossier\').value;
-}
-
-
-var nbDraged = false;
-var nbDone = 0;
-
-// process bunch of files
-function handleDrop(event) {
-
-	document.getElementById(\'count\').style.paddingTop = \'20px\';
-	document.getElementById(\'count\').style.background = \'url(style/loading.gif) center top no-repeat\';
-
-	if (nbDraged !== false) { nbDraged = false; nbDone = 0; }
-
-	var filelist = event.dataTransfer.files;
-	if (!filelist || !filelist.length || list.length) return false;
-	result.innerHTML += \'\';
-	for (var i = 0; i < filelist.length && i < 500; i++) { // limit is for not having an infinite loop
-		list.push(filelist[i]);
-	}
-
-	nbDraged = list.length;
-
-	uploadNext();
-	return false;
-}
-
-// upload file
-function uploadFile(file) {
-	// prepare XMLHttpRequest
-	var xhr = new XMLHttpRequest();
-	xhr.open(\'POST\', \'_dragndrop.ajax.php\');
-	xhr.onload = function() {
-		result.innerHTML = this.responseText+result.innerHTML;
-		uploadNext();
-	};
-	xhr.onerror = function() {
-		result.innerHTML = this.responseText+result.innerHTML;
-		uploadNext();
-	};
-	// prepare and send FormData
-	var formData = new FormData();
-	formData.append(\'fichier\', file);
-	formData.append(\'token\', document.getElementById(\'token\').value);
-	document.getElementById(\'token\').parentNode.removeChild(document.getElementById(\'token\'));
-	formData.append(\'statut\', statut_image());
-	formData.append(\'description\', \'\');
-	formData.append(\'nom_entree\', document.getElementById(\'nom_entree\').value);
-	formData.append(\'dossier\', folder_image());
-	xhr.send(formData);
-}
 
 // upload next file
 function uploadNext() {
-	nbDone++;
 	if (list.length) {
+		document.getElementById(\'count\').classList.add(\'showed\');
 		var nextFile = list.shift();
 		if (nextFile.size >= '.$max_file_size.') {
-			result.innerHTML += \'<div class="f">File too big</div>\';
+			var respdiv = document.getElementById(nextFile.locId);
+			respdiv.querySelector(\'.uploadstatus\').appendChild(document.createTextNode(\'File too big\'));
+			respdiv.classList.remove(\'pending\');
+			respdiv.classList.add(\'failure\');
 			uploadNext();
 		} else {
+			var respdiv = document.getElementById(nextFile.locId);
+			respdiv.querySelector(\'.uploadstatus\').textContent = \'Uploading\';
 			uploadFile(nextFile);
-			document.getElementById(\'count\').innerHTML = \''.$GLOBALS['lang']['label_dp_fichier'].'\'+nbDone+\'/\'+nbDraged;
 		}
 	} else {
-		document.getElementById(\'count\').style.background = \'\';
+		document.getElementById(\'count\').classList.remove(\'showed\');
+		nbDraged = false;
+		// reactivate the "required" attribute of file input
+		document.getElementById(\'fichier\').required = true;
 	}
 }
 
@@ -110,119 +56,7 @@ function uploadNext() {
 }
 
 
-function js_show_slideshow($a) {
-$sc = '
-
-function slideshow(action, image) {
-	if (action == \'close\') {
-		document.getElementById(\'slider\').style.display = \'none\';
-	}
-
-	var ElemImg = document.getElementById(\'slider-img\');
-	var ElemUlLi = document.getElementById(\'slider-img-infs\').getElementsByTagName(\'li\');
-
-	var newImg = new Image();
-	if (action == \'start\') { document.getElementById(\'slider\').style.display = \'block\'; counter = image; }
-	if (action == \'first\') counter = 0;
-	if (action == \'prev\') counter = Math.max(--counter, 0);
-	if (action == \'next\') counter = Math.min(++counter, curr_max);
-	if (action == \'last\') counter = curr_max;
-
-	var box_height = document.getElementById(\'slider-box-img-wrap\').clientHeight;
-	var box_width = document.getElementById(\'slider-box-img-wrap\').clientWidth;
-	var img_height = curr_img[counter].height;
-	var img_width = curr_img[counter].width;
-	var ratio_w = Math.max(1, img_width/box_width);
-
-	newImg.onload = function() {
-		ElemImg.src = newImg.src;
-		var im = curr_img[counter];
-		ElemUlLi[0].innerHTML = \''.$GLOBALS['lang']['label_dp_date'].'\'+im.id.substring(0,4)+\'/\'+im.id.substring(4,6)+\'/\'+im.id.substring(6,8);
-		ElemUlLi[1].innerHTML = \''.$GLOBALS['lang']['label_dp_dimensions'].'\'+img_width+\'×\'+img_height;
-		ElemUlLi[2].innerHTML = \''.$GLOBALS['lang']['label_dp_description'].'\'+(im.desc||im.filename[1]);
-		document.getElementById(\'slider-img-a\').href = \'?file_id=\'+im.id;
-		ElemImg.style.marginTop = (Math.round((box_height - Math.min(img_height/ratio_w, box_height))/2))+\'px\';
-	};
-
-	newImg.onerror = function() {
-		ElemImg.src = \'\';
-		ElemImg.alt = \'Error Loading File\';
-		ElemUlLi[0].innerHTML = ElemUlLi[1].innerHTML = ElemUlLi[2].innerHTML = \'Error Loading File\';
-		document.getElementById(\'slider-img-a\').href = \'#\';
-		ElemImg.style.marginTop = \'0\';
-	};
-	newImg.src = curr_img[counter].filename[0];
-}
-';
-	if ($a == 1) {
-		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
-	} else {
-		$sc = "\n".$sc."\n";
-	}
-	return $sc;
-}
-
-
-function js_folder_sort_img($a) {
-$sc = '
-
-// begins with the first 25 images
-var curr_img = imgs.list.slice(0, 25);
-var counter = 0;
-var curr_max = curr_img.length-1;
-
-// rebuilts the image wall.
-function image_vignettes() {
-	var wall = document.getElementsByClassName(\'image-wall\')[0];
-	wall.innerHTML = \'\';
-	for (var i = 0, len = curr_img.length ; i < len ; i++) {
-		var img = curr_img[i];
-		var div = document.createElement("div");
-		div.classList.add(\'image_bloc\');
-		div.id = \'bloc_\'+img.id;
-		div.innerHTML = \'<span class="spantop black"><a title="'.$GLOBALS['lang']['partager'].'" class="lien lien-shar" href="links.php?url=\'+img.filename[0]+\'">&nbsp;</a><a title="'.$GLOBALS['lang']['voir'].'" class="lien lien-voir" href="\'+img.filename[0]+\'">&nbsp;</a><a title="'.$GLOBALS['lang']['editer'].'" class="lien lien-edit" href="fichiers.php?file_id=\'+img.id+\'&amp;edit">&nbsp;</a><a title="'.$GLOBALS['lang']['supprimer'].'" class="lien lien-supr" href="#" onclick="request_delete_form(\'+img.id+\'); return false;" >&nbsp;</a></span><span class="spanbottom black"><span onclick="slideshow(\\\'start\\\', \'+i+\');"></span></span><img src="\'+img.filename[2]+\'" id="\'+img.id+\'" alt="\'+img.filename[1]+\'" />\';
-		wall.appendChild(div);
-
-	}
-}
-image_vignettes();
-';
-	if ($a == 1) {
-		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
-	} else {
-		$sc = "\n".$sc."\n";
-	}
-	return $sc;
-}
-
-
-
-function js_comm_question_suppr($a) {
-$sc = '
-function ask_suppr(button) {
-	var reponse = window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\');
-	if (reponse == true) {
-		var form = button.parentNode.parentNode.getElementsByTagName(\'form\')[0];
-		var submitButtons = form.getElementsByTagName(\'input\');
-		for (var i = 0, nb = submitButtons.length ; i<nb ; i++) {
-			if (submitButtons[i].name === \'enregistrer\') {
-				submitButtons[i].name = \'supprimer_comm\';
-				submitButtons[i].type = \'text\';
-				break;
-			}
-		}
-		form.submit();
-	}
-	return reponse;
-}
-';
-	if ($a == 1) {
-		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
-	} else {
-		$sc = "\n".$sc."\n";
-	}
-	return $sc;
-}
+// If article form has been changed, ask for confirmation before closing page/tab.
 
 
 function js_alert_before_quit($a) {
@@ -231,9 +65,9 @@ var contenuLoad = document.getElementById("contenu").value;
 window.addEventListener("beforeunload", function (e) {
 	// From https://developer.mozilla.org/en-US/docs/Web/Reference/Events/beforeunload
 	var confirmationMessage = \''.$GLOBALS['lang']['question_quit_page'].'\';
-	if(document.getElementById("contenu").value == contenuLoad) { confirmationMessage = null };
-	(e || window.event).returnValue = confirmationMessage || \'\' ;	//Gecko + IE ; Gecko show popup if "null" but not if empty str,
-	return confirmationMessage;													// Webkit.
+	if(document.getElementById("contenu").value == contenuLoad) { return true; };
+	(e || window.event).returnValue = confirmationMessage || \'\' ;	//Gecko + IE
+	return confirmationMessage;													// Webkit : ignore this.
 });
 ';
 	if ($a == 1) {
@@ -243,4 +77,187 @@ window.addEventListener("beforeunload", function (e) {
 	}
 	return $sc;
 }
+
+
+
+}
+';
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	} else {
+		$sc = "\n".$sc."\n";
+	}
+	return $sc;
+/*
+ *
+ *
+ *
+ * Below for comments processing
+ *
+*/
+
+// deleting a comment
+function js_comm_delete($a) {
+$sc = '
+
+function suppr_comm(button) {
+	var notifDiv = document.createElement(\'div\');
+	var reponse = window.confirm(\''.$GLOBALS['lang']['question_suppr_comment'].'\');
+	var div_bloc = document.getElementById(button.parentNode.parentNode.parentNode.parentNode.id);
+
+	if (reponse == true) {
+		div_bloc.classList.add(\'ajaxloading\');
+		var xhr = new XMLHttpRequest();
+		xhr.open(\'POST\', \'commentaires.php\', true);
+
+		xhr.onprogress = function() {
+			div_bloc.classList.add(\'ajaxloading\');
+		}
+
+		xhr.onload = function() {
+			var resp = this.responseText;
+			if (resp.indexOf("Success") == 0) {
+				csrf_token = resp.substr(7, 40);
+				div_bloc.classList.add(\'deleteFadeOut\');
+				div_bloc.style.height = div_bloc.offsetHeight+\'px\';
+				div_bloc.addEventListener(\'animationend\', function(event){event.target.parentNode.removeChild(event.target);}, false);
+				div_bloc.addEventListener(\'webkitAnimationEnd\', function(event){event.target.parentNode.removeChild(event.target);}, false);
+				// adding notif
+				notifDiv.textContent = \''.$GLOBALS['lang']['confirm_comment_suppr'].'\';
+				notifDiv.classList.add(\'confirmation\');
+				document.getElementById(\'top\').appendChild(notifDiv);
+			} else {
+				// adding notif
+				notifDiv.textContent = this.responseText;
+				notifDiv.classList.add(\'no_confirmation\');
+				document.getElementById(\'top\').appendChild(notifDiv);
+			}
+			div_bloc.classList.remove(\'ajaxloading\');
+		};
+		xhr.onerror = function(e) {
+			notifDiv.textContent = \''.$GLOBALS['lang']['error_comment_suppr'].'\'+e.target.status;
+			notifDiv.classList.add(\'no_confirmation\');
+			document.getElementById(\'top\').appendChild(notifDiv);
+			div_bloc.classList.remove(\'ajaxloading\');
+		};
+
+		// prepare and send FormData
+		var formData = new FormData();
+		formData.append(\'token\', csrf_token);
+		formData.append(\'_verif_envoi\', 1);
+		formData.append(\'com_supprimer\', button.dataset.commId);
+		formData.append(\'com_article_id\', button.dataset.commArtId);
+
+		xhr.send(formData);
+
+	}
+	return reponse;
+}
+
+';
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	} else {
+		$sc = "\n".$sc."\n";
+	}
+	return $sc;
+}
+
+// hide/unhide a comm
+function js_comm_activate($a) {
+$sc = '
+
+function activate_comm(button) {
+	var notifDiv = document.createElement(\'div\');
+	var div_bloc = document.getElementById(button.parentNode.parentNode.parentNode.parentNode.id);
+	div_bloc.classList.toggle(\'ajaxloading\');
+
+	var xhr = new XMLHttpRequest();
+	xhr.open(\'POST\', \'commentaires.php\', true);
+
+	xhr.onprogress = function() {
+		div_bloc.classList.add(\'ajaxloading\');
+	}
+
+	xhr.onload = function() {
+		var resp = this.responseText;
+		if (resp.indexOf("Success") == 0) {
+			csrf_token = resp.substr(7, 40);
+			button.textContent = ((button.textContent === "'.$GLOBALS['lang']['activer'].'") ? "'.$GLOBALS['lang']['desactiver'].'" : "'.$GLOBALS['lang']['activer'].'" );
+			div_bloc.classList.toggle(\'privatebloc\');
+
+		} else {
+			notifDiv.textContent = \''.$GLOBALS['lang']['error_comment_valid'].'\'+\' \'+resp;
+			notifDiv.classList.add(\'no_confirmation\');
+			document.getElementById(\'top\').appendChild(notifDiv);
+		}
+		div_bloc.classList.remove(\'ajaxloading\');
+	};
+	xhr.onerror = function(e) {
+		notifDiv.textContent = \''.$GLOBALS['lang']['error_comment_valid'].'\'+e.target.status+\' (#com-activ-H28)\';
+		notifDiv.classList.add(\'no_confirmation\');
+		document.getElementById(\'top\').appendChild(notifDiv);
+		div_bloc.classList.remove(\'ajaxloading\');
+	};
+
+	// prepare and send FormData
+	var formData = new FormData();
+	formData.append(\'token\', csrf_token);
+	formData.append(\'_verif_envoi\', 1);
+
+
+	formData.append(\'com_activer\', button.dataset.commId);
+	formData.append(\'com_article_id\', button.dataset.commArtId);
+
+	xhr.send(formData);
+
+}
+
+';
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	} else {
+		$sc = "\n".$sc."\n";
+	}
+	return $sc;
+}
+
+
+
+
+
+function js_red_button_event($a) {
+$sc = '
+
+function rmArticle(button) {
+	if (window.confirm(\''.$GLOBALS['lang']['question_suppr_article'].'\')) {
+		button.type=\'submit\';
+		return true;
+	}
+	return false;
+}
+
+function rmFichier(button) {
+	if (window.confirm(\''.$GLOBALS['lang']['question_suppr_fichier'].'\')) {
+		button.type=\'submit\';
+		return true;
+	}
+	return false;
+}
+
+function annuler(pagecible) {
+	window.location = pagecible;
+}
+
+';
+	if ($a == 1) {
+		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
+	} else {
+		$sc = "\n".$sc."\n";
+	}
+	return $sc;
+}
+
+
+
 

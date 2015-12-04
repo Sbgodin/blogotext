@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2014 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -21,10 +21,10 @@ $begin = microtime(TRUE);
 $GLOBALS['db_handle'] = open_base($GLOBALS['db_location']);
 $GLOBALS['liste_fichiers'] = open_serialzd_file($GLOBALS['fichier_liste_fichiers']);
 
-afficher_top($GLOBALS['lang']['titre_maintenance']);
+afficher_html_head($GLOBALS['lang']['titre_maintenance']);
 echo '<div id="top">'."\n";
-afficher_msg($GLOBALS['lang']['titre_maintenance']);
-afficher_menu('preferences.php');
+afficher_msg();
+afficher_topnav('preferences.php', $GLOBALS['lang']['titre_maintenance']);
 echo '</div>'."\n";
 
 echo '<div id="axe">'."\n";
@@ -37,24 +37,42 @@ creer_dossier($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_backup'], 0);
  * reconstruit la BDD des fichiers (qui n’est pas dans SQL, mais un fichier serializé à côte)
 */
 function rebuilt_file_db() {
-	$idir = scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']); unset($idir[0], $idir[1]); // unset '.' and '..'
-	$fdir = scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers']); unset($fdir[0], $fdir[1]);
+	$idir = rm_dots_dir(scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images']));
+	// scans also subdir of img/* (in one single array of paths)
+	foreach ($idir as $i => $e) {
+		$subelem = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$e;
+		if (is_dir($subelem)) {
+			unset($idir[$i]); // rm folder entry itself
+			$subidir = rm_dots_dir(scandir($subelem));
+			foreach ($subidir as $j => $im) {
+				$idir[] = $e.'/'.$im;
+			}
+		}
+	}
+	foreach ($idir as $i => $e) {
+		$idir[$i] = '/'.$e;
+	}
+
+	
+	$fdir = rm_dots_dir(scandir($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_fichiers']));
+
 	// supprime les miniatures de la liste...
-	$idir = array_filter($idir, function($file){return (!((preg_match('#-thb\.jpg$#', $file)) or ($file == 'index.html'))); });
+	$idir = array_filter($idir, function($file){return (!((preg_match('#-thb\.jpg$#', $file)) or (strpos($file, 'index.html') == 4))); });
 
 	$files_disk = array_merge($idir, $fdir);
 	$files_db = $files_db_id = array();
 
 	// supprime les fichiers dans la DB qui ne sont plus sur le disque
 	foreach ($GLOBALS['liste_fichiers'] as $id => $file) {
-		if (!in_array($file['bt_filename'], $files_disk)) { unset($GLOBALS['liste_fichiers'][$id]); }
-		$files_db[] = $file['bt_filename'];
+		if (!in_array($file['bt_path'].'/'.$file['bt_filename'], $files_disk)) { unset($GLOBALS['liste_fichiers'][$id]); }
+		$files_db[] = $file['bt_path'].'/'.$file['bt_filename'];
 		$files_db_id[] = $file['bt_id'];
 	}
+
 	// ajoute les images/* du disque qui ne sont pas encore dans la DB.
 	foreach ($idir as $file) {
+		$filepath = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$file;
 		if (!in_array($file, $files_db)) {
-			$filepath = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_images'].'/'.$file;
 			$time = filemtime($filepath);
 			$id = date('YmdHis', $time);
 			// vérifie que l’ID ne se trouve pas déjà dans le tableau. Sinon, modifie la date (en allant dans le passé)
@@ -71,14 +89,16 @@ function rebuilt_file_db() {
 				'bt_dossier' => 'default',
 				'bt_checksum' => sha1_file($filepath),
 				'bt_statut' => 0,
+				'bt_path' => (preg_match('#^/[0-9a-f]{2}/#', $file)) ? (substr($file, 0, 3)) : '',
 			);
 			list($new_img['bt_dim_w'], $new_img['bt_dim_h']) = getimagesize($filepath);
-			// crée une miniature de l’image
-			create_thumbnail($filepath);
 			// l’ajoute au tableau
 			$GLOBALS['liste_fichiers'][] = $new_img;
 		}
+		// crée une miniature de l’image
+		create_thumbnail($filepath);
 	}
+
 	// fait pareil pour les files/*
 	foreach ($fdir as $file) {
 		if (!in_array($file, $files_db)) {
@@ -99,6 +119,7 @@ function rebuilt_file_db() {
 				'bt_dossier' => 'default',
 				'bt_checksum' => sha1_file($filepath),
 				'bt_statut' => 0,
+				'bt_path' => '',
 			);
 			// l’ajoute au tableau
 			$GLOBALS['liste_fichiers'][] = $new_file;
@@ -356,7 +377,7 @@ function importer_wordpress($xml) {
 			$new_comment['bt_article_id'] = $new_article['bt_id'];
 			$new_comment['bt_wiki_content'] = reverse_wiki($comment->comment_content);
 			$new_comment['bt_content'] = '<p>'.wiki($new_comment['bt_wiki_content']).'</p>';
-			$new_comment['bt_statut'] = ( ($comment->comment_approved) == '1' ) ?: '0';
+			$new_comment['bt_statut'] = ( ($comment->comment_approved) == '1' ) ? '1' : '0';
 			$data['commentaires'][] = $new_comment;
 		}
 		$data['articles'][] = $new_article;
@@ -404,7 +425,7 @@ function parse_html($content) {
 					elseif ($attr == 'ADD_DATE') { $raw_add_date = intval($value); }
 					elseif ($attr == 'AUTHOR') { $link['bt_author'] = $value; }
 					elseif ($attr == 'PRIVATE') { $link['bt_statut'] = ($value == '1') ? '0' : '1'; } // value=1 =>> statut=0 (it’s reversed)
-					elseif ($attr == 'TAGS') { $link['bt_tags'] = html_entity_decode($value, ENT_QUOTES, 'utf-8'); }
+					elseif ($attr == 'TAGS') { $link['bt_tags'] = str_replace('  ', ' ', str_replace(',', ', ', html_entity_decode($value, ENT_QUOTES, 'utf-8'))); }
 				}
 				if ($link['bt_link'] != '') {
 					$raw_add_date = (empty($raw_add_date)) ? time() : $raw_add_date; // In case of shitty bookmark file with no ADD_DATE
@@ -424,20 +445,25 @@ function parse_html($content) {
 */
 
 // no $do nor $file : ask what to do
+echo '<div id="maintenance-form">'."\n";
 if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 	$token = new_token();
 	$nbs = array('10'=>'10', '20'=>'20', '50'=>'50', '100'=>'100', '200'=>'200', '500'=>'500', '-1' => $GLOBALS['lang']['pref_all']);
 
-	echo '<div id="list-switch-buttons" class="list-buttons centrer">'."\n";
-	echo '<button class="" onclick="switch_form(\'form_export\', this)">'.$GLOBALS['lang']['maintenance_export'].'</button>';
-	echo '<button class="" onclick="switch_form(\'form_import\', this)">'.$GLOBALS['lang']['maintenance_import'].'</button>';
-	echo '<button class="" onclick="switch_form(\'form_optimi\', this)">'.$GLOBALS['lang']['maintenance_optim'].'</button>';
-	echo '</div>'."\n";
+	echo '<form action="maintenance.php" method="get" class="bordered-formbloc" id="form_todo">'."\n";
+	echo '<label for="select_todo">Que voulez-vous faire&thinsp;?</label>'."\n";
+	echo '<select id="select_todo" name="select_todo" onchange="switch_form(this.value)">'."\n";
+	echo "\t".'<option selected disabled hidden value=""></option>'."\n";
+	echo "\t".'<option value="form_export">'.$GLOBALS['lang']['maintenance_export'].'</option>'."\n";
+	echo "\t".'<option value="form_import">'.$GLOBALS['lang']['maintenance_import'].'</option>'."\n";
+	echo "\t".'<option value="form_optimi">'.$GLOBALS['lang']['maintenance_optim'].'</option>'."\n";
+	echo '</select>'."\n";
+	echo '</form>'."\n";
 
 	// Form export
 	echo '<form action="maintenance.php" onsubmit="hide_forms(\'exp-format\')" method="get" class="bordered-formbloc" id="form_export">'."\n";
 	// choose export what ?
-		echo '<fieldset class="">'."\n";
+		echo '<fieldset>'."\n";
 		echo legend($GLOBALS['lang']['maintenance_export'], 'legend-backup');
 		echo "\t".'<p><label for="json">'.$GLOBALS['lang']['bak_export_json'].'</label>'.
 			'<input type="radio" name="exp-format" value="json" id="json" onchange="switch_export_type(\'e_json\')" /></p>'."\n";
@@ -446,23 +472,20 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		echo "\t".'<p><label for="zip">'.$GLOBALS['lang']['bak_export_zip'].'</label>'.
 			'<input type="radio" name="exp-format" value="zip"  id="zip"  onchange="switch_export_type(\'e_zip\')"  /></p>'."\n";
 		echo '</fieldset>'."\n";
-
 		// export in JSON.
-		echo '<fieldset class="" id="e_json">';
+		echo '<fieldset id="e_json">';
 		echo legend($GLOBALS['lang']['maintenance_incl_quoi'], 'legend-backup');
 		echo "\t".'<p>'.select_yes_no('incl-artic', 0, $GLOBALS['lang']['bak_articles_do']).form_select_no_label('nb-artic', $nbs, 50).'</p>'."\n";
 		echo "\t".'<p>'.select_yes_no('incl-comms', 0, $GLOBALS['lang']['bak_comments_do']).'</p>'."\n";
 		echo "\t".'<p>'.select_yes_no('incl-links', 0, $GLOBALS['lang']['bak_links_do']).form_select_no_label('nb-links', $nbs, 50).'</p>'."\n";
 		echo '</fieldset>'."\n";
-
 		// export links in html
-		echo '<fieldset class="" id="e_html">'."\n";
+		echo '<fieldset id="e_html">'."\n";
 		echo legend($GLOBALS['lang']['bak_combien_linx'], 'legend-backup');
-		echo "\t".'<p>'.form_select('nb-links', $nbs, 50, $GLOBALS['lang']['bak_combien_linx']).'</p>'."\n";
+		echo "\t".'<p>'.form_select('nb-links2', $nbs, 50, $GLOBALS['lang']['bak_combien_linx']).'</p>'."\n";
 		echo '</fieldset>'."\n";
-
 		// export data in zip
-		echo '<fieldset class="" id="e_zip">';
+		echo '<fieldset id="e_zip">';
 		echo legend($GLOBALS['lang']['maintenance_incl_quoi'], 'legend-backup');
 		if ($GLOBALS['sgdb'] == 'sqlite')
 		echo "\t".'<p>'.select_yes_no('incl-sqlit', 0, $GLOBALS['lang']['bak_incl_sqlit']).'</p>'."\n";
@@ -470,8 +493,10 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		echo "\t".'<p>'.select_yes_no('incl-confi', 0, $GLOBALS['lang']['bak_incl_confi']).'</p>'."\n";
 		echo "\t".'<p>'.select_yes_no('incl-theme', 0, $GLOBALS['lang']['bak_incl_theme']).'</p>'."\n";
 		echo '</fieldset>'."\n";
-
-		echo '<p><button class="submit blue-square" type="submit" name="do" value="export">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+		echo '<p class="submit-bttns">'."\n";
+		echo "\t".'<button class="submit white-square" type="button" onclick="annuler(\'maintenance.php\');">'.$GLOBALS['lang']['annuler'].'</button>'."\n";
+		echo "\t".'<button class="submit blue-square" type="submit" name="do" value="export">'.$GLOBALS['lang']['valider'].'</button>'."\n";
+		echo '</p>'."\n";
 		echo hidden_input('token', $token);
 	echo '</form>'."\n";
 
@@ -486,13 +511,17 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		echo legend($GLOBALS['lang']['maintenance_import'], 'legend-backup');
 		echo "\t".'<p>'.form_select_no_label('imp-format', $importformats, 'jsonbak');
 		echo '<input type="file" name="file" id="file" class="text" /></p>'."\n";
-		echo '<p><input class="submit blue-square" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" /></p>'."\n";
 		echo '</fieldset>'."\n";
+		echo '<p class="submit-bttns">'."\n";
+		echo "\t".'<button class="submit white-square" type="button" onclick="annuler(\'maintenance.php\');">'.$GLOBALS['lang']['annuler'].'</button>'."\n";
+		echo "\t".'<input class="submit blue-square" type="submit" name="valider" value="'.$GLOBALS['lang']['valider'].'" />'."\n";
+		echo '</p>'."\n";
+
 		echo hidden_input('token', $token);
 	echo '</form>'."\n";
 
 	// Form optimi
-	echo '<form action="maintenance.php" method="get" class="bordered-formbloc" id="form_optimi">'."\n";
+	echo '<form action="maintenance.php" metЬ or ь hod="get" class="bordered-formbloc" id="form_optimi">'."\n";
 		echo '<fieldset class="pref valid-center">';
 		echo legend($GLOBALS['lang']['maintenance_optim'], 'legend-sweep');
 
@@ -504,8 +533,13 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		}
 		echo "\t".'<p>'.select_yes_no('opti-comm', 0, $GLOBALS['lang']['bak_opti_recountcomm']).'</p>'."\n";
 
-	echo '<p><button class="submit blue-square" type="submit" name="do" value="optim">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+		echo "\t".'<p>'.select_yes_no('opti-rss', 0, $GLOBALS['lang']['bak_opti_supprreadrss']).'</p>'."\n";
+
 		echo '</fieldset>'."\n";
+		echo '<p class="submit-bttns">'."\n";
+		echo "\t".'<button class="submit white-square" type="button" onclick="annuler(\'maintenance.php\');">'.$GLOBALS['lang']['annuler'].'</button>'."\n";
+		echo "\t".'<button class="submit blue-square" type="submit" name="do" value="optim">'.$GLOBALS['lang']['valider'].'</button>'."\n";
+		echo '</p>'."\n";
 		echo hidden_input('token', $token);
 	echo '</form>'."\n";
 
@@ -518,7 +552,7 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		echo '<fieldset class="pref valid-center">'."\n";
 		echo legend($GLOBALS['lang']['bak_restor_done'], 'legend-backup');
 		echo erreurs($erreurs_form);
-		echo '<p><button class="submit blue-square" type="button" onclick="window.location = \'maintenance.php\' ">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+		echo '<p class="submit-bttns"><button class="submit blue-square" type="button" onclick="annuler(\'maintenance.php\')">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
 		echo '</fieldset>'."\n";
 		echo '</div>'."\n";
 
@@ -556,7 +590,7 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 
 				// Export links in HTML format
 				} elseif (@$_GET['exp-format'] == 'html') {
-					$nb = htmlspecialchars($_GET['nb-links']);
+					$nb = htmlspecialchars($_GET['nb-links2']);
 					$limit = (is_numeric($nb) and $nb != -1 ) ? $nb : '';
 					$file_archive = creer_fich_html($limit);
 
@@ -587,7 +621,7 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 					echo '<fieldset class="pref valid-center">';
 					echo legend($GLOBALS['lang']['bak_succes_save'], 'legend-backup');
 					echo '<p><a href="'.$file_archive.'" download>'.$GLOBALS['lang']['bak_dl_fichier'].'</a></p>'."\n";
-					echo '<p><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+					echo '<p class="submit-bttns"><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
 					echo '</fieldset>'."\n";
 					echo '</form>'."\n";
 				}
@@ -613,7 +647,7 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 					echo '<form action="maintenance.php" method="get" class="bordered-formbloc">'."\n";
 					echo '<fieldset class="pref valid-center">';
 					echo legend($GLOBALS['lang']['bak_optim_done'], 'legend-backup');
-					echo '<p><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+					echo '<p class="submit-bttns"><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
 					echo '</fieldset>'."\n";
 					echo '</form>'."\n";
 
@@ -646,7 +680,7 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 					echo '<ul>';
 					foreach ($message as $type => $nb) echo '<li>'.$GLOBALS['lang']['label_'.$type].' : '.$nb.'</li>'."\n";
 					echo '</ul>';
-					echo '<p><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
+					echo '<p class="submit-bttns"><button class="submit blue-square" type="submit">'.$GLOBALS['lang']['valider'].'</button></p>'."\n";
 					echo '</fieldset>'."\n";
 					echo '</form>'."\n";
 				}
@@ -656,5 +690,18 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		}
 	}
 }
+
+echo '</div>'."\n";
+
+
+echo "\n".'<script src="style/javascript.js" type="text/javascript"></script>'."\n";
+echo '<script type="text/javascript">';
+echo 'var ia = document.getElementById(\'incl-artic\');';
+echo "ia.addEventListener('change', function() { document.getElementById('nb-artic').style.display = ( ia.value == 1 ? 'inline-block' : 'none'); });";
+
+echo 'var il = document.getElementById(\'incl-links\');';
+echo "il.addEventListener('change', function() { document.getElementById('nb-links').style.display = ( il.value == 1 ? 'inline-block' : 'none'); });";
+
+echo '</script>';
 
 footer('', $begin);

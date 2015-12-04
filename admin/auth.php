@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -33,6 +33,7 @@ if (isset($_POST['nom_utilisateur'])) {
 	file_put_contents($GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_config'].'/'.'xauthlog.php', $data, FILE_APPEND);
 }
 
+
 if (check_session() === TRUE) { // return to index if session is already open.
 	header('Location: index.php');
 	exit;
@@ -40,7 +41,11 @@ if (check_session() === TRUE) { // return to index if session is already open.
 
 // Auth checking :
 if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting in.
-	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
+	if ($GLOBALS['use_ip_in_session'] == 1) {
+		$ip = get_real_ip();
+	} else {
+		$ip = date('m'); // make session expire at least once a month, disregarding IP changes.
+	}
 	$_SESSION['user_id'] = $_POST['nom_utilisateur'].hash_password($_POST['mot_de_passe'], $GLOBALS['salt']).md5($_SERVER['HTTP_USER_AGENT'].$ip); // set special hash
 	usleep(100000); // 100ms sleep to avoid bruteforce
 
@@ -70,20 +75,20 @@ if (isset($_POST['_verif_envoi']) and valider_form() === TRUE) { // OK : getting
 
 } else { // On sort…
 		// …et affiche la page d'auth
-		afficher_top('Identification');
+		afficher_html_head('Identification');
 		echo '<div id="axe">'."\n";
 		echo '<div id="pageauth">'."\n";
 		echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 		echo '<form method="post" action="auth.php">'."\n";
 		echo '<div id="auth">'."\n";
-		echo '<p><label for="user">'.ucfirst($GLOBALS['lang']['label_dp_identifiant']).'</label><input class="text" type="text" id="user" name="nom_utilisateur" placeholder="John Doe" value="" /></p>'."\n";
+		echo '<p><label for="user">'.ucfirst($GLOBALS['lang']['label_dp_identifiant']).'</label><input class="text" type="text"  autocomplete="off" id="user" name="nom_utilisateur" placeholder="John Doe" value="" /></p>'."\n";
 		echo '<p><label for="password">'.ucfirst($GLOBALS['lang']['label_dp_motdepasse']).'</label><input class="text" id="password" type="password" placeholder="••••••••••••" name="mot_de_passe" value="" /></p>'."\n";
 		if (isset($GLOBALS['connexion_captcha']) and ($GLOBALS['connexion_captcha'] == "1")) {
 			echo '<p><label for="word">'.ucfirst($GLOBALS['lang']['label_dp_word_captcha']).'</label><input class="text" type="text" id="word" name="word" value="" /></p>'."\n";
 			echo '<p><a href="#" onclick="new_freecap();return false;" title="'.$GLOBALS['lang']['label_dp_changer_captcha'].'"><img src="../inc/freecap/freecap.php" id="freecap" alt="captcha"></a></p>'."\n";
 		}
 
-		echo '<p><label for="stay_logged">'.$GLOBALS['lang']['label_stay_logged'].'</label><input type="checkbox" id="stay_logged" name="stay_logged" /></p>'."\n";
+		echo '<p><label for="stay_logged">'.$GLOBALS['lang']['label_stay_logged'].'</label><input type="checkbox" id="stay_logged" name="stay_logged" checked /></p>'."\n";
 		echo '<input class="blue-square" type="submit" name="submit" value="'.$GLOBALS['lang']['connexion'].'" />'."\n";
 		echo '<input type="hidden" name="_verif_envoi" value="1" />'."\n";
 		echo '</div>'."\n";
@@ -108,5 +113,6 @@ function valider_form() {
 	return TRUE;
 }
 
+echo "\n".'<script src="style/javascript.js" type="text/javascript"></script>'."\n";
 footer();
 ?>

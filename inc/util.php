@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2014 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -38,7 +38,7 @@ function decode_id($id) {
 // used sometimes, like in the email that is sent.
 function get_blogpath($id, $titre) {
 	$date = decode_id($id);
-	$path = $GLOBALS['racine'].'index.php?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url($titre);
+	$path = $GLOBALS['racine'].'?d='.$date['annee'].'/'.$date['mois'].'/'.$date['jour'].'/'.$date['heure'].'/'.$date['minutes'].'/'.$date['secondes'].'-'.titre_url($titre);
 	return $path;
 }
 
@@ -71,9 +71,17 @@ function tri_selon_sous_cle($table, $cle) {
 }
 
 
+function get_real_ip() {
+	return (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
+}
+
 
 function check_session() {
-	$ip = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']) : htmlspecialchars($_SERVER['REMOTE_ADDR']);
+	if ($GLOBALS['use_ip_in_session'] == 1) {
+		$ip = get_real_ip();
+	} else {
+		$ip = date('m');
+	}
 	@session_start();
 	ini_set('session.cookie_httponly', TRUE);
 	// use a cookie to remain logged in
@@ -119,7 +127,10 @@ function fermer_session() {
 	foreach($_POST as $key => $value){
 		$_SESSION['BT-post-'.$key] = $value;
 	}
-	$_SESSION['BT-saved-url'] = $_SERVER['REQUEST_URI'];
+
+	if (strrpos($_SERVER['REQUEST_URI'], '/logout.php') != strlen($_SERVER['REQUEST_URI']) - strlen('/logout.php')) {
+		$_SESSION['BT-saved-url'] = $_SERVER['REQUEST_URI'];
+	}
 	redirection('auth.php');
 	exit();
 }
@@ -255,22 +266,29 @@ function unsubscribe($file_id, $email_sha, $all) {
 /* search query parsing (operators, exact matching, etc) */
 function parse_search($q) {
 	if (preg_match('#^\s?"[^"]*"\s?$#', $q)) { // exact match
-		$txt_query = array('%'.str_replace('"', '', $q).'%'); 
+		$array_q = array('%'.str_replace('"', '', $q).'%');
 	}
 	else { // multiple words matchs
-		$txt_query = explode(' ', trim($q));
-		foreach ($txt_query as $i => $entry) {
-			$txt_query[$i] = '%'.$entry.'%';
+		$array_q = explode(' ', trim($q));
+		foreach ($array_q as $i => $entry) {
+			$array_q[$i] = '%'.$entry.'%';
 		}
 	}
-	return $txt_query;
+	// uniq + reindex
+	return array_values(array_unique($array_q));
 }
 
-
-
+/* for testing/dev purpose: shows a variable. */
 function debug($data) {
 	echo '<pre>';
 	print_r($data);
 	die;
+}
+
+/* remove the folders "." and ".." from the list of files returned by scandir(). */
+function rm_dots_dir($array) {
+	if (($key = array_search('..', $array)) !== FALSE) { unset($array[$key]); }
+	if (($key = array_search('.', $array)) !== FALSE) { unset($array[$key]); }
+	return ($array);
 }
 

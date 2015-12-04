@@ -46,6 +46,18 @@ function valider_form_commentaire($commentaire, $mode) {
 	return $erreurs;
 }
 
+function valider_form_commentaire_ajax($commentaire) {
+	$erreurs = array();
+	if ( !is_numeric($commentaire) ) { // comment has to be on a valid ID
+		$erreurs[] = $GLOBALS['lang']['err_comm_article_id'];
+	}
+	// test token
+	if (!( isset($_POST['token']) and check_token($_POST['token'])) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
+	return $erreurs;
+}
+
 function valider_form_billet($billet) {
 	$date = decode_id($billet['bt_id']);
 	$erreurs = array();
@@ -136,10 +148,38 @@ function valider_form_fichier($fichier) {
 		}
 
 	} else { // on edit
-		if ($fichier['bt_filename'] == '') {
+		if ('' == $fichier['bt_filename']) {
 			$erreurs[] = 'nom de fichier invalide';
 		}
 	}
+	return $erreurs;
+}
+
+function valider_form_rss() {
+	$erreurs = array();
+	if (!( isset($_POST['token']) and check_token($_POST['token'])) ) {
+		$erreurs[] = $GLOBALS['lang']['err_wrong_token'];
+	}
+	// on feed add: URL needs to be valid, not empty, and must not already be in DB
+	if (isset($_POST['add-feed'])) {
+		if (empty($_POST['add-feed'])) {
+			$erreurs[] = $GLOBALS['lang']['err_lien_vide'];
+		}
+		if (!preg_match('#^(https?://[\S]+)[a-z]{2,6}[-\#_\w?%*:.;=+\(\)/&~$,]*$#', trim($_POST['add-feed'])) ) {
+			$erreurs[] = $GLOBALS['lang']['err_comm_webpage'];
+		}
+		if (array_key_exists($_POST['add-feed'], $GLOBALS['liste_flux'])) {
+			$erreurs[] = $GLOBALS['lang']['err_feed_exists'];
+		}
+
+	}
+
+	elseif (isset($_POST['mark-as-read'])) {
+		if ( !(in_array($_POST['mark-as-read'], array('all', 'site', 'post', 'folder', 'postlist'))) ) {
+			$erreurs[] = $GLOBALS['lang']['err_feed_wrong_param'];
+		}
+	}
+
 	return $erreurs;
 }
 

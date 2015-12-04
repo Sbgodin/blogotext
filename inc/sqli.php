@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2014 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -73,6 +73,20 @@ function create_tables() {
 			bt_statut TINYINT
 		); CREATE INDEX dateidA ON articles (bt_date, bt_id );";
 
+	/* here bt_ID is a GUID, from the feed, not only a 'YmdHis' date string.*/
+	$GLOBALS['dbase_structure']['rss'] = "CREATE TABLE ".$if_not_exists." rss
+		(
+			ID INTEGER PRIMARY KEY $auto_increment,
+			bt_id BIGINT,
+			bt_date BIGINT,
+			bt_title TEXT,
+			bt_link TEXT,
+			bt_feed TEXT,
+			bt_content TEXT,
+			bt_statut TINYINT,
+			bt_folder TEXT
+		); CREATE INDEX dateidR ON rss (bt_date, bt_id );";
+
 	/*
 	* SQLite : opens file, check tables by listing them, create the one that miss.
 	*
@@ -103,7 +117,7 @@ function create_tables() {
 					$wanted_tables = array('commentaires', 'articles', 'links');
 					foreach ($wanted_tables as $i => $name) {
 						if (!in_array($name, $tables)) {
-							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]);
+							$results = $db_handle->query($GLOBALS['dbase_structure'][$name]);
 						}
 					}
 				} catch (Exception $e) {
@@ -123,7 +137,8 @@ function create_tables() {
 					// check each wanted table
 					$wanted_tables = array('commentaires', 'articles', 'links');
 					foreach ($wanted_tables as $i => $name) {
-							$results = $db_handle->exec($GLOBALS['dbase_structure'][$name]."DEFAULT CHARSET=utf8");
+							$results = $db_handle->query($GLOBALS['dbase_structure'][$name]."DEFAULT CHARSET=utf8");
+							$results->closeCursor();
 					}
 				} catch (Exception $e) {
 					die('Erreur 2: '.$e->getMessage());
@@ -212,11 +227,11 @@ function get_entry($base_handle, $table, $entry, $id, $retour_mode) {
 function traiter_form_billet($billet) {
 	if ( isset($_POST['enregistrer']) and !isset($billet['ID']) ) {
 		$result = bdd_article($billet, 'enregistrer-nouveau');
-		$redir = $_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj';
+		$redir = basename($_SERVER['PHP_SELF']).'?post_id='.$billet['bt_id'].'&msg=confirm_article_maj';
 	}
 	elseif ( isset($_POST['enregistrer']) and isset($billet['ID']) ) {
 		$result = bdd_article($billet, 'modifier-existant');
-		$redir = $_SERVER['PHP_SELF'].'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout';
+		$redir = basename($_SERVER['PHP_SELF']).'?post_id='.$billet['bt_id'].'&msg=confirm_article_ajout';
 	}
 	elseif ( isset($_POST['supprimer']) and isset($_POST['ID']) and is_numeric($_POST['ID']) ) {
 		$result = bdd_article($billet, 'supprimer-existant');
@@ -333,17 +348,17 @@ function traiter_form_link($link) {
 	$query_string = str_replace(((isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : ''), '', $_SERVER['QUERY_STRING']);
 	if ( isset($_POST['enregistrer'])) {
 		$result = bdd_lien($link, 'enregistrer-nouveau');
-		$redir = $_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_link_edit';
+		$redir = basename($_SERVER['PHP_SELF']).'?msg=confirm_link_ajout';
 	}
 
 	elseif (isset($_POST['editer'])) {
 		$result = bdd_lien($link, 'modifier-existant');
-		$redir = $_SERVER['PHP_SELF'].'?id='.$link['bt_id'].'&msg=confirm_link_edit';
+		$redir = basename($_SERVER['PHP_SELF']).'?msg=confirm_link_edit';
 	}
 
 	elseif ( isset($_POST['supprimer'])) {
 		$result = bdd_lien($link, 'supprimer-existant');
-		$redir = $_SERVER['PHP_SELF'].'?msg=confirm_link_suppr';
+		$redir = basename($_SERVER['PHP_SELF']).'?msg=confirm_link_suppr';
 	}
 
 	if ($result === TRUE) {
@@ -423,39 +438,60 @@ function bdd_lien($link, $what) {
 	}
 }
 
+// Called when a new comment is posted (public side or admin side) or on edit/activating/removing
+//  when adding, redirects with message after processing
+//  when edit/activating/removing, dies with message after processing (message is then caught with AJAX)
 
 function traiter_form_commentaire($commentaire, $admin) {
 	$msg_param_to_trim = (isset($_GET['msg'])) ? '&msg='.$_GET['msg'] : '';
 	$query_string = str_replace($msg_param_to_trim, '', $_SERVER['QUERY_STRING']);
 
-	// add new comment
+	// add new comment (admin + public)
 	if (isset($_POST['enregistrer']) and empty($_POST['is_it_edit'])) {
 		$result = bdd_commentaire($commentaire, 'enregistrer-nouveau');
 		if ($result === TRUE) {
-			rafraichir_cache();
 			send_emails($commentaire['bt_id']); // send emails new comment posted to people that are subscriben
-			$redir = $_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_ajout';
-			if ($admin == 'admin') {
-				redirection($redir);
-			}
+			$redir = basename($_SERVER['PHP_SELF']).'?'.$query_string.'&msg=confirm_comment_ajout';
 		}
 		else { die($result); }
 	}
-	// edit existing comment.
+	// edit existing comment (admin)
 	elseif (	isset($_POST['enregistrer']) and $admin == 'admin'
 	  and isset($_POST['is_it_edit']) and $_POST['is_it_edit'] == 'yes'
 	  and isset($commentaire['ID']) ) {
 		$result = bdd_commentaire($commentaire, 'editer-existant');
-		$redir = $_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_edit';
+		$redir = basename($_SERVER['PHP_SELF']).'?'.$query_string.'&msg=confirm_comment_edit';
 	}
-	// remove existing comment.
-	elseif (isset($_POST['supprimer_comm']) and isset($commentaire['ID']) and $admin == 'admin' ) {
-		$result = bdd_commentaire($commentaire, 'supprimer-existant');
-		$redir = $_SERVER['PHP_SELF'].'?'.$query_string.'&msg=confirm_comment_suppr';
+	// remove existing comment (admin) #ajax call
+	elseif (isset($_POST['com_supprimer']) and $admin == 'admin' ) {
+		$comm = array('ID' => htmlspecialchars($_POST['com_supprimer']), 'bt_article_id' => htmlspecialchars($_POST['com_article_id']));
+		$result = bdd_commentaire($comm, 'supprimer-existant');
+		// Ajax response
+		if ($result === TRUE) {
+			rafraichir_cache();
+			//echo var_dump($comm);
+			echo 'Success'.new_token();
+		}
+		else { echo 'Error'.new_token(); }
+		exit;
 	}
-	// do nothing & die
+	// change status of comm (admin) #ajax call
+	elseif (isset($_POST['com_activer']) and $admin == 'admin' ) {
+		$comm = array('ID' => htmlspecialchars($_POST['com_activer']), 'bt_article_id' => htmlspecialchars($_POST['com_article_id']));
+		$result = bdd_commentaire($comm, 'activer-existant');
+		// Ajax response
+		if ($result === TRUE) {
+			rafraichir_cache();
+			//echo var_dump($comm);
+			echo 'Success'.new_token();
+		}
+		else { echo 'Error'.new_token(); }
+		exit;
+	}
+
+	// do nothing & die (admin + public)
 	else {
-		redirection($_SERVER['PHP_SELF'].'?'.$query_string.'&msg=nothing_happend_oO');
+		redirection(basename($_SERVER['PHP_SELF']).'?'.$query_string.'&msg=nothing_happend_oO');
 	}
 
 	if ($result === TRUE) {
@@ -544,8 +580,8 @@ function bdd_commentaire($commentaire, $what) {
 			return 'Erreur : '.$e->getMessage();
 		}
 	}
-	// SUPPRESSION D'UN COMMENTAIRE
 
+	// SUPPRESSION D'UN COMMENTAIRE
 	elseif ($what == 'supprimer-existant') {
 		try {
 			$req = $GLOBALS['db_handle']->prepare('DELETE FROM commentaires WHERE ID=?');
@@ -555,6 +591,22 @@ function bdd_commentaire($commentaire, $what) {
 			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
 			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
 
+			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
+			return TRUE;
+		} catch (Exception $e) {
+			return 'Erreur : '.$e->getMessage();
+		}
+	}
+
+	// CHANGEMENT STATUS COMMENTAIRE
+	elseif ($what == 'activer-existant') {
+		try {
+			$req = $GLOBALS['db_handle']->prepare('UPDATE commentaires SET bt_statut=ABS(bt_statut-1) WHERE ID=?');
+			$req->execute(array($commentaire['ID']));
+
+			// remet à jour le nombre de commentaires associés à l’article.
+			$nb_comments_art = liste_elements_count("SELECT count(*) AS nbr FROM commentaires WHERE bt_article_id=? and bt_statut=1", array($commentaire['bt_article_id']));
+			$req2 = $GLOBALS['db_handle']->prepare('UPDATE articles SET bt_nb_comments=? WHERE bt_id=?');
 			$req2->execute( array($nb_comments_art, $commentaire['bt_article_id']) );
 			return TRUE;
 		} catch (Exception $e) {
@@ -612,28 +664,14 @@ function list_all_tags($table, $statut) {
 			}
 		}
 		$res->closeCursor();
+		$liste_tags = rtrim($liste_tags, ',');
 	} catch (Exception $e) {
 		die('Erreur 4354768 : '.$e->getMessage());
 	}
 
-	// en crée un tableau
-	$liste_tags = str_replace(', ', ',', $liste_tags);
-	$liste_tags = str_replace(' ,', ',', $liste_tags);
-
+	$liste_tags = str_replace(array(', ', ' ,'), ',', $liste_tags);
 	$tab_tags = explode(',', $liste_tags);
-	// les déboublonne
-	$tab_tags = array_unique($tab_tags);
-	// si la premiere case est vide, on la vire.
 	sort($tab_tags);
-	if ($tab_tags[0] == '') {
-		array_shift($tab_tags);
-	}
-
-	// compte le nombre d’occurrences de chaque tags
-	$return = array();
-	foreach($tab_tags as $i => $tag) {
-		$return[] = array('tag' => $tag, 'nb' => substr_count($liste_tags, $tag));
-	}
-	return $return;
+	unset($tab_tags['']);
+	return array_count_values($tab_tags);
 }
-

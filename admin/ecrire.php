@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -55,22 +55,21 @@ if ( !empty($post) ) {
 }
 
 // DEBUT PAGE
-afficher_top($titre_ecrire);
+afficher_html_head($titre_ecrire);
 echo '<div id="top">'."\n";
-afficher_msg($titre_ecrire_court);
-afficher_menu(pathinfo($_SERVER['PHP_SELF'], PATHINFO_BASENAME));
+afficher_msg();
+afficher_topnav(basename($_SERVER['PHP_SELF']), $titre_ecrire_court);
 echo '</div>'."\n";
 
 echo '<div id="axe">'."\n";
-echo '<div class="reminder"><span>'.'Pensez à enregistrer votre article.'.'</span></div>'."\n";
 
 // SUBNAV
 if ($post != '') {
 	echo '<div id="subnav">'."\n";
-		echo '<p>';
+		echo '<div class="nombre-elem">';
 		echo '<a href="'.$post['bt_link'].'">'.$GLOBALS['lang']['lien_article'].'</a> &nbsp; – &nbsp; ';
-		echo '<a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_commentaires($post['bt_nb_comments'])).'</a>';
-		echo '</p>'."\n";
+		echo '<a href="commentaires.php?post_id='.$article_id.'">'.ucfirst(nombre_objets($post['bt_nb_comments'], 'commentaire')).'</a>';
+		echo '</div>'."\n";
 	echo '</div>'."\n";
 }
 
@@ -82,7 +81,12 @@ if ($post != '') {
 }
 afficher_form_billet($post, $erreurs_form);
 
-echo js_alert_before_quit(1);
+echo "\n".'<script src="style/javascript.js" type="text/javascript"></script>'."\n";
+echo '<script type="text/javascript">';
+echo js_alert_before_quit(0);
+echo js_red_button_event(0);
+echo '</script>';
+
 
 footer('', $begin);
 

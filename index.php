@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2014 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -15,7 +15,7 @@
  some misc routines
 ******************************************************************************/
 // gzip compression
-if (extension_loaded('zlib')) {
+if (extension_loaded('zlib') and ob_get_length() > 0) {
 	ob_end_clean();
 	ob_start("ob_gzhandler");
 }
@@ -75,9 +75,12 @@ if ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME']) {
 if (isset($_GET['random'])) {
 	try {
 		// getting nb articles, gen random num, then select one article is much faster than "sql(order by rand limit 1)"
-		$result = $GLOBALS['db_handle']->query("SELECT count(ID) FROM articles")->fetch();
+		$result = $GLOBALS['db_handle']->query("SELECT count(ID) FROM articles WHERE bt_statut=1")->fetch();
+		if ($result[0] == 0) {
+			header('Location: '.$_SERVER['SCRIPT_NAME']);
+		}
 		$rand = mt_rand(0, $result[0] - 1);
-		$tableau = liste_elements("SELECT * FROM articles LIMIT $rand, 1", array(), 'articles');
+		$tableau = liste_elements("SELECT * FROM articles WHERE bt_statut=1 LIMIT $rand, 1", array(), 'articles');
 	} catch (Exception $e) {
 		die('Erreur rand: '.$e->getMessage());
 	}
@@ -94,9 +97,9 @@ if ((isset($_GET['unsub']) and $_GET['unsub'] == 1) and (isset($_GET['comment'])
 		$res = unsubscribe(htmlspecialchars($_GET['comment']), $_GET['mail'], 0);
 	}
 	if ($res == TRUE) {
-		header('Location: '.$_SERVER['PHP_SELF'].'?unsubsribe=yes');
+		header('Location: '.basename($_SERVER['PHP_SELF']).'?unsubsribe=yes');
 	} else {
-		header('Location: '.$_SERVER['PHP_SELF'].'?unsubsribe=no');
+		header('Location: '.basename($_SERVER['PHP_SELF']).'?unsubsribe=no');
 	}
 }
 
@@ -186,7 +189,7 @@ else {
 
 
 	// paramètre de date "d"
-	if (isset($_GET['d']) and preg_match('#^\d{4}/\d{2}(/\d{2})?#', $_GET['d'])) {
+	if (isset($_GET['d']) and preg_match('#^\d{4}(/\d{2})?(/\d{2})?#', $_GET['d'])) {
 		$date = '';
 		$dates = array();
 		$tab = explode('/', $_GET['d']);
@@ -211,21 +214,17 @@ else {
 
 	// paramètre de recherche "q"
 	if (isset($_GET['q'])) {
+		$arr = parse_search($_GET['q']);
+		$array = array_merge($array, $arr);
 		switch ($where) {
 			case 'articles' :
-				$sql_q = "( bt_content LIKE ? OR bt_title LIKE ? ) ";
-				$array[] = '%'.$_GET['q'].'%';
-				$array[] = '%'.$_GET['q'].'%';
+				$sql_q = implode(array_fill(0, count($arr), '( bt_content || bt_title ) LIKE ? '), 'AND ');
 				break;
 			case 'links' :
-				$sql_q = "( bt_content LIKE ? OR bt_title LIKE ? OR bt_link LIKE ? ) ";
-				$array[] = '%'.$_GET['q'].'%';
-				$array[] = '%'.$_GET['q'].'%';
-				$array[] = '%'.$_GET['q'].'%';
+				$sql_q = implode(array_fill(0, count($arr), '( bt_content || bt_title || bt_link ) LIKE ? '), 'AND ');
 				break;
 			case 'commentaires' :
-				$sql_q = "bt_content LIKE ? ";
-				$array[] = '%'.$_GET['q'].'%';
+				$sql_q = implode(array_fill(0, count($arr), 'bt_content LIKE ? '), 'AND ');
 				break;
 			default:
 				$sql_q = "";
@@ -277,7 +276,7 @@ else {
 			$sql_a_p = "bt_id <= ".date('YmdHis')." AND bt_statut=1 ";
 			break;
 	}
-	
+
 	// paramètre de page "p"
 	if (isset($_GET['p']) and is_numeric($_GET['p']) and $_GET['p'] >= 1) {
 		$sql_p = 'LIMIT '.$GLOBALS['max_bill_acceuil'] * $_GET['p'].', '.$GLOBALS['max_bill_acceuil'];
@@ -300,7 +299,6 @@ else {
 	}
 
 	$query .= $glue.$sql_a_p.$sql_order.$sql_p;
-	//die ($query);
 
 	$tableau = liste_elements($query, $array, $where);
 	$GLOBALS['param_pagination'] = array('nb' => count($tableau), 'nb_par_page' => $GLOBALS['max_bill_acceuil']);
@@ -308,6 +306,6 @@ else {
 }
 
  $end = microtime(TRUE);
- //echo ' Rendered in '.round(($end - $begin),6).' seconds ';
+ echo ' <!-- Rendered in '.round(($end - $begin),6).' seconds -->';
 
 ?>

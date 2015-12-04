@@ -31,7 +31,7 @@ function creer_dossier($dossier, $make_htaccess='') {
 
 
 function fichier_user() {
-	$fichier_user = '../config/user.php';
+	$fichier_user = '../'.$GLOBALS['dossier_config'].'/user.php';
 	$user='';
 	if (strlen(trim($_POST['mdp'])) == 0) {
 		$new_mdp = $GLOBALS['mdp']; 
@@ -49,38 +49,57 @@ function fichier_user() {
 	}
 }
 
+function fichier_adv_conf() {
+	$fichier_advconf = '../'.$GLOBALS['dossier_config'].'/config-advanced.ini';
+	$conf='';
+	$conf .= '; <?php die(); /*'."\n\n";
+	$conf .= '; This file contains some more advanced configuration features.'."\n\n";
+	$conf .= 'date_premier_message_blog = \''.date('Ym').'\''."\n";
+	$conf .= 'salt = \''.$salt = sha1(uniqid(mt_rand(), true)).'\''."\n";
+	$conf .= 'show_errors = -1;'."\n";
+	$conf .= 'gravatar_link = \'themes/default/gravatars/get.php?g=\''."\n";
+	$conf .= 'use_ip_in_session = 0;'."\n\n\n";
+	$conf .= '; */ ?>'."\n";
+
+	if (file_put_contents($fichier_advconf, $conf) === FALSE) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
+}
+
 
 function fichier_prefs() {
-	$fichier_prefs = '../config/prefs.php';
+	$fichier_prefs = '../'.$GLOBALS['dossier_config'].'/prefs.php';
 	if(!empty($_POST['_verif_envoi'])) {
 		$lang = (isset($_POST['langue']) and preg_match('#^[a-z]{2}$#', $_POST['langue'])) ? $_POST['langue'] : 'fr';
-		$auteur = (clean_txt($_POST['auteur']));
-		$email = (clean_txt($_POST['email']));
-		$nomsite = (clean_txt($_POST['nomsite']));
-		$description = (clean_txt($_POST['description']));
-		$keywords = (clean_txt($_POST['keywords']));
-		$racine = addslashes(trim($_POST['racine']));
-		$max_bill_acceuil = $_POST['nb_maxi'];
-//		$max_linx_accueil = $_POST['nb_maxi_linx'];
-//		$max_comm_encart = $_POST['nb_maxi_comm'];
-		$max_bill_admin = $_POST['nb_list'];
-		$max_comm_admin = $_POST['nb_list_com'];
-		$format_date = $_POST['format_date'];
-		$format_heure = $_POST['format_heure'];
-		$fuseau_horaire = addslashes(clean_txt($_POST['fuseau_horaire']));
-		$global_com_rule = $_POST['global_comments'];
-		$connexion_captcha = $_POST['connexion_captcha'];
-		$activer_categories = $_POST['activer_categories'];
-		$theme_choisi = addslashes(clean_txt($_POST['theme']));
-		$comm_defaut_status = $_POST['comm_defaut_status'];
-		$automatic_keywords = $_POST['auto_keywords'];
-		$require_email = $_POST['require_email'];
-		$auto_check_updates = $_POST['check_update'];
+		$auteur = clean_txt(htmlspecialchars($_POST['auteur']));
+		$email = clean_txt(htmlspecialchars($_POST['email']));
+		$nomsite = clean_txt(htmlspecialchars($_POST['nomsite']));
+		$description = clean_txt(htmlspecialchars($_POST['description']));
+		$keywords = clean_txt(htmlspecialchars($_POST['keywords']));
+		$racine = addslashes(trim(htmlspecialchars($_POST['racine'])));
+		$max_bill_acceuil = htmlspecialchars($_POST['nb_maxi']);
+		$max_bill_admin = htmlspecialchars($_POST['nb_list']);
+		$max_comm_admin = htmlspecialchars($_POST['nb_list_com']);
+		$format_date = htmlspecialchars($_POST['format_date']);
+		$format_heure = htmlspecialchars($_POST['format_heure']);
+		$fuseau_horaire = addslashes(clean_txt(htmlspecialchars($_POST['fuseau_horaire'])));
+		$global_com_rule = htmlspecialchars($_POST['global_comments']);
+		$connexion_captcha = htmlspecialchars($_POST['connexion_captcha']);
+		$activer_categories = htmlspecialchars($_POST['activer_categories']);
+		$afficher_rss = htmlspecialchars($_POST['aff_onglet_rss']);
+		$afficher_liens = htmlspecialchars($_POST['aff_onglet_liens']);
+		$theme_choisi = addslashes(clean_txt(htmlspecialchars($_POST['theme'])));
+		$comm_defaut_status = htmlspecialchars($_POST['comm_defaut_status']);
+		$automatic_keywords = htmlspecialchars($_POST['auto_keywords']);
+		$require_email = htmlspecialchars($_POST['require_email']);
+		$auto_check_updates = htmlspecialchars($_POST['check_update']);
 		// linx
 //		$autoriser_liens_public = $_POST['allow_public_linx'];
 //		$linx_defaut_status = $_POST['linx_defaut_status'];
-		$auto_dl_liens_fichiers = $_POST['dl_link_to_files'];
-		$nombre_liens_admin = $_POST['nb_list_linx'];
+		$auto_dl_liens_fichiers = htmlspecialchars($_POST['dl_link_to_files']);
+		$nombre_liens_admin = htmlspecialchars($_POST['nb_list_linx']);
 	} else {
 		$lang = (isset($_POST['langue']) and preg_match('#^[a-z]{2}$#', $_POST['langue'])) ? $_POST['langue'] : 'fr';
 		$auteur = clean_txt($GLOBALS['identifiant']);
@@ -88,7 +107,7 @@ function fichier_prefs() {
 		$nomsite = 'Blogotext';
 		$description = clean_txt($GLOBALS['lang']['go_to_pref']);
 		$keywords = 'blog, blogotext';
-		$racine = clean_txt(trim($_POST['racine']));
+		$racine = clean_txt(trim(htmlspecialchars($_POST['racine'])));
 		$max_bill_acceuil = '10';
 //		$max_linx_accueil = '50';
 //		$max_comm_encart = '5';
@@ -276,7 +295,7 @@ function open_serialzd_file($fichier) {
 
 function get_external_file($url, $timeout=10) {
 	$headers = array(
-		'user_agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:29.0 BlogoText-UA) Gecko/20100101 Firefox/29.0',
+		'user_agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0 BlogoText-UA) Gecko/20100101 Firefox/33.0',
 		'timeout' => $timeout,
 		'header'=> "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n",
 		'connection' => 'close',
@@ -285,7 +304,15 @@ function get_external_file($url, $timeout=10) {
 	$context = stream_context_create(array('http'=> $headers));
 	$data = @file_get_contents($url, false, $context, -1, 4000000); // We download at most 4 Mb from source.
 	if (isset($data) and isset($http_response_header[0]) and ( strpos($http_response_header[0], '200 OK') | (strpos($http_response_header[0], '302 Found') ) | (strpos($http_response_header[0], '301 Moved') | (strpos($http_response_header[0], '302 Moved')) ) !== FALSE ) ) {
-		return $data;
+
+		// detect gzip data
+		foreach($http_response_header as $i => $h) {
+			// if gzip : decode it
+			if(stristr($h, 'content-encoding') and stristr($h, 'gzip')) {
+				$data = gzinflate( substr($data,10,-8) );
+			}
+		}
+		return array('body' => $data, 'headers' => http_parse_headers($http_response_header));
 	} else {
 		return array();
 	}
@@ -293,7 +320,7 @@ function get_external_file($url, $timeout=10) {
 
 
 
-
+// TODO: unify get_external_file() with c_get_external_file() in one single Curl function, accepting 1 or many url and returning array().
 function c_get_external_file($feeds) {
 	// uses chunks of 40 feeds because Curl has problems with too big (~150) "multi" requests.
 	// $feeds = array_splice($feeds, 60, 20);
@@ -303,22 +330,24 @@ function c_get_external_file($feeds) {
 	echo '0/'.$total_feed.' '; ob_flush(); flush(); // for Ajax
 
 	foreach ($chunks as $chunk) {
-		set_time_limit (20);
+		set_time_limit (30);
 		$curl_arr = array();
 		$master = curl_multi_init();
 		$total_feed_chunk = count($chunk)+count($results);
 
 		// init each url
 		foreach ($chunk as $i => $feed) {
+
 			$curl_arr[$i] = curl_init(trim($i));
 			curl_setopt_array($curl_arr[$i], array(
 					CURLOPT_RETURNTRANSFER => TRUE,
 					CURLOPT_FOLLOWLOCATION => TRUE,
 					CURLOPT_CONNECTTIMEOUT => 0, // 0 = indefinately
-					CURLOPT_TIMEOUT => 15,
+					CURLOPT_TIMEOUT => 25,
 					CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'],
 					CURLOPT_SSL_VERIFYPEER => FALSE,
 					CURLOPT_SSL_VERIFYHOST => FALSE,
+					CURLOPT_ENCODING => "gzip",
 				));
 			curl_multi_add_handle($master, $curl_arr[$i]);
 		}
@@ -354,4 +383,20 @@ function rafraichir_cache() {
 	$arr_l = liste_elements("SELECT * FROM links WHERE bt_statut = 1 ORDER BY bt_id DESC LIMIT 0, 20", array(), 'links');
 	$file = $GLOBALS['BT_ROOT_PATH'].$GLOBALS['dossier_cache'].'/'.'cache_rss_array.dat';
 	return file_put_contents($file, '<?php /* '.chunk_split(base64_encode(serialize(array('c' => $arr_c, 'a' => $arr_a, 'l' => $arr_l)))).' */');
+}
+
+if (!function_exists('http_parse_headers')) {
+	function http_parse_headers($raw_headers) {
+		$headers = array();
+
+		foreach ($raw_headers as $i => $h) {
+			$h = explode(':', $h, 2);
+
+			if (isset($h[1])) {
+				$headers[$h[0]] = trim($h[1]);
+			}
+		}
+
+		return $headers;
+	}
 }

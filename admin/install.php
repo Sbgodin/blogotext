@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -28,7 +28,7 @@ if (file_exists('../config/prefs.php')) { include('../config/prefs.php'); }
 
 if (isset($_GET['l'])) {
 	$lang = $_GET['l'];
-	if ($lang == 'fr' or $lang == 'en' or $lang == 'nl' or $lang == 'de') {
+	if ($lang == 'fr' or $lang == 'en') {
 		$GLOBALS['lang'] = $lang;
 	} else {
 		$GLOBALS['lang'] = 'fr';
@@ -66,7 +66,9 @@ if ($GLOBALS['step'] == '1') {
 	} else {
 		afficher_form_1();
 	}
-} elseif ($GLOBALS['step'] == '2') {
+}
+
+elseif ($GLOBALS['step'] == '2') {
 	// ID + MOT DE PASSE
 	if (isset($_POST['verif_envoi_2'])) {
 		if ($err_2 = valid_install_2()) {
@@ -78,8 +80,16 @@ if ($GLOBALS['step'] == '1') {
 			creer_dossier('../'.$GLOBALS['dossier_fichiers'], 0);
 			creer_dossier('../'.$GLOBALS['dossier_db'], 1);
 
+			fichier_adv_conf();
+			// include it because it contains salt, for passwd
+			$adv_options = parse_ini_file($config_dir.'/config-advanced.ini');
+			foreach ($adv_options as $option => $value) {
+				$GLOBALS[$option] = $value;
+			}
+
 			fichier_user();
 			include_once($config_dir.'/user.php');
+
 
 			traiter_install_2();
 			redirection('install.php?s=3&l='.$_POST['langue']);
@@ -110,7 +120,7 @@ if ($GLOBALS['step'] == '1') {
 
 // affiche le form de choix de langue
 function afficher_form_1($erreurs='') {
-	afficher_top('Install');
+	afficher_html_head('Install');
 	echo '<div id="axe">'."\n";
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
@@ -139,39 +149,45 @@ function afficher_form_1($erreurs='') {
 		die;
 	}
 
-	echo '<form method="post" action="install.php" >' ;
+	echo '<form method="post" action="install.php">'."\n";
+	echo '<div id="install">'."\n";
+	echo '<p>';
 	form_langue_install('Choisissez votre langue / Choose your language: ');
 	echo hidden_input('verif_envoi_1', '1');
-	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />';
-	echo '</form>' ;
+	echo '</p>';
+	echo '<p><input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" /></p>'."\n";
+	echo '<div>'."\n";
+	echo '</form>'."\n";
 }
 
 // form pour login + mdp + url
 function afficher_form_2($erreurs='') {
-	afficher_top('Install');
+	afficher_html_head('Install');
 	echo '<div id="axe">'."\n";
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 	echo '<h1 id="step">'.$GLOBALS['lang']['install'].'</h1>'."\n";
 	echo erreurs($erreurs);
 	echo '<form method="post" action="install.php?s='.$GLOBALS['step'].'&amp;l='.$GLOBALS['lang']['id'].'" onsubmit="return verifForm2(this)">'."\n".'<div id="erreurs_js" class="erreurs"></div>'."\n";
+	echo '<div id="install">'."\n";
 	echo '<p>';
-	echo '<label for="identifiant">'.$GLOBALS['lang']['install_id'].'</label><input type="text" name="identifiant" id="identifiant" size="30" value="" class="text" />'."\n";
+	echo '<label for="identifiant">'.$GLOBALS['lang']['install_id'].' </label><input type="text" name="identifiant" id="identifiant" size="30" value="" class="text" />'."\n";
 	echo '</p>'."\n";
 	echo '<p>';
-	echo '<label for="mdp">'.$GLOBALS['lang']['install_mdp'].'</label><input type="password" name="mdp" id="mdp" size="30" value="" class="text" autocomplete="off" />'."\n";
+	echo '<label for="mdp">'.$GLOBALS['lang']['install_mdp'].' </label><input type="password" name="mdp" id="mdp" size="30" value="" class="text" autocomplete="off" />'."\n";
 	echo '</p>'."\n";
 	echo '<p>';
-	echo '<label for="mdp_rep">'.$GLOBALS['lang']['install_remdp'].'</label><input type="password" name="mdp_rep" id="mdp_rep" size="30" value="" class="text" autocomplete="off" />'."\n";
+	echo '<label for="mdp_rep">'.$GLOBALS['lang']['install_remdp'].' </label><input type="password" name="mdp_rep" id="mdp_rep" size="30" value="" class="text" autocomplete="off" />'."\n";
 	$lien = str_replace('admin/install.php', '', 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']);
 	echo '</p>'."\n";
 	echo '<p>';
-	echo '<label for="racine">'.$GLOBALS['lang']['pref_racine'].'</label><input type="text" name="racine" id="racine" size="30" value="'.$lien.'" class="text" />'."\n";
+	echo '<label for="racine">'.$GLOBALS['lang']['pref_racine'].' </label><input type="text" name="racine" id="racine" size="30" value="'.$lien.'" class="text" />'."\n";
 	echo '</p>'."\n";
 	echo hidden_input('comm_defaut_status', '1');
 	echo hidden_input('langue', $GLOBALS['lang']['id']);
 	echo hidden_input('verif_envoi_2', '1');
 	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />'."\n";
+	echo '</div>'."\n";
 	echo '</form>'."\n";
 }
 
@@ -179,15 +195,14 @@ function afficher_form_2($erreurs='') {
 // form choix SGBD
 function afficher_form_3($erreurs='') {
 
-	afficher_top('Install');
+	afficher_html_head('Install');
 	echo '<div id="axe">'."\n";
 	echo '<div id="pageauth">'."\n";
 	echo '<h1>'.$GLOBALS['nom_application'].'</h1>'."\n";
 	echo '<h1 id="step">'.$GLOBALS['lang']['install'].'</h1>'."\n";
 	echo erreurs($erreurs);
-	echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'">'."\n";
-
-	
+	echo '<form method="post" action="'.basename($_SERVER['PHP_SELF']).'?'.$_SERVER['QUERY_STRING'].'">'."\n";
+	echo '<div id="install">'."\n";
 	echo '<p><label>'.$GLOBALS['lang']['install_choose_sgdb'].'</label>';
 	echo '<select id="sgdb" name="sgdb" onchange="show_mysql_form()">'."\n";
 	if (extension_loaded('pdo_sqlite')) {
@@ -215,6 +230,7 @@ function afficher_form_3($erreurs='') {
 	echo hidden_input('verif_envoi_3', '1');
 	echo '<input class="inpauth blue-square" type="submit" name="enregistrer" value="Ok" />'."\n";
 
+	echo '</div>'."\n";
 	echo '</form>'."\n";
 
 }

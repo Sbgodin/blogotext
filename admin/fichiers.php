@@ -4,7 +4,7 @@
 # http://lehollandaisvolant.net/blogotext/
 #
 # 2006      Frederic Nassar.
-# 2010-2013 Timo Van Neerden <timo@neerden.eu>
+# 2010-2015 Timo Van Neerden <timo@neerden.eu>
 #
 # BlogoText is free software.
 # You can redistribute it under the terms of the MIT / X11 Licence.
@@ -74,12 +74,12 @@ if (isset($_POST['_verif_envoi'])) {
 	}
 }
 
-afficher_top($GLOBALS['lang']['titre_fichier']);
+afficher_html_head($GLOBALS['lang']['titre_fichier']);
 
 echo '<div id="top">'."\n";
-afficher_msg($GLOBALS['lang']['titre_fichier']);
+afficher_msg();
 echo moteur_recherche($GLOBALS['lang']['search_in_files']);
-afficher_menu(pathinfo($_SERVER['PHP_SELF'], PATHINFO_BASENAME));
+afficher_topnav(basename($_SERVER['PHP_SELF']), $GLOBALS['lang']['titre_fichier']);
 echo '</div>'."\n";
 
 echo '<div id="axe">'."\n";
@@ -104,7 +104,7 @@ echo '<div id="page">'."\n";
 $real_fichiers = array();
 if (!empty($fichiers)) {
 	foreach ($fichiers as $i => $file) {
-		$dossier = ($file['bt_type'] == 'image') ? $GLOBALS['dossier_images'] : $GLOBALS['dossier_fichiers'];
+		$dossier = ($file['bt_type'] == 'image') ? $GLOBALS['dossier_images'].$file['bt_path'] : $GLOBALS['dossier_fichiers'];
 		if (is_file($GLOBALS['BT_ROOT_PATH'].'/'.$dossier.'/'.$file['bt_filename']) and ($file['bt_filename'] != 'index.html') ) {
 			$real_fichiers[] = $file;
 		}
@@ -121,7 +121,9 @@ elseif ( isset($_GET['file_id']) ) {
 }
 // affichage de la liste des fichiers.
 else {
-	afficher_form_fichier($erreurs, '', 'fichier');
+	if (!isset($_GET['filtre']) or empty($_GET['filtre']) ) {
+		afficher_form_fichier($erreurs, '', 'fichier');
+	}
 
 	// séparation des images des autres types de fichiers
 	$fichiers = array(); $images = array();
@@ -138,12 +140,30 @@ else {
 	afficher_liste_fichiers($fichiers);
 }
 
-echo '<script type="text/javascript">'."\n";
-echo 'document.onkeydown = checkKey;'."\n";
+echo "\n".'<script src="style/javascript.js" type="text/javascript"></script>'."\n";
+echo "\n".'<script type="text/javascript">'."\n";
+echo 'var curr_img = (typeof imgs != \'undefined\') ? imgs.list.slice(0, 25) : \'\';'."\n";
+echo 'var counter = 0;'."\n";
+echo 'var nbDraged = false;'."\n";
+echo 'var nbDone = 0;'."\n";
+echo 'var curr_max = curr_img.length-1;'."\n";
+echo 'window.addEventListener(\'load\', function(){ image_vignettes(); })'."\n";
+echo 'var list = []; // file list'."\n";
+
+echo 'document.addEventListener(\'touchstart\', handleTouchStart, false);'."\n";
+echo 'document.addEventListener(\'touchmove\', swipeSlideshow, false);'."\n";
+echo 'document.addEventListener(\'touchend\', handleTouchEnd, false);'."\n";
+echo 'document.addEventListener(\'touchcancel\', handleTouchEnd, false);'."\n";
+echo 'var xDown = null, yDown = null, doTouchBreak = null, minDelta = 200;'."\n";
+
+echo 'document.body.addEventListener(\'dragover\', handleDragOver, true);'."\n";
+echo 'document.body.addEventListener(\'dragleave\', handleDragLeave, false);'."\n";
+echo 'document.body.addEventListener(\'dragend\', handleDragEnd, false);'."\n";
+
 echo js_drag_n_drop_handle(0);
-echo js_folder_sort_img(0);
-echo js_show_slideshow(0);
+echo js_red_button_event(0);
 echo "\n".'</script>'."\n";
 
+
 footer('', $begin);
-?>
+
