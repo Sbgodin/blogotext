@@ -80,14 +80,6 @@ window.addEventListener("beforeunload", function (e) {
 
 
 
-}
-';
-	if ($a == 1) {
-		$sc = "\n".'<script type="text/javascript">'."\n".$sc."\n".'</script>'."\n";
-	} else {
-		$sc = "\n".$sc."\n";
-	}
-	return $sc;
 /*
  *
  *

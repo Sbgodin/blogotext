@@ -270,7 +270,6 @@ function afficher_form_prefs($erreurs = '') {
 	echo '<input class="submit blue-square" type="submit" name="enregistrer" value="'.$GLOBALS['lang']['enregistrer'].'" />'."\n";
 	echo '</div>';
 	echo '</form>';
-}
 
 
 
