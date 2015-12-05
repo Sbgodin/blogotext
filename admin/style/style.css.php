@@ -37,9 +37,6 @@ readfile('style-miniatures-files.css');
 echo '/* Page des liens : formulaire + blocs. */'."\n";
 readfile('style-liens.css');
 
-echo '/* Page des flux RSS */'."\n";
-readfile('style-rss.css');
-
 echo '/* Page des préférences et de maintenance */'."\n";
 readfile('style-preferences.css');
 

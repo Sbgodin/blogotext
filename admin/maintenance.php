@@ -533,8 +533,6 @@ if (!isset($_GET['do']) and !isset($_FILES['file'])) {
 		}
 		echo "\t".'<p>'.select_yes_no('opti-comm', 0, $GLOBALS['lang']['bak_opti_recountcomm']).'</p>'."\n";
 
-		echo "\t".'<p>'.select_yes_no('opti-rss', 0, $GLOBALS['lang']['bak_opti_supprreadrss']).'</p>'."\n";
-
 		echo '</fieldset>'."\n";
 		echo '<p class="submit-bttns">'."\n";
 		echo "\t".'<button class="submit white-square" type="button" onclick="annuler(\'maintenance.php\');">'.$GLOBALS['lang']['annuler'].'</button>'."\n";
