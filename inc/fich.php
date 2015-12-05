@@ -57,7 +57,6 @@ function fichier_adv_conf() {
 	$conf .= 'date_premier_message_blog = \''.date('Ym').'\''."\n";
 	$conf .= 'salt = \''.$salt = sha1(uniqid(mt_rand(), true)).'\''."\n";
 	$conf .= 'show_errors = -1;'."\n";
-	$conf .= 'gravatar_link = \'themes/default/gravatars/get.php?g=\''."\n";
 	$conf .= 'use_ip_in_session = 0;'."\n\n\n";
 	$conf .= '; */ ?>'."\n";
 

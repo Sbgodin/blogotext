@@ -295,9 +295,6 @@ body > header p {
 	display: flex;
 	align-items: flex-start;
 }
-.com-head .com-gravatar {
-	margin-right: 5px;
-}
 .com-head .com-author {
 	font-weight: bold;
 	flex: 1;
@@ -311,7 +308,7 @@ body > header p {
 	font-style: italic;
 }
 .com-content {
-	padding-left: 53px; /* width gravatar + 5px margin of gravatar */
+	padding-left: 53px;
 }
 .com-footer {
 	text-align: right;	

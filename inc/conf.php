@@ -32,7 +32,6 @@ $GLOBALS['date_premier_message_blog'] = '199701'; // (this value is a fallback. 
 $GLOBALS['salt']= '123456'; // (this value is a fallback. Actual value is in /config/config-advanced.ini)
 $GLOBALS['show_errors'] = -1; // (this value is a fallback. Actual value is in /config/config-advanced.ini)
 $GLOBALS['use_ip_in_session'] = 1; // (this value is a fallback. Actual value is in /config/config-advanced.ini)
-$GLOBALS['gravatar_link'] = 'themes/default/gravatars/get.php?g='; // (this value is a fallback. Actual value is in /config/config-advanced.ini)
 
 // FOLDERS (change this only if you know what you are doing...)
 $GLOBALS['dossier_admin'] = 'admin';
