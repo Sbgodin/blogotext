@@ -399,6 +399,7 @@ $GLOBALS['lang'] = array(
 'bak_import_btjson'				=> 'Importer un fichier JSON de BlogoText',
 'bak_import_wordpress'			=> 'Importer un fichier XML de WordPress',
 'bak_import_netscape'			=> 'Importer un fichier HTML de liens Netscape',
+'bak_export_json'					=> 'Exporter les données du blog dans un fichier JSON',
 'bak_export_netscape'			=> 'Exporter les liens sous forme de favoris Netscape',
 'bak_export_zip'					=> 'Créer un ZIP de la base de données et des fichiers',
 'bak_incl_sqlit'					=> 'Inclure la base SQLite',
