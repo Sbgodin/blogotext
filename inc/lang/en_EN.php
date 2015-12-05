@@ -288,7 +288,7 @@ $GLOBALS['lang'] = array(
 'confirm_link_ajout'				=> 'Link has been added',
 'confirm_link_suppr'				=> 'Link has been removed',
 'confirm_link_edit'				=> 'Link has been updated',
-// No-onfiramtion
+// No-confirmation
 'error_image_add'					=> 'File could not have been added',
 'error_phpajax'					=> 'Some PHP/Ajax Error happened:',
 'error_comment_suppr'			=> 'The comment has not been deleted since an error happened.',

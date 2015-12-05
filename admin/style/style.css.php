@@ -28,7 +28,7 @@ readfile('style-articles.css');
 echo '/* Écrire page : for the new article form page */'."\n";
 readfile('style-ecrire.css');
 
-echo '/* Page des commentaires : formualires + blocs */'."\n";
+echo '/* Page des commentaires : formulaires + blocs */'."\n";
 readfile('style-commentaires.css');
 
 echo '/* Images and files : miniatures blocs + formulaires */'."\n";
