@@ -243,12 +243,9 @@ q, blockquote {
 	box-shadow: 0px -3px 0px #2196F3 inset;
 }
 
-#lien-index    { background-position: center  -34px; }
-#lien-liste    { background-position: center -194px; }
-#lien-lscom    { background-position: center -114px; }
-#lien-nouveau  { background-position: center    6px; }
-#lien-links    { background-position: center -154px; }
-#lien-fichiers { background-position: center -234px; }
+#top > #nav a:active {
+	box-shadow: 0px -3px 0px #42a5f5 inset;
+}
 
 
 /* TOP > h1 (only on mobile) */

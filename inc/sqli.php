@@ -77,7 +77,7 @@ function create_tables() {
 	$GLOBALS['dbase_structure']['rss'] = "CREATE TABLE ".$if_not_exists." rss
 		(
 			ID INTEGER PRIMARY KEY $auto_increment,
-			bt_id BIGINT,
+			bt_id TEXT,
 			bt_date BIGINT,
 			bt_title TEXT,
 			bt_link TEXT,
@@ -174,11 +174,6 @@ function liste_elements($query, $array, $data_type) {
 			case 'commentaires':
 				while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
 					$return[] = init_list_comments($row);
-				}
-				break;
-			case 'links':
-				while ($row = $req->fetch(PDO::FETCH_ASSOC)) {
-					$return[] = $row;
 				}
 				break;
 			default:

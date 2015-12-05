@@ -322,6 +322,15 @@ body > header p {
 	font-style: italic;
 }
 
+/* spécifique pour liste des liens */
+.lien-permalien {
+	color: #aaa;
+	font-size: .8em;
+	padding: 5px 0;
+	font-style: italic;
+}
+
+
 /* Formulaire commentaires 
 ------------------------------------------ */
 #postcom {
